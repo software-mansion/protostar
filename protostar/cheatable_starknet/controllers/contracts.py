@@ -3,13 +3,11 @@ import copy
 from pathlib import Path
 from typing import List, Optional, cast
 
+from starkware.starknet.business_logic.execution.objects import CallType
+from starkware.starknet.business_logic.execution.objects import Event as StarknetEvent
 from starkware.python.utils import to_bytes, from_bytes
 from starkware.starknet.business_logic.transaction.objects import InternalDeclare
-from starkware.starknet.public.abi import (
-    AbiType,
-    CONSTRUCTOR_ENTRY_POINT_SELECTOR,
-    get_selector_from_name,
-)
+from starkware.starknet.public.abi import AbiType, CONSTRUCTOR_ENTRY_POINT_SELECTOR
 from starkware.starknet.services.api.gateway.transaction import (
     DEFAULT_DECLARE_SENDER_ADDRESS,
 )
@@ -21,8 +19,6 @@ from starkware.starknet.business_logic.execution.execute_entry_point import (
 from starkware.starknet.core.os.contract_address.contract_address import (
     calculate_contract_address_from_hash,
 )
-from starkware.starknet.business_logic.execution.objects import CallType
-from starkware.starknet.business_logic.execution.objects import Event as StarknetEvent
 from starkware.starknet.definitions.general_config import StarknetGeneralConfig
 from starkware.starknet.services.api.contract_class import EntryPointType, ContractClass
 
@@ -270,18 +266,18 @@ class ContractsController:
     async def call(
         self,
         contract_address: Address,
-        function_name: str,
+        entry_point_selector: Selector,
         calldata: Optional[CairoOrPythonData] = None,
     ) -> CairoData:
         cairo_calldata = await self._transform_calldata_to_cairo_data_by_addr(
             contract_address=contract_address,
-            function_name=function_name,
+            function_name=str(entry_point_selector),
             calldata=calldata,
         )
         entry_point = CheatableExecuteEntryPoint.create_for_protostar(
             contract_address=contract_address,
             calldata=cairo_calldata,
-            entry_point_selector=get_selector_from_name(function_name),
+            entry_point_selector=entry_point_selector,
         )
         result = await entry_point.execute_for_testing(
             state=copy.deepcopy(self.cheatable_state),
@@ -291,19 +287,44 @@ class ContractsController:
 
     async def invoke(
         self,
-        function_name: str,
+        entry_point_selector: Selector,
         contract_address: Address,
         calldata: Optional[CairoOrPythonData] = None,
     ):
         cairo_calldata = await self._transform_calldata_to_cairo_data_by_addr(
             contract_address=contract_address,
-            function_name=function_name,
+            function_name=str(entry_point_selector),
             calldata=calldata,
         )
         entry_point = CheatableExecuteEntryPoint.create_for_protostar(
             contract_address=contract_address,
             calldata=cairo_calldata,
-            entry_point_selector=get_selector_from_name(function_name),
+            entry_point_selector=entry_point_selector,
+        )
+        with self.cheatable_state.copy_and_apply() as state_copy:
+            call_info = await entry_point.execute_for_testing(
+                state=state_copy,
+                general_config=StarknetGeneralConfig(),
+            )
+            self._add_emitted_events(
+                cast(CheatableCachedState, state_copy), call_info.get_sorted_events()
+            )
+
+    async def send_message_to_l2(
+        self,
+        selector: Selector,
+        from_l1_address: Address,
+        to_l2_address: Address,
+        payload: Optional[CairoData] = None,
+    ) -> None:
+        entry_point = CheatableExecuteEntryPoint.create_for_protostar(
+            contract_address=to_l2_address,
+            calldata=[int(from_l1_address), *(payload or [])],
+            caller_address=from_l1_address,
+            entry_point_selector=selector,
+            entry_point_type=EntryPointType.L1_HANDLER,
+            call_type=CallType.DELEGATE,
+            class_hash=await self.cheatable_state.get_class_hash_at(int(to_l2_address)),
         )
         with self.cheatable_state.copy_and_apply() as state_copy:
             call_info = await entry_point.execute_for_testing(

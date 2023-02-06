@@ -13,6 +13,7 @@ from protostar.starknet import (
     RawAddress,
     CairoOrPythonData,
     CheatcodeException,
+    Selector,
 )
 
 
@@ -34,7 +35,7 @@ class InvokeHintLocal(CallableHintLocal):
         calldata: Optional[CairoOrPythonData] = None,
     ):
         self._invoke(
-            function_name=function_name,
+            entry_point_selector=Selector(function_name),
             calldata=calldata,
             contract_address=Address.from_user_input(contract_address),
         )
@@ -42,14 +43,14 @@ class InvokeHintLocal(CallableHintLocal):
     def _invoke(
         self,
         contract_address: Address,
-        function_name: str,
+        entry_point_selector: Selector,
         calldata: Optional[CairoOrPythonData] = None,
     ):
         try:
             asyncio.run(
                 self._contracts_controller.invoke(
                     contract_address=contract_address,
-                    function_name=function_name,
+                    entry_point_selector=entry_point_selector,
                     calldata=calldata,
                 )
             )

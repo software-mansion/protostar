@@ -16,6 +16,7 @@ from protostar.cheatable_starknet.callable_hint_locals import (
     DeclareHintLocal,
     StopWarpHintLocal,
     StopRollHintLocal,
+    SendMessageToL2HintLocal,
 )
 from protostar.cheatable_starknet.callable_hint_locals.expect_events_cairo_cheatcode import (
     ExpectEventsHintLocal,
@@ -23,7 +24,6 @@ from protostar.cheatable_starknet.callable_hint_locals.expect_events_cairo_cheat
 from protostar.cheatable_starknet.callable_hint_locals.load_hint_local import (
     LoadHintLocal,
 )
-
 from protostar.cheatable_starknet.cheatables.cheatable_cached_state import (
     CheatableCachedState,
 )
@@ -78,6 +78,7 @@ class CairoSharedHintLocalFactory:
             StopWarpHintLocal(block_info_controller=block_info_controller),
             StopRollHintLocal(block_info_controller=block_info_controller),
             PrankHintLocal(contracts_controller=contracts_controller),
+            SendMessageToL2HintLocal(contracts_controller=contracts_controller),
             deploy_cheatcode,
             declare_cheatcode,
             prepare_cheatcode,

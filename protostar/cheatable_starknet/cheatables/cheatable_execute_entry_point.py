@@ -37,10 +37,11 @@ from starkware.starkware_utils.error_handling import (
 )
 from starkware.starknet.services.api.contract_class import EntryPointType
 
+from protostar.starknet import Address
 from protostar.cheatable_starknet.controllers.transaction_revert_exception import (
     TransactionRevertException,
 )
-from protostar.starknet.address import Address
+from protostar.starknet.selector import Selector
 
 from .cheatable_syscall_handler import CheatableSysCallHandler
 
@@ -61,19 +62,20 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
         cls,
         contract_address: Address,
         calldata: list[int],
-        entry_point_selector: int,
+        entry_point_selector: Selector,
         entry_point_type: EntryPointType = EntryPointType.EXTERNAL,
         call_type: CallType = CallType.CALL,
-        class_hash: Optional[int] = None,
+        class_hash: Optional[bytes] = None,
+        caller_address: Optional[Address] = None,
     ):
         return cls.create_for_testing(
-            entry_point_selector=entry_point_selector,
+            entry_point_selector=int(entry_point_selector),
             calldata=calldata,
             contract_address=int(contract_address),
             entry_point_type=entry_point_type,
             call_type=call_type,
-            caller_address=0,
-            class_hash=to_bytes(class_hash) if class_hash else None,
+            caller_address=int(caller_address or Address(0)),
+            class_hash=class_hash,
         )
 
     def _run(
