@@ -139,7 +139,7 @@ class GatewayFacade(MulticallClientProtocol):
         )
         try:
             tx = await account_client.sign_invoke_transaction(
-                deployment.udc,
+                deployment.call,
                 max_fee=max_fee if isinstance(max_fee, int) else None,
                 auto_estimate=max_fee == "auto",
             )
