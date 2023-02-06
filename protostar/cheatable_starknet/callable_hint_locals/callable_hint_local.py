@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Callable, Union
+from typing import Any, Callable, Union
 
 from typing_extensions import Literal
 from starknet_py.cairo.felt import encode_shortstring
@@ -10,12 +10,9 @@ from protostar.cheatable_starknet.controllers.transaction_revert_exception impor
     TransactionRevertException,
 )
 
-if TYPE_CHECKING:
-    from protostar.cheatable_starknet.controllers import Controllers
-
 
 @dataclass(init=False)
-class CairoCheatcodeInvalidExecution:
+class InvalidExecution:
     ok = None
     err_code: int
 
@@ -27,20 +24,15 @@ class CairoCheatcodeInvalidExecution:
 
 
 @dataclass(frozen=True)
-class CairoCheatcodeValidExecution:
+class ValidExecution:
     ok: Any
     err_code: Literal[0] = 0
 
 
-CairoCheatcodeExecutionResult = Union[
-    CairoCheatcodeValidExecution, CairoCheatcodeInvalidExecution
-]
+ExecutionResult = Union[ValidExecution, InvalidExecution]
 
 
-class CairoCheatcode(HintLocal, ABC):
-    def __init__(self, controllers: "Controllers"):
-        self.controllers = controllers
-
+class CallableHintLocal(HintLocal, ABC):
     @abstractmethod
     def _build(self) -> Callable:
         ...
@@ -49,10 +41,8 @@ class CairoCheatcode(HintLocal, ABC):
         def wrapper(*args: Any, **kwargs: Any):
             try:
                 result = self._build()(*args, **kwargs)
-                return CairoCheatcodeValidExecution(ok=result)
+                return ValidExecution(ok=result)
             except TransactionRevertException as ex:
-                return CairoCheatcodeInvalidExecution(
-                    err_code=encode_shortstring(ex.message)
-                )
+                return InvalidExecution(err_code=encode_shortstring(ex.message))
 
         return wrapper

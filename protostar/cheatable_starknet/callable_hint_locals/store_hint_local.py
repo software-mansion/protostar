@@ -1,10 +1,16 @@
 import asyncio
 from typing import Optional
 
-from protostar.cheatable_starknet.cheatcodes.cairo_cheatcode import CairoCheatcode
+from protostar.cheatable_starknet.callable_hint_locals.callable_hint_local import (
+    CallableHintLocal,
+)
+from protostar.cheatable_starknet.controllers import StorageController
 
 
-class StoreCairoCheatcode(CairoCheatcode):
+class StoreHintLocal(CallableHintLocal):
+    def __init__(self, storage_controller: StorageController):
+        self._storage_controller = storage_controller
+
     @property
     def name(self) -> str:
         return "store"
@@ -20,7 +26,7 @@ class StoreCairoCheatcode(CairoCheatcode):
         key: Optional[list[int]] = None,
     ):
         asyncio.run(
-            self.controllers.storage.store(
+            self._storage_controller.store(
                 target_contract_address=target_contract_address,
                 variable_name=variable_name,
                 value=value,

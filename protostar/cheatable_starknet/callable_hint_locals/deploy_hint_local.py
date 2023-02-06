@@ -2,12 +2,20 @@ import asyncio
 from typing import Any, Callable
 
 from protostar.starknet import CheatcodeException
-from protostar.cheatable_starknet.controllers.contracts import ContractsCheaterException
-from protostar.cheatable_starknet.cheatcodes.cairo_cheatcode import CairoCheatcode
+from protostar.cheatable_starknet.controllers.contracts import (
+    ContractsCheaterException,
+    ContractsController,
+)
+from protostar.cheatable_starknet.callable_hint_locals.callable_hint_local import (
+    CallableHintLocal,
+)
 from protostar.contract_types import PreparedContract
 
 
-class DeployCairoCheatcode(CairoCheatcode):
+class DeployHintLocal(CallableHintLocal):
+    def __init__(self, contracts_controller: ContractsController):
+        self._contracts_controller = contracts_controller
+
     @property
     def name(self) -> str:
         return "deploy"
@@ -23,6 +31,6 @@ class DeployCairoCheatcode(CairoCheatcode):
 
     async def _run_deploy_prepared(self, prepared: PreparedContract):
         try:
-            return await self.controllers.contracts.deploy_prepared(prepared)
+            return await self._contracts_controller.deploy_prepared(prepared)
         except ContractsCheaterException as exc:
             raise CheatcodeException(self, exc.message) from exc

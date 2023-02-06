@@ -1,6 +1,6 @@
 import dataclasses
 from copy import deepcopy
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import cast
 
 from starkware.crypto.signature.fast_pedersen_hash import pedersen_hash_func
@@ -16,6 +16,7 @@ from starkware.storage.dict_storage import DictStorage
 from starkware.storage.storage import FactFetchingContext
 from typing_extensions import Self
 
+from protostar.cheatable_starknet.controllers.expect_events_controller import Event
 from protostar.compiler import ProjectCompiler
 from protostar.cheatable_starknet.cheatables.cheatable_cached_state import (
     CheatableCachedState,
@@ -34,6 +35,7 @@ class CairoTestExecutionState:
     context: TestContext
     config: TestConfig
     project_compiler: ProjectCompiler
+    expected_events_list: list[list[Event]] = field(default_factory=list)
 
     @property
     def cheatable_state(self) -> CheatableCachedState:
@@ -47,6 +49,7 @@ class CairoTestExecutionState:
             output_recorder=self.output_recorder.fork(),
             stopwatch=self.stopwatch.fork(),
             starknet=self.starknet.copy(),
+            expected_events_list=self.expected_events_list.copy(),
         )
 
     @classmethod

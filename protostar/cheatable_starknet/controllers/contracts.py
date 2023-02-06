@@ -1,9 +1,10 @@
 import collections
 import copy
 from pathlib import Path
-from typing import List, Optional, TYPE_CHECKING
+from typing import List, Optional, cast
 
 from starkware.starknet.business_logic.execution.objects import CallType
+from starkware.starknet.business_logic.execution.objects import Event as StarknetEvent
 from starkware.python.utils import to_bytes, from_bytes
 from starkware.starknet.business_logic.transaction.objects import InternalDeclare
 from starkware.starknet.public.abi import AbiType, CONSTRUCTOR_ENTRY_POINT_SELECTOR
@@ -21,6 +22,10 @@ from starkware.starknet.core.os.contract_address.contract_address import (
 from starkware.starknet.definitions.general_config import StarknetGeneralConfig
 from starkware.starknet.services.api.contract_class import EntryPointType, ContractClass
 
+from protostar.cheatable_starknet.cheatables.cheatable_cached_state import (
+    CheatableCachedState,
+)
+from protostar.cheatable_starknet.controllers.expect_events_controller import Event
 from protostar.contract_types import (
     PreparedContract,
     DeclaredContract,
@@ -29,20 +34,15 @@ from protostar.contract_types import (
 from protostar.cheatable_starknet.cheatables.cheatable_execute_entry_point import (
     CheatableExecuteEntryPoint,
 )
+from protostar.starknet.selector import Selector
 from protostar.starknet.types import ClassHashType
 from protostar.starknet.address import Address
-from protostar.starknet.selector import Selector
 from protostar.starknet.data_transformer import (
     DataTransformerException,
     CairoOrPythonData,
     CairoData,
     from_python_transformer,
 )
-
-if TYPE_CHECKING:
-    from protostar.cheatable_starknet.cheatables.cheatable_cached_state import (
-        CheatableCachedState,
-    )
 
 
 class ContractsCheaterException(Exception):
@@ -196,17 +196,41 @@ class ContractsController:
         constructor_calldata: List[int],
         contract_address: int,
     ):
-        await ExecuteEntryPoint.create(
-            contract_address=contract_address,
-            calldata=constructor_calldata,
-            entry_point_selector=CONSTRUCTOR_ENTRY_POINT_SELECTOR,
-            caller_address=0,
-            entry_point_type=EntryPointType.CONSTRUCTOR,
-            call_type=CallType.DELEGATE,
-            class_hash=class_hash_bytes,
-        ).execute_for_testing(
-            state=self.cheatable_state,
-            general_config=StarknetGeneralConfig(),
+        with self.cheatable_state.copy_and_apply() as state:
+            call_info = await ExecuteEntryPoint.create(
+                contract_address=contract_address,
+                calldata=constructor_calldata,
+                entry_point_selector=CONSTRUCTOR_ENTRY_POINT_SELECTOR,
+                caller_address=0,
+                entry_point_type=EntryPointType.CONSTRUCTOR,
+                call_type=CallType.DELEGATE,
+                class_hash=class_hash_bytes,
+            ).execute_for_testing(
+                state=self.cheatable_state,
+                general_config=StarknetGeneralConfig(),
+            )
+            self._add_emitted_events(
+                cast(CheatableCachedState, state), call_info.get_sorted_events()
+            )
+
+    def _add_emitted_events(
+        self,
+        cheatable_state: CheatableCachedState,
+        starknet_emitted_events: list[StarknetEvent],
+    ):
+        cheatable_state.emitted_events.extend(
+            [
+                Event(
+                    from_address=Address(starknet_emitted_event.from_address),
+                    data=starknet_emitted_event.data,
+                    key=Selector(
+                        cheatable_state.event_selector_to_name_map[
+                            starknet_emitted_event.keys[0]
+                        ]
+                    ),
+                )
+                for starknet_emitted_event in starknet_emitted_events
+            ]
         )
 
     async def prepare(
@@ -300,9 +324,12 @@ class ContractsController:
             class_hash=await self.cheatable_state.get_class_hash_at(int(to_l2_address)),
         )
         with self.cheatable_state.copy_and_apply() as state_copy:
-            await entry_point.execute_for_testing(
+            call_info = await entry_point.execute_for_testing(
                 state=state_copy,
                 general_config=StarknetGeneralConfig(),
+            )
+            self._add_emitted_events(
+                cast(CheatableCachedState, state_copy), call_info.get_sorted_events()
             )
 
     def prank(self, caller_address: Address, target_address: Address):

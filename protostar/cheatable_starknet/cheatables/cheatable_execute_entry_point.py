@@ -5,6 +5,11 @@ from dataclasses import dataclass
 from typing import Optional, Tuple, cast
 from copy import deepcopy
 
+from starkware.starknet.business_logic.execution.objects import (
+    CallType,
+    CallInfo,
+    TransactionExecutionContext,
+)
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
 from starkware.cairo.lang.vm.security import SecurityError
@@ -17,11 +22,6 @@ from starkware.cairo.lang.vm.vm_exceptions import (
 from starkware.python.utils import to_bytes
 from starkware.starknet.business_logic.execution.execute_entry_point import (
     ExecuteEntryPoint,
-)
-from starkware.starknet.business_logic.execution.objects import (
-    CallInfo,
-    TransactionExecutionContext,
-    CallType,
 )
 from starkware.starknet.business_logic.fact_state.state import ExecutionResourcesManager
 from starkware.starknet.business_logic.state.state import StateSyncifier

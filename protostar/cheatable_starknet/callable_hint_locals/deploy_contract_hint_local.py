@@ -1,25 +1,27 @@
 from typing import Optional, Any
 
-from protostar.cheatable_starknet.cheatcodes.cairo_cheatcode import CairoCheatcode
-from protostar.cheatable_starknet.cheatcodes.declare_cairo_cheatcode import (
-    DeclareCairoCheatcode,
+from protostar.cheatable_starknet.callable_hint_locals.callable_hint_local import (
+    CallableHintLocal,
 )
-from protostar.cheatable_starknet.cheatcodes.deploy_cairo_cheatcode import (
-    DeployCairoCheatcode,
+from protostar.cheatable_starknet.callable_hint_locals.declare_hint_local import (
+    DeclareHintLocal,
 )
-from protostar.cheatable_starknet.cheatcodes.prepare_cairo_cheatcode import (
-    PrepareCairoCheatcode,
+from protostar.cheatable_starknet.callable_hint_locals.deploy_hint_local import (
+    DeployHintLocal,
+)
+from protostar.cheatable_starknet.callable_hint_locals.prepare_hint_local import (
+    PrepareHintLocal,
 )
 from protostar.starknet.data_transformer import CairoOrPythonData
 from protostar.contract_types import DeployedContract
 
 
-class DeployContractCairoCheatcode(CairoCheatcode):
+class DeployContractHintLocal(CallableHintLocal):
     def __init__(
         self,
-        declare_cheatcode: DeclareCairoCheatcode,
-        prepare_cheatcode: PrepareCairoCheatcode,
-        deploy_cheatcode: DeployCairoCheatcode,
+        declare_cheatcode: DeclareHintLocal,
+        prepare_cheatcode: PrepareHintLocal,
+        deploy_cheatcode: DeployHintLocal,
         *args: Any,
         **kwargs: Any,
     ):

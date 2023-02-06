@@ -1,13 +1,18 @@
 import asyncio
 from typing import Optional
 
+from protostar.cheatable_starknet.controllers.contracts import ContractsController
 from protostar.starknet import RawAddress, Address, CairoData
 from protostar.starknet.selector import Selector
 
-from .cairo_cheatcode import CairoCheatcode
+from .callable_hint_local import CallableHintLocal
 
 
-class SendMessageToL2CairoCheatcode(CairoCheatcode):
+class SendMessageToL2HintLocal(CallableHintLocal):
+    def __init__(self, contracts_controller: ContractsController) -> None:
+        super().__init__()
+        self._contracts_controller = contracts_controller
+
     @property
     def name(self) -> str:
         return "send_message_to_l2"
@@ -20,7 +25,7 @@ class SendMessageToL2CairoCheatcode(CairoCheatcode):
             payload: Optional[CairoData] = None,
         ) -> None:
             asyncio.run(
-                self.controllers.contracts.send_message_to_l2(
+                self._contracts_controller.send_message_to_l2(
                     from_l1_address=Address.from_user_input(from_address),
                     to_l2_address=Address.from_user_input(to_address),
                     selector=Selector(function_name),

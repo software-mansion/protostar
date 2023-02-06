@@ -16,3 +16,8 @@ class Selector:
 
     def __str__(self) -> str:
         return str(self._value)
+
+    def __eq__(self, __o: object) -> bool:
+        if isinstance(__o, Selector):
+            return int(self) == int(__o)
+        return False
