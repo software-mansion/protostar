@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 from typing import Union, cast
 
+from marshmallow import ValidationError
 from starknet_py.abi import Abi, AbiParsingError, AbiParser
 from starknet_py.abi.shape import AbiDictList
 from starkware.starknet.public.abi import AbiType
@@ -22,29 +23,29 @@ class ContractAbiService:
     @classmethod
     def from_contract_abi(cls, contract_abi: Union[AbiType, AbiDictList]):
         contract_abi_ = cast(AbiType, contract_abi)
-        contract_abi_model = AbiParser(contract_abi_).parse()
         try:
+            contract_abi_model = AbiParser(contract_abi_).parse()
             return cls(
                 contract_abi=contract_abi_, contract_abi_model=contract_abi_model
             )
-        except AbiParsingError as ex:
+        except (AbiParsingError, ValidationError) as ex:
             raise ProtostarException("Invalid ABI") from ex
 
     def __init__(self, contract_abi: AbiType, contract_abi_model: Abi):
         self._contract_abi = contract_abi
         self._contract_abi_model = contract_abi_model
 
-    def get_abi_as_abi_type(self):
+    def get_abi_as_abi_type(self) -> AbiType:
         return self._contract_abi
 
     def has_constructor(self) -> bool:
         return self._contract_abi_model.constructor is not None
 
     def has_entrypoint_parameters(self, selector: Selector) -> bool:
-        fn_name_abi = self.get_entrypoint_model_or_panic(selector)
+        fn_name_abi = self.unwrap_entrypoint_model(selector)
         return len(fn_name_abi.inputs) > 0
 
-    def get_entrypoint_model_or_panic(self, selector: Selector):
+    def unwrap_entrypoint_model(self, selector: Selector):
         fn_name = str(selector)
         if fn_name not in self._contract_abi_model.functions:
             raise ProtostarException(f"Couldn't find {selector} in ABI")
