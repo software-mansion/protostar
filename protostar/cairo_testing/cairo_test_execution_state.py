@@ -11,21 +11,18 @@ from starkware.starknet.business_logic.fact_state.patricia_state import (
 from starkware.starknet.business_logic.fact_state.state import SharedState
 from starkware.starknet.business_logic.state.state_api_objects import BlockInfo
 from starkware.starknet.definitions.general_config import StarknetGeneralConfig
-from starkware.starknet.testing.starknet import Starknet
-from starkware.starknet.testing.state import StarknetState as TestingStarknetState
 from starkware.storage.dict_storage import DictStorage
 from starkware.storage.storage import FactFetchingContext
 from typing_extensions import Self
 
 from protostar.cheatable_starknet.controllers.expect_events_controller import Event
 from protostar.compiler import ProjectCompiler
-from protostar.starknet import Address, Selector, StarknetState
+from protostar.starknet import Address, Selector, StarknetState, AbiType
 from protostar.starknet.types import ClassHashType
 from protostar.testing.stopwatch import Stopwatch
 from protostar.testing.test_config import TestConfig
 from protostar.testing.test_context import TestContext
 from protostar.testing.test_output_recorder import OutputRecorder
-from protostar.starknet.abi import AbiType
 
 
 class ContractsControllerState:
@@ -151,7 +148,7 @@ class BlockInfoControllerState:
 
 @dataclass
 class CairoTestExecutionState:
-    starknet: Starknet
+    starknet_state: StarknetState
     stopwatch: Stopwatch
     output_recorder: OutputRecorder
     context: TestContext
@@ -161,10 +158,6 @@ class CairoTestExecutionState:
     block_info_controller_state: BlockInfoControllerState
     expected_events_list: list[list[Event]] = field(default_factory=list)
 
-    @property
-    def starknet_state(self):
-        return self.starknet.state.state
-
     def fork(self) -> Self:
         return dataclasses.replace(
             self,
@@ -172,7 +165,8 @@ class CairoTestExecutionState:
             config=deepcopy(self.config),
             output_recorder=self.output_recorder.fork(),
             stopwatch=self.stopwatch.fork(),
-            starknet=self.starknet.copy(),
+            # pylint: disable=protected-access
+            starknet_state=self.starknet_state._copy(),
             contracts_controller_state=self.contracts_controller_state.clone(),
             block_info_controller_state=self.block_info_controller_state.clone(),
             expected_events_list=self.expected_events_list.copy(),
@@ -195,19 +189,15 @@ class CairoTestExecutionState:
         )
         contracts_controller_state = ContractsControllerState()
         block_info_controller_state = BlockInfoControllerState()
-        return cls(
-            starknet=Starknet(
-                state=TestingStarknetState(
-                    general_config=general_config,
-                    state=StarknetState(
-                        block_info=BlockInfo.empty(
-                            sequencer_address=general_config.sequencer_address
-                        ),
-                        state_reader=state_reader,
-                        contract_class_cache={},
-                    ),
-                )
+        starknet_state = StarknetState(
+            block_info=BlockInfo.empty(
+                sequencer_address=general_config.sequencer_address
             ),
+            state_reader=state_reader,
+            contract_class_cache={},
+        )
+        return cls(
+            starknet_state=starknet_state,
             stopwatch=Stopwatch(),
             output_recorder=OutputRecorder(),
             context=TestContext(),
