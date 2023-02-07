@@ -1,7 +1,7 @@
 import dataclasses
 from copy import deepcopy
 from dataclasses import dataclass, field
-from typing import cast
+from typing import Optional, cast
 
 from starkware.crypto.signature.fast_pedersen_hash import pedersen_hash_func
 from starkware.starknet.business_logic.fact_state.patricia_state import (
@@ -21,10 +21,86 @@ from protostar.compiler import ProjectCompiler
 from protostar.cheatable_starknet.cheatables.cheatable_cached_state import (
     CheatableCachedState,
 )
+from protostar.starknet.address import Address
+from protostar.starknet.selector import Selector
+from protostar.starknet.types import ClassHashType
 from protostar.testing.stopwatch import Stopwatch
 from protostar.testing.test_config import TestConfig
 from protostar.testing.test_context import TestContext
 from protostar.testing.test_output_recorder import OutputRecorder
+from protostar.starknet.abi import AbiType
+
+
+class ContractsControllerState:
+    def __init__(
+        self,
+        emitted_events: Optional[list[Event]] = None,
+        class_hash_to_contract_abi: Optional[dict[ClassHashType, AbiType]] = None,
+        event_selector_to_event_abi: Optional[dict[Selector, AbiType]] = None,
+        address_to_class_hash: Optional[dict[Address, ClassHashType]] = None,
+        target_address_to_pranked_address: Optional[dict[Address, Address]] = None,
+    ) -> None:
+        self._emitted_events = emitted_events or []
+        self._class_hash_to_contract_abi = class_hash_to_contract_abi or {}
+        self._event_selector_to_event_abi = event_selector_to_event_abi or {}
+        self._contract_address_to_class_hash = address_to_class_hash or {}
+        self._target_address_to_pranked_address = (
+            target_address_to_pranked_address or {}
+        )
+
+    def get_emitted_events(self) -> list[Event]:
+        return self._emitted_events
+
+    def get_pranked_address(self, target_address: Address) -> Optional[Address]:
+        if target_address in self._target_address_to_pranked_address:
+            return self._target_address_to_pranked_address[target_address]
+        return None
+
+    def get_class_hash_from_address(self, contract_address: Address) -> ClassHashType:
+        return self._contract_address_to_class_hash[contract_address]
+
+    def get_contract_abi_from_class_hash(self, class_hash: ClassHashType) -> AbiType:
+        return self._class_hash_to_contract_abi[class_hash]
+
+    def get_contract_abi_from_contract_address(
+        self, contract_address: Address
+    ) -> AbiType:
+        class_hash = self._contract_address_to_class_hash[contract_address]
+        return self._class_hash_to_contract_abi[class_hash]
+
+    def bind_contract_address_to_class_hash(
+        self, address: Address, class_hash: ClassHashType
+    ) -> None:
+        self._contract_address_to_class_hash[address] = class_hash
+
+    def bind_class_hash_to_contract_abi(
+        self, class_hash: ClassHashType, contract_abi: AbiType
+    ) -> None:
+        self._class_hash_to_contract_abi[class_hash] = contract_abi
+
+    def bind_event_selector_to_event_abi(
+        self, event_selector: Selector, event_abi: AbiType
+    ) -> None:
+        self._event_selector_to_event_abi[event_selector] = event_abi
+
+    def add_emitted_events(self, emitted_events: list[Event]) -> None:
+        self._emitted_events.extend(emitted_events)
+
+    def set_pranked_address(self, target_address: Address, pranked_address: Address):
+        self._target_address_to_pranked_address[target_address] = pranked_address
+
+    def remove_pranked_address(self, target_address: Address):
+        if target_address in self._target_address_to_pranked_address:
+            del self._target_address_to_pranked_address[target_address]
+
+    def clone(self):
+        return ContractsControllerState(
+            emitted_events=self._emitted_events.copy(),
+            class_hash_to_contract_abi=self._class_hash_to_contract_abi.copy(),
+            event_selector_to_event_abi=self._event_selector_to_event_abi.copy(),
+            address_to_class_hash=self._contract_address_to_class_hash.copy(),
+            target_address_to_pranked_address=self._target_address_to_pranked_address.copy(),
+        )
 
 
 @dataclass
@@ -35,6 +111,7 @@ class CairoTestExecutionState:
     context: TestContext
     config: TestConfig
     project_compiler: ProjectCompiler
+    contract_controller_state: ContractsControllerState
     expected_events_list: list[list[Event]] = field(default_factory=list)
 
     @property
@@ -49,6 +126,7 @@ class CairoTestExecutionState:
             output_recorder=self.output_recorder.fork(),
             stopwatch=self.stopwatch.fork(),
             starknet=self.starknet.copy(),
+            contract_controller_state=self.contract_controller_state.clone(),
             expected_events_list=self.expected_events_list.copy(),
         )
 
@@ -86,4 +164,5 @@ class CairoTestExecutionState:
             context=TestContext(),
             config=test_config,
             project_compiler=project_compiler,
+            contract_controller_state=ContractsControllerState(),
         )

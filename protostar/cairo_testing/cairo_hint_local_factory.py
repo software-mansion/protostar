@@ -52,7 +52,10 @@ class CairoSharedHintLocalFactory:
         block_info_controller = BlockInfoController(
             cheatable_state=self.cheatable_state
         )
-        contracts_controller = ContractsController(cheatable_state=self.cheatable_state)
+        contracts_controller = ContractsController(
+            state=self._test_execution_state.contract_controller_state,
+            cached_state=self.cheatable_state,
+        )
         storage_controller = StorageController(cheatable_state=self.cheatable_state)
 
         declare_cheatcode = DeclareHintLocal(

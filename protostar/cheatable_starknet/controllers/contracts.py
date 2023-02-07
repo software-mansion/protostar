@@ -1,13 +1,13 @@
 import collections
 import copy
 from dataclasses import dataclass
-from typing import List, Optional, cast
+from typing import List, Optional, cast, TYPE_CHECKING
 
 from starkware.starknet.business_logic.execution.objects import CallType
 from starkware.starknet.business_logic.execution.objects import Event as StarknetEvent
 from starkware.python.utils import to_bytes, from_bytes
 from starkware.starknet.business_logic.transaction.objects import InternalDeclare
-from starkware.starknet.public.abi import AbiType, CONSTRUCTOR_ENTRY_POINT_SELECTOR
+from starkware.starknet.public.abi import CONSTRUCTOR_ENTRY_POINT_SELECTOR
 from starkware.starknet.services.api.gateway.transaction import (
     DEFAULT_DECLARE_SENDER_ADDRESS,
 )
@@ -22,12 +22,9 @@ from starkware.starknet.services.api.contract_class import EntryPointType, Contr
 from protostar.cheatable_starknet.cheatables.cheatable_execute_entry_point import (
     CheatableExecuteEntryPoint,
 )
-from protostar.cheatable_starknet.cheatables.cheatable_cached_state import (
-    CheatableCachedState,
-)
 from protostar.cheatable_starknet.controllers.expect_events_controller import Event
 from protostar.starknet.selector import Selector
-from protostar.starknet.types import ClassHashType
+from protostar.starknet.abi import AbiType
 from protostar.starknet.address import Address
 from protostar.starknet.data_transformer import (
     DataTransformerException,
@@ -35,6 +32,14 @@ from protostar.starknet.data_transformer import (
     CairoData,
     from_python_transformer,
 )
+from protostar.cheatable_starknet.cheatables.cheatable_cached_state import (
+    CheatableCachedState,
+)
+
+if TYPE_CHECKING:
+    from protostar.cairo_testing.cairo_test_execution_state import (
+        ContractsControllerState,
+    )
 
 
 class ContractsCheaterException(Exception):
@@ -69,75 +74,6 @@ class DeployedContract:
     contract_address: int
 
 
-class ContractsControllerState:
-    def __init__(
-        self,
-        emitted_events: Optional[list[Event]] = None,
-        class_hash_to_contract_abi: Optional[dict[ClassHashType, AbiType]] = None,
-        event_selector_to_event_abi: Optional[dict[Selector, AbiType]] = None,
-        address_to_class_hash: Optional[dict[Address, ClassHashType]] = None,
-        target_address_to_pranked_address: Optional[dict[Address, Address]] = None,
-    ) -> None:
-        self._emitted_events = emitted_events or []
-        self._class_hash_to_contract_abi = class_hash_to_contract_abi or {}
-        self._event_selector_to_event_abi = event_selector_to_event_abi or {}
-        self._contract_address_to_class_hash = address_to_class_hash or {}
-        self._target_address_to_pranked_address = (
-            target_address_to_pranked_address or {}
-        )
-
-    def get_emitted_events(self) -> list[Event]:
-        return self._emitted_events
-
-    def get_pranked_address(self, target_address: Address) -> Optional[Address]:
-        if target_address in self._target_address_to_pranked_address:
-            return self._target_address_to_pranked_address[target_address]
-        return None
-
-    def get_class_hash_from_address(self, contract_address: Address) -> ClassHashType:
-        return self._contract_address_to_class_hash[contract_address]
-
-    def get_contract_abi_from_contract_address(
-        self, contract_address: Address
-    ) -> AbiType:
-        class_hash = self._contract_address_to_class_hash[contract_address]
-        return self._class_hash_to_contract_abi[class_hash]
-
-    def bind_contract_address_to_class_hash(
-        self, address: Address, class_hash: ClassHashType
-    ) -> None:
-        self._contract_address_to_class_hash[address] = class_hash
-
-    def bind_class_hash_to_contract_abi(
-        self, class_hash: ClassHashType, contract_abi: AbiType
-    ) -> None:
-        self._class_hash_to_contract_abi[class_hash] = contract_abi
-
-    def bind_event_selector_to_event_abi(
-        self, event_selector: Selector, event_abi: AbiType
-    ) -> None:
-        self._event_selector_to_event_abi[event_selector] = event_abi
-
-    def add_emitted_events(self, emitted_events: list[Event]) -> None:
-        self._emitted_events.extend(emitted_events)
-
-    def set_pranked_address(self, target_address: Address, pranked_address: Address):
-        self._target_address_to_pranked_address[target_address] = pranked_address
-
-    def remove_pranked_address(self, target_address: Address):
-        if target_address in self._target_address_to_pranked_address:
-            del self._target_address_to_pranked_address[target_address]
-
-    def clone(self):
-        return ContractsControllerState(
-            emitted_events=self._emitted_events.copy(),
-            class_hash_to_contract_abi=self._class_hash_to_contract_abi.copy(),
-            event_selector_to_event_abi=self._event_selector_to_event_abi.copy(),
-            address_to_class_hash=self._contract_address_to_class_hash.copy(),
-            target_address_to_pranked_address=self._target_address_to_pranked_address.copy(),
-        )
-
-
 class ContractsController:
     def __init__(
         self, state: "ContractsControllerState", cached_state: "CheatableCachedState"
@@ -165,14 +101,8 @@ class ContractsController:
         calldata: Optional[CairoOrPythonData] = None,
     ) -> CairoData:
         if isinstance(calldata, collections.Mapping):
-            contract_class = await self._cached_state.get_contract_class(
-                class_hash=to_bytes(class_hash, 32, "big")
-            )
-            assert contract_class.abi, f"No abi found for the contract at {class_hash}"
-
-            transformer = from_python_transformer(
-                contract_class.abi, function_name, "inputs"
-            )
+            contract_abi = self._state.get_contract_abi_from_class_hash(class_hash)
+            transformer = from_python_transformer(contract_abi, function_name, "inputs")
             try:
                 return transformer(calldata)
             except DataTransformerException as dt_exc:
