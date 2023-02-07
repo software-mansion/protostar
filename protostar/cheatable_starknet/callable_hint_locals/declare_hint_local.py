@@ -42,13 +42,4 @@ class DeclareHintLocal(CallableHintLocal):
         declared_class = asyncio.run(
             self._contracts_controller.declare_contract(compiled_contract)
         )
-
-        assert declared_class
-        class_hash = declared_class.class_hash
-
-        self._contracts_controller.bind_class_hash_to_contract_identifier(
-            class_hash=class_hash,
-            contract_identifier=contract,
-        )
-
-        return DeclaredContract(class_hash)
+        return DeclaredContract(class_hash=declared_class.class_hash)

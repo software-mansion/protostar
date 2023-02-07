@@ -1,7 +1,6 @@
 import collections
 import copy
 from dataclasses import dataclass
-from pathlib import Path
 from typing import List, Optional, cast
 
 from starkware.starknet.business_logic.execution.objects import CallType
@@ -16,9 +15,6 @@ from starkware.starknet.testing.contract import DeclaredClass
 from starkware.starknet.testing.contract_utils import get_abi, EventManager
 from starkware.starknet.business_logic.execution.execute_entry_point import (
     ExecuteEntryPoint,
-)
-from starkware.starknet.core.os.contract_address.contract_address import (
-    calculate_contract_address_from_hash,
 )
 from starkware.starknet.definitions.general_config import StarknetGeneralConfig
 from starkware.starknet.services.api.contract_class import EntryPointType, ContractClass
@@ -73,9 +69,81 @@ class DeployedContract:
     contract_address: int
 
 
+class ContractsControllerState:
+    def __init__(
+        self,
+        emitted_events: Optional[list[Event]] = None,
+        class_hash_to_contract_abi: Optional[dict[ClassHashType, AbiType]] = None,
+        event_selector_to_event_abi: Optional[dict[Selector, AbiType]] = None,
+        address_to_class_hash: Optional[dict[Address, ClassHashType]] = None,
+        target_address_to_pranked_address: Optional[dict[Address, Address]] = None,
+    ) -> None:
+        self._emitted_events = emitted_events or []
+        self._class_hash_to_contract_abi = class_hash_to_contract_abi or {}
+        self._event_selector_to_event_abi = event_selector_to_event_abi or {}
+        self._contract_address_to_class_hash = address_to_class_hash or {}
+        self._target_address_to_pranked_address = (
+            target_address_to_pranked_address or {}
+        )
+
+    def get_emitted_events(self) -> list[Event]:
+        return self._emitted_events
+
+    def get_pranked_address(self, target_address: Address) -> Optional[Address]:
+        if target_address in self._target_address_to_pranked_address:
+            return self._target_address_to_pranked_address[target_address]
+        return None
+
+    def get_class_hash_from_address(self, contract_address: Address) -> ClassHashType:
+        return self._contract_address_to_class_hash[contract_address]
+
+    def get_contract_abi_from_contract_address(
+        self, contract_address: Address
+    ) -> AbiType:
+        class_hash = self._contract_address_to_class_hash[contract_address]
+        return self._class_hash_to_contract_abi[class_hash]
+
+    def bind_contract_address_to_class_hash(
+        self, address: Address, class_hash: ClassHashType
+    ) -> None:
+        self._contract_address_to_class_hash[address] = class_hash
+
+    def bind_class_hash_to_contract_abi(
+        self, class_hash: ClassHashType, contract_abi: AbiType
+    ) -> None:
+        self._class_hash_to_contract_abi[class_hash] = contract_abi
+
+    def bind_event_selector_to_event_abi(
+        self, event_selector: Selector, event_abi: AbiType
+    ) -> None:
+        self._event_selector_to_event_abi[event_selector] = event_abi
+
+    def add_emitted_events(self, emitted_events: list[Event]) -> None:
+        self._emitted_events.extend(emitted_events)
+
+    def set_pranked_address(self, target_address: Address, pranked_address: Address):
+        self._target_address_to_pranked_address[target_address] = pranked_address
+
+    def remove_pranked_address(self, target_address: Address):
+        if target_address in self._target_address_to_pranked_address:
+            del self._target_address_to_pranked_address[target_address]
+
+    def clone(self):
+        return ContractsControllerState(
+            emitted_events=self._emitted_events.copy(),
+            class_hash_to_contract_abi=self._class_hash_to_contract_abi.copy(),
+            event_selector_to_event_abi=self._event_selector_to_event_abi.copy(),
+            address_to_class_hash=self._contract_address_to_class_hash.copy(),
+            target_address_to_pranked_address=self._target_address_to_pranked_address.copy(),
+        )
+
+
 class ContractsController:
-    def __init__(self, cheatable_state: "CheatableCachedState"):
-        self.cheatable_state = cheatable_state
+    def __init__(
+        self, state: "ContractsControllerState", cached_state: "CheatableCachedState"
+    ):
+        self._state = state
+        self._cached_state = cached_state
 
     async def _transform_calldata_to_cairo_data_by_addr(
         self,
@@ -83,10 +151,9 @@ class ContractsController:
         function_name: str,
         calldata: Optional[CairoOrPythonData] = None,
     ) -> CairoData:
-        contract_address_int = int(contract_address)
-        class_hash = await self.cheatable_state.get_class_hash_at(contract_address_int)
+        class_hash = self._state.get_class_hash_from_address(contract_address)
         return await self._transform_calldata_to_cairo_data(
-            class_hash=from_bytes(class_hash, "big"),
+            class_hash=class_hash,
             function_name=function_name,
             calldata=calldata,
         )
@@ -98,7 +165,7 @@ class ContractsController:
         calldata: Optional[CairoOrPythonData] = None,
     ) -> CairoData:
         if isinstance(calldata, collections.Mapping):
-            contract_class = await self.cheatable_state.get_contract_class(
+            contract_class = await self._cached_state.get_contract_class(
                 class_hash=to_bytes(class_hash, 32, "big")
             )
             assert contract_class.abi, f"No abi found for the contract at {class_hash}"
@@ -130,7 +197,7 @@ class ContractsController:
             nonce=0,
         )
 
-        with self.cheatable_state.copy_and_apply() as state_copy:
+        with self._cached_state.copy_and_apply() as state_copy:
             await tx.apply_state_updates(
                 state=state_copy, general_config=starknet_config
             )
@@ -139,44 +206,34 @@ class ContractsController:
         self._add_event_abi_to_state(abi)
         class_hash = tx.class_hash
         assert class_hash is not None
-        await self.cheatable_state.set_contract_class(class_hash, contract_class)
+        await self._cached_state.set_contract_class(class_hash, contract_class)
 
         class_hash = from_bytes(class_hash)
 
         if contract_class.abi:
-            self.cheatable_state.class_hash_to_contract_abi_map[
-                class_hash
-            ] = contract_class.abi
+            self._state.bind_class_hash_to_contract_abi(
+                class_hash=class_hash, contract_abi=contract_class.abi
+            )
 
         return DeclaredClass(
             class_hash=class_hash,
             abi=get_abi(contract_class=contract_class),
         )
 
-    def bind_class_hash_to_contract_identifier(
-        self, class_hash: ClassHashType, contract_identifier: str
-    ):
-        self.cheatable_state.class_hash_to_contract_path_map[class_hash] = Path(
-            contract_identifier
-        )
-
     def _add_event_abi_to_state(self, abi: AbiType):
-        event_manager = EventManager(abi=abi)
-        self.cheatable_state.update_event_selector_to_name_map(
-            # pylint: disable=protected-access
-            event_manager._selector_to_name
-        )
         # pylint: disable=protected-access
-        for event_name in event_manager._selector_to_name.values():
-            self.cheatable_state.event_name_to_contract_abi_map[event_name] = abi
+        for event_name in EventManager(abi=abi)._selector_to_name.values():
+            self._state.bind_event_selector_to_event_abi(
+                event_selector=Selector(event_name), event_abi=abi
+            )
 
     async def deploy_prepared(self, prepared: PreparedContract) -> DeployedContract:
-        await self.cheatable_state.deploy_contract(
+        await self._cached_state.deploy_contract(
             contract_address=int(prepared.contract_address),
             class_hash=to_bytes(prepared.class_hash),
         )
 
-        contract_class = await self.cheatable_state.get_contract_class(
+        contract_class = await self._cached_state.get_contract_class(
             class_hash=to_bytes(prepared.class_hash)
         )
 
@@ -210,7 +267,7 @@ class ContractsController:
         constructor_calldata: List[int],
         contract_address: int,
     ):
-        with self.cheatable_state.copy_and_apply() as state:
+        with self._cached_state.copy_and_apply() as state:
             call_info = await ExecuteEntryPoint.create(
                 contract_address=contract_address,
                 calldata=constructor_calldata,
@@ -220,7 +277,7 @@ class ContractsController:
                 call_type=CallType.DELEGATE,
                 class_hash=class_hash_bytes,
             ).execute_for_testing(
-                state=self.cheatable_state,
+                state=self._cached_state,
                 general_config=StarknetGeneralConfig(),
             )
             self._add_emitted_events(
@@ -258,21 +315,17 @@ class ContractsController:
             function_name="constructor",
             calldata=constructor_calldata,
         )
-
-        contract_address = calculate_contract_address_from_hash(
-            salt=salt,
+        contract_address = Address.from_class_hash(
             class_hash=declared.class_hash,
+            salt=salt,
             constructor_calldata=constructor_calldata,
-            deployer_address=0,
         )
-
-        self.cheatable_state.contract_address_to_class_hash_map[
-            Address(contract_address)
-        ] = declared.class_hash
-
+        self._state.bind_contract_address_to_class_hash(
+            address=contract_address, class_hash=declared.class_hash
+        )
         return PreparedContract(
             constructor_calldata=constructor_calldata,
-            contract_address=contract_address,
+            contract_address=int(contract_address),
             class_hash=declared.class_hash,
             salt=salt,
         )
@@ -294,7 +347,7 @@ class ContractsController:
             entry_point_selector=entry_point_selector,
         )
         result = await entry_point.execute_for_testing(
-            state=copy.deepcopy(self.cheatable_state),
+            state=copy.deepcopy(self._cached_state),
             general_config=StarknetGeneralConfig(),
         )
         return result.retdata
@@ -315,7 +368,7 @@ class ContractsController:
             calldata=cairo_calldata,
             entry_point_selector=entry_point_selector,
         )
-        with self.cheatable_state.copy_and_apply() as state_copy:
+        with self._cached_state.copy_and_apply() as state_copy:
             call_info = await entry_point.execute_for_testing(
                 state=state_copy,
                 general_config=StarknetGeneralConfig(),
@@ -338,9 +391,9 @@ class ContractsController:
             entry_point_selector=selector,
             entry_point_type=EntryPointType.L1_HANDLER,
             call_type=CallType.DELEGATE,
-            class_hash=await self.cheatable_state.get_class_hash_at(int(to_l2_address)),
+            class_hash=await self._cached_state.get_class_hash_at(int(to_l2_address)),
         )
-        with self.cheatable_state.copy_and_apply() as state_copy:
+        with self._cached_state.copy_and_apply() as state_copy:
             call_info = await entry_point.execute_for_testing(
                 state=state_copy,
                 general_config=StarknetGeneralConfig(),
@@ -350,9 +403,9 @@ class ContractsController:
             )
 
     def prank(self, caller_address: Address, target_address: Address):
-        self.cheatable_state.set_pranked_address(
+        self._state.set_pranked_address(
             target_address=target_address, pranked_address=caller_address
         )
 
     def cancel_prank(self, target_address: Address):
-        self.cheatable_state.remove_pranked_address(target_address)
+        self._state.remove_pranked_address(target_address)
