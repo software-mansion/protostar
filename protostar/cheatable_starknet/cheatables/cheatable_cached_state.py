@@ -10,7 +10,6 @@ from starkware.starknet.business_logic.state.state import (
 )
 from starkware.starknet.business_logic.state.state_api_objects import BlockInfo
 from starkware.starknet.business_logic.state.state_api import StateReader
-from typing_extensions import Self
 
 from protostar.starknet.address import Address
 
@@ -71,9 +70,11 @@ class CheatableCachedState(CachedState):
             block_info_controller_state=self._block_info_controller_state,
         )
 
-    def _apply(self, parent: Self):
+    def _apply(self, parent: "CachedState"):
         assert isinstance(parent, self.__class__)
-        super()._apply(parent)
+        parent._block_info_controller_state = self._block_info_controller_state
+        parent._contracts_controller_state = self._contracts_controller_state
+        return super()._apply(parent)
 
 
 class CheatableStateException(Exception):

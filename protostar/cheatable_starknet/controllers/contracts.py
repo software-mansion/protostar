@@ -274,8 +274,9 @@ class ContractsController:
             calldata=cairo_calldata,
             entry_point_selector=entry_point_selector,
         )
+        tmp_cached_state = copy.deepcopy(self._cached_state)
         result = await entry_point.execute_for_testing(
-            state=copy.deepcopy(self._cached_state),
+            state=tmp_cached_state,
             general_config=StarknetGeneralConfig(),
         )
         return result.retdata

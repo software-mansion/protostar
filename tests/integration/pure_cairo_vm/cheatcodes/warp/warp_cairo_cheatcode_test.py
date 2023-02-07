@@ -7,9 +7,7 @@ from tests.integration.conftest import (
     assert_cairo_test_cases,
 )
 from tests.integration._conftest import ProtostarFixture
-from tests.integration.pure_cairo_vm.conftest import (
-    CONTRACTS_PATH,
-)
+from tests.integration.pure_cairo_vm.conftest import CONTRACTS_PATH
 
 TEST_PATH = Path(__file__).parent
 
@@ -28,7 +26,8 @@ async def test_warp_cheatcode(protostar: ProtostarFixture):
     )
 
     testing_summary = await protostar.run_test_runner(
-        TEST_PATH / "warp_test.cairo", cairo_test_runner=True
+        TEST_PATH / "warp_test.cairo::test_warp",
+        cairo_test_runner=True,
     )
 
     assert_cairo_test_cases(

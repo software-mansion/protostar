@@ -148,8 +148,8 @@ class BlockInfoControllerState:
 
     def clone(self):
         return BlockInfoControllerState(
-            contract_address_to_block_number=self._contract_address_to_block_number,
-            contract_address_to_block_timestamp=self._contract_address_to_block_timestamp,
+            contract_address_to_block_number=self._contract_address_to_block_number.copy(),
+            contract_address_to_block_timestamp=self._contract_address_to_block_timestamp.copy(),
         )
 
 
