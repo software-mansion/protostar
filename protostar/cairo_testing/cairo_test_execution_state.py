@@ -1,3 +1,4 @@
+# pylint: disable=too-many-instance-attributes
 import dataclasses
 from copy import deepcopy
 from dataclasses import dataclass, field

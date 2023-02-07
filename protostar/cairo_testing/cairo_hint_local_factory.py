@@ -3,7 +3,6 @@ from typing import List
 
 from protostar.cairo import HintLocal
 from protostar.cairo_testing import CairoTestExecutionState
-from protostar.cairo_testing.cairo_test_execution_state import BlockInfoControllerState
 from protostar.cheatable_starknet.callable_hint_locals import (
     StoreHintLocal,
     InvokeHintLocal,
