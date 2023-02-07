@@ -9,6 +9,9 @@ from protostar.cairo_testing.cairo_injectable_function_runner import (
     CairoInjectableFunctionRunner,
 )
 from protostar.cairo_testing.cairo_test_execution_state import CairoTestExecutionState
+from protostar.cheatable_starknet.cheatables.cheatable_syscall_handler import (
+    CheatableSysCallHandler,
+)
 
 
 class CairoExecutionEnvironment(CairoFunctionExecutor, ABC):
@@ -28,6 +31,12 @@ class CairoExecutionEnvironment(CairoFunctionExecutor, ABC):
         *args: Any,
         **kwargs: Any,
     ):
+        CheatableSysCallHandler.block_info_controller_state = (
+            self.state.block_info_controller_state
+        )
+        CheatableSysCallHandler.contracts_controller_state = (
+            self.state.contracts_controller_state
+        )
         await CairoInjectableFunctionRunner(
             hint_locals=self.hint_locals, program=self.program
         ).run_cairo_function(function_name, *args, **kwargs)

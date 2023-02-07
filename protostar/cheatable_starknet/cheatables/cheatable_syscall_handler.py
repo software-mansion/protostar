@@ -1,13 +1,16 @@
 # pylint: disable=duplicate-code
-from typing import List, cast, Optional, Any, TYPE_CHECKING
+import dataclasses
+from typing import TYPE_CHECKING, List, Type, cast, Optional
 
 from starkware.cairo.lang.compiler.preprocessor.flow import ReferenceManager
 from starkware.cairo.lang.compiler.program import CairoHint
 from starkware.cairo.lang.vm.memory_segments import MemorySegmentManager
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
 from starkware.python.utils import to_bytes
-from starkware.starknet.business_logic.execution.objects import CallType
-from starkware.starknet.business_logic.state.state import StateSyncifier
+from starkware.starknet.business_logic.execution.objects import (
+    CallType,
+    TransactionExecutionContext,
+)
 from starkware.starknet.business_logic.state.state_api_objects import BlockInfo
 from starkware.starknet.core.os.contract_address.contract_address import (
     calculate_contract_address_from_hash,
@@ -15,12 +18,19 @@ from starkware.starknet.core.os.contract_address.contract_address import (
 from starkware.starknet.core.os.syscall_utils import BusinessLogicSysCallHandler
 from starkware.starknet.security.secure_hints import HintsWhitelist
 from starkware.starknet.services.api.contract_class import EntryPointType
+from starkware.starknet.business_logic.execution.execute_entry_point_base import (
+    ExecuteEntryPointBase,
+)
+from starkware.starknet.business_logic.state.state_api import SyncState
+from starkware.starknet.business_logic.fact_state.state import ExecutionResourcesManager
+from starkware.starknet.definitions.general_config import StarknetGeneralConfig
 
-from protostar.starknet.address import Address
+from protostar.starknet import Address
 
 if TYPE_CHECKING:
-    from protostar.cheatable_starknet.cheatables.cheatable_cached_state import (
-        CheatableCachedState,
+    from protostar.cairo_testing.cairo_test_execution_state import (
+        BlockInfoControllerState,
+        ContractsControllerState,
     )
 
 
@@ -31,31 +41,68 @@ class CheatableSysCallHandlerException(Exception):
 
 
 class CheatableSysCallHandler(BusinessLogicSysCallHandler):
-    def __init__(self, state: StateSyncifier, **kwargs: Any):
-        self.cheatable_state: "CheatableCachedState" = cast(
-            "CheatableCachedState", state.async_state
-        )
+    block_info_controller_state: Optional["BlockInfoControllerState"] = None
+    contracts_controller_state: Optional["ContractsControllerState"] = None
 
-        super().__init__(state=state, **kwargs)
+    def __init__(
+        self,
+        execute_entry_point_cls: Type[ExecuteEntryPointBase],
+        tx_execution_context: TransactionExecutionContext,
+        state: SyncState,
+        resources_manager: ExecutionResourcesManager,
+        caller_address: int,
+        contract_address: int,
+        general_config: StarknetGeneralConfig,
+        initial_syscall_ptr: RelocatableValue,
+    ):
+        super().__init__(
+            execute_entry_point_cls,
+            tx_execution_context,
+            state,
+            resources_manager,
+            caller_address,
+            contract_address,
+            general_config,
+            initial_syscall_ptr,
+        )
+        self._block_info = state.block_info
 
     @property
     def block_info(self) -> BlockInfo:
-        return self.cheatable_state.get_block_info(self.contract_address)
+        assert self.block_info_controller_state is not None
+        block_info = self._block_info
+        block_timestamp = self.block_info_controller_state.get_block_timestamp(
+            Address(self.contract_address)
+        )
+        if block_timestamp is not None:
+            block_info = dataclasses.replace(
+                block_info,
+                block_timestamp=block_timestamp,
+            )
+        block_number = self.block_info_controller_state.get_block_number(
+            Address(self.contract_address)
+        )
+        if block_number is not None:
+            block_info = dataclasses.replace(
+                block_info,
+                block_number=block_number,
+            )
+        return block_info
 
     @block_info.setter
     def block_info(self, block_info: BlockInfo):
-        # Only called in constructor.
-        assert block_info == self.cheatable_state.block_info
+        self._block_info = block_info
 
     def _get_caller_address(
         self,
         segments: MemorySegmentManager,
         syscall_ptr: RelocatableValue,
     ) -> int:
+        assert self.contracts_controller_state is not None
         caller_address = super()._get_caller_address(
             segments=segments, syscall_ptr=syscall_ptr
         )
-        pranked_address = self.cheatable_state.get_pranked_address(
+        pranked_address = self.contracts_controller_state.get_pranked_address(
             Address(self.contract_address)
         )
         return int(pranked_address) if pranked_address is not None else caller_address

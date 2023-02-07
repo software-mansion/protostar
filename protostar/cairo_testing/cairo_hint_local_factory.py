@@ -50,15 +50,15 @@ class CairoSharedHintLocalFactory:
 
     def build_hint_locals(self) -> List[HintLocal]:
         block_info_controller = BlockInfoController(
-            state=self.cheatable_state.block_info_controller_state,
+            state=self._test_execution_state.block_info_controller_state,
             cheatable_state=self.cheatable_state,
         )
         contracts_controller = ContractsController(
-            state=self.cheatable_state.contracts_controller_state,
+            state=self._test_execution_state.contracts_controller_state,
             cached_state=self.cheatable_state,
         )
         storage_controller = StorageController(
-            state=self.cheatable_state.contracts_controller_state,
+            state=self._test_execution_state.contracts_controller_state,
             cheatable_state=self.cheatable_state,
         )
 
