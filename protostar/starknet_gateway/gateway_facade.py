@@ -101,7 +101,7 @@ class GatewayFacade(MulticallClientProtocol):
                 "Please provide ABI file manually."
             )
 
-        if contract_abi.has_constructor() and inputs:
+        if inputs and not contract_abi.has_constructor():
             raise InputValidationException(
                 "Inputs provided to a contract with no constructor."
             )
