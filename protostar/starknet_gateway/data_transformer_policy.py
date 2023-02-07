@@ -2,7 +2,7 @@ from typing import Optional
 
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet import (
-    DataTransformerService,
+    ContractDataTransformer,
     CairoData,
     PythonData,
     CairoOrPythonData,
@@ -31,8 +31,9 @@ class DataTransformerPolicy:
             contract_abi = contract_abi or await self._resolve_abi_or_fail(
                 address=address
             )
-            data_transformer_service = DataTransformerService(contract_abi)
-            return data_transformer_service.transform_entrypoint_inputs_to_cairo_data(
+            return ContractDataTransformer(
+                contract_abi
+            ).transform_entrypoint_inputs_to_cairo_data(
                 selector=selector, python_data=calldata
             )
         return calldata
@@ -58,7 +59,8 @@ class DataTransformerPolicy:
         contract_abi = contract_abi or await self._abi_resolver.resolve(address)
         if contract_abi is None:
             return None
-        data_transformer_service = DataTransformerService(contract_abi)
-        return data_transformer_service.transform_entrypoint_outputs_to_python_data(
+        return ContractDataTransformer(
+            contract_abi
+        ).transform_entrypoint_outputs_to_python_data(
             selector=selector, cairo_data=data
         )

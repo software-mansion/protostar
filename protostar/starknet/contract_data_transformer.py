@@ -12,7 +12,7 @@ from .contract_abi import ContractAbi
 from .data_transformer import CairoData, PythonData
 
 
-class DataTransformerService:
+class ContractDataTransformer:
     def __init__(self, contract_abi: ContractAbi) -> None:
         self._contract_abi = contract_abi
 
