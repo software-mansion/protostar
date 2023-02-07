@@ -177,7 +177,7 @@ class CairoTestExecutionState:
             output_recorder=self.output_recorder.fork(),
             stopwatch=self.stopwatch.fork(),
             starknet=self.starknet.copy(),
-            contract_controller_state=self.contracts_controller_state.clone(),
+            contracts_controller_state=self.contracts_controller_state.clone(),
             block_info_controller_state=self.block_info_controller_state.clone(),
             expected_events_list=self.expected_events_list.copy(),
         )
