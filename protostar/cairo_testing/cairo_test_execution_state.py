@@ -2,7 +2,7 @@
 import dataclasses
 from copy import deepcopy
 from dataclasses import dataclass, field
-from typing import Optional, cast
+from typing import Optional
 
 from starkware.crypto.signature.fast_pedersen_hash import pedersen_hash_func
 from starkware.starknet.business_logic.fact_state.patricia_state import (
@@ -12,18 +12,14 @@ from starkware.starknet.business_logic.fact_state.state import SharedState
 from starkware.starknet.business_logic.state.state_api_objects import BlockInfo
 from starkware.starknet.definitions.general_config import StarknetGeneralConfig
 from starkware.starknet.testing.starknet import Starknet
-from starkware.starknet.testing.state import StarknetState
+from starkware.starknet.testing.state import StarknetState as TestingStarknetState
 from starkware.storage.dict_storage import DictStorage
 from starkware.storage.storage import FactFetchingContext
 from typing_extensions import Self
 
 from protostar.cheatable_starknet.controllers.expect_events_controller import Event
 from protostar.compiler import ProjectCompiler
-from protostar.cheatable_starknet.cheatables.cheatable_cached_state import (
-    CheatableCachedState,
-)
-from protostar.starknet.address import Address
-from protostar.starknet.selector import Selector
+from protostar.starknet import Address, Selector, StarknetState
 from protostar.starknet.types import ClassHashType
 from protostar.testing.stopwatch import Stopwatch
 from protostar.testing.test_config import TestConfig
@@ -166,8 +162,8 @@ class CairoTestExecutionState:
     expected_events_list: list[list[Event]] = field(default_factory=list)
 
     @property
-    def cheatable_state(self) -> CheatableCachedState:
-        return cast(CheatableCachedState, self.starknet.state.state)
+    def starknet_state(self):
+        return self.starknet.state.state
 
     def fork(self) -> Self:
         return dataclasses.replace(
@@ -201,16 +197,14 @@ class CairoTestExecutionState:
         block_info_controller_state = BlockInfoControllerState()
         return cls(
             starknet=Starknet(
-                state=StarknetState(
+                state=TestingStarknetState(
                     general_config=general_config,
-                    state=CheatableCachedState(
+                    state=StarknetState(
                         block_info=BlockInfo.empty(
                             sequencer_address=general_config.sequencer_address
                         ),
                         state_reader=state_reader,
                         contract_class_cache={},
-                        contracts_controller_state=contracts_controller_state,
-                        block_info_controller_state=block_info_controller_state,
                     ),
                 )
             ),

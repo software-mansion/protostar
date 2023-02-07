@@ -7,17 +7,15 @@ if TYPE_CHECKING:
     from protostar.cairo_testing.cairo_test_execution_state import (
         ContractsControllerState,
     )
-    from protostar.cheatable_starknet.cheatables.cheatable_cached_state import (
-        CheatableCachedState,
-    )
+    from protostar.starknet import StarknetState
 
 
 class StorageController:
     def __init__(
-        self, state: "ContractsControllerState", cheatable_state: "CheatableCachedState"
+        self, state: "ContractsControllerState", starknet_state: "StarknetState"
     ):
         self._state = state
-        self._cheatable_state = cheatable_state
+        self._starknet_state = starknet_state
 
     async def store(
         self,
@@ -28,7 +26,7 @@ class StorageController:
     ):
         variable_address = calc_address(variable_name, key or [])
         for i, val in enumerate(value):
-            await self._cheatable_state.set_storage_at(
+            await self._starknet_state.set_storage_at(
                 contract_address=target_contract_address,
                 key=variable_address + i,
                 value=val,
@@ -45,7 +43,7 @@ class StorageController:
         variable_size = self._get_variable_size(target_contract_address, variable_type)
 
         return [
-            await self._cheatable_state.get_storage_at(
+            await self._starknet_state.get_storage_at(
                 contract_address=target_contract_address, key=variable_address + i
             )
             for i in range(variable_size)

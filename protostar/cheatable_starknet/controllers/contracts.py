@@ -23,17 +23,12 @@ from protostar.cheatable_starknet.cheatables.cheatable_execute_entry_point impor
     CheatableExecuteEntryPoint,
 )
 from protostar.cheatable_starknet.controllers.expect_events_controller import Event
-from protostar.starknet.selector import Selector
-from protostar.starknet.abi import AbiType
-from protostar.starknet.address import Address
+from protostar.starknet import Selector, AbiType, Address, StarknetState
 from protostar.starknet.data_transformer import (
     DataTransformerException,
     CairoOrPythonData,
     CairoData,
     from_python_transformer,
-)
-from protostar.cheatable_starknet.cheatables.cheatable_cached_state import (
-    CheatableCachedState,
 )
 
 if TYPE_CHECKING:
@@ -76,10 +71,10 @@ class DeployedContract:
 
 class ContractsController:
     def __init__(
-        self, state: "ContractsControllerState", cached_state: "CheatableCachedState"
+        self, state: "ContractsControllerState", starknet_state: "StarknetState"
     ):
         self._state = state
-        self._cached_state = cached_state
+        self._starknet_state = starknet_state
 
     async def _transform_calldata_to_cairo_data_by_addr(
         self,
@@ -127,7 +122,7 @@ class ContractsController:
             nonce=0,
         )
 
-        with self._cached_state.copy_and_apply() as state_copy:
+        with self._starknet_state.copy_and_apply() as state_copy:
             await tx.apply_state_updates(
                 state=state_copy, general_config=starknet_config
             )
@@ -136,7 +131,7 @@ class ContractsController:
         self._register_event_metadata(abi)
         class_hash = tx.class_hash
         assert class_hash is not None
-        await self._cached_state.set_contract_class(class_hash, contract_class)
+        await self._starknet_state.set_contract_class(class_hash, contract_class)
 
         class_hash = from_bytes(class_hash)
 
@@ -161,12 +156,12 @@ class ContractsController:
             )
 
     async def deploy_prepared(self, prepared: PreparedContract) -> DeployedContract:
-        await self._cached_state.deploy_contract(
+        await self._starknet_state.deploy_contract(
             contract_address=int(prepared.contract_address),
             class_hash=to_bytes(prepared.class_hash),
         )
 
-        contract_class = await self._cached_state.get_contract_class(
+        contract_class = await self._starknet_state.get_contract_class(
             class_hash=to_bytes(prepared.class_hash)
         )
 
@@ -200,7 +195,7 @@ class ContractsController:
         constructor_calldata: List[int],
         contract_address: int,
     ):
-        with self._cached_state.copy_and_apply():
+        with self._starknet_state.copy_and_apply():
             call_info = await ExecuteEntryPoint.create(
                 contract_address=contract_address,
                 calldata=constructor_calldata,
@@ -210,7 +205,7 @@ class ContractsController:
                 call_type=CallType.DELEGATE,
                 class_hash=class_hash_bytes,
             ).execute_for_testing(
-                state=self._cached_state,
+                state=self._starknet_state,
                 general_config=StarknetGeneralConfig(),
             )
             self._add_emitted_events(call_info.get_sorted_events())
@@ -274,7 +269,7 @@ class ContractsController:
             calldata=cairo_calldata,
             entry_point_selector=entry_point_selector,
         )
-        tmp_cached_state = copy.deepcopy(self._cached_state)
+        tmp_cached_state = copy.deepcopy(self._starknet_state)
         result = await entry_point.execute_for_testing(
             state=tmp_cached_state,
             general_config=StarknetGeneralConfig(),
@@ -297,7 +292,7 @@ class ContractsController:
             calldata=cairo_calldata,
             entry_point_selector=entry_point_selector,
         )
-        with self._cached_state.copy_and_apply() as state_copy:
+        with self._starknet_state.copy_and_apply() as state_copy:
             call_info = await entry_point.execute_for_testing(
                 state=state_copy,
                 general_config=StarknetGeneralConfig(),
@@ -318,9 +313,9 @@ class ContractsController:
             entry_point_selector=selector,
             entry_point_type=EntryPointType.L1_HANDLER,
             call_type=CallType.DELEGATE,
-            class_hash=await self._cached_state.get_class_hash_at(int(to_l2_address)),
+            class_hash=await self._starknet_state.get_class_hash_at(int(to_l2_address)),
         )
-        with self._cached_state.copy_and_apply() as state_copy:
+        with self._starknet_state.copy_and_apply() as state_copy:
             call_info = await entry_point.execute_for_testing(
                 state=state_copy,
                 general_config=StarknetGeneralConfig(),

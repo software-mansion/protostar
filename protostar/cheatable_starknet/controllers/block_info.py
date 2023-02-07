@@ -6,17 +6,11 @@ if TYPE_CHECKING:
     from protostar.cairo_testing.cairo_test_execution_state import (
         BlockInfoControllerState,
     )
-    from protostar.cheatable_starknet.cheatables.cheatable_cached_state import (
-        CheatableCachedState,
-    )
 
 
 class BlockInfoController:
-    def __init__(
-        self, state: "BlockInfoControllerState", cheatable_state: "CheatableCachedState"
-    ):
+    def __init__(self, state: "BlockInfoControllerState"):
         self._state = state
-        self._cheatable_state = cheatable_state
 
     def set_block_timestamp(
         self,

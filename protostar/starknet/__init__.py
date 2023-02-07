@@ -1,3 +1,5 @@
+from starkware.starknet.business_logic.state.state import CachedState as StarknetState
+
 from .cheatable_starknet_exceptions import (
     BreakingReportedException,
     CheatcodeException,

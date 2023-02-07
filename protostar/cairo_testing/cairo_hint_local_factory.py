@@ -20,9 +20,7 @@ from protostar.cheatable_starknet.callable_hint_locals import (
     ExpectEventsHintLocal,
     LoadHintLocal,
 )
-from protostar.cheatable_starknet.cheatables.cheatable_cached_state import (
-    CheatableCachedState,
-)
+from protostar.starknet import StarknetState
 from protostar.cheatable_starknet.controllers import (
     StorageController,
     ContractsController,
@@ -38,12 +36,12 @@ from protostar.testing import Hook
 class CairoSharedHintLocalFactory:
     def __init__(
         self,
-        cheatable_state: CheatableCachedState,
+        starknet_state: StarknetState,
+        test_execution_state: CairoTestExecutionState,
         project_compiler: ProjectCompiler,
         test_finish_hook: Hook,
-        test_execution_state: CairoTestExecutionState,
     ):
-        self.cheatable_state = cheatable_state
+        self._starknet_state = starknet_state
         self.project_compiler = project_compiler
         self._test_finish_hook = test_finish_hook
         self._test_execution_state = test_execution_state
@@ -51,15 +49,14 @@ class CairoSharedHintLocalFactory:
     def build_hint_locals(self) -> List[HintLocal]:
         block_info_controller = BlockInfoController(
             state=self._test_execution_state.block_info_controller_state,
-            cheatable_state=self.cheatable_state,
         )
         contracts_controller = ContractsController(
             state=self._test_execution_state.contracts_controller_state,
-            cached_state=self.cheatable_state,
+            starknet_state=self._starknet_state,
         )
         storage_controller = StorageController(
             state=self._test_execution_state.contracts_controller_state,
-            cheatable_state=self.cheatable_state,
+            starknet_state=self._starknet_state,
         )
 
         declare_cheatcode = DeclareHintLocal(
