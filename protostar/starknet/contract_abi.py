@@ -11,31 +11,29 @@ from protostar.protostar_exception import ProtostarException
 from protostar.starknet import Selector
 
 
-class ContractAbiService:
+class ContractAbi:
     @classmethod
     def from_json_file(cls, path: Path):
         assert path.suffix == ".json"
         potential_abi = json.loads(path.read_text())
-        return ContractAbiService.from_contract_abi(
-            contract_abi=potential_abi,
+        return ContractAbi.from_abi_entries(
+            abi_entries=potential_abi,
         )
 
     @classmethod
-    def from_contract_abi(cls, contract_abi: Union[AbiType, AbiDictList]):
-        contract_abi_ = cast(AbiType, contract_abi)
+    def from_abi_entries(cls, abi_entries: Union[AbiType, AbiDictList]):
+        contract_abi_ = cast(AbiType, abi_entries)
         try:
             contract_abi_model = AbiParser(contract_abi_).parse()
-            return cls(
-                contract_abi=contract_abi_, contract_abi_model=contract_abi_model
-            )
+            return cls(abi_entries=contract_abi_, contract_abi_model=contract_abi_model)
         except (AbiParsingError, ValidationError) as ex:
             raise ProtostarException("Invalid ABI") from ex
 
-    def __init__(self, contract_abi: AbiType, contract_abi_model: Abi):
-        self._contract_abi = contract_abi
+    def __init__(self, abi_entries: AbiType, contract_abi_model: Abi):
+        self._contract_abi = abi_entries
         self._contract_abi_model = contract_abi_model
 
-    def get_abi_as_abi_type(self) -> AbiType:
+    def to_abi_type(self) -> AbiType:
         return self._contract_abi
 
     def has_constructor(self) -> bool:

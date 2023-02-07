@@ -8,13 +8,13 @@ from starknet_py.serialization import CairoSerializerException
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet import Selector
 
-from .contract_abi_service import ContractAbiService
+from .contract_abi import ContractAbi
 from .data_transformer import CairoData, PythonData
 
 
 class DataTransformerService:
-    def __init__(self, contract_abi_service: ContractAbiService) -> None:
-        self._contract_abi_service = contract_abi_service
+    def __init__(self, contract_abi: ContractAbi) -> None:
+        self._contract_abi = contract_abi
 
     def transform_entrypoint_inputs_to_cairo_data(
         self, selector: Selector, python_data: PythonData
@@ -32,7 +32,7 @@ class DataTransformerService:
 
     def _create_entrypoint_serializer(self, selector: Selector):
         return create_function_serializer(
-            self._contract_abi_service.unwrap_entrypoint_model(selector)
+            self._contract_abi.unwrap_entrypoint_model(selector)
         )
 
 

@@ -11,7 +11,7 @@ from protostar.cli import (
 )
 from protostar.cli.common_arguments import ABI_PATH_ARG
 from protostar.starknet import Address, Selector
-from protostar.starknet.contract_abi_service import ContractAbiService
+from protostar.starknet.contract_abi import ContractAbi
 from protostar.starknet_gateway import (
     GatewayFacadeFactory,
     AbiResolver,
@@ -95,7 +95,7 @@ class CallCommand(ProtostarCommand):
         inputs: Optional[CairoOrPythonData] = None,
     ) -> SuccessfulCallMessage:
         custom_abi = (
-            ContractAbiService.from_json_file(self._project_root_path / abi_path)
+            ContractAbi.from_json_file(self._project_root_path / abi_path)
             if abi_path
             else None
         )
@@ -111,7 +111,7 @@ class CallCommand(ProtostarCommand):
                 address=contract_address,
                 selector=Selector(function_name),
                 inputs=inputs,
-                contract_abi_service=custom_abi,
+                contract_abi=custom_abi,
             )
         )
         return SuccessfulCallMessage(response)

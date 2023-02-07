@@ -27,7 +27,7 @@ class InvokeUseCase:
                 address=input_data.address,
                 selector=input_data.selector,
                 calldata=input_data.calldata,
-                contract_abi_service=input_data.contract_abi_service,
+                contract_abi=input_data.contract_abi,
             )
         )
         prepared_invoke_tx = await self._account_manager.prepare_invoke_transaction(

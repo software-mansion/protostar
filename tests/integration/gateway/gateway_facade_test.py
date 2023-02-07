@@ -6,7 +6,7 @@ from starknet_py.net.client_models import Declare, TransactionStatus
 from starknet_py.net.gateway_client import GatewayClient
 
 from protostar.protostar_exception import ProtostarException
-from protostar.starknet.contract_abi_service import ContractAbiService
+from protostar.starknet.contract_abi import ContractAbi
 from protostar.starknet.data_transformer import CairoOrPythonData
 from protostar.starknet import Address, Selector
 from protostar.starknet_gateway import (
@@ -75,9 +75,9 @@ async def declared_class_hash_fixture(
     return response.class_hash
 
 
-@pytest.fixture(name="contract_abi_service")
-def contract_abi_service_fixture(protostar: ProtostarFixture):
-    return ContractAbiService.from_json_file(
+@pytest.fixture(name="contract_abi")
+def contract_abi_fixture(protostar: ProtostarFixture):
+    return ContractAbi.from_json_file(
         protostar.project_root_path / "build" / "main_abi.json"
     )
 
@@ -187,13 +187,13 @@ async def compiled_contract_without_constructor_class_hash_fixture(
 async def test_compiled_contract_without_constructor_class_hash(
     gateway_facade: GatewayFacade,
     compiled_contract_without_constructor_class_hash: int,
-    contract_abi_service: ContractAbiService,
+    contract_abi: ContractAbi,
     devnet_account: DevnetAccount,
 ):
     with pytest.raises(InputValidationException) as ex:
         await gateway_facade.deploy_via_udc(
             class_hash=compiled_contract_without_constructor_class_hash,
-            contract_abi_service=contract_abi_service,
+            contract_abi=contract_abi,
             inputs={"UNKNOWN_INPUT": 42},
             account_address=devnet_account.address,
             signer=devnet_account.signer,
@@ -228,11 +228,11 @@ async def test_deploy_supports_data_transformer(
     compiled_contract_with_constructor_class_hash: int,
     inputs: CairoOrPythonData,
     devnet_account: DevnetAccount,
-    contract_abi_service: ContractAbiService,
+    contract_abi: ContractAbi,
 ):
     await gateway_facade.deploy_via_udc(
         class_hash=compiled_contract_with_constructor_class_hash,
-        contract_abi_service=contract_abi_service,
+        contract_abi=contract_abi,
         inputs=inputs,
         account_address=devnet_account.address,
         signer=devnet_account.signer,
@@ -243,13 +243,13 @@ async def test_deploy_supports_data_transformer(
 async def test_deploy_no_args(
     gateway_facade: GatewayFacade,
     compiled_contract_with_constructor_class_hash: int,
-    contract_abi_service: ContractAbiService,
+    contract_abi: ContractAbi,
     devnet_account: DevnetAccount,
 ):
     with pytest.raises(InputValidationException):
         await gateway_facade.deploy_via_udc(
             compiled_contract_with_constructor_class_hash,
-            contract_abi_service=contract_abi_service,
+            contract_abi=contract_abi,
             account_address=devnet_account.address,
             signer=devnet_account.signer,
             max_fee="auto",

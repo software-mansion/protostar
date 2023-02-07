@@ -23,5 +23,5 @@ from .data_transformer import (
 )
 from .starknet_compiler import StarknetCompiler, StarknetCompilerConfig
 from .pass_managers import StarknetPassManagerFactory
-from .contract_abi_service import ContractAbiService
+from .contract_abi import ContractAbi
 from .data_transformer_service import DataTransformerService

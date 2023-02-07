@@ -8,7 +8,7 @@ from protostar.starknet import (
     CairoOrPythonData,
     Address,
     Selector,
-    ContractAbiService,
+    ContractAbi,
 )
 
 from .abi_resolver import AbiResolver
@@ -23,15 +23,15 @@ class DataTransformerPolicy:
         calldata: Optional[CairoOrPythonData],
         address: Address,
         selector: Selector,
-        contract_abi_service: Optional[ContractAbiService],
+        contract_abi: Optional[ContractAbi],
     ) -> CairoData:
         if calldata is None:
             return []
         if isinstance(calldata, dict):
-            contract_abi_service = (
-                contract_abi_service or await self._resolve_abi_or_fail(address=address)
+            contract_abi = contract_abi or await self._resolve_abi_or_fail(
+                address=address
             )
-            data_transformer_service = DataTransformerService(contract_abi_service)
+            data_transformer_service = DataTransformerService(contract_abi)
             return data_transformer_service.transform_entrypoint_inputs_to_cairo_data(
                 selector=selector, python_data=calldata
             )
@@ -53,14 +53,12 @@ class DataTransformerPolicy:
         data: CairoData,
         address: Address,
         selector: Selector,
-        contract_abi_service: Optional[ContractAbiService],
+        contract_abi: Optional[ContractAbi],
     ) -> Optional[PythonData]:
-        contract_abi_service = contract_abi_service or await self._abi_resolver.resolve(
-            address
-        )
-        if contract_abi_service is None:
+        contract_abi = contract_abi or await self._abi_resolver.resolve(address)
+        if contract_abi is None:
             return None
-        data_transformer_service = DataTransformerService(contract_abi_service)
+        data_transformer_service = DataTransformerService(contract_abi)
         return data_transformer_service.transform_entrypoint_outputs_to_python_data(
             selector=selector, cairo_data=data
         )

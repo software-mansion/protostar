@@ -18,7 +18,7 @@ from typing_extensions import Self, TypeGuard
 
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet import (
-    ContractAbiService,
+    ContractAbi,
     Address,
     CairoData,
     TransactionHash,
@@ -79,7 +79,7 @@ class GatewayFacade(MulticallClientProtocol):
         class_hash: int,
         account_address: Address,
         inputs: Optional[CairoOrPythonData] = None,
-        contract_abi_service: Optional[ContractAbiService] = None,
+        contract_abi: Optional[ContractAbi] = None,
         salt: Optional[int] = None,
     ) -> ContractDeployment:
         if isinstance(inputs, list):
@@ -91,21 +91,17 @@ class GatewayFacade(MulticallClientProtocol):
                 salt=salt,
             )
 
-        if not contract_abi_service:
-            contract_abi = (
-                await self._gateway_client.get_class_by_hash(class_hash)
-            ).abi
-            if contract_abi:
-                contract_abi_service = ContractAbiService.from_contract_abi(
-                    contract_abi
-                )
-        if not contract_abi_service:
+        if not contract_abi:
+            abi_entries = (await self._gateway_client.get_class_by_hash(class_hash)).abi
+            if abi_entries:
+                contract_abi = ContractAbi.from_abi_entries(abi_entries)
+        if not contract_abi:
             raise ProtostarException(
                 "ABI not found neither in arguments nor in API response. \n"
                 "Please provide ABI file manually."
             )
 
-        if contract_abi_service.has_constructor() and inputs:
+        if contract_abi.has_constructor() and inputs:
             raise InputValidationException(
                 "Inputs provided to a contract with no constructor."
             )
@@ -117,7 +113,7 @@ class GatewayFacade(MulticallClientProtocol):
                 class_hash=class_hash,
                 calldata=inputs,
                 salt=salt,
-                abi=contract_abi_service.get_abi_as_abi_type(),
+                abi=contract_abi.to_abi_type(),
             )
         except (ValueError, TypeError, CairoSerializerException) as v_err:
             raise InputValidationException(str(v_err)) from v_err
@@ -130,13 +126,13 @@ class GatewayFacade(MulticallClientProtocol):
         signer: BaseSigner,
         inputs: Optional[CairoOrPythonData] = None,
         wait_for_acceptance: bool = False,
-        contract_abi_service: Optional[ContractAbiService] = None,
+        contract_abi: Optional[ContractAbi] = None,
         salt: Optional[int] = None,
         token: Optional[str] = None,
     ) -> SuccessfulDeployResponse:
         deployment = await self._create_udc_deployment(
             class_hash=class_hash,
-            contract_abi_service=contract_abi_service,
+            contract_abi=contract_abi,
             account_address=account_address,
             inputs=inputs,
             salt=salt,

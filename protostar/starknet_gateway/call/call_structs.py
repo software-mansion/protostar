@@ -4,7 +4,7 @@ from typing import Optional
 from protostar.starknet import (
     Address,
     Selector,
-    ContractAbiService,
+    ContractAbi,
     PythonData,
     CairoOrPythonData,
     CairoData,
@@ -16,7 +16,7 @@ class CallInput:
     address: Address
     selector: Selector
     inputs: Optional[CairoOrPythonData]
-    contract_abi_service: Optional[ContractAbiService]
+    contract_abi: Optional[ContractAbi]
 
 
 @dataclass
