@@ -1,14 +1,12 @@
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Optional
 
+from protostar.cairo_testing.cairo_test_execution_state import ContractsControllerState
 from protostar.starknet import Address, CairoData, Selector, ReportedException
 
 if TYPE_CHECKING:
     from protostar.testing import Hook
     from protostar.cairo_testing import CairoTestExecutionState
-    from protostar.cheatable_starknet.cheatables.cheatable_cached_state import (
-        CheatableCachedState,
-    )
 
 
 @dataclass
@@ -61,11 +59,11 @@ class ExpectEventsController:
         self,
         test_finish_hook: "Hook",
         test_execution_state: "CairoTestExecutionState",
-        cheatable_state: "CheatableCachedState",
+        state: "ContractsControllerState",
     ) -> None:
         self._test_execution_state = test_execution_state
         self._test_finish_hook = test_finish_hook
-        self._cheatable_state = cheatable_state
+        self._state = state
         self._test_finish_hook.on(self.compare_expected_and_actual_results)
 
     def add_expected_events(self, expected_events: list[Event]):
@@ -75,7 +73,7 @@ class ExpectEventsController:
         for expected_events in self._test_execution_state.expected_events_list:
             matching_result = match_events(
                 expected_events=expected_events,
-                emitted_events=self._cheatable_state.emitted_events,
+                emitted_events=self._state.get_emitted_events(),
             )
             if not matching_result.should_be_accepted:
                 raise ExpectEventsMismatchReportedException(matching_result)

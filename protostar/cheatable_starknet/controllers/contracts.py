@@ -1,7 +1,7 @@
 import collections
 import copy
 from dataclasses import dataclass
-from typing import List, Optional, cast, TYPE_CHECKING
+from typing import List, Optional, TYPE_CHECKING
 
 from starkware.starknet.business_logic.execution.objects import CallType
 from starkware.starknet.business_logic.execution.objects import Event as StarknetEvent
@@ -133,7 +133,7 @@ class ContractsController:
             )
 
         abi = get_abi(contract_class=contract_class)
-        self._add_event_abi_to_state(abi)
+        self._register_event_metadata(abi)
         class_hash = tx.class_hash
         assert class_hash is not None
         await self._cached_state.set_contract_class(class_hash, contract_class)
@@ -150,9 +150,12 @@ class ContractsController:
             abi=get_abi(contract_class=contract_class),
         )
 
-    def _add_event_abi_to_state(self, abi: AbiType):
+    def _register_event_metadata(self, abi: AbiType):
         # pylint: disable=protected-access
-        for event_name in EventManager(abi=abi)._selector_to_name.values():
+        for event_key, event_name in EventManager(abi=abi)._selector_to_name.items():
+            self._state.bind_event_key_to_event_selector(
+                key=event_key, event_selector=Selector(event_name)
+            )
             self._state.bind_event_selector_to_event_abi(
                 event_selector=Selector(event_name), event_abi=abi
             )
@@ -197,7 +200,7 @@ class ContractsController:
         constructor_calldata: List[int],
         contract_address: int,
     ):
-        with self._cached_state.copy_and_apply() as state:
+        with self._cached_state.copy_and_apply():
             call_info = await ExecuteEntryPoint.create(
                 contract_address=contract_address,
                 calldata=constructor_calldata,
@@ -210,24 +213,19 @@ class ContractsController:
                 state=self._cached_state,
                 general_config=StarknetGeneralConfig(),
             )
-            self._add_emitted_events(
-                cast(CheatableCachedState, state), call_info.get_sorted_events()
-            )
+            self._add_emitted_events(call_info.get_sorted_events())
 
     def _add_emitted_events(
         self,
-        cheatable_state: CheatableCachedState,
         starknet_emitted_events: list[StarknetEvent],
     ):
-        cheatable_state.emitted_events.extend(
+        self._state.add_emitted_events(
             [
                 Event(
                     from_address=Address(starknet_emitted_event.from_address),
                     data=starknet_emitted_event.data,
-                    key=Selector(
-                        cheatable_state.event_selector_to_name_map[
-                            starknet_emitted_event.keys[0]
-                        ]
+                    key=self._state.get_event_selector_from_event_key(
+                        starknet_emitted_event.keys[0]
                     ),
                 )
                 for starknet_emitted_event in starknet_emitted_events
@@ -303,9 +301,7 @@ class ContractsController:
                 state=state_copy,
                 general_config=StarknetGeneralConfig(),
             )
-            self._add_emitted_events(
-                cast(CheatableCachedState, state_copy), call_info.get_sorted_events()
-            )
+            self._add_emitted_events(call_info.get_sorted_events())
 
     async def send_message_to_l2(
         self,
@@ -328,9 +324,7 @@ class ContractsController:
                 state=state_copy,
                 general_config=StarknetGeneralConfig(),
             )
-            self._add_emitted_events(
-                cast(CheatableCachedState, state_copy), call_info.get_sorted_events()
-            )
+            self._add_emitted_events(call_info.get_sorted_events())
 
     def prank(self, caller_address: Address, target_address: Address):
         self._state.set_pranked_address(

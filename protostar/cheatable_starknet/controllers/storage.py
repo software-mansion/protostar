@@ -1,6 +1,8 @@
 from typing import List, Optional, TYPE_CHECKING
 
+from protostar.cairo_testing.cairo_test_execution_state import ContractsControllerState
 from protostar.starknet import calc_address, BreakingReportedException
+from protostar.starknet.address import Address
 
 if TYPE_CHECKING:
     from protostar.cheatable_starknet.cheatables.cheatable_cached_state import (
@@ -9,7 +11,10 @@ if TYPE_CHECKING:
 
 
 class StorageController:
-    def __init__(self, cheatable_state: "CheatableCachedState"):
+    def __init__(
+        self, state: "ContractsControllerState", cheatable_state: "CheatableCachedState"
+    ):
+        self._state = state
         self._cheatable_state = cheatable_state
 
     async def store(
@@ -47,7 +52,9 @@ class StorageController:
     def _get_variable_size(self, contract_address: int, variable_type: str) -> int:
         if variable_type == "felt":
             return 1
-        abi = self._cheatable_state.get_abi_from_contract_address(contract_address)
+        abi = self._state.get_contract_abi_from_contract_address(
+            Address(contract_address)
+        )
 
         abi_type = next((el for el in abi if el["name"] == variable_type), None)
         if not abi_type or "size" not in abi_type:

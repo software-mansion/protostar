@@ -36,12 +36,14 @@ class ContractsControllerState:
         self,
         emitted_events: Optional[list[Event]] = None,
         class_hash_to_contract_abi: Optional[dict[ClassHashType, AbiType]] = None,
+        event_key_to_event_selector: Optional[dict[int, Selector]] = None,
         event_selector_to_event_abi: Optional[dict[Selector, AbiType]] = None,
         address_to_class_hash: Optional[dict[Address, ClassHashType]] = None,
         target_address_to_pranked_address: Optional[dict[Address, Address]] = None,
     ) -> None:
         self._emitted_events = emitted_events or []
         self._class_hash_to_contract_abi = class_hash_to_contract_abi or {}
+        self._event_key_to_event_selector = event_key_to_event_selector or {}
         self._event_selector_to_event_abi = event_selector_to_event_abi or {}
         self._contract_address_to_class_hash = address_to_class_hash or {}
         self._target_address_to_pranked_address = (
@@ -67,6 +69,12 @@ class ContractsControllerState:
     ) -> AbiType:
         class_hash = self._contract_address_to_class_hash[contract_address]
         return self._class_hash_to_contract_abi[class_hash]
+
+    def get_event_selector_from_event_key(self, key: int) -> Selector:
+        return self._event_key_to_event_selector[key]
+
+    def bind_event_key_to_event_selector(self, key: int, event_selector: Selector):
+        self._event_key_to_event_selector[key] = event_selector
 
     def bind_contract_address_to_class_hash(
         self, address: Address, class_hash: ClassHashType
@@ -97,9 +105,50 @@ class ContractsControllerState:
         return ContractsControllerState(
             emitted_events=self._emitted_events.copy(),
             class_hash_to_contract_abi=self._class_hash_to_contract_abi.copy(),
+            event_key_to_event_selector=self._event_key_to_event_selector.copy(),
             event_selector_to_event_abi=self._event_selector_to_event_abi.copy(),
             address_to_class_hash=self._contract_address_to_class_hash.copy(),
             target_address_to_pranked_address=self._target_address_to_pranked_address.copy(),
+        )
+
+
+class BlockInfoControllerState:
+    def __init__(
+        self,
+        contract_address_to_block_timestamp: Optional[dict[Address, int]] = None,
+        contract_address_to_block_number: Optional[dict[Address, int]] = None,
+    ) -> None:
+        self._contract_address_to_block_timestamp = (
+            contract_address_to_block_timestamp or {}
+        )
+        self._contract_address_to_block_number = contract_address_to_block_number or {}
+
+    def get_block_timestamp(self, contract_address: Address):
+        return self._contract_address_to_block_timestamp.get(contract_address, None)
+
+    def get_block_number(self, contract_address: Address):
+        return self._contract_address_to_block_number.get(contract_address, None)
+
+    def set_block_timestamp(
+        self,
+        contract_address: Address,
+        block_timestamp: int,
+    ):
+        self._contract_address_to_block_timestamp[contract_address] = block_timestamp
+
+    def set_block_number(self, contract_address: Address, block_number: int):
+        self._contract_address_to_block_number[contract_address] = block_number
+
+    def remove_block_number(self, contract_address: Address):
+        del self._contract_address_to_block_number[contract_address]
+
+    def remove_block_timestamp(self, contract_address: Address):
+        del self._contract_address_to_block_timestamp[contract_address]
+
+    def clone(self):
+        return BlockInfoControllerState(
+            contract_address_to_block_number=self._contract_address_to_block_number,
+            contract_address_to_block_timestamp=self._contract_address_to_block_timestamp,
         )
 
 
@@ -111,7 +160,8 @@ class CairoTestExecutionState:
     context: TestContext
     config: TestConfig
     project_compiler: ProjectCompiler
-    contract_controller_state: ContractsControllerState
+    contracts_controller_state: ContractsControllerState
+    block_info_controller_state: BlockInfoControllerState
     expected_events_list: list[list[Event]] = field(default_factory=list)
 
     @property
@@ -126,7 +176,8 @@ class CairoTestExecutionState:
             output_recorder=self.output_recorder.fork(),
             stopwatch=self.stopwatch.fork(),
             starknet=self.starknet.copy(),
-            contract_controller_state=self.contract_controller_state.clone(),
+            contract_controller_state=self.contracts_controller_state.clone(),
+            block_info_controller_state=self.block_info_controller_state.clone(),
             expected_events_list=self.expected_events_list.copy(),
         )
 
@@ -145,7 +196,8 @@ class CairoTestExecutionState:
             ffc=ffc,
             contract_class_storage=ffc.storage,
         )
-
+        contracts_controller_state = ContractsControllerState()
+        block_info_controller_state = BlockInfoControllerState()
         return cls(
             starknet=Starknet(
                 state=StarknetState(
@@ -156,6 +208,8 @@ class CairoTestExecutionState:
                         ),
                         state_reader=state_reader,
                         contract_class_cache={},
+                        contracts_controller_state=contracts_controller_state,
+                        block_info_controller_state=block_info_controller_state,
                     ),
                 )
             ),
@@ -164,5 +218,6 @@ class CairoTestExecutionState:
             context=TestContext(),
             config=test_config,
             project_compiler=project_compiler,
-            contract_controller_state=ContractsControllerState(),
+            contracts_controller_state=contracts_controller_state,
+            block_info_controller_state=block_info_controller_state,
         )

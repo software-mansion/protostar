@@ -3,6 +3,7 @@ from typing import List
 
 from protostar.cairo import HintLocal
 from protostar.cairo_testing import CairoTestExecutionState
+from protostar.cairo_testing.cairo_test_execution_state import BlockInfoControllerState
 from protostar.cheatable_starknet.callable_hint_locals import (
     StoreHintLocal,
     InvokeHintLocal,
@@ -50,13 +51,17 @@ class CairoSharedHintLocalFactory:
 
     def build_hint_locals(self) -> List[HintLocal]:
         block_info_controller = BlockInfoController(
-            cheatable_state=self.cheatable_state
+            state=self._test_execution_state.block_info_controller_state,
+            cheatable_state=self.cheatable_state,
         )
         contracts_controller = ContractsController(
-            state=self._test_execution_state.contract_controller_state,
+            state=self._test_execution_state.contracts_controller_state,
             cached_state=self.cheatable_state,
         )
-        storage_controller = StorageController(cheatable_state=self.cheatable_state)
+        storage_controller = StorageController(
+            state=self._test_execution_state.contracts_controller_state,
+            cheatable_state=self.cheatable_state,
+        )
 
         declare_cheatcode = DeclareHintLocal(
             project_compiler=self.project_compiler,
@@ -92,7 +97,7 @@ class CairoSharedHintLocalFactory:
                 controller=ExpectEventsController(
                     test_finish_hook=self._test_finish_hook,
                     test_execution_state=self._test_execution_state,
-                    cheatable_state=self._test_execution_state.cheatable_state,
+                    state=self._test_execution_state.contracts_controller_state,
                 ),
             ),
         ]
