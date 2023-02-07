@@ -31,11 +31,11 @@ class ContractAbi:
             raise ProtostarException("Invalid ABI") from ex
 
     def __init__(self, abi_entries: AbiType, contract_abi_model: Abi):
-        self._contract_abi = abi_entries
+        self._abi_entries = abi_entries
         self._contract_abi_model = contract_abi_model
 
     def to_abi_type(self) -> AbiType:
-        return self._contract_abi
+        return self._abi_entries
 
     def has_constructor(self) -> bool:
         return self._contract_abi_model.constructor is not None
