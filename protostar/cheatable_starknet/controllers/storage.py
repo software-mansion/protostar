@@ -1,10 +1,12 @@
 from typing import List, Optional, TYPE_CHECKING
 
-from protostar.cairo_testing.cairo_test_execution_state import ContractsControllerState
 from protostar.starknet import calc_address, BreakingReportedException
 from protostar.starknet.address import Address
 
 if TYPE_CHECKING:
+    from protostar.cairo_testing.cairo_test_execution_state import (
+        ContractsControllerState,
+    )
     from protostar.cheatable_starknet.cheatables.cheatable_cached_state import (
         CheatableCachedState,
     )

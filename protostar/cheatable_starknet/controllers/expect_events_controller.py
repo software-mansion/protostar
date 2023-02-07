@@ -1,12 +1,14 @@
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Optional
 
-from protostar.cairo_testing.cairo_test_execution_state import ContractsControllerState
 from protostar.starknet import Address, CairoData, Selector, ReportedException
 
 if TYPE_CHECKING:
     from protostar.testing import Hook
     from protostar.cairo_testing import CairoTestExecutionState
+    from protostar.cairo_testing.cairo_test_execution_state import (
+        ContractsControllerState,
+    )
 
 
 @dataclass

@@ -2,7 +2,7 @@
 # pylint: disable=protected-access
 
 import dataclasses
-from typing import Optional
+from typing import TYPE_CHECKING, Optional
 
 from starkware.starknet.business_logic.state.state import (
     ContractClassCache,
@@ -12,11 +12,13 @@ from starkware.starknet.business_logic.state.state_api_objects import BlockInfo
 from starkware.starknet.business_logic.state.state_api import StateReader
 from typing_extensions import Self
 
-from protostar.cairo_testing.cairo_test_execution_state import (
-    ContractsControllerState,
-    BlockInfoControllerState,
-)
 from protostar.starknet.address import Address
+
+if TYPE_CHECKING:
+    from protostar.cairo_testing.cairo_test_execution_state import (
+        ContractsControllerState,
+        BlockInfoControllerState,
+    )
 
 
 # pylint: disable=too-many-instance-attributes
