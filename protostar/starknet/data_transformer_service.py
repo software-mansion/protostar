@@ -6,8 +6,8 @@ from starknet_py.serialization import (
 from starknet_py.serialization import CairoSerializerException
 
 from protostar.protostar_exception import ProtostarException
-from protostar.starknet import Selector
 
+from .selector import Selector
 from .contract_abi import ContractAbi
 from .data_transformer import CairoData, PythonData
 

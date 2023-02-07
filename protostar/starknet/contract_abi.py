@@ -8,7 +8,8 @@ from starknet_py.abi.shape import AbiDictList
 from starkware.starknet.public.abi import AbiType
 
 from protostar.protostar_exception import ProtostarException
-from protostar.starknet import Selector
+
+from .selector import Selector
 
 
 class ContractAbi:
