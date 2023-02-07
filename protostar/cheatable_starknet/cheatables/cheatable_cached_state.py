@@ -35,15 +35,15 @@ class CheatableCachedState(CachedState):
             state_reader=state_reader,
             contract_class_cache=contract_class_cache,
         )
-        self._contracts_controller_state = contracts_controller_state
-        self._block_info_controller_state = block_info_controller_state
+        self.contracts_controller_state = contracts_controller_state
+        self.block_info_controller_state = block_info_controller_state
 
     def get_pranked_address(self, target_address: Address) -> Optional[Address]:
-        return self._contracts_controller_state.get_pranked_address(target_address)
+        return self.contracts_controller_state.get_pranked_address(target_address)
 
     def get_block_info(self, contract_address: int) -> BlockInfo:
         block_info = self.block_info
-        block_timestamp = self._block_info_controller_state.get_block_timestamp(
+        block_timestamp = self.block_info_controller_state.get_block_timestamp(
             Address(contract_address)
         )
         if block_timestamp is not None:
@@ -51,7 +51,7 @@ class CheatableCachedState(CachedState):
                 block_info,
                 block_timestamp=block_timestamp,
             )
-        block_number = self._block_info_controller_state.get_block_number(
+        block_number = self.block_info_controller_state.get_block_number(
             Address(contract_address)
         )
         if block_number is not None:
@@ -66,14 +66,14 @@ class CheatableCachedState(CachedState):
             block_info=self.block_info,
             state_reader=self,
             contract_class_cache=self.contract_classes,
-            contracts_controller_state=self._contracts_controller_state,
-            block_info_controller_state=self._block_info_controller_state,
+            contracts_controller_state=self.contracts_controller_state,
+            block_info_controller_state=self.block_info_controller_state,
         )
 
     def _apply(self, parent: "CachedState"):
         assert isinstance(parent, self.__class__)
-        parent._block_info_controller_state = self._block_info_controller_state
-        parent._contracts_controller_state = self._contracts_controller_state
+        parent.block_info_controller_state = self.block_info_controller_state
+        parent.contracts_controller_state = self.contracts_controller_state
         return super()._apply(parent)
 
 

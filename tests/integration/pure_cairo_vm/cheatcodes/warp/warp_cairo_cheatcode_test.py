@@ -26,7 +26,7 @@ async def test_warp_cheatcode(protostar: ProtostarFixture):
     )
 
     testing_summary = await protostar.run_test_runner(
-        TEST_PATH / "warp_test.cairo::test_warp",
+        TEST_PATH / "warp_test.cairo",
         cairo_test_runner=True,
     )
 
