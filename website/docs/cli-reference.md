@@ -372,6 +372,8 @@ A glob or globs to a directory or a test suite, for example:
 - `::test_increase_balance` — find `test_increase_balance` test_cases in any test suite within the project.
 #### `--cairo-path PATH[]`
 Additional directories to look for sources.
+#### `--compiled-contracts-dir PATH`
+Compiled contract files directory for name resolution.
 #### `--disable-hint-validation`
 Disable hint validation in contracts declared by the `declare` cheatcode or deployed by `deploy_contract` cheatcode.
 #### `--estimate-gas`

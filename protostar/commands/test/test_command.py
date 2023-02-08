@@ -155,6 +155,11 @@ A glob or globs to a directory or a test suite, for example:
                 type="bool",
                 description="Show gas estimation for each test case. Estimations might be inaccurate.",
             ),
+            ProtostarArgument(
+                name="compiled-contracts-dir",
+                type="path",
+                description="Compiled contract files directory for name resolution.",
+            ),
         ]
 
     async def run(self, args: Namespace) -> TestingSummary:
@@ -176,6 +181,7 @@ A glob or globs to a directory or a test suite, for example:
             slowest_tests_to_report_count=args.report_slowest_tests,
             gas_estimation_enabled=args.estimate_gas,
             messenger=messenger,
+            compiled_contracts_dir_path=args.compiled_contracts_dir,
         )
         cache.write_failed_tests_to_cache(summary)
 
@@ -198,6 +204,7 @@ A glob or globs to a directory or a test suite, for example:
         max_steps: Optional[int] = None,
         slowest_tests_to_report_count: int = 0,
         gas_estimation_enabled: bool = False,
+        compiled_contracts_dir_path: Optional[Path] = None,
     ) -> TestingSummary:
         include_paths = [
             str(path)

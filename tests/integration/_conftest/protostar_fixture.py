@@ -398,7 +398,10 @@ class ProtostarFixture:
         protostar_toml_path.write_text(file_content)
 
     async def run_test_runner(
-        self, target: Union[str, Path], cairo_test_runner: bool = False
+        self,
+        target: Union[str, Path],
+        cairo_test_runner: bool = False,
+        compiled_contracts_dir_path: Optional[Path] = None,
     ) -> TestingSummary:
         """
         Runs test runner safely, without assertions on state of the summary and cache mechanism
@@ -420,6 +423,7 @@ class ProtostarFixture:
             targets=targets,
             messenger=messenger_factory.human(),
             use_cairo_test_runner=cairo_test_runner,
+            compiled_contracts_dir_path=compiled_contracts_dir_path,
         )
 
     def _parse(

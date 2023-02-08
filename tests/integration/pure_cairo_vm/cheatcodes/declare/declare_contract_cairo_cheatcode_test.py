@@ -35,7 +35,7 @@ async def test_using_compiled_contracts(protostar: ProtostarFixture):
     testing_summary = await protostar.run_test_runner(
         TEST_PATH,
         cairo_test_runner=True,
-        compiled_contracts_path=build_output_path,
+        compiled_contracts_dir_path=build_output_path,
     )
     assert not testing_summary.passed
 
@@ -43,7 +43,7 @@ async def test_using_compiled_contracts(protostar: ProtostarFixture):
     testing_summary = await protostar.run_test_runner(
         TEST_PATH,
         cairo_test_runner=True,
-        compiled_contracts_path=build_output_path,
+        compiled_contracts_dir_path=build_output_path,
     )
 
     assert_cairo_test_cases(
