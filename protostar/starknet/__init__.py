@@ -1,3 +1,7 @@
+from starkware.starknet.services.api.contract_class import (
+    ContractClass as CompiledContract,
+)
+
 from .cheatable_starknet_exceptions import (
     BreakingReportedException,
     CheatcodeException,

@@ -6,3 +6,4 @@ from .project_compiler import (
     ProjectCompilerConfig,
     SourceFileNotFoundException,
 )
+from .compiled_contracts_cache import CompiledContractsCache
