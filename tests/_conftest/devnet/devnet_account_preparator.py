@@ -36,11 +36,7 @@ class DevnetAccountPreparator:
         await self._prefund(address)
         return PreparedDevnetAccount(
             class_hash=class_hash,
-            address=Address.from_class_hash(
-                class_hash=class_hash,
-                constructor_calldata=[key_pair.public_key],
-                salt=salt,
-            ),
+            address=address,
             private_key=str(key_pair.private_key),
             public_key=str(key_pair.public_key),
             signer=StarkCurveSigner(

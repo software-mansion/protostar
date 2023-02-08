@@ -29,7 +29,6 @@ from protostar.starknet import Address
 
 @dataclass
 class DeployAccountCommandArgs(NetworkArgs):
-    account_address: Address
     account_address_salt: int
     account_constructor_input: Optional[list[int]]
     account_class_hash: ClassHash
@@ -46,7 +45,6 @@ class DeployAccountCommandArgs(NetworkArgs):
 
         assert signer is not None
         return cls(
-            account_address=args.account_address,
             nonce=args.nonce,
             account_class_hash=args.account_class_hash,
             account_constructor_input=args.account_constructor_input or [],
@@ -138,8 +136,19 @@ class DeployAccountCommand(ProtostarCommand):
     ) -> DeployAccountArgs:
         if typed_args.max_fee == "auto":
             raise AutoEstimateMaxFeeException()
+
+        constructor_calldata = (
+            typed_args.account_constructor_input
+            if typed_args.account_constructor_input is not None
+            else []
+        )
+
         return DeployAccountArgs(
-            account_address=typed_args.account_address,
+            account_address=Address.from_class_hash(
+                class_hash=typed_args.account_class_hash,
+                salt=typed_args.account_address_salt,
+                constructor_calldata=constructor_calldata,
+            ),
             account_class_hash=typed_args.account_class_hash,
             account_address_salt=typed_args.account_address_salt,
             nonce=typed_args.nonce,
