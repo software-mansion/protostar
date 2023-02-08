@@ -16,5 +16,5 @@ async def test_create_cache_from_directory(protostar: ProtostarFixture):
         protostar.project_root_path / "build"
     )
 
-    assert compiled_contracts_cache.get("main") is not None
-    assert compiled_contracts_cache.get("_") is None
+    assert compiled_contracts_cache.read("main") is not None
+    assert compiled_contracts_cache.read("_") is None
