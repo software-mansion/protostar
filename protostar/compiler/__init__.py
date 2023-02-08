@@ -5,5 +5,7 @@ from .project_compiler import (
     ProjectCompiler,
     ProjectCompilerConfig,
     SourceFileNotFoundException,
+    ProjectCompilerProtocol,
 )
 from .compiled_contracts_cache import CompiledContractsCache
+from .project_compiler_caching_proxy import ProjectCompilerCachingProxy

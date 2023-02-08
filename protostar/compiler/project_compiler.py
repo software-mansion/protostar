@@ -2,23 +2,24 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Optional, Union
 
+from typing_extensions import Protocol
 from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
     PreprocessorError,
 )
 from starkware.cairo.lang.vm.vm_exceptions import VmException
-from starkware.starknet.services.api.contract_class import ContractClass
 from starkware.starkware_utils.error_handling import StarkException
 from starkware.starknet.core.os.class_hash import compute_class_hash
 
-from protostar.compiler.compiled_contract_writer import CompiledContractWriter
 from protostar.configuration_file.configuration_file import ConfigurationFile
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet import (
     StarknetPassManagerFactory,
     StarknetCompiler,
     StarknetCompilerConfig,
+    CompiledContract,
 )
 
+from .compiled_contract_writer import CompiledContractWriter
 from .project_cairo_path_builder import ProjectCairoPathBuilder
 
 ContractName = str
@@ -33,7 +34,21 @@ class ProjectCompilerConfig:
     hint_validation_disabled: bool = False
 
 
-class ProjectCompiler:
+class ProjectCompilerProtocol(Protocol):
+    def compile_contract_from_contract_identifier(
+        self,
+        contract_identifier: ContractIdentifier,
+        config: Optional[ProjectCompilerConfig] = None,
+    ) -> CompiledContract:
+        ...
+
+    def compile_contract_from_contract_name(
+        self, contract_name: str, config: Optional[ProjectCompilerConfig] = None
+    ) -> CompiledContract:
+        ...
+
+
+class ProjectCompiler(ProjectCompilerProtocol):
     def __init__(
         self,
         project_root_path: Path,
@@ -65,7 +80,7 @@ class ProjectCompiler:
         self,
         contract_identifier: ContractIdentifier,
         config: Optional[ProjectCompilerConfig] = None,
-    ) -> ContractClass:
+    ) -> CompiledContract:
         if isinstance(contract_identifier, str):
             contract_identifier = (
                 Path(contract_identifier).resolve()
@@ -81,7 +96,7 @@ class ProjectCompiler:
 
     def compile_contract_from_contract_name(
         self, contract_name: str, config: Optional[ProjectCompilerConfig] = None
-    ) -> ContractClass:
+    ) -> CompiledContract:
         try:
             contract_paths = self._configuration_file.get_contract_source_paths(
                 contract_name
@@ -95,7 +110,7 @@ class ProjectCompiler:
 
     def compile_contract_from_contract_source_paths(
         self, contract_paths: List[Path], config: Optional[ProjectCompilerConfig] = None
-    ) -> ContractClass:
+    ) -> CompiledContract:
         current_config = config or self._default_config
 
         return StarknetCompiler(
