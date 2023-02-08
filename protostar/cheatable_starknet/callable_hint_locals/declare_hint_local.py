@@ -22,11 +22,9 @@ class DeclareCheatcodeProtocol(Protocol):
 class DeclareHintLocal(CallableHintLocal):
     def __init__(
         self,
-        project_compiler: ProjectCompiler,
         contracts_controller: ContractsController,
     ):
         self._contracts_controller = contracts_controller
-        self._project_compiler = project_compiler
 
     @property
     def name(self) -> str:
@@ -36,11 +34,8 @@ class DeclareHintLocal(CallableHintLocal):
         return self.declare
 
     def declare(self, contract: str) -> DeclaredContract:
-        compiled_contract = (
-            self._project_compiler.compile_contract_from_contract_identifier(contract)
-        )
         declared_class = asyncio.run(
-            self._contracts_controller.declare_contract(compiled_contract)
+            self._contracts_controller.declare_contract(contract)
         )
 
         assert declared_class

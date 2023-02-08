@@ -21,7 +21,7 @@ from starkware.starknet.core.os.contract_address.contract_address import (
     calculate_contract_address_from_hash,
 )
 from starkware.starknet.definitions.general_config import StarknetGeneralConfig
-from starkware.starknet.services.api.contract_class import EntryPointType, ContractClass
+from starkware.starknet.services.api.contract_class import EntryPointType
 
 from protostar.cheatable_starknet.cheatables.cheatable_execute_entry_point import (
     CheatableExecuteEntryPoint,
@@ -30,6 +30,10 @@ from protostar.cheatable_starknet.cheatables.cheatable_cached_state import (
     CheatableCachedState,
 )
 from protostar.cheatable_starknet.controllers.expect_events_controller import Event
+from protostar.compiler.project_compiler import (
+    ContractIdentifier,
+    ProjectCompilerProtocol,
+)
 from protostar.starknet.selector import Selector
 from protostar.starknet.types import ClassHashType
 from protostar.starknet.address import Address
@@ -74,8 +78,13 @@ class DeployedContract:
 
 
 class ContractsController:
-    def __init__(self, cheatable_state: "CheatableCachedState"):
+    def __init__(
+        self,
+        cheatable_state: "CheatableCachedState",
+        project_compiler: "ProjectCompilerProtocol",
+    ):
         self.cheatable_state = cheatable_state
+        self._project_compiler = project_compiler
 
     async def _transform_calldata_to_cairo_data_by_addr(
         self,
@@ -117,8 +126,13 @@ class ContractsController:
 
     async def declare_contract(
         self,
-        contract_class: ContractClass,
+        contract_identifier: ContractIdentifier,
     ):
+        contract_class = (
+            self._project_compiler.compile_contract_from_contract_identifier(
+                contract_identifier
+            )
+        )
         starknet_config = StarknetGeneralConfig()
         tx = InternalDeclare.create(
             contract_class=contract_class,

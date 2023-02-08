@@ -31,7 +31,7 @@ from protostar.cheatable_starknet.controllers import (
 from protostar.cheatable_starknet.controllers.expect_events_controller import (
     ExpectEventsController,
 )
-from protostar.compiler import ProjectCompiler
+from protostar.compiler import ProjectCompilerProtocol
 from protostar.testing import Hook
 
 
@@ -39,7 +39,7 @@ class CairoSharedHintLocalFactory:
     def __init__(
         self,
         cheatable_state: CheatableCachedState,
-        project_compiler: ProjectCompiler,
+        project_compiler: ProjectCompilerProtocol,
         test_finish_hook: Hook,
         test_execution_state: CairoTestExecutionState,
     ):
@@ -52,11 +52,13 @@ class CairoSharedHintLocalFactory:
         block_info_controller = BlockInfoController(
             cheatable_state=self.cheatable_state
         )
-        contracts_controller = ContractsController(cheatable_state=self.cheatable_state)
+        contracts_controller = ContractsController(
+            cheatable_state=self.cheatable_state,
+            project_compiler=self.project_compiler,
+        )
         storage_controller = StorageController(cheatable_state=self.cheatable_state)
 
         declare_cheatcode = DeclareHintLocal(
-            project_compiler=self.project_compiler,
             contracts_controller=contracts_controller,
         )
         prepare_cheatcode = PrepareHintLocal(
