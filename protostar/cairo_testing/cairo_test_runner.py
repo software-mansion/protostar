@@ -10,13 +10,13 @@ from protostar.cairo.cairo_compiler import CairoCompiler, CairoCompilerConfig
 from protostar.cairo_testing.execution_environments.cairo_setup_execution_environment import (
     CairoSetupExecutionEnvironment,
 )
-
 from protostar.cairo_testing.execution_environments.cairo_setup_case_execution_environment import (
     CairoSetupCaseExecutionEnvironment,
 )
 from protostar.compiler import (
     ProjectCompiler,
     ProjectCompilerConfig,
+    ProjectCompilerCachingProxy,
 )
 from protostar.compiler.project_cairo_path_builder import ProjectCairoPathBuilder
 from protostar.starknet import ReportedException
@@ -78,11 +78,14 @@ class CairoTestRunner:
             debugging_info_attached=profiling,
         )
         self.project_cairo_path_builder = ProjectCairoPathBuilder(project_root_path)
-        self.project_compiler = ProjectCompiler(
-            project_root_path=project_root_path,
-            configuration_file=configuration_file,
-            default_config=project_compiler_config,
-            project_cairo_path_builder=self.project_cairo_path_builder,
+        self.project_compiler = ProjectCompilerCachingProxy(
+            project_compiler=ProjectCompiler(
+                project_root_path=project_root_path,
+                configuration_file=configuration_file,
+                default_config=project_compiler_config,
+                project_cairo_path_builder=self.project_cairo_path_builder,
+            ),
+            compiled_contracts_cache=None,  # TODO: figure out workers first
         )
 
         project_cairo_path = (
