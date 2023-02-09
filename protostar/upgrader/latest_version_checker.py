@@ -49,25 +49,26 @@ class LatestVersionChecker:
     def log_new_version_info(self, latest_version_cache_toml: LatestVersionCacheTOML):
         bold = self._log_color_provider.bold
         colorize = self._log_color_provider.colorize
-        logging.info(
-            "\n".join(
-                [
-                    (
-                        "A new Protostar version is available: "
-                        f"{bold(latest_version_cache_toml.version)}."
-                    ),
-                    colorize(
-                        "GRAY",
-                        f"Changelog: {latest_version_cache_toml.changelog_url}",
-                    ),
-                    (
-                        "To install the latest Protostar version, run "
-                        f"{bold(colorize('CYAN', 'protostar upgrade'))}."
-                    ),
-                    "",
-                ]
-            )
-        )
+        # TODO: uncomment
+        # logging.info(
+        #     "\n".join(
+        #         [
+        #             (
+        #                 "A new Protostar version is available: "
+        #                 f"{bold(latest_version_cache_toml.version)}."
+        #             ),
+        #             colorize(
+        #                 "GRAY",
+        #                 f"Changelog: {latest_version_cache_toml.changelog_url}",
+        #             ),
+        #             (
+        #                 "To install the latest Protostar version, run "
+        #                 f"{bold(colorize('CYAN', 'protostar upgrade'))}."
+        #             ),
+        #             "",
+        #         ]
+        #     )
+        # )
 
     def load_local_latest_version_cache_toml(
         self,
