@@ -21,7 +21,7 @@ def pull_package_submodules(
             "Did you install any package before running this command?",
         ) from ex
 
-    submodules = repo.get_submodules()
+    submodules = repo.get_submodule_name_to_submodule()
 
     for name in submodules:
         if name in submodule_names:

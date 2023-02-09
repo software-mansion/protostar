@@ -20,4 +20,4 @@ def test_successful_installation(tmpdir: str, repo_url: str):
     # This implicitly tests whether the install command actually creates a repo
     repo = Git.load_existing_repo(Path(tmpdir))
 
-    assert len(repo.get_submodules()) == 1
+    assert len(repo.get_submodule_name_to_submodule()) == 1

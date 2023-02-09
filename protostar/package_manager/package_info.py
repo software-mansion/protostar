@@ -52,7 +52,7 @@ def load_normalized_to_real_name_map(repo_dir: Path, packages_dir: Path):
     mapping: Dict["str", "str"] = {}
 
     package_names = listdir(packages_dir)
-    submodules = repo.get_submodules()
+    submodules = repo.get_submodule_name_to_submodule()
     for submodule_name in submodules:
         if submodule_name in package_names:
             submodule_url = submodules[submodule_name].url
