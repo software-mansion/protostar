@@ -12,12 +12,12 @@ from protostar.io import log_color_provider
 def update_package(package_name: str, repo_dir: Path, packages_dir: Path):
     logger = getLogger()
 
-    repo = GitRepository.load_existing_repo(repo_dir)
+    repo = GitRepository.from_path(repo_dir)
 
     submodules = repo.get_submodule_name_to_submodule()
     submodule = submodules[package_name]
 
-    package_repo = GitRepository.load_existing_repo(packages_dir / package_name)
+    package_repo = GitRepository.from_path(packages_dir / package_name)
 
     current_tag = Optional[str]
     try:

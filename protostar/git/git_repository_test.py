@@ -29,12 +29,12 @@ def test_load_existing_repo(tmp_path: Path):
     sub_path.mkdir(parents=True)
     GitRepository.create(main_path)
 
-    repo_main = GitRepository.load_existing_repo(main_path)
-    repo_sub = GitRepository.load_existing_repo(sub_path)
+    repo_main = GitRepository.from_path(main_path)
+    repo_sub = GitRepository.from_path(sub_path)
 
     assert repo_main.repo_path == repo_sub.repo_path
 
     with pytest.raises(
         InvalidGitRepositoryException, match=re.escape("is not a valid git repository.")
     ):
-        GitRepository.load_existing_repo(tmp_path)
+        GitRepository.from_path(tmp_path)

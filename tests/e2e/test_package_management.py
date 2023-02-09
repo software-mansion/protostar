@@ -115,5 +115,5 @@ def test_install_specified_tag(protostar: ProtostarFixture, libs_path: str):
     protostar(["--no-color", "install", "software-mansion/starknet.py@0.6.2-alpha"])
     assert "starknet_py" in listdir(libs_path)
 
-    repo = GitRepository.load_existing_repo(Path(libs_path) / "starknet_py")
+    repo = GitRepository.from_path(Path(libs_path) / "starknet_py")
     assert repo.get_tag() == "0.6.2-alpha"

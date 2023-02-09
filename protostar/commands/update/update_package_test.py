@@ -100,7 +100,7 @@ def test_updating_specific_package_with_tag(
     package_repo_dir: Path,
     package_repo: GitRepository,
 ):
-    repo = GitRepository.load_existing_repo(packages_dir / package_name)
+    repo = GitRepository.from_path(packages_dir / package_name)
     current_tag = repo.get_tag()
     assert current_tag == "0.1.0"
 
@@ -127,7 +127,7 @@ def test_package_already_up_to_date(
     repo_dir: Path,
     packages_dir: Path,
 ):
-    repo = GitRepository.load_existing_repo(packages_dir / package_name)
+    repo = GitRepository.from_path(packages_dir / package_name)
     current_tag = repo.get_tag()
     assert current_tag == "0.1.0"
 
@@ -146,7 +146,7 @@ def test_updating_specific_package_without_tag(
     package_repo: GitRepository,
     package_repo_dir: Path,
 ):
-    repo = GitRepository.load_existing_repo(packages_dir / package_name)
+    repo = GitRepository.from_path(packages_dir / package_name)
 
     dummy_file_path = package_repo_dir / "bar.txt"
     with open(dummy_file_path, "w", encoding="utf-8") as some_file:

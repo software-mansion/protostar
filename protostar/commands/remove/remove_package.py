@@ -7,7 +7,7 @@ from protostar.commands.remove import removal_exceptions
 
 def remove_package(package_name: str, repo_dir: Path):
     try:
-        repo = GitRepository.load_existing_repo(repo_dir)
+        repo = GitRepository.from_path(repo_dir)
     except InvalidGitRepositoryException as ex:
         raise removal_exceptions.InvalidLocalRepository(
             """A git repository must be initialized in order to remove packages.
