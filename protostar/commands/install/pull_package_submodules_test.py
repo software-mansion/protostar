@@ -8,7 +8,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 from protostar.commands.install.pull_package_submodules import pull_package_submodules
-from protostar.git import Git, GitRepository
+from protostar.git import GitRepository
 
 # - repo
 #   - lib
@@ -51,7 +51,7 @@ def package_repo_dir(tmpdir: str) -> Path:
 
 @pytest.fixture
 def package_repo(package_repo_dir: Path, the_packages_file_name: str) -> GitRepository:
-    repo = Git.init(package_repo_dir)
+    repo = GitRepository.create(package_repo_dir)
 
     the_file_path = path.join(package_repo_dir / the_packages_file_name)
     with open(the_file_path, "w", encoding="utf-8") as file:
@@ -74,7 +74,7 @@ def repo(
     # This is needed because we want the package repo to be initialized
     package_repo: GitRepository,
 ) -> GitRepository:
-    repo = Git.init(repo_dir)
+    repo = GitRepository.create(repo_dir)
 
     packages_dir = repo_dir / packages_dir_name
     package_dir = packages_dir / the_package_name
@@ -94,7 +94,7 @@ def repo(
 def repo_clone(
     repo_clone_dir: Path, repo_dir: Path, repo: GitRepository, packages_dir_name: str
 ) -> GitRepository:
-    cloned_repo = Git.clone(repo_clone_dir, repo)
+    cloned_repo = repo.clone(repo_clone_dir)
 
     assert path.exists(
         repo_clone_dir / packages_dir_name

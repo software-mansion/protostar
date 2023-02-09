@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Optional
 
 from protostar.io import log_color_provider
-from protostar.git import Git, InvalidGitRepositoryException
+from protostar.git import GitRepository, InvalidGitRepositoryException
 
 
 def install_package_from_repo(
@@ -16,10 +16,10 @@ def install_package_from_repo(
     logger = getLogger()
 
     try:
-        repo = Git.load_existing_repo(project_root_path)
+        repo = GitRepository.load_existing_repo(project_root_path)
     except InvalidGitRepositoryException:
         logger.info("Initializing git repository.")
-        repo = Git.init(project_root_path)
+        repo = GitRepository.create(project_root_path)
 
     package_dir = destination / name
 

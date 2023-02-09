@@ -1,10 +1,12 @@
 import os.path
 import re
-import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
+from typing_extensions import Self
+
+from protostar.git.git import ensure_user_has_git, run_git
 from protostar.git.git_exceptions import (
     InvalidGitRepositoryException,
     ProtostarGitException,
@@ -20,10 +22,24 @@ class Submodule:
 
 
 class GitRepository:
+    @classmethod
+    def create(cls, repo_path: Path):
+        ensure_user_has_git()
+        repo_path.mkdir(parents=True, exist_ok=True)
+        repo = GitRepository(repo_path)
+        repo.init()
+        return repo
+
+    @staticmethod
+    def load_existing_repo(repo_path: Path):
+        ensure_user_has_git()
+        path = GitRepository.get_repo_root(repo_path)
+        return GitRepository(path)
+
     @staticmethod
     def get_repo_root(repo_path: Path) -> Path:
         try:
-            path_str = git(["rev-parse", "--show-toplevel"], repo_path=repo_path)
+            path_str = run_git(["rev-parse", "--show-toplevel"], cwd=repo_path)
         except ProtostarGitException as ex:
             raise InvalidGitRepositoryException(
                 f"{repo_path} is not a valid git repository."
@@ -36,8 +52,10 @@ class GitRepository:
     def init(self):
         self._git(["init"])
 
-    def clone(self, repo_path_to_clone: Path):
-        self._git(["clone", str(repo_path_to_clone), self.repo_path.name])
+    def clone(self, new_repo_path: Path) -> Self:
+        new_repo_path.parent.mkdir(parents=True, exist_ok=True)
+        self._git(["clone", str(self.repo_path), str(new_repo_path)])
+        return GitRepository(new_repo_path)
 
     def add_submodule(
         self,
@@ -46,7 +64,7 @@ class GitRepository:
         name: str,
         tag: Optional[str] = None,
         depth: int = 1,
-    ):
+    ) -> None:
         try:
             relative_submodule_path = submodule_path.relative_to(self.repo_path)
         except ValueError:
@@ -100,7 +118,7 @@ class GitRepository:
         self._git(["fetch", "--tags"])
 
     def _git(self, args: list[str]) -> str:
-        return git(args=args, repo_path=self.repo_path)
+        return run_git(args=args, cwd=self.repo_path)
 
     def get_submodule_name_to_submodule(self) -> dict[str, Submodule]:
         gitmodules_path = self.repo_path / ".gitmodules"
@@ -119,49 +137,3 @@ class GitRepository:
                     for name, path, url in zip(names, paths, urls)
                 }
         return {}
-
-
-GIT_VERBOSE = False
-SHARED_KWARGS = (
-    {}
-    if GIT_VERBOSE
-    else {
-        "stdout": subprocess.DEVNULL,
-        "stderr": subprocess.DEVNULL,
-    }
-)
-
-DEFAULT_CREDENTIALS = [
-    "-c",
-    'user.name="Protostar"',
-    "-c",
-    'user.email="protostar@protostar.protostar"',
-]
-
-
-def git(args: list[str], repo_path: Path):
-    assert len(args) > 0
-    assert args[0] != "git"
-    credentials = [] if has_git_credentials() else DEFAULT_CREDENTIALS
-    try:
-        return (
-            subprocess.run(
-                ["git", *credentials, *args],
-                check=True,
-                cwd=repo_path,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-            )
-            .stdout.decode("utf-8")
-            .strip()
-        )
-    except subprocess.CalledProcessError as ex:
-        raise ProtostarGitException(str(ex)) from ex
-
-
-def has_git_credentials():
-    try:
-        subprocess.run(["git", "config", "user.name"], check=True, **SHARED_KWARGS)
-    except subprocess.CalledProcessError:
-        return False
-    return True

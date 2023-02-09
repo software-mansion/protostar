@@ -7,7 +7,7 @@ from typing import Literal, Optional
 from packaging import version
 from packaging.version import Version
 
-from protostar.git import Git, ProtostarGitException
+from protostar.git import get_git_version, ProtostarGitException
 
 from .protostar_compatibility_with_project_checker import (
     ProtostarVersion,
@@ -96,7 +96,7 @@ class VersionManager:
     @property
     def git_version(self) -> Optional[Version]:
         try:
-            output = Git.get_version()
+            output = get_git_version()
             result = re.search(r"\d*\.\d*.\d*", output)
             if result:
                 return version.parse(result.group())
