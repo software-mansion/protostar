@@ -47,7 +47,7 @@ def retrieve_real_package_name(
 
 
 def load_normalized_to_real_name_map(repo_dir: Path, packages_dir: Path):
-    repo = GitRepository.from_path(repo_dir)
+    repo = GitRepository.from_existing(repo_dir)
 
     mapping: Dict["str", "str"] = {}
 

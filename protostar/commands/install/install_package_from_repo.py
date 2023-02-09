@@ -16,7 +16,7 @@ def install_package_from_repo(
     logger = getLogger()
 
     try:
-        repo = GitRepository.from_path(project_root_path)
+        repo = GitRepository.from_existing(project_root_path)
     except InvalidGitRepositoryException:
         logger.info("Initializing git repository.")
         repo = GitRepository.create(project_root_path)

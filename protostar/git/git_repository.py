@@ -31,7 +31,7 @@ class GitRepository:
         return repo
 
     @staticmethod
-    def from_path(repo_path: Path):
+    def from_existing(repo_path: Path):
         ensure_user_has_git()
         path = GitRepository.get_repo_root(repo_path)
         return GitRepository(path)

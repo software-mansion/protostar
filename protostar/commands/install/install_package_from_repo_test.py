@@ -18,6 +18,6 @@ def test_successful_installation(tmpdir: str, repo_url: str):
     install_package_from_repo("foo", repo_url, Path(tmpdir), Path(tmpdir) / "lib")
 
     # This implicitly tests whether the install command actually creates a repo
-    repo = GitRepository.from_path(Path(tmpdir))
+    repo = GitRepository.from_existing(Path(tmpdir))
 
     assert len(repo.get_submodule_name_to_submodule()) == 1
