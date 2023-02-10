@@ -6,7 +6,7 @@ from typing import Callable, Optional
 
 import pytest
 
-from protostar.git import Git
+from protostar.git import GitRepository
 from tests.e2e.conftest import InitFixture, ProtostarFixture
 
 
@@ -115,5 +115,5 @@ def test_install_specified_tag(protostar: ProtostarFixture, libs_path: str):
     protostar(["--no-color", "install", "software-mansion/starknet.py@0.6.2-alpha"])
     assert "starknet_py" in listdir(libs_path)
 
-    repo = Git.load_existing_repo(Path(libs_path) / "starknet_py")
+    repo = GitRepository.from_existing(Path(libs_path) / "starknet_py")
     assert repo.get_tag() == "0.6.2-alpha"

@@ -9,7 +9,7 @@ from protostar.commands.update.update_package import update_package
 from protostar.commands.update.updating_exceptions import (
     PackageAlreadyUpToDateException,
 )
-from protostar.git import Git, GitRepository
+from protostar.git import GitRepository
 from protostar.git.create_and_commit_sample_file import create_and_commit_sample_file
 
 # tmpdir
@@ -36,7 +36,7 @@ def fixture_packages_dir(repo_dir: Path) -> Path:
 
 @pytest.fixture(name="repo")
 def fixture_repo(repo_dir: Path):
-    return Git.init(repo_dir)
+    return GitRepository.create(repo_dir)
 
 
 @pytest.fixture(name="current_tag")
@@ -58,7 +58,7 @@ def fixture_package_repo_dir(tmpdir: str) -> Path:
 
 @pytest.fixture(name="package_repo")
 def fixture_package_repo(current_tag: Optional[str], package_repo_dir: Path):
-    package_repo = Git.init(package_repo_dir)
+    package_repo = GitRepository.create(package_repo_dir)
 
     create_and_commit_sample_file(package_repo, package_repo_dir)
 
@@ -100,7 +100,7 @@ def test_updating_specific_package_with_tag(
     package_repo_dir: Path,
     package_repo: GitRepository,
 ):
-    repo = Git.load_existing_repo(packages_dir / package_name)
+    repo = GitRepository.from_existing(packages_dir / package_name)
     current_tag = repo.get_tag()
     assert current_tag == "0.1.0"
 
@@ -127,7 +127,7 @@ def test_package_already_up_to_date(
     repo_dir: Path,
     packages_dir: Path,
 ):
-    repo = Git.load_existing_repo(packages_dir / package_name)
+    repo = GitRepository.from_existing(packages_dir / package_name)
     current_tag = repo.get_tag()
     assert current_tag == "0.1.0"
 
@@ -146,7 +146,7 @@ def test_updating_specific_package_without_tag(
     package_repo: GitRepository,
     package_repo_dir: Path,
 ):
-    repo = Git.load_existing_repo(packages_dir / package_name)
+    repo = GitRepository.from_existing(packages_dir / package_name)
 
     dummy_file_path = package_repo_dir / "bar.txt"
     with open(dummy_file_path, "w", encoding="utf-8") as some_file:
