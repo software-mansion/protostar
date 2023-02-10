@@ -26,10 +26,10 @@ class ContractAbi:
 
     @classmethod
     def from_abi_entries(cls, abi_entries: Union[AbiType, AbiDictList]):
-        contract_abi_ = cast(AbiType, abi_entries)
+        abi_entries = cast(AbiType, abi_entries)
         try:
-            contract_abi_model = AbiParser(contract_abi_).parse()
-            return cls(abi_entries=contract_abi_, contract_abi_model=contract_abi_model)
+            contract_abi_model = AbiParser(abi_entries).parse()
+            return cls(abi_entries=abi_entries, contract_abi_model=contract_abi_model)
         except (AbiParsingError, ValidationError) as ex:
             raise ProtostarException("Invalid ABI") from ex
 
