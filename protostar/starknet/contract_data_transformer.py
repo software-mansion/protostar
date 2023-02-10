@@ -39,7 +39,7 @@ class ContractDataTransformer:
 @contextmanager
 def serialization_exception_handler():
     try:
-        yield None
+        yield
     except CairoSerializerException as ex:
         details = ex.args[0] if len(ex.args) > 0 else ""
         raise ProtostarException(
