@@ -82,20 +82,12 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
             contract_address = code_address
 
             # region Modified Starknet code.
-            address = Address(contract_address)
-            entrypoint_selector = Selector(cast(int, request.function_selector))
-            if address in self.cheatable_state.address_to_entrypoint_to_mocked_response:
-                if (
-                    entrypoint_selector
-                    in self.cheatable_state.address_to_entrypoint_to_mocked_response[
-                        address
-                    ]
-                ):
-                    return (
-                        self.cheatable_state.address_to_entrypoint_to_mocked_response[
-                            address
-                        ][entrypoint_selector]
-                    )
+            mocked_response = self.cheatable_state.get_mocked_response(
+                target_address=Address(contract_address),
+                entrypoint=Selector(cast(int, request.function_selector)),
+            )
+            if mocked_response is not None:
+                return mocked_response
             # endregion
 
             caller_address = self.contract_address

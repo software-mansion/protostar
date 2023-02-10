@@ -31,6 +31,5 @@ async def test_mock_call(protostar: ProtostarFixture):
 
     assert_cairo_test_cases(
         testing_summary,
-        expected_passed_test_cases_names=["test_happy_path"],
-        # expected_broken_test_cases_names=["test_fail_when_call_was_mocked_twice"],
+        expected_passed_test_cases_names=["test_happy_path", "test_mocking_call_twice"],
     )
