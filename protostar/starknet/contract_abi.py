@@ -19,7 +19,6 @@ class ContractAbi:
 
     @classmethod
     def from_json_file(cls, path: Path):
-        assert path.suffix == ".json"
         potential_abi = json.loads(path.read_text())
         return ContractAbi.from_abi_entries(
             abi_entries=potential_abi,
