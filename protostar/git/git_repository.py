@@ -6,7 +6,7 @@ from typing import Optional
 
 from typing_extensions import Self
 
-from .git import ensure_user_has_git, find_repo_root, run_git
+from .git_helpers import ensure_user_has_git, find_repo_root, run_git
 
 
 @dataclass
