@@ -145,7 +145,7 @@ class InvokeCommand(ProtostarCommand):
             selector=Selector(function_name),
             calldata=inputs,
             max_fee=max_fee,
-            abi=None,
+            contract_abi=None,
         )
         use_case = InvokeUseCase(
             account_manager=account_manager,

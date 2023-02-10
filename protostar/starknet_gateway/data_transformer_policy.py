@@ -2,14 +2,13 @@ from typing import Optional
 
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet import (
-    to_python_transformer,
-    from_python_transformer,
+    ContractDataTransformer,
     CairoData,
     PythonData,
     CairoOrPythonData,
-    AbiType,
     Address,
     Selector,
+    ContractAbi,
 )
 
 from .abi_resolver import AbiResolver
@@ -24,16 +23,19 @@ class DataTransformerPolicy:
         calldata: Optional[CairoOrPythonData],
         address: Address,
         selector: Selector,
-        abi: Optional[AbiType],
+        contract_abi: Optional[ContractAbi],
     ) -> CairoData:
         if calldata is None:
             return []
         if isinstance(calldata, dict):
-            abi = abi or await self._resolve_abi_or_fail(address=address)
-            transform = from_python_transformer(
-                contract_abi=abi, fn_name=str(selector), mode="inputs"
+            contract_abi = contract_abi or await self._resolve_abi_or_fail(
+                address=address
             )
-            return transform(calldata)
+            return ContractDataTransformer(
+                contract_abi
+            ).transform_entrypoint_inputs_to_cairo_data(
+                selector=selector, python_data=calldata
+            )
         return calldata
 
     async def _resolve_abi_or_fail(self, address: Address):
@@ -52,14 +54,13 @@ class DataTransformerPolicy:
         data: CairoData,
         address: Address,
         selector: Selector,
-        abi: Optional[AbiType],
+        contract_abi: Optional[ContractAbi],
     ) -> Optional[PythonData]:
-        abi = abi or await self._abi_resolver.resolve(address)
-        if abi is None:
+        contract_abi = contract_abi or await self._abi_resolver.resolve(address)
+        if contract_abi is None:
             return None
-        transform = to_python_transformer(
-            contract_abi=abi,
-            fn_name=str(selector),
-            mode="outputs",
+        return ContractDataTransformer(
+            contract_abi
+        ).transform_entrypoint_outputs_to_python_data(
+            selector=selector, cairo_data=data
         )
-        return transform(data)

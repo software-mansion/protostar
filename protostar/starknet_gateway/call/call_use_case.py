@@ -21,7 +21,7 @@ class CallUseCase:
                 address=input_data.address,
                 selector=input_data.selector,
                 calldata=input_data.inputs,
-                abi=input_data.abi,
+                contract_abi=input_data.contract_abi,
             )
         )
         response_cairo_data = await self._gateway_facade.send_call(
@@ -33,7 +33,7 @@ class CallUseCase:
             data=response_cairo_data,
             address=input_data.address,
             selector=input_data.selector,
-            abi=input_data.abi,
+            contract_abi=input_data.contract_abi,
         )
         return CallOutput(
             cairo_data=response_cairo_data,

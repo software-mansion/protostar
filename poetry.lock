@@ -1581,26 +1581,26 @@ tests = ["pytest", "pytz", "simplejson"]
 
 [[package]]
 name = "marshmallow-dataclass"
-version = "8.5.8"
+version = "8.4.2"
 description = "Python library to convert dataclasses into marshmallow schemas."
 category = "main"
 optional = false
 python-versions = ">=3.6"
 files = [
-    {file = "marshmallow_dataclass-8.5.8-py3-none-any.whl", hash = "sha256:9558cad84f65908df269d762deda903a8b42e25621c8a6be2a8d9b19cd55b9f5"},
-    {file = "marshmallow_dataclass-8.5.8.tar.gz", hash = "sha256:b12dc2ca9492d0d8f98577e185dee3189d8bb02f4909e475f56ed4bf7b7d5a83"},
+    {file = "marshmallow_dataclass-8.4.2-py3-none-any.whl", hash = "sha256:f3b39bfb9da25f46f12f118b067f9eebc754472d76259b525e561e429337530f"},
+    {file = "marshmallow_dataclass-8.4.2.tar.gz", hash = "sha256:2948a0e1ffbec5ecc41242ec194216be99264cbb23ee117c90b97bfbbe7d0566"},
 ]
 
 [package.dependencies]
-marshmallow = ">=3.13.0,<4.0"
+marshmallow = ">=3.0.0,<4.0"
 typing-inspect = ">=0.7.1"
 
 [package.extras]
-dev = ["marshmallow-enum", "pre-commit (>=2.17,<3.0)", "pytest (>=5.4)", "pytest-mypy-plugins (>=1.2.0)", "sphinx", "typeguard", "typing-extensions (>=3.7.2)"]
+dev = ["marshmallow-enum", "pre-commit (>=1.18,<2.0)", "pytest (>=5.4)", "pytest-mypy-plugins (>=1.2.0)", "sphinx", "typeguard", "typing-extensions (>=3.7.2,<3.8.0)"]
 docs = ["sphinx"]
 enum = ["marshmallow-enum"]
-lint = ["pre-commit (>=2.17,<3.0)"]
-tests = ["pytest (>=5.4)", "pytest-mypy-plugins (>=1.2.0)", "typing-extensions (>=3.7.2)"]
+lint = ["pre-commit (>=1.18,<2.0)"]
+tests = ["pytest (>=5.4)", "pytest-mypy-plugins (>=1.2.0)", "typing-extensions (>=3.7.2,<3.8.0)"]
 union = ["typeguard"]
 
 [[package]]
@@ -2878,13 +2878,13 @@ Werkzeug = ">=2.0.3,<2.1.0"
 
 [[package]]
 name = "starknet-py"
-version = "0.13.0a0"
+version = "0.14.0a0"
 description = "A python SDK for StarkNet"
 category = "main"
 optional = false
 python-versions = ">=3.8,<3.10"
 files = [
-    {file = "starknet_py-0.13.0a0.tar.gz", hash = "sha256:5a530505e42121b8c039e7ccb6c5cea3c5cb77a4c4f9058433b1cab8c57765fe"},
+    {file = "starknet_py-0.14.0a0.tar.gz", hash = "sha256:8a1c1551e3de15471cc20f9fb6daa3b9c3e363526f223a7c3204647dc8018598"},
 ]
 
 [package.dependencies]
@@ -2893,6 +2893,7 @@ cairo-lang = "0.10.3"
 crypto-cpp-py = ">=1.0.4,<2.0.0"
 furo = ">=2022.12.7,<2023.0.0"
 marshmallow = ">=3.15.0,<4.0.0"
+marshmallow-dataclass = "<8.5.0"
 marshmallow-oneofschema = ">=3.0.1,<4.0.0"
 typing-extensions = ">=4.3.0,<5.0.0"
 
@@ -3335,4 +3336,4 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.9"
-content-hash = "b0e5de6c34d850a21ac3ed096d929dfc5b5be1c07f35c59f616f7621406376c4"
+content-hash = "a35a4d835e2151b74e7540cb47b9f528d69e63554f1e5337405dfdfadec476e0"

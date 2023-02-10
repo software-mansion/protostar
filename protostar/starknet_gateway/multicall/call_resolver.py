@@ -41,9 +41,9 @@ class CallResolver:
                 deployment_call.address
             )
         return ResolvedCall(
-            address=Address(deployment_call.udc.to_addr),
-            calldata=deployment_call.udc.calldata,
-            selector=Selector(deployment_call.udc.selector),
+            address=Address(deployment_call.call.to_addr),
+            calldata=deployment_call.call.calldata,
+            selector=Selector(deployment_call.call.selector),
         )
 
     def _resolve_invoke_call(self, invoke_call: InvokeCall) -> ResolvedCall:

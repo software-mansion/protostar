@@ -12,14 +12,14 @@ from starknet_py.proxy.proxy_check import (
     ProxyCheck,
 )
 
-from protostar.starknet import AbiType, Address
+from protostar.starknet import Address, ContractAbi
 
 
 class AbiResolver:
     def __init__(self, client: Client) -> None:
         self._client = client
 
-    async def resolve(self, address: Address) -> Optional[AbiType]:
+    async def resolve(self, address: Address) -> Optional[ContractAbi]:
         abi = await self._resolve(
             address=address,
             proxy_checks=[
@@ -37,15 +37,16 @@ class AbiResolver:
         self,
         address: Address,
         proxy_checks: Optional[list[ProxyCheck]] = None,
-    ) -> Optional[AbiType]:
+    ) -> Optional[ContractAbi]:
         try:
             proxy_config = ProxyConfig()
             if proxy_checks:
                 proxy_config["proxy_checks"] = proxy_checks
-            return await ContractAbiResolver(
+            abi = await ContractAbiResolver(
                 address=int(address),
                 client=self._client,
                 proxy_config=proxy_config,
             ).resolve()
+            return ContractAbi.from_abi_entries(abi)
         except ProxyResolutionError:
             return None
