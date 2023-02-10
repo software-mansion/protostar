@@ -13,6 +13,10 @@ from .selector import Selector
 
 
 class ContractAbi:
+    def __init__(self, abi_entries: AbiType, contract_abi_model: Abi):
+        self._abi_entries = abi_entries
+        self._contract_abi_model = contract_abi_model
+
     @classmethod
     def from_json_file(cls, path: Path):
         assert path.suffix == ".json"
@@ -29,10 +33,6 @@ class ContractAbi:
             return cls(abi_entries=contract_abi_, contract_abi_model=contract_abi_model)
         except (AbiParsingError, ValidationError) as ex:
             raise ProtostarException("Invalid ABI") from ex
-
-    def __init__(self, abi_entries: AbiType, contract_abi_model: Abi):
-        self._abi_entries = abi_entries
-        self._contract_abi_model = contract_abi_model
 
     def to_abi_type(self) -> AbiType:
         return self._abi_entries
