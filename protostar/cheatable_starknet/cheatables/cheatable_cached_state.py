@@ -41,7 +41,7 @@ class CheatableCachedState(CachedState):
         ] = {}
         self.mocked_response_id_to_address_and_selector: dict[
             int, Tuple[Address, Selector]
-        ]
+        ] = {}
         self.event_selector_to_name_map: Dict[int, str] = {}
         self.emitted_events: list[Event] = []
         self.event_name_to_contract_abi_map: Dict[str, AbiType] = {}
@@ -101,6 +101,9 @@ class CheatableCachedState(CachedState):
         copied.address_to_entrypoint_to_mocked_response = (
             self.address_to_entrypoint_to_mocked_response.copy()
         )
+        copied.mocked_response_id_to_address_and_selector = (
+            self.mocked_response_id_to_address_and_selector.copy()
+        )
         copied.event_selector_to_name_map = self.event_selector_to_name_map.copy()
 
         copied.event_name_to_contract_abi_map = (
@@ -151,6 +154,10 @@ class CheatableCachedState(CachedState):
                 parent.address_to_entrypoint_to_mocked_response[
                     address
                 ] = self.address_to_entrypoint_to_mocked_response[address]
+        parent.mocked_response_id_to_address_and_selector = {
+            **parent.mocked_response_id_to_address_and_selector,
+            **self.mocked_response_id_to_address_and_selector,
+        }
 
         parent.event_selector_to_name_map = {
             **parent.event_selector_to_name_map,
