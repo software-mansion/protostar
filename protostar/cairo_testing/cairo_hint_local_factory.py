@@ -19,6 +19,7 @@ from protostar.cheatable_starknet.callable_hint_locals import (
     SendMessageToL2HintLocal,
     ExpectEventsHintLocal,
     LoadHintLocal,
+    MockCallHintLocal,
 )
 from protostar.cheatable_starknet.cheatables.cheatable_cached_state import (
     CheatableCachedState,
@@ -92,6 +93,7 @@ class CairoSharedHintLocalFactory:
                     cheatable_state=self._test_execution_state.cheatable_state,
                 ),
             ),
+            MockCallHintLocal(controller=contracts_controller),
         ]
 
 

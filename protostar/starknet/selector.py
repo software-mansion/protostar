@@ -21,3 +21,6 @@ class Selector:
         if isinstance(__o, Selector):
             return int(self) == int(__o)
         return False
+
+    def __hash__(self) -> int:
+        return hash(self._value)

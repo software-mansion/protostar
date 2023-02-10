@@ -356,3 +356,10 @@ class ContractsController:
 
     def cancel_prank(self, target_address: Address):
         self.cheatable_state.remove_pranked_address(target_address)
+
+    def mock_call(
+        self, target_address: Address, entrypoint: Selector, response: CairoData
+    ):
+        return self.cheatable_state.add_mocked_response(
+            target_address, entrypoint, response
+        )
