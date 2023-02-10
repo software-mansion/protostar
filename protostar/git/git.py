@@ -1,7 +1,11 @@
 import subprocess
 from pathlib import Path
 
-from .git_exceptions import ProtostarGitException, GitNotFoundException
+from .git_exceptions import (
+    InvalidGitRepositoryException,
+    ProtostarGitException,
+    GitNotFoundException,
+)
 
 GIT_VERBOSE = False
 SHARED_KWARGS = (
@@ -70,3 +74,13 @@ def ensure_user_has_git():
         )
     except FileNotFoundError as ex:
         raise GitNotFoundException("Git executable not found.") from ex
+
+
+def find_repo_root(repo_path: Path) -> Path:
+    try:
+        path_str = run_git(["rev-parse", "--show-toplevel"], cwd=repo_path)
+    except ProtostarGitException as ex:
+        raise InvalidGitRepositoryException(
+            f"{repo_path} is not a valid git repository."
+        ) from ex
+    return Path(path_str).resolve()

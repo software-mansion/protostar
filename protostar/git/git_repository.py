@@ -6,11 +6,7 @@ from typing import Optional
 
 from typing_extensions import Self
 
-from protostar.git.git import ensure_user_has_git, run_git
-from protostar.git.git_exceptions import (
-    InvalidGitRepositoryException,
-    ProtostarGitException,
-)
+from .git import ensure_user_has_git, find_repo_root, run_git
 
 
 @dataclass
@@ -30,21 +26,11 @@ class GitRepository:
         repo.init()
         return repo
 
-    @staticmethod
-    def from_existing(repo_path: Path):
+    @classmethod
+    def from_existing(cls, repo_path: Path):
         ensure_user_has_git()
-        path = GitRepository.get_repo_root(repo_path)
-        return GitRepository(path)
-
-    @staticmethod
-    def get_repo_root(repo_path: Path) -> Path:
-        try:
-            path_str = run_git(["rev-parse", "--show-toplevel"], cwd=repo_path)
-        except ProtostarGitException as ex:
-            raise InvalidGitRepositoryException(
-                f"{repo_path} is not a valid git repository."
-            ) from ex
-        return Path(path_str).resolve()
+        path = find_repo_root(repo_path)
+        return cls(path)
 
     def __init__(self, repo_path: Path):
         self.repo_path = repo_path.resolve()
@@ -120,7 +106,7 @@ class GitRepository:
     def _git(self, args: list[str]) -> str:
         return run_git(args=args, cwd=self.repo_path)
 
-    def get_submodule_name_to_submodule(self) -> dict[str, Submodule]:
+    def get_name_to_submodule(self) -> dict[str, Submodule]:
         gitmodules_path = self.repo_path / ".gitmodules"
         if os.path.isfile(gitmodules_path):
             with open(gitmodules_path, "r", encoding="utf-8") as file:

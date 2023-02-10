@@ -15,7 +15,7 @@ def remove_package(package_name: str, repo_dir: Path):
 - Are you in the right directory?"""
         ) from ex
 
-    submodules = repo.get_submodule_name_to_submodule()
+    submodules = repo.get_name_to_submodule()
 
     if package_name not in submodules:
         raise removal_exceptions.PackageNotFound(
