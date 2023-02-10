@@ -105,7 +105,7 @@ class GitRepository:
     def _git(self, *args: Union[str, Path]) -> str:
         return run_git(*args, cwd=self.repo_path)
 
-    def get_name_to_submodule(self) -> dict[str, Submodule]:
+    def get_submodules(self) -> dict[str, Submodule]:
         gitmodules_path = self.repo_path / ".gitmodules"
         if os.path.isfile(gitmodules_path):
             with open(gitmodules_path, "r", encoding="utf-8") as file:

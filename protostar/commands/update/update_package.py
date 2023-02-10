@@ -14,7 +14,7 @@ def update_package(package_name: str, repo_dir: Path, packages_dir: Path):
 
     repo = GitRepository.from_existing(repo_dir)
 
-    submodules = repo.get_name_to_submodule()
+    submodules = repo.get_submodules()
     submodule = submodules[package_name]
 
     package_repo = GitRepository.from_existing(packages_dir / package_name)
