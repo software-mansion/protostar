@@ -39,10 +39,6 @@ class ContractAbi:
     def has_constructor(self) -> bool:
         return self._contract_abi_model.constructor is not None
 
-    def has_entrypoint_parameters(self, selector: Selector) -> bool:
-        fn_name_abi = self.unwrap_entrypoint_model(selector)
-        return len(fn_name_abi.inputs) > 0
-
     def unwrap_entrypoint_model(self, selector: Selector):
         fn_name = str(selector)
         if fn_name not in self._contract_abi_model.functions:
