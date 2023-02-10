@@ -1,5 +1,6 @@
 import subprocess
 from pathlib import Path
+from typing import Union
 
 from .git_exceptions import (
     InvalidGitRepositoryException,
@@ -25,14 +26,15 @@ DEFAULT_CREDENTIALS = [
 ]
 
 
-def run_git(args: list[str], cwd: Path):
+def run_git(*args: Union[str, Path], cwd: Path):
     assert len(args) > 0
     assert args[0] != "git"
     credentials = [] if has_user_git_credentials() else DEFAULT_CREDENTIALS
+    str_args: list[str] = [str(arg) for arg in args]
     try:
         return (
             subprocess.run(
-                ["git", *credentials, *args],
+                ["git", *credentials, *str_args],
                 check=True,
                 cwd=cwd,
                 stdout=subprocess.PIPE,
@@ -78,7 +80,7 @@ def ensure_user_has_git():
 
 def find_repo_root(repo_path: Path) -> Path:
     try:
-        path_str = run_git(["rev-parse", "--show-toplevel"], cwd=repo_path)
+        path_str = run_git("rev-parse", "--show-toplevel", cwd=repo_path)
     except ProtostarGitException as ex:
         raise InvalidGitRepositoryException(
             f"{repo_path} is not a valid git repository."

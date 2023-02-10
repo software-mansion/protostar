@@ -2,7 +2,7 @@ import os.path
 import re
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Union
 
 from typing_extensions import Self
 
@@ -36,11 +36,11 @@ class GitRepository:
         self.repo_path = repo_path.resolve()
 
     def init(self):
-        self._git(["init"])
+        self._git("init")
 
     def clone(self, new_repo_path: Path) -> Self:
         new_repo_path.parent.mkdir(parents=True, exist_ok=True)
-        self._git(["clone", str(self.repo_path), str(new_repo_path)])
+        self._git("clone", str(self.repo_path), str(new_repo_path))
         return GitRepository(new_repo_path)
 
     def add_submodule(
@@ -56,17 +56,15 @@ class GitRepository:
         except ValueError:
             relative_submodule_path = submodule_path
         self._git(
-            [
-                "submodule",
-                "add",
-                "--name",
-                name,
-                "--depth",
-                str(depth),
-                "--force",
-                url,
-                str(relative_submodule_path),
-            ]
+            "submodule",
+            "add",
+            "--name",
+            name,
+            "--depth",
+            str(depth),
+            "--force",
+            url,
+            str(relative_submodule_path),
         )
         if tag:
             submodule_repo = GitRepository(self.repo_path / relative_submodule_path)
@@ -74,37 +72,38 @@ class GitRepository:
             submodule_repo.checkout(tag)
 
     def update_submodule(self, submodule_path: Path) -> None:
-        self._git(["submodule", "update", "--init", str(submodule_path)])
+        self._git("submodule", "update", "--init", str(submodule_path))
 
     def add(self, path_to_item: Path) -> None:
-        self._git(["add", str(path_to_item)])
+        self._git("add", str(path_to_item))
 
     def remove_submodule(self, submodule_path: Path) -> None:
-        self._git(["rm", "--force", str(submodule_path)])
+        self._git("rm", "--force", str(submodule_path))
 
     def commit(self, msg: str) -> None:
-        self._git(["commit", "-m", msg])
+        self._git("commit", "-m", msg)
 
     def checkout(self, branch: str) -> None:
-        self._git(["checkout", branch])
+        self._git("checkout", branch)
 
     def create_tag(self, name: str) -> None:
-        self._git(["tag", name])
+        self._git("tag", name)
 
     def get_tag_rev(self) -> str:
-        return self._git(["rev-list", "--tags", "--max-count=1"])
+        return self._git("rev-list", "--tags", "--max-count=1")
 
     def get_tag(self, rev: Optional[str] = None) -> str:
-        return self._git(["describe", "--tags"] + ([rev] if rev else []))
+        args = ["describe", "--tags"] + ([rev] if rev else [])
+        return self._git(*args)
 
     def get_head(self) -> str:
-        return self._git(["rev-parse", "HEAD"])
+        return self._git("rev-parse", "HEAD")
 
     def fetch_tags(self):
-        self._git(["fetch", "--tags"])
+        self._git("fetch", "--tags")
 
-    def _git(self, args: list[str]) -> str:
-        return run_git(args=args, cwd=self.repo_path)
+    def _git(self, *args: Union[str, Path]) -> str:
+        return run_git(*args, cwd=self.repo_path)
 
     def get_name_to_submodule(self) -> dict[str, Submodule]:
         gitmodules_path = self.repo_path / ".gitmodules"
