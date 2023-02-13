@@ -37,22 +37,23 @@ def test_compilator_and_parser(
     )
 
     sierra, named_tests = call_test_collector(
-        prepared_files["input_roll_test_cairo"][0]
+        prepared_files["input_roll_test_cairo"].path
     )
     assert sierra and named_tests
     sierra, named_tests = call_test_collector(
-        prepared_files["input_roll_test_cairo"][0], prepared_files["output_sierra"][0]
+        prepared_files["input_roll_test_cairo"].path,
+        prepared_files["output_sierra"].path,
     )
     assert not sierra and named_tests
-    assert prepared_files["output_sierra"][0].read_text()
+    assert prepared_files["output_sierra"].path.read_text()
 
     protostar_casm_json = call_protostar_sierra_to_casm(
         named_tests,
-        prepared_files["output_sierra"][0],
+        prepared_files["output_sierra"].path,
     )
     assert protostar_casm_json
     test_suite = parse_test_suite(
-        Path(str(prepared_files["output_casm"][0])), protostar_casm_json
+        Path(str(prepared_files["output_casm"].path)), protostar_casm_json
     )
     cheat_mock = mocker.MagicMock()
     # TODO https://github.com/software-mansion/protostar/issues/1434

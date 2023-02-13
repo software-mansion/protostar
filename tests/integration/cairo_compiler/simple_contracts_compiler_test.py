@@ -34,17 +34,17 @@ def test_cairo_to_sierra_to_casm(prepare_files: PrepareFilesFixture):
 
     check_compiler_function(
         call_cairo_to_sierra_compiler,
-        prepared_files[input_contract.name][0],
-        prepared_files["output_sierra"][0],
+        prepared_files[input_contract.name].path,
+        prepared_files["output_sierra"].path,
     )
     check_compiler_function(
         call_sierra_to_casm_compiler,
-        prepared_files["output_sierra"][0],
-        prepared_files["output_casm"][0],
+        prepared_files["output_sierra"].path,
+        prepared_files["output_casm"].path,
     )
     # call_cairo_to_casm_compiler = call_cairo_to_sierra_compiler + call_sierra_to_casm_compiler
     check_compiler_function(
         call_cairo_to_casm_compiler,
-        prepared_files[input_contract.name][0],
-        prepared_files["output_casm"][0],
+        prepared_files[input_contract.name].path,
+        prepared_files["output_casm"].path,
     )
