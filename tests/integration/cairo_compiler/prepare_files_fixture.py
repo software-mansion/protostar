@@ -7,7 +7,7 @@ from tests.integration._conftest import ProtostarFixture
 TEST_CONTRACTS_PATH = Path(__file__).parent / "contracts"
 
 
-class RequestedFiles(str, Enum):
+class RequestedFile(str, Enum):
     input_enum_contract_cairo = "enum_contract.cairo"
     input_basic_starknet_contract_cairo = "basic_starknet_contract.cairo"
     input_basic_starknet_test_cairo = "basic_starknet_test.cairo"
@@ -20,7 +20,7 @@ class PrepareFilesFixture:
     def __init__(self, protostar: ProtostarFixture):
         self.protostar = protostar
 
-    def prepare_files(self, requested_files: list[RequestedFiles]):
+    def prepare_files(self, requested_files: list[RequestedFile]):
         files = {}
         for file_item in requested_files:
             file_path = Path(TEST_CONTRACTS_PATH / file_item.value)

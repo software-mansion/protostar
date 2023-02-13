@@ -14,7 +14,7 @@ from protostar.cairo.cairo_bindings import (
 from tests.integration.conftest import CreateProtostarProjectFixture
 from tests.integration.cairo_compiler.prepare_files_fixture import (
     PrepareFilesFixture,
-    RequestedFiles,
+    RequestedFile,
 )
 
 
@@ -30,9 +30,9 @@ def test_compilator_and_parser(
 ):
     prepared_files = prepare_files.prepare_files(
         requested_files=[
-            RequestedFiles.input_roll_test_cairo,
-            RequestedFiles.output_sierra,
-            RequestedFiles.output_casm,
+            RequestedFile.input_roll_test_cairo,
+            RequestedFile.output_sierra,
+            RequestedFile.output_casm,
         ]
     )
 

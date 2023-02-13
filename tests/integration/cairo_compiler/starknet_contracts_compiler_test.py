@@ -8,7 +8,7 @@ from tests.integration.conftest import CreateProtostarProjectFixture
 
 from tests.integration.cairo_compiler.prepare_files_fixture import (
     PrepareFilesFixture,
-    RequestedFiles,
+    RequestedFile,
     check_compiler_function,
 )
 
@@ -23,9 +23,9 @@ def prepare_files_fixture(create_protostar_project: CreateProtostarProjectFixtur
 def test_cairo_to_sierra_to_casm(prepare_files: PrepareFilesFixture):
     prepared_files = prepare_files.prepare_files(
         requested_files=[
-            RequestedFiles.input_basic_starknet_contract_cairo,
-            RequestedFiles.input_basic_starknet_test_cairo,
-            RequestedFiles.output_casm,
+            RequestedFile.input_basic_starknet_contract_cairo,
+            RequestedFile.input_basic_starknet_test_cairo,
+            RequestedFile.output_casm,
         ]
     )
 
