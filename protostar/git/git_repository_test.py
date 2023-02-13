@@ -50,4 +50,4 @@ def test_git_status(tmp_path: Path):
     repo.add(file_1_path)
     status = repo.get_status()
 
-    assert status.files_to_be_committed == [Path("file_1.txt")]
+    assert status.staged_file_paths == [Path("file_1.txt")]

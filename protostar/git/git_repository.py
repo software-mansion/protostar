@@ -19,7 +19,7 @@ class Submodule:
 
 @dataclass
 class GitStatusResult:
-    files_to_be_committed: list[Path]
+    staged_file_paths: list[Path]
 
 
 class GitRepository:
@@ -105,7 +105,7 @@ class GitRepository:
         return self._git("rev-parse", "HEAD")
 
     def get_status(self) -> GitStatusResult:
-        result = GitStatusResult(files_to_be_committed=[])
+        result = GitStatusResult(staged_file_paths=[])
         output = self._git("status", "--porcelain")
         lines = output.splitlines()
         for line in lines:
@@ -114,7 +114,7 @@ class GitRepository:
             status = segments[0]
             file_path = segments[1]
             if status != "??":
-                result.files_to_be_committed.append(Path(file_path))
+                result.staged_file_paths.append(Path(file_path))
         return result
 
     def fetch_tags(self):
