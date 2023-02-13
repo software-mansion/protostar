@@ -16,7 +16,9 @@ class MockCallHintLocal(CallableHintLocal):
         return "mock_call"
 
     def _build(self) -> Callable:
-        def mock_call(target_address: int, entrypoint: str, response: list[int]) -> int:
+        def mock_call(
+            target_address: int, entrypoint: str, response: list[int]
+        ) -> None:
             return self._controller.mock_call(
                 target_address=Address.from_user_input(target_address),
                 entrypoint=Selector(entrypoint),

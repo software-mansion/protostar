@@ -2,7 +2,7 @@
 # pylint: disable=protected-access
 
 from pathlib import Path
-from typing import Dict, Optional, Tuple
+from typing import Dict, Optional
 
 from starkware.starknet.business_logic.state.state import (
     ContractClassCache,
@@ -36,12 +36,7 @@ class CheatableCachedState(CachedState):
         )
 
         self._target_address_to_pranked_address: dict[Address, Address] = {}
-        self.address_to_entrypoint_to_mocked_response: dict[
-            Address, dict[Selector, CairoData]
-        ] = {}
-        self.mocked_response_id_to_address_and_selector: dict[
-            int, Tuple[Address, Selector]
-        ] = {}
+        self.mocked_calls: dict[Address, dict[Selector, CairoData]] = {}
         self.event_selector_to_name_map: Dict[int, str] = {}
         self.emitted_events: list[Event] = []
         self.event_name_to_contract_abi_map: Dict[str, AbiType] = {}
@@ -60,30 +55,17 @@ class CheatableCachedState(CachedState):
         target_address: Address,
         entrypoint: Selector,
         mocked_response: CairoData,
-    ) -> int:
-        if target_address not in self.address_to_entrypoint_to_mocked_response:
-            self.address_to_entrypoint_to_mocked_response[target_address] = {}
-        self.address_to_entrypoint_to_mocked_response[target_address][
-            entrypoint
-        ] = mocked_response
-        mock_id = hash(str(target_address) + str(entrypoint))
-        self.mocked_response_id_to_address_and_selector[mock_id] = (
-            target_address,
-            entrypoint,
-        )
-        return hash(str(target_address) + str(entrypoint))
+    ) -> None:
+        if target_address not in self.mocked_calls:
+            self.mocked_calls[target_address] = {}
+        self.mocked_calls[target_address][entrypoint] = mocked_response
 
     def get_mocked_response(
         self, target_address: Address, entrypoint: Selector
     ) -> Optional[CairoData]:
-        if target_address in self.address_to_entrypoint_to_mocked_response:
-            if (
-                entrypoint
-                in self.address_to_entrypoint_to_mocked_response[target_address]
-            ):
-                return self.address_to_entrypoint_to_mocked_response[target_address][
-                    entrypoint
-                ]
+        if target_address in self.mocked_calls:
+            if entrypoint in self.mocked_calls[target_address]:
+                return self.mocked_calls[target_address][entrypoint]
         return None
 
     def get_pranked_address(self, target_address: Address) -> Optional[Address]:
@@ -111,12 +93,8 @@ class CheatableCachedState(CachedState):
         copied._target_address_to_pranked_address = (
             self._target_address_to_pranked_address.copy()
         )
-        copied.address_to_entrypoint_to_mocked_response = (
-            self.address_to_entrypoint_to_mocked_response.copy()
-        )
-        copied.mocked_response_id_to_address_and_selector = (
-            self.mocked_response_id_to_address_and_selector.copy()
-        )
+        copied.mocked_calls = self.mocked_calls.copy()
+
         copied.event_selector_to_name_map = self.event_selector_to_name_map.copy()
 
         copied.event_name_to_contract_abi_map = (
@@ -152,25 +130,17 @@ class CheatableCachedState(CachedState):
             **self._target_address_to_pranked_address,
         }
 
-        parent.address_to_entrypoint_to_mocked_response = {
-            **parent.address_to_entrypoint_to_mocked_response
-        }
+        parent.mocked_calls = {**parent.mocked_calls}
 
         # pylint: disable=consider-using-dict-items
-        for address in self.address_to_entrypoint_to_mocked_response:
-            if address in parent.address_to_entrypoint_to_mocked_response:
-                parent.address_to_entrypoint_to_mocked_response[address] = {
-                    **parent.address_to_entrypoint_to_mocked_response[address],
-                    **self.address_to_entrypoint_to_mocked_response[address],
+        for address in self.mocked_calls:
+            if address in parent.mocked_calls:
+                parent.mocked_calls[address] = {
+                    **parent.mocked_calls[address],
+                    **self.mocked_calls[address],
                 }
             else:
-                parent.address_to_entrypoint_to_mocked_response[
-                    address
-                ] = self.address_to_entrypoint_to_mocked_response[address]
-        parent.mocked_response_id_to_address_and_selector = {
-            **parent.mocked_response_id_to_address_and_selector,
-            **self.mocked_response_id_to_address_and_selector,
-        }
+                parent.mocked_calls[address] = self.mocked_calls[address]
 
         parent.event_selector_to_name_map = {
             **parent.event_selector_to_name_map,
