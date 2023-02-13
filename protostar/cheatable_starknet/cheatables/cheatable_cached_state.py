@@ -1,7 +1,8 @@
 # pylint: disable=duplicate-code
 # pylint: disable=protected-access
+
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, Optional
 
 from starkware.starknet.business_logic.state.state import (
     ContractClassCache,
@@ -15,8 +16,9 @@ from typing_extensions import Self
 from protostar.cheatable_starknet.controllers.expect_events_controller import Event
 from protostar.starknet.address import Address
 from protostar.cheatable_starknet.controllers.block_info import BlockInfoController
+from protostar.starknet.selector import Selector
 from protostar.starknet.types import ClassHashType, SelectorType
-from protostar.starknet.data_transformer import CairoOrPythonData
+from protostar.starknet.data_transformer import CairoOrPythonData, CairoData
 
 
 # pylint: disable=too-many-instance-attributes
@@ -34,7 +36,7 @@ class CheatableCachedState(CachedState):
         )
 
         self._target_address_to_pranked_address: dict[Address, Address] = {}
-        self.mocked_calls_map: Dict[Address, Dict[SelectorType, List[int]]] = {}
+        self.mocked_calls: dict[Address, dict[Selector, CairoData]] = {}
         self.event_selector_to_name_map: Dict[int, str] = {}
         self.emitted_events: list[Event] = []
         self.event_name_to_contract_abi_map: Dict[str, AbiType] = {}
@@ -47,6 +49,21 @@ class CheatableCachedState(CachedState):
 
         self.contract_address_to_block_timestamp: dict[Address, int] = {}
         self.contract_address_to_block_number: dict[Address, int] = {}
+
+    def add_mocked_response(
+        self,
+        target_address: Address,
+        entrypoint: Selector,
+        mocked_response: CairoData,
+    ) -> None:
+        if target_address not in self.mocked_calls:
+            self.mocked_calls[target_address] = {}
+        self.mocked_calls[target_address][entrypoint] = mocked_response
+
+    def get_mocked_response(
+        self, target_address: Address, entrypoint: Selector
+    ) -> Optional[CairoData]:
+        return self.mocked_calls.get(target_address, {}).get(entrypoint, None)
 
     def get_pranked_address(self, target_address: Address) -> Optional[Address]:
         if target_address in self._target_address_to_pranked_address:
@@ -73,7 +90,8 @@ class CheatableCachedState(CachedState):
         copied._target_address_to_pranked_address = (
             self._target_address_to_pranked_address.copy()
         )
-        copied.mocked_calls_map = self.mocked_calls_map.copy()
+        copied.mocked_calls = self.mocked_calls.copy()
+
         copied.event_selector_to_name_map = self.event_selector_to_name_map.copy()
 
         copied.event_name_to_contract_abi_map = (
@@ -109,17 +127,17 @@ class CheatableCachedState(CachedState):
             **self._target_address_to_pranked_address,
         }
 
-        parent.mocked_calls_map = {**parent.mocked_calls_map}
+        parent.mocked_calls = {**parent.mocked_calls}
 
         # pylint: disable=consider-using-dict-items
-        for address in self.mocked_calls_map:
-            if address in parent.mocked_calls_map:
-                parent.mocked_calls_map[address] = {
-                    **parent.mocked_calls_map[address],
-                    **self.mocked_calls_map[address],
+        for address in self.mocked_calls:
+            if address in parent.mocked_calls:
+                parent.mocked_calls[address] = {
+                    **parent.mocked_calls[address],
+                    **self.mocked_calls[address],
                 }
             else:
-                parent.mocked_calls_map[address] = self.mocked_calls_map[address]
+                parent.mocked_calls[address] = self.mocked_calls[address]
 
         parent.event_selector_to_name_map = {
             **parent.event_selector_to_name_map,
