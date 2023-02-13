@@ -146,7 +146,7 @@ python-versions = "*"
 
 [[package]]
 name = "black"
-version = "22.12.0"
+version = "23.1.0"
 description = "The uncompromising code formatter."
 category = "dev"
 optional = false
@@ -155,9 +155,10 @@ python-versions = ">=3.7"
 [package.dependencies]
 click = ">=8.0.0"
 mypy-extensions = ">=0.4.3"
+packaging = ">=22.0"
 pathspec = ">=0.9.0"
 platformdirs = ">=2"
-tomli = {version = ">=1.1.0", markers = "python_full_version < \"3.11.0a7\""}
+tomli = {version = ">=1.1.0", markers = "python_version < \"3.11\""}
 typing-extensions = {version = ">=3.10.0.0", markers = "python_version < \"3.10\""}
 
 [package.extras]
@@ -636,7 +637,7 @@ test = ["eth-utils (>=1.0.1,<3)", "hypothesis (>=3.44.24,<=6.31.6)", "pytest (>=
 
 [[package]]
 name = "hypothesis"
-version = "6.65.2"
+version = "6.67.1"
 description = "A library for property-based testing"
 category = "main"
 optional = false
@@ -837,22 +838,22 @@ tests = ["pytest", "pytz", "simplejson"]
 
 [[package]]
 name = "marshmallow-dataclass"
-version = "8.5.8"
+version = "8.4.2"
 description = "Python library to convert dataclasses into marshmallow schemas."
 category = "main"
 optional = false
 python-versions = ">=3.6"
 
 [package.dependencies]
-marshmallow = ">=3.13.0,<4.0"
+marshmallow = ">=3.0.0,<4.0"
 typing-inspect = ">=0.7.1"
 
 [package.extras]
-dev = ["marshmallow-enum", "pre-commit (>=2.17,<3.0)", "pytest (>=5.4)", "pytest-mypy-plugins (>=1.2.0)", "sphinx", "typeguard", "typing-extensions (>=3.7.2)"]
+dev = ["marshmallow-enum", "pre-commit (>=1.18,<2.0)", "pytest (>=5.4)", "pytest-mypy-plugins (>=1.2.0)", "sphinx", "typeguard", "typing-extensions (>=3.7.2,<3.8.0)"]
 docs = ["sphinx"]
 enum = ["marshmallow-enum"]
-lint = ["pre-commit (>=2.17,<3.0)"]
-tests = ["pytest (>=5.4)", "pytest-mypy-plugins (>=1.2.0)", "typing-extensions (>=3.7.2)"]
+lint = ["pre-commit (>=1.18,<2.0)"]
+tests = ["pytest (>=5.4)", "pytest-mypy-plugins (>=1.2.0)", "typing-extensions (>=3.7.2,<3.8.0)"]
 union = ["typeguard"]
 
 [[package]]
@@ -884,7 +885,7 @@ tests = ["mock", "pytest"]
 
 [[package]]
 name = "maturin"
-version = "0.14.12"
+version = "0.14.13"
 description = "Build and publish crates with pyo3, rust-cpython and cffi bindings as well as rust binaries as python packages"
 category = "main"
 optional = false
@@ -1181,7 +1182,7 @@ testutils = ["gitpython (>3)"]
 
 [[package]]
 name = "pyright"
-version = "1.1.291"
+version = "1.1.292"
 description = "Command line wrapper for pyright"
 category = "dev"
 optional = false
@@ -1600,7 +1601,7 @@ Werkzeug = ">=2.0.3,<2.1.0"
 
 [[package]]
 name = "starknet-py"
-version = "0.13.0a0"
+version = "0.14.0a0"
 description = "A python SDK for StarkNet"
 category = "main"
 optional = false
@@ -1612,6 +1613,7 @@ cairo-lang = "0.10.3"
 crypto-cpp-py = ">=1.0.4,<2.0.0"
 furo = ">=2022.12.7,<2023.0.0"
 marshmallow = ">=3.15.0,<4.0.0"
+marshmallow-dataclass = "<8.5.0"
 marshmallow-oneofschema = ">=3.0.1,<4.0.0"
 typing-extensions = ">=4.3.0,<5.0.0"
 
@@ -1824,7 +1826,7 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.9.14, <3.10"
-content-hash = "b2c7e91e9f7f9bcad8dac3f3c6ab706e9f2e3cd3baa47fd92de9d42ee543e5cd"
+content-hash = "60244b1721a331a91bdb9a82e8547f218fcb6fbe47fc8db88e3673530a8d7202"
 
 [metadata.files]
 aiohttp = [
@@ -2034,15 +2036,7 @@ bitarray = [
     {file = "bitarray-2.6.0-cp39-cp39-win_amd64.whl", hash = "sha256:f37b5282b029d9f51454f8c580eb6a24e5dc140ef5866290afb20e607d2dce5f"},
     {file = "bitarray-2.6.0.tar.gz", hash = "sha256:56d3f16dd807b1c56732a244ce071c135ee973d3edc9929418c1b24c5439a0fd"},
 ]
-
-[[package]]
-name = "black"
-version = "23.1.0"
-description = "The uncompromising code formatter."
-category = "dev"
-optional = false
-python-versions = ">=3.7"
-files = [
+black = [
     {file = "black-23.1.0-cp310-cp310-macosx_10_16_arm64.whl", hash = "sha256:b6a92a41ee34b883b359998f0c8e6eb8e99803aa8bf3123bf2b2e6fec505a221"},
     {file = "black-23.1.0-cp310-cp310-macosx_10_16_universal2.whl", hash = "sha256:57c18c5165c1dbe291d5306e53fb3988122890e57bd9b3dcb75f967f13411a26"},
     {file = "black-23.1.0-cp310-cp310-macosx_10_16_x86_64.whl", hash = "sha256:9880d7d419bb7e709b37e28deb5e68a49227713b623c72b2b931028ea65f619b"},
@@ -2069,30 +2063,7 @@ files = [
     {file = "black-23.1.0-py3-none-any.whl", hash = "sha256:7a0f701d314cfa0896b9001df70a530eb2472babb76086344e688829efd97d32"},
     {file = "black-23.1.0.tar.gz", hash = "sha256:b0bd97bea8903f5a2ba7219257a44e3f1f9d00073d6cc1add68f0beec69692ac"},
 ]
-
-[package.dependencies]
-click = ">=8.0.0"
-mypy-extensions = ">=0.4.3"
-packaging = ">=22.0"
-pathspec = ">=0.9.0"
-platformdirs = ">=2"
-tomli = {version = ">=1.1.0", markers = "python_version < \"3.11\""}
-typing-extensions = {version = ">=3.10.0.0", markers = "python_version < \"3.10\""}
-
-[package.extras]
-colorama = ["colorama (>=0.4.3)"]
-d = ["aiohttp (>=3.7.4)"]
-jupyter = ["ipython (>=7.8.0)", "tokenize-rt (>=3.2.0)"]
-uvloop = ["uvloop (>=0.15.2)"]
-
-[[package]]
-name = "cachetools"
-version = "5.2.0"
-description = "Extensible memoizing collections and decorators"
-category = "main"
-optional = false
-python-versions = "~=3.7"
-files = [
+cachetools = [
     {file = "cachetools-5.2.0-py3-none-any.whl", hash = "sha256:f9f17d2aec496a9aa6b76f53e3b614c965223c061982d434d160f930c698a9db"},
     {file = "cachetools-5.2.0.tar.gz", hash = "sha256:6a94c6402995a99c3970cc7e4884bb60b4a8639938157eeed436098bf9831757"},
 ]
@@ -2613,48 +2584,11 @@ marshmallow = [
     {file = "marshmallow-3.17.1-py3-none-any.whl", hash = "sha256:1172ce82765bf26c24a3f9299ed6dbeeca4d213f638eaa39a37772656d7ce408"},
     {file = "marshmallow-3.17.1.tar.gz", hash = "sha256:48e2d88d4ab431ad5a17c25556d9da529ea6e966876f2a38d274082e270287f0"},
 ]
-
-[package.dependencies]
-packaging = ">=17.0"
-
-[package.extras]
-dev = ["flake8 (==5.0.4)", "flake8-bugbear (==22.8.22)", "mypy (==0.971)", "pre-commit (>=2.4,<3.0)", "pytest", "pytz", "simplejson", "tox"]
-docs = ["alabaster (==0.7.12)", "autodocsumm (==0.2.9)", "sphinx (==5.1.1)", "sphinx-issues (==3.0.1)", "sphinx-version-warning (==1.1.2)"]
-lint = ["flake8 (==5.0.4)", "flake8-bugbear (==22.8.22)", "mypy (==0.971)", "pre-commit (>=2.4,<3.0)"]
-tests = ["pytest", "pytz", "simplejson"]
-
-[[package]]
-name = "marshmallow-dataclass"
-version = "8.4.2"
-description = "Python library to convert dataclasses into marshmallow schemas."
-category = "main"
-optional = false
-python-versions = ">=3.6"
-files = [
+marshmallow-dataclass = [
     {file = "marshmallow_dataclass-8.4.2-py3-none-any.whl", hash = "sha256:f3b39bfb9da25f46f12f118b067f9eebc754472d76259b525e561e429337530f"},
     {file = "marshmallow_dataclass-8.4.2.tar.gz", hash = "sha256:2948a0e1ffbec5ecc41242ec194216be99264cbb23ee117c90b97bfbbe7d0566"},
 ]
-
-[package.dependencies]
-marshmallow = ">=3.0.0,<4.0"
-typing-inspect = ">=0.7.1"
-
-[package.extras]
-dev = ["marshmallow-enum", "pre-commit (>=1.18,<2.0)", "pytest (>=5.4)", "pytest-mypy-plugins (>=1.2.0)", "sphinx", "typeguard", "typing-extensions (>=3.7.2,<3.8.0)"]
-docs = ["sphinx"]
-enum = ["marshmallow-enum"]
-lint = ["pre-commit (>=1.18,<2.0)"]
-tests = ["pytest (>=5.4)", "pytest-mypy-plugins (>=1.2.0)", "typing-extensions (>=3.7.2,<3.8.0)"]
-union = ["typeguard"]
-
-[[package]]
-name = "marshmallow-enum"
-version = "1.5.1"
-description = "Enum field for Marshmallow"
-category = "main"
-optional = false
-python-versions = "*"
-files = [
+marshmallow-enum = [
     {file = "marshmallow-enum-1.5.1.tar.gz", hash = "sha256:38e697e11f45a8e64b4a1e664000897c659b60aa57bfa18d44e226a9920b6e58"},
     {file = "marshmallow_enum-1.5.1-py2.py3-none-any.whl", hash = "sha256:57161ab3dbfde4f57adeb12090f39592e992b9c86d206d02f6bd03ebec60f072"},
 ]
@@ -2663,19 +2597,19 @@ marshmallow-oneofschema = [
     {file = "marshmallow_oneofschema-3.0.1-py2.py3-none-any.whl", hash = "sha256:bd29410a9f2f7457a2b428286e2a80ef76b8ddc3701527dc1f935a88914b02f2"},
 ]
 maturin = [
-    {file = "maturin-0.14.12-py3-none-linux_armv6l.whl", hash = "sha256:daf895c987170bee8bf38706d306743b7b0bba54f0870a00ba3dc4b6677396fe"},
-    {file = "maturin-0.14.12-py3-none-macosx_10_7_x86_64.whl", hash = "sha256:a2ba25fce913271cb765d656e2cf4640a355190130c19cee85672af9a6f96839"},
-    {file = "maturin-0.14.12-py3-none-macosx_10_9_x86_64.macosx_11_0_arm64.macosx_10_9_universal2.whl", hash = "sha256:e5c5192ec8ebb9f8e4e5f26d2f02171fcfab3f666b66292fe0680980c13706b3"},
-    {file = "maturin-0.14.12-py3-none-manylinux_2_12_i686.manylinux2010_i686.musllinux_1_1_i686.whl", hash = "sha256:fd4ac0c5591f30732a3ddab13f9d2a6f32d0fe4424e3f0c3612356ad95acb5e5"},
-    {file = "maturin-0.14.12-py3-none-manylinux_2_12_x86_64.manylinux2010_x86_64.musllinux_1_1_x86_64.whl", hash = "sha256:3f555fb042b94f74995e6733a6406fb5afd6604828608968aebd4aa191180a2d"},
-    {file = "maturin-0.14.12-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.musllinux_1_1_aarch64.whl", hash = "sha256:fcc75fa7bf98326ef9b3e648b9107be6afdbb0cac4dd861f0040ad6a3d410a69"},
-    {file = "maturin-0.14.12-py3-none-manylinux_2_17_armv7l.manylinux2014_armv7l.musllinux_1_1_armv7l.whl", hash = "sha256:bfe98543b0f72c10dc46add16a09c5561d7028878a1b8440aa880de0a16f3ebc"},
-    {file = "maturin-0.14.12-py3-none-manylinux_2_17_ppc64le.manylinux2014_ppc64le.musllinux_1_1_ppc64le.whl", hash = "sha256:5989a92903e86a37428b4ebf1df44b08023e8efb695fb549f9dab0ac9cc5bae3"},
-    {file = "maturin-0.14.12-py3-none-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:16a81196ada94bc4b6ee1df6a4fa2e2dd3a2b51c9dd41e3561f59f796fdad92f"},
-    {file = "maturin-0.14.12-py3-none-win32.whl", hash = "sha256:5af3a8545b66793ed04db8bb4750e7272f1724369ad792912c0e7be829f9e08b"},
-    {file = "maturin-0.14.12-py3-none-win_amd64.whl", hash = "sha256:795c284b1ece7e6be720516ca0b0cdaf0ec8a399db5742fc9f45dd4c2e732fba"},
-    {file = "maturin-0.14.12-py3-none-win_arm64.whl", hash = "sha256:bc63aa5b4717f1eb37cea39d450e90bc4050061def8e159228ec5e7c036481ec"},
-    {file = "maturin-0.14.12.tar.gz", hash = "sha256:b8f6a39d5393f83b5fbb90bc4d99b45b62e9749293518640aba910c840311c57"},
+    {file = "maturin-0.14.13-py3-none-linux_armv6l.whl", hash = "sha256:d062a779239829adc1fd157912ae4d2d24695843823e23c47ccd4ff5395c2b9c"},
+    {file = "maturin-0.14.13-py3-none-macosx_10_7_x86_64.whl", hash = "sha256:a5d6c5aeb1af92eaef64ddb6b5f2f51baed80893d5700e62fbb943e081462c8e"},
+    {file = "maturin-0.14.13-py3-none-macosx_10_9_x86_64.macosx_11_0_arm64.macosx_10_9_universal2.whl", hash = "sha256:764eb486a93a50330ca6291d10c65f83fd0b2c31d5e323640126f5c638af85de"},
+    {file = "maturin-0.14.13-py3-none-manylinux_2_12_i686.manylinux2010_i686.musllinux_1_1_i686.whl", hash = "sha256:c9583b20efeaa5e51f67633bade70237af53a15662016943352398b7f4b9e7a0"},
+    {file = "maturin-0.14.13-py3-none-manylinux_2_12_x86_64.manylinux2010_x86_64.musllinux_1_1_x86_64.whl", hash = "sha256:76e41762af4a535ba3654df1ec4e43b5e6df15594dffcff26adae6ac187fff16"},
+    {file = "maturin-0.14.13-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.musllinux_1_1_aarch64.whl", hash = "sha256:f1d4dace8d848da098cd4c7398f2480af9a6a2395f34f0cc4f7b726890d502e2"},
+    {file = "maturin-0.14.13-py3-none-manylinux_2_17_armv7l.manylinux2014_armv7l.musllinux_1_1_armv7l.whl", hash = "sha256:80b0e0d44bf3eea862356cf8382394e81eac5da0067237b650e3214fd8bdd904"},
+    {file = "maturin-0.14.13-py3-none-manylinux_2_17_ppc64le.manylinux2014_ppc64le.musllinux_1_1_ppc64le.whl", hash = "sha256:c74dbd049d77b17024547d35e2458c476d4960b7a3e4d03e0f574c5ae6054abb"},
+    {file = "maturin-0.14.13-py3-none-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:6ef7872ed00a923eb8faf78206ce8a8606164b9663db682123609df0a3bb9293"},
+    {file = "maturin-0.14.13-py3-none-win32.whl", hash = "sha256:09d4f262f3adeeb4ce5efd89eb824f9bc3023ded157c6b8a2bf4293a5d23925f"},
+    {file = "maturin-0.14.13-py3-none-win_amd64.whl", hash = "sha256:9bfbf8d38acc77ba1a8392eb4e07e9fd330ec73ab8f8378471b4a5a3a05c208c"},
+    {file = "maturin-0.14.13-py3-none-win_arm64.whl", hash = "sha256:25586d8092a6ad12faca35596be441b7b5dc9cc3d32eeeb978ce9860d3087247"},
+    {file = "maturin-0.14.13.tar.gz", hash = "sha256:ace81e9572c8b29211c3356900d675a29656f395d9a5bb5939104d20bfd57c2f"},
 ]
 mccabe = [
     {file = "mccabe-0.7.0-py2.py3-none-any.whl", hash = "sha256:6c2d30ab6be0e4a46919781807b4f0d834ebdd6c6e3dca0bda5a15f863427b6e"},
@@ -2920,30 +2854,7 @@ pylint = [
     {file = "pylint-2.15.10-py3-none-any.whl", hash = "sha256:9df0d07e8948a1c3ffa3b6e2d7e6e63d9fb457c5da5b961ed63106594780cc7e"},
     {file = "pylint-2.15.10.tar.gz", hash = "sha256:b3dc5ef7d33858f297ac0d06cc73862f01e4f2e74025ec3eff347ce0bc60baf5"},
 ]
-
-[package.dependencies]
-astroid = ">=2.12.13,<=2.14.0-dev0"
-colorama = {version = ">=0.4.5", markers = "sys_platform == \"win32\""}
-dill = {version = ">=0.2", markers = "python_version < \"3.11\""}
-isort = ">=4.2.5,<6"
-mccabe = ">=0.6,<0.8"
-platformdirs = ">=2.2.0"
-tomli = {version = ">=1.1.0", markers = "python_version < \"3.11\""}
-tomlkit = ">=0.10.1"
-typing-extensions = {version = ">=3.10.0", markers = "python_version < \"3.10\""}
-
-[package.extras]
-spelling = ["pyenchant (>=3.2,<4.0)"]
-testutils = ["gitpython (>3)"]
-
-[[package]]
-name = "pyright"
-version = "1.1.292"
-description = "Command line wrapper for pyright"
-category = "dev"
-optional = false
-python-versions = ">=3.7"
-files = [
+pyright = [
     {file = "pyright-1.1.292-py3-none-any.whl", hash = "sha256:23d1f14b15afe38bb7a7117b9861ad0546aff078da312d294e60a727445c23ff"},
     {file = "pyright-1.1.292.tar.gz", hash = "sha256:035ea1af6fabfdcc80c0afb545f677bd377114157d69779cce2a642ff894e51c"},
 ]
@@ -3234,50 +3145,10 @@ starknet-devnet = [
     {file = "starknet_devnet-0.4.4-py3-none-any.whl", hash = "sha256:28e2c47aabbc744a4b63d4d14b0074d8cff5f5a7914a4a551c953e03b3ecc3a3"},
     {file = "starknet_devnet-0.4.4.tar.gz", hash = "sha256:fa4497883d2e4795a21687605a3acc8dd4a74f34904df02c94cc6a25e74d5e86"},
 ]
-
-[package.dependencies]
-cairo-lang = "0.10.3"
-cloudpickle = ">=2.1.0,<2.2.0"
-crypto-cpp-py = ">=1.0.4,<1.1.0"
-Flask = {version = ">=2.0.3,<2.1.0", extras = ["async"]}
-flask-cors = ">=3.0.10,<3.1.0"
-gunicorn = ">=20.1.0,<20.2.0"
-marshmallow = ">=3.17.0,<3.18.0"
-typing-extensions = ">=4.3.0,<4.4.0"
-Werkzeug = ">=2.0.3,<2.1.0"
-
-[[package]]
-name = "starknet-py"
-version = "0.14.0a0"
-description = "A python SDK for StarkNet"
-category = "main"
-optional = false
-python-versions = ">=3.8,<3.10"
-files = [
+starknet-py = [
     {file = "starknet_py-0.14.0a0.tar.gz", hash = "sha256:8a1c1551e3de15471cc20f9fb6daa3b9c3e363526f223a7c3204647dc8018598"},
 ]
-
-[package.dependencies]
-asgiref = ">=3.4.1,<4.0.0"
-cairo-lang = "0.10.3"
-crypto-cpp-py = ">=1.0.4,<2.0.0"
-furo = ">=2022.12.7,<2023.0.0"
-marshmallow = ">=3.15.0,<4.0.0"
-marshmallow-dataclass = "<8.5.0"
-marshmallow-oneofschema = ">=3.0.1,<4.0.0"
-typing-extensions = ">=4.3.0,<5.0.0"
-
-[package.extras]
-docs = ["enum-tools[sphinx] (==0.9.0.post1)", "sphinx (>=4.3.1,<6.0.0)"]
-
-[[package]]
-name = "sympy"
-version = "1.11.1"
-description = "Computer algebra system (CAS) in Python"
-category = "main"
-optional = false
-python-versions = ">=3.8"
-files = [
+sympy = [
     {file = "sympy-1.11.1-py3-none-any.whl", hash = "sha256:938f984ee2b1e8eae8a07b884c8b7a1146010040fccddc6539c54f401c8f6fcf"},
     {file = "sympy-1.11.1.tar.gz", hash = "sha256:e32380dce63cb7c0108ed525570092fd45168bdae2faa17e528221ef72e88658"},
 ]
