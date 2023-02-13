@@ -166,7 +166,6 @@ class ProtostarFixture:
 
     async def deploy_account(
         self,
-        account_address: Address,
         account_address_salt: int,
         account_class_hash: int,
         max_fee: Wei,
@@ -177,7 +176,6 @@ class ProtostarFixture:
         args = self._parse(
             command_name="deploy-account",
             named_args={
-                "account-address": account_address,
                 "gateway-url": gateway_url,
                 "chain-id": StarknetChainId.TESTNET.value,
                 "account-class-hash": account_class_hash,

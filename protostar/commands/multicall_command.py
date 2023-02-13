@@ -10,8 +10,13 @@ from protostar.cli import (
     ProtostarCommand,
     ProtostarArgument,
     NetworkCommandUtil,
-    SignableCommandUtil,
     MessengerFactory,
+    get_signer,
+)
+from protostar.cli.common_arguments import (
+    ACCOUNT_ADDRESS_ARG,
+    PRIVATE_KEY_PATH_ARG,
+    SIGNER_CLASS_ARG,
 )
 from protostar.cli.common_arguments import BLOCK_EXPLORER_ARG, MAX_FEE_ARG
 from protostar.io import Messenger, StructuredMessage, format_as_table
@@ -92,7 +97,9 @@ class MulticallCommand(ProtostarCommand):
     def arguments(self):
         return [
             *NetworkCommandUtil.network_arguments,
-            *SignableCommandUtil.signable_arguments,
+            ACCOUNT_ADDRESS_ARG,
+            PRIVATE_KEY_PATH_ARG,
+            SIGNER_CLASS_ARG,
             *MessengerFactory.OUTPUT_ARGUMENTS,
             BLOCK_EXPLORER_ARG,
             MAX_FEE_ARG,
@@ -113,7 +120,7 @@ class MulticallCommand(ProtostarCommand):
         network_util = NetworkCommandUtil(args)
         network_config = network_util.get_network_config()
         gateway_client = network_util.get_gateway_client()
-        signer = SignableCommandUtil(args).get_signer(network_config=network_config)
+        signer = get_signer(args, network_config=network_config)
         block_explorer = create_block_explorer(
             block_explorer_name=args.block_explorer,
             network=network_config.network_name,

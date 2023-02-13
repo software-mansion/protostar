@@ -96,3 +96,25 @@ ABI_PATH_ARG = ProtostarArgument(
     ),
     type="path",
 )
+
+ACCOUNT_ADDRESS_ARG = ProtostarArgument(
+    name="account-address",
+    description="Account address.",
+    type="address",
+    is_required=True,
+)
+
+PRIVATE_KEY_ENV_VAR_NAME = "PROTOSTAR_ACCOUNT_PRIVATE_KEY"
+
+PRIVATE_KEY_PATH_ARG = ProtostarArgument(
+    name="private-key-path",
+    description="Path to the file, which stores your private key (in hex representation) for the account. \n"
+    f"Can be used instead of {PRIVATE_KEY_ENV_VAR_NAME} env variable.",
+    type="path",
+)
+
+SIGNER_CLASS_ARG = ProtostarArgument(
+    name="signer-class",
+    description="Custom signer class module path.",
+    type="str",
+)

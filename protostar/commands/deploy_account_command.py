@@ -8,10 +8,12 @@ from protostar.cli import (
     NetworkCommandUtil,
     ProtostarArgument,
     ProtostarCommand,
-    SignableCommandUtil,
     MessengerFactory,
+    get_signer,
 )
 from protostar.cli.common_arguments import (
+    PRIVATE_KEY_PATH_ARG,
+    SIGNER_CLASS_ARG,
     ACCOUNT_CLASS_HASH_ARG,
     ACCOUNT_ADDRESS_SALT_ARG,
     ACCOUNT_CONSTRUCTOR_INPUT,
@@ -29,6 +31,7 @@ from protostar.starknet import Address
 
 @dataclass
 class DeployAccountCommandArgs(NetworkArgs):
+    account_address: Address
     account_address_salt: int
     account_constructor_input: Optional[list[int]]
     account_class_hash: ClassHash
@@ -41,10 +44,27 @@ class DeployAccountCommandArgs(NetworkArgs):
         network_util = NetworkCommandUtil(args)
         network_config = network_util.get_network_config()
         gateway_client = network_util.get_gateway_client()
-        signer = SignableCommandUtil(args).get_signer(network_config=network_config)
 
+        constructor_calldata = (
+            args.account_constructor_input
+            if args.account_constructor_input is not None
+            else []
+        )
+        account_address = Address.from_class_hash(
+            class_hash=args.account_class_hash,
+            salt=args.account_address_salt,
+            constructor_calldata=constructor_calldata,
+        )
+
+        signer = get_signer(
+            args,
+            network_config=network_config,
+            optional_account_address=account_address,
+        )
         assert signer is not None
+
         return cls(
+            account_address=account_address,
             nonce=args.nonce,
             account_class_hash=args.account_class_hash,
             account_constructor_input=args.account_constructor_input or [],
@@ -97,7 +117,8 @@ class DeployAccountCommand(ProtostarCommand):
     def arguments(self):
         return [
             *NetworkCommandUtil.network_arguments,
-            *SignableCommandUtil.signable_arguments,
+            PRIVATE_KEY_PATH_ARG,
+            SIGNER_CLASS_ARG,
             *MessengerFactory.OUTPUT_ARGUMENTS,
             ACCOUNT_CLASS_HASH_ARG,
             ACCOUNT_ADDRESS_SALT_ARG,
@@ -137,18 +158,8 @@ class DeployAccountCommand(ProtostarCommand):
         if typed_args.max_fee == "auto":
             raise AutoEstimateMaxFeeException()
 
-        constructor_calldata = (
-            typed_args.account_constructor_input
-            if typed_args.account_constructor_input is not None
-            else []
-        )
-
         return DeployAccountArgs(
-            account_address=Address.from_class_hash(
-                class_hash=typed_args.account_class_hash,
-                salt=typed_args.account_address_salt,
-                constructor_calldata=constructor_calldata,
-            ),
+            account_address=typed_args.account_address,
             account_class_hash=typed_args.account_class_hash,
             account_address_salt=typed_args.account_address_salt,
             nonce=typed_args.nonce,

@@ -12,10 +12,8 @@ from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
 from starknet_py.utils.typed_data import TypedData
 
 from protostar.starknet import Address
-from protostar.cli.signable_command_util import (
-    SignableCommandUtil,
-    PRIVATE_KEY_ENV_VAR_NAME,
-)
+from protostar.cli.signable_command_util import get_signer
+from protostar.cli.common_arguments import PRIVATE_KEY_ENV_VAR_NAME
 from protostar.protostar_exception import ProtostarException
 
 PkeyFileFactoryFixture = Callable[[str], Path]
@@ -56,7 +54,7 @@ def test_custom_signer_class(mocker: MockerFixture):
     args.private_key_path = None
     args.account_address = None
 
-    signer = SignableCommandUtil(args).get_signer(network_config)
+    signer = get_signer(args, network_config)
     assert isinstance(signer, CustomSigner)
 
 
@@ -72,7 +70,7 @@ def test_default_signer_class(
     args.private_key_path = str(pkey_file_factory("0x123"))
     args.account_address = Address.from_user_input("0x123")
 
-    signer = SignableCommandUtil(args).get_signer(network_config)
+    signer = get_signer(args, network_config)
     assert isinstance(signer, StarkCurveSigner)
 
 
@@ -92,7 +90,7 @@ def test_wrong_format_of_private_key_env(
     with pytest.raises(
         ProtostarException, match=re.escape("Invalid private key format")
     ):
-        SignableCommandUtil(args).get_signer(network_config)
+        get_signer(args, network_config)
 
 
 def test_wrong_format_of_private_key_file(
@@ -110,7 +108,7 @@ def test_wrong_format_of_private_key_file(
     with pytest.raises(
         ProtostarException, match=re.escape("Invalid private key format")
     ):
-        SignableCommandUtil(args).get_signer(network_config)
+        get_signer(args, network_config)
 
 
 def test_account_wrong_format(
@@ -128,4 +126,4 @@ def test_account_wrong_format(
     with pytest.raises(
         ProtostarException, match=re.escape("Invalid account address format")
     ):
-        SignableCommandUtil(args).get_signer(network_config)
+        get_signer(args, network_config)
