@@ -11,7 +11,7 @@ mod HelloStarknet {
     // Returns the current balance.
     #[view]
     fn get_balance() -> felt {
-        balance::read()
+        balance::read();
         0
     }
 }
