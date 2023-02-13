@@ -63,10 +63,7 @@ class CheatableCachedState(CachedState):
     def get_mocked_response(
         self, target_address: Address, entrypoint: Selector
     ) -> Optional[CairoData]:
-        if target_address in self.mocked_calls:
-            if entrypoint in self.mocked_calls[target_address]:
-                return self.mocked_calls[target_address][entrypoint]
-        return None
+        return self.mocked_calls.get(target_address, {}).get(entrypoint, None)
 
     def get_pranked_address(self, target_address: Address) -> Optional[Address]:
         if target_address in self._target_address_to_pranked_address:
