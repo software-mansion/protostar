@@ -17,6 +17,11 @@ class Submodule:
     path: Optional[Path] = None
 
 
+@dataclass
+class GitStatusResult:
+    files_to_be_committed: list[Path]
+
+
 class GitRepository:
     @classmethod
     def create(cls, repo_path: Path):
@@ -98,6 +103,19 @@ class GitRepository:
 
     def get_head(self) -> str:
         return self._git("rev-parse", "HEAD")
+
+    def get_status(self) -> GitStatusResult:
+        result = GitStatusResult(files_to_be_committed=[])
+        output = self._git("status", "--porcelain")
+        lines = output.splitlines()
+        for line in lines:
+            single_spaced_line = re.sub(" +", " ", line)
+            segments = single_spaced_line.split()
+            status = segments[0]
+            file_path = segments[1]
+            if status != "??":
+                result.files_to_be_committed.append(Path(file_path))
+        return result
 
     def fetch_tags(self):
         self._git("fetch", "--tags")

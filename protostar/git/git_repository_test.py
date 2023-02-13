@@ -38,3 +38,16 @@ def test_load_existing_repo(tmp_path: Path):
         InvalidGitRepositoryException, match=re.escape("is not a valid git repository.")
     ):
         GitRepository.from_existing(tmp_path)
+
+
+def test_git_status(tmp_path: Path):
+    repo = GitRepository.create(tmp_path)
+    file_1_path = tmp_path / "file_1.txt"
+    file_2_path = tmp_path / "file_2.txt"
+    file_1_path.touch()
+    file_2_path.touch()
+
+    repo.add(file_1_path)
+    status = repo.get_status()
+
+    assert status.files_to_be_committed == [Path("file_1.txt")]
