@@ -7,13 +7,13 @@ from tests.integration._conftest import ProtostarFixture
 TEST_CONTRACTS_PATH = Path(__file__).parent / "contracts"
 
 
-class RequestedFiles(Enum):
-    input_enum_contract_cairo = 1
-    input_basic_starknet_contract_cairo = 2
-    input_basic_starknet_test_cairo = 3
-    input_roll_test_cairo = 4
-    output_sierra = 5
-    output_casm = 6
+class RequestedFiles(str, Enum):
+    input_enum_contract_cairo = "enum_contract.cairo"
+    input_basic_starknet_contract_cairo = "basic_starknet_contract.cairo"
+    input_basic_starknet_test_cairo = "basic_starknet_test.cairo"
+    input_roll_test_cairo = "roll_test.cairo"
+    output_sierra = "output.sierra"
+    output_casm = "output.casm"
 
 
 class PrepareFilesFixture:
@@ -22,30 +22,20 @@ class PrepareFilesFixture:
 
     def prepare_files(self, requested_files: list[RequestedFiles]):
         files = {}
-        for file in requested_files:
-            input_path = ""
-            if file == RequestedFiles.input_enum_contract_cairo:
-                input_path = TEST_CONTRACTS_PATH / "enum_contract.cairo"
-            elif file == RequestedFiles.input_basic_starknet_contract_cairo:
-                input_path = TEST_CONTRACTS_PATH / "basic_starknet_contract.cairo"
-            elif file == RequestedFiles.input_basic_starknet_test_cairo:
-                input_path = TEST_CONTRACTS_PATH / "basic_starknet_test.cairo"
-            elif file == RequestedFiles.input_roll_test_cairo:
-                input_path = TEST_CONTRACTS_PATH / "roll_test.cairo"
-            contents = ""
-            if input_path:
-                contents = Path(input_path).read_text()
-            file_with_ext = ".".join(file.name.rsplit("_", 1))
-            files[file.name] = (Path(f"./src/{file_with_ext}"), contents)
+        for file_item in requested_files:
+            file_path = Path(TEST_CONTRACTS_PATH / file_item.value)
+            contents = file_path.read_text() if file_path.exists() else ""
+            file_with_ext = ".".join(file_item.name.rsplit("_", 1))
+            files[file_item.name] = (Path(f"./src/{file_with_ext}"), contents)
 
         self.protostar.create_files(
-            {str(path): contents for _, (path, contents) in files.items()}
+            {str(path): contents for path, contents in files.values()}
         )
         files = {
             label: (Path(self.protostar.project_root_path / path), contents)
             for label, (path, contents) in files.items()
         }
-        for _, (path, _) in files.items():
+        for path, _ in files.values():
             assert path.exists()
         return files
 
