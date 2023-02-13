@@ -26,6 +26,7 @@ tomli-w = "^1.0.0"
 tqdm = "^4.64.1"
 typing-extensions = "^4.3.0"
 tomlkit = "^0.11.6"
+maturin = "^0.14.13"
 
 [tool.poetry.dev-dependencies]
 GitPython = "^3.1.29"
@@ -71,6 +72,8 @@ lint = "./scripts/run_lint.sh"
 
 format_check_selected = "black --check"
 lint_selected = "pylint"
+
+install_cairo_bindings = "./scripts/install_cairo_bindings.sh"
 
 local_static_check = [
     "format",
