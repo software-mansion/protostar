@@ -1,6 +1,6 @@
 import importlib
 import os
-from typing import Any, Optional, Type
+from typing import Any, Optional, Type, Union
 
 from starknet_py.net.signer import BaseSigner
 from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
@@ -12,12 +12,12 @@ from protostar.cli.common_arguments import PRIVATE_KEY_ENV_VAR_NAME
 
 
 def get_signer(
-    _args: Any,
+    args: Any,
     network_config: NetworkConfig,
-    optional_account_address: Optional[Address] = None,
+    account_address: Optional[Union[Address, int, str]],
 ) -> BaseSigner:
-    if _args.signer_class:
-        *module_names, class_name = _args.signer_class.split(".")
+    if args.signer_class:
+        *module_names, class_name = args.signer_class.split(".")
         module = ".".join(module_names)
         signer_module = importlib.import_module(module)
         signer_class = getattr(signer_module, class_name)
@@ -25,16 +25,16 @@ def get_signer(
         return signer_class()
 
     private_key_str = None
-    if _args.private_key_path:
-        with open(_args.private_key_path, encoding="utf-8") as file:
+    if args.private_key_path:
+        with open(args.private_key_path, encoding="utf-8") as file:
             private_key_str = file.read()
 
     if not private_key_str:
         private_key_str = os.environ.get(PRIVATE_KEY_ENV_VAR_NAME)
 
-    if not private_key_str:
+    if not private_key_str or not account_address:
         raise ProtostarException(
-            "Signing is mandatory, please provide a private key in order to sign transactions."
+            "Signing is mandatory, please provide an account a private key in order to sign transactions."
         )
 
     try:
@@ -49,13 +49,6 @@ def get_signer(
 
     key_pair = KeyPair.from_private_key(private_key)
 
-    account_address = (
-        _args.account_address
-        if hasattr(_args, "account_address")
-        else optional_account_address
-    )
-    assert account_address is not None
-
     try:
         signer = StarkCurveSigner(
             account_address=int(account_address),
@@ -64,7 +57,7 @@ def get_signer(
         )
     except ValueError as v_err:
         raise ProtostarException(
-            f"Invalid account address format ({_args.account_address}). "
+            f"Invalid account address format ({args.account_address}). "
             "Please provide hex-encoded number."
         ) from v_err
 

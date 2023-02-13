@@ -120,7 +120,9 @@ class MulticallCommand(ProtostarCommand):
         network_util = NetworkCommandUtil(args)
         network_config = network_util.get_network_config()
         gateway_client = network_util.get_gateway_client()
-        signer = get_signer(args, network_config=network_config)
+        signer = get_signer(
+            args, network_config=network_config, account_address=args.account_address
+        )
         block_explorer = create_block_explorer(
             block_explorer_name=args.block_explorer,
             network=network_config.network_name,

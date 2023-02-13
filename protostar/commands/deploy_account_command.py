@@ -59,7 +59,7 @@ class DeployAccountCommandArgs(NetworkArgs):
         signer = get_signer(
             args,
             network_config=network_config,
-            optional_account_address=account_address,
+            account_address=account_address,
         )
         assert signer is not None
 

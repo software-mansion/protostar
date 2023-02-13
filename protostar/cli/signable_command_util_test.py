@@ -54,7 +54,7 @@ def test_custom_signer_class(mocker: MockerFixture):
     args.private_key_path = None
     args.account_address = None
 
-    signer = get_signer(args, network_config)
+    signer = get_signer(args, network_config, args.account_address)
     assert isinstance(signer, CustomSigner)
 
 
@@ -70,7 +70,7 @@ def test_default_signer_class(
     args.private_key_path = str(pkey_file_factory("0x123"))
     args.account_address = Address.from_user_input("0x123")
 
-    signer = get_signer(args, network_config)
+    signer = get_signer(args, network_config, args.account_address)
     assert isinstance(signer, StarkCurveSigner)
 
 
@@ -90,7 +90,7 @@ def test_wrong_format_of_private_key_env(
     with pytest.raises(
         ProtostarException, match=re.escape("Invalid private key format")
     ):
-        get_signer(args, network_config)
+        get_signer(args, network_config, args.account_address)
 
 
 def test_wrong_format_of_private_key_file(
@@ -108,7 +108,7 @@ def test_wrong_format_of_private_key_file(
     with pytest.raises(
         ProtostarException, match=re.escape("Invalid private key format")
     ):
-        get_signer(args, network_config)
+        get_signer(args, network_config, args.account_address)
 
 
 def test_account_wrong_format(
@@ -126,4 +126,4 @@ def test_account_wrong_format(
     with pytest.raises(
         ProtostarException, match=re.escape("Invalid account address format")
     ):
-        get_signer(args, network_config)
+        get_signer(args, network_config, args.account_address)
