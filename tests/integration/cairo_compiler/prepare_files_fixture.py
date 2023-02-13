@@ -58,5 +58,4 @@ def check_compiler_function(
     assert output_path.exists() and output_path.stat().st_size
     contents = compiler_function_to_test(input_path)
     assert contents
-    with open(str(output_path), "r") as file:
-        assert contents == "".join(file.readlines())
+    assert contents == "".join(output_path.read_text())
