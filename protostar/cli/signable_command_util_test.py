@@ -11,10 +11,10 @@ from starknet_py.net.signer import BaseSigner
 from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
 from starknet_py.utils.typed_data import TypedData
 
-from protostar.starknet import Address
 from protostar.cli.signable_command_util import get_signer
 from protostar.cli.common_arguments import PRIVATE_KEY_ENV_VAR_NAME
 from protostar.protostar_exception import ProtostarException
+from protostar.starknet import Address
 
 PkeyFileFactoryFixture = Callable[[str], Path]
 

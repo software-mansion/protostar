@@ -5,7 +5,6 @@ from textwrap import dedent
 from typing import Optional
 
 from starknet_py.net.gateway_client import GatewayClient
-from protostar.starknet import Address
 
 from protostar.cli import (
     ProtostarCommand,
@@ -124,7 +123,7 @@ class MulticallCommand(ProtostarCommand):
         signer = get_signer(
             args,
             network_config=network_config,
-            account_address=Address.from_user_input(args.account_address),
+            account_address=args.account_address,
         )
         block_explorer = create_block_explorer(
             block_explorer_name=args.block_explorer,
