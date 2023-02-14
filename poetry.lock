@@ -1197,14 +1197,14 @@ test = ["eth-utils (>=1.0.1,<3)", "hypothesis (>=3.44.24,<=6.31.6)", "pytest (>=
 
 [[package]]
 name = "hypothesis"
-version = "6.67.1"
+version = "6.68.1"
 description = "A library for property-based testing"
 category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "hypothesis-6.67.1-py3-none-any.whl", hash = "sha256:947839d8b5fd24d9b4d1e41ee10f7285d023f49f3b318519bf110fa9e5f3154e"},
-    {file = "hypothesis-6.67.1.tar.gz", hash = "sha256:7abb4361d796ae6432d1c0b22a514210a2a19cb0d85efca8463e619a80f3132c"},
+    {file = "hypothesis-6.68.1-py3-none-any.whl", hash = "sha256:3ff6076920e61d4e6362e93edaf09be3034ea7e39e3a75e731d4d1c525dafd84"},
+    {file = "hypothesis-6.68.1.tar.gz", hash = "sha256:b37bd77b4b7f404a59ff965e24be8aec4209323866e34ececdf416522c6d0854"},
 ]
 
 [package.dependencies]
@@ -1350,14 +1350,14 @@ i18n = ["Babel (>=2.7)"]
 
 [[package]]
 name = "jsonschema"
-version = "4.16.0"
+version = "4.17.3"
 description = "An implementation of JSON Schema validation for Python"
 category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "jsonschema-4.16.0-py3-none-any.whl", hash = "sha256:9e74b8f9738d6a946d70705dc692b74b5429cd0960d58e79ffecfc43b2221eb9"},
-    {file = "jsonschema-4.16.0.tar.gz", hash = "sha256:165059f076eff6971bae5b742fc029a7b4ef3f9bcf04c14e4776a7605de14b23"},
+    {file = "jsonschema-4.17.3-py3-none-any.whl", hash = "sha256:a870ad254da1a8ca84b6a2905cac29d265f805acc57af304784962a2aa6508f6"},
+    {file = "jsonschema-4.17.3.tar.gz", hash = "sha256:0f864437ab8b6076ba6707453ef8f98a6a0d512a80e93f8abdb676f737ecb60d"},
 ]
 
 [package.dependencies]
@@ -1637,6 +1637,36 @@ marshmallow = ">=3.0.0,<4.0.0"
 dev = ["flake8 (==3.9.2)", "flake8-bugbear (==21.4.3)", "mock", "pre-commit (>=2.7,<3.0)", "pytest", "tox"]
 lint = ["flake8 (==3.9.2)", "flake8-bugbear (==21.4.3)", "pre-commit (>=2.7,<3.0)"]
 tests = ["mock", "pytest"]
+
+[[package]]
+name = "maturin"
+version = "0.14.13"
+description = "Build and publish crates with pyo3, rust-cpython and cffi bindings as well as rust binaries as python packages"
+category = "main"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "maturin-0.14.13-py3-none-linux_armv6l.whl", hash = "sha256:d062a779239829adc1fd157912ae4d2d24695843823e23c47ccd4ff5395c2b9c"},
+    {file = "maturin-0.14.13-py3-none-macosx_10_7_x86_64.whl", hash = "sha256:a5d6c5aeb1af92eaef64ddb6b5f2f51baed80893d5700e62fbb943e081462c8e"},
+    {file = "maturin-0.14.13-py3-none-macosx_10_9_x86_64.macosx_11_0_arm64.macosx_10_9_universal2.whl", hash = "sha256:764eb486a93a50330ca6291d10c65f83fd0b2c31d5e323640126f5c638af85de"},
+    {file = "maturin-0.14.13-py3-none-manylinux_2_12_i686.manylinux2010_i686.musllinux_1_1_i686.whl", hash = "sha256:c9583b20efeaa5e51f67633bade70237af53a15662016943352398b7f4b9e7a0"},
+    {file = "maturin-0.14.13-py3-none-manylinux_2_12_x86_64.manylinux2010_x86_64.musllinux_1_1_x86_64.whl", hash = "sha256:76e41762af4a535ba3654df1ec4e43b5e6df15594dffcff26adae6ac187fff16"},
+    {file = "maturin-0.14.13-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.musllinux_1_1_aarch64.whl", hash = "sha256:f1d4dace8d848da098cd4c7398f2480af9a6a2395f34f0cc4f7b726890d502e2"},
+    {file = "maturin-0.14.13-py3-none-manylinux_2_17_armv7l.manylinux2014_armv7l.musllinux_1_1_armv7l.whl", hash = "sha256:80b0e0d44bf3eea862356cf8382394e81eac5da0067237b650e3214fd8bdd904"},
+    {file = "maturin-0.14.13-py3-none-manylinux_2_17_ppc64le.manylinux2014_ppc64le.musllinux_1_1_ppc64le.whl", hash = "sha256:c74dbd049d77b17024547d35e2458c476d4960b7a3e4d03e0f574c5ae6054abb"},
+    {file = "maturin-0.14.13-py3-none-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:6ef7872ed00a923eb8faf78206ce8a8606164b9663db682123609df0a3bb9293"},
+    {file = "maturin-0.14.13-py3-none-win32.whl", hash = "sha256:09d4f262f3adeeb4ce5efd89eb824f9bc3023ded157c6b8a2bf4293a5d23925f"},
+    {file = "maturin-0.14.13-py3-none-win_amd64.whl", hash = "sha256:9bfbf8d38acc77ba1a8392eb4e07e9fd330ec73ab8f8378471b4a5a3a05c208c"},
+    {file = "maturin-0.14.13-py3-none-win_arm64.whl", hash = "sha256:25586d8092a6ad12faca35596be441b7b5dc9cc3d32eeeb978ce9860d3087247"},
+    {file = "maturin-0.14.13.tar.gz", hash = "sha256:ace81e9572c8b29211c3356900d675a29656f395d9a5bb5939104d20bfd57c2f"},
+]
+
+[package.dependencies]
+tomli = {version = ">=1.1.0", markers = "python_version < \"3.11\""}
+
+[package.extras]
+patchelf = ["patchelf"]
+zig = ["ziglang (>=0.10.0,<0.11.0)"]
 
 [[package]]
 name = "mccabe"
@@ -2095,24 +2125,24 @@ plugins = ["importlib-metadata"]
 
 [[package]]
 name = "pyinstaller"
-version = "5.7.0"
+version = "5.8.0"
 description = "PyInstaller bundles a Python application and all its dependencies into a single package."
 category = "dev"
 optional = false
 python-versions = "<3.12,>=3.7"
 files = [
-    {file = "pyinstaller-5.7.0-py3-none-macosx_10_13_universal2.whl", hash = "sha256:b967ae71ab7b05e18608dbb4518da5afa54f0835927cb7a5ce52ab8fffed03b6"},
-    {file = "pyinstaller-5.7.0-py3-none-manylinux2014_aarch64.whl", hash = "sha256:3180b9bf22263380adc5e2ee051b7c21463292877215bbe70c9155dc76f4b966"},
-    {file = "pyinstaller-5.7.0-py3-none-manylinux2014_i686.whl", hash = "sha256:0f80e2403e76630ad3392c71f09c1a4284e8d8a8a99fb55ff3a0aba0e06300ed"},
-    {file = "pyinstaller-5.7.0-py3-none-manylinux2014_ppc64le.whl", hash = "sha256:2c1dd9d11cfc48bab61eeb06de69a3d1ad742bbb2ef14716965ca0333dd43a5b"},
-    {file = "pyinstaller-5.7.0-py3-none-manylinux2014_s390x.whl", hash = "sha256:dfc12e92fe10ae645dd0dd1fcfa4cd7677b2e96119e3cd4980d742e09bb78925"},
-    {file = "pyinstaller-5.7.0-py3-none-manylinux2014_x86_64.whl", hash = "sha256:f35f06d48faea0ad738429c009941059beebaa306e9d9ead95f1df4b441de2aa"},
-    {file = "pyinstaller-5.7.0-py3-none-musllinux_1_1_aarch64.whl", hash = "sha256:28a8a0da656493aa32d9665e2f6f84775da0f23174859ed8facaa4226fe77a17"},
-    {file = "pyinstaller-5.7.0-py3-none-musllinux_1_1_x86_64.whl", hash = "sha256:1ac3f09b838710c43e34b0a7ad003bd168a754b0b786c561b47baf1af9104354"},
-    {file = "pyinstaller-5.7.0-py3-none-win32.whl", hash = "sha256:9cdb8ee8622ee8d2c6cd67f001b610019d4371a8bf3f7850562640ce786894d7"},
-    {file = "pyinstaller-5.7.0-py3-none-win_amd64.whl", hash = "sha256:9b47c10fbefac6f6493266f8b1689109b2b14efa9142dbd2cd7549226a4568b7"},
-    {file = "pyinstaller-5.7.0-py3-none-win_arm64.whl", hash = "sha256:3e51e18a16dec0414079762843cf892a5d70749ad56ca7b3c7b5f8367dc50b1e"},
-    {file = "pyinstaller-5.7.0.tar.gz", hash = "sha256:0e5953937d35f0b37543cc6915dacaf3239bcbdf3fd3ecbb7866645468a16775"},
+    {file = "pyinstaller-5.8.0-py3-none-macosx_10_13_universal2.whl", hash = "sha256:502a2166165a8e8c3d99c19272e923d2548bac2132424d78910ef9dd8bb11705"},
+    {file = "pyinstaller-5.8.0-py3-none-manylinux2014_aarch64.whl", hash = "sha256:bf1f7b7e88b467d7aefcdb2bc9cbd2e856ca88c5ab232c0efe0848f146d3bd5f"},
+    {file = "pyinstaller-5.8.0-py3-none-manylinux2014_i686.whl", hash = "sha256:a62ee598b137202ef2e99d8dbaee6bc7379a6565c3ddf0331decb41b98eff1a2"},
+    {file = "pyinstaller-5.8.0-py3-none-manylinux2014_ppc64le.whl", hash = "sha256:e68bcadf32edc1171ccb06117699a6a4f8e924b7c2c8812cfa00fd0186ade4ee"},
+    {file = "pyinstaller-5.8.0-py3-none-manylinux2014_s390x.whl", hash = "sha256:ded780f0d3642d7bfc21d97b98d4ec4b41d2fe70c3f5c5d243868612f536e011"},
+    {file = "pyinstaller-5.8.0-py3-none-manylinux2014_x86_64.whl", hash = "sha256:f9361eff44c7108c2312f39d85ed768c4ada7e0aa729046bbcef3ef3c1577d18"},
+    {file = "pyinstaller-5.8.0-py3-none-musllinux_1_1_aarch64.whl", hash = "sha256:5c9632a20faecd6d79f0124afb31e6557414d19be271e572765b474f860f8d76"},
+    {file = "pyinstaller-5.8.0-py3-none-musllinux_1_1_x86_64.whl", hash = "sha256:8d004699c5d71c704c14a5f81eec233faa4f87a3bf0ae68e222b87d63f5dd17e"},
+    {file = "pyinstaller-5.8.0-py3-none-win32.whl", hash = "sha256:3b74f50a57b1413047042e47033480b7324b091f23dff790a4494af32b377d94"},
+    {file = "pyinstaller-5.8.0-py3-none-win_amd64.whl", hash = "sha256:4f4d818588e2d8de4bf24ed018056c3de0c95898ad25719e12d68626161b4933"},
+    {file = "pyinstaller-5.8.0-py3-none-win_arm64.whl", hash = "sha256:bacf236b5c2f8f674723a39daca399646dceb470881f842f52e393b9a67ff2f8"},
+    {file = "pyinstaller-5.8.0.tar.gz", hash = "sha256:314fb883caf3cbf06adbea2b77671bb73c3481568e994af0467ea7e47eb64755"},
 ]
 
 [package.dependencies]
@@ -2323,14 +2353,14 @@ pytest = ">=5.0.0"
 
 [[package]]
 name = "pytest-xdist"
-version = "3.1.0"
+version = "3.2.0"
 description = "pytest xdist plugin for distributed testing, most importantly across multiple CPUs"
 category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "pytest-xdist-3.1.0.tar.gz", hash = "sha256:40fdb8f3544921c5dfcd486ac080ce22870e71d82ced6d2e78fa97c2addd480c"},
-    {file = "pytest_xdist-3.1.0-py3-none-any.whl", hash = "sha256:70a76f191d8a1d2d6be69fc440cdf85f3e4c03c08b520fd5dc5d338d6cf07d89"},
+    {file = "pytest-xdist-3.2.0.tar.gz", hash = "sha256:fa10f95a2564cd91652f2d132725183c3b590d9fdcdec09d3677386ecf4c1ce9"},
+    {file = "pytest_xdist-3.2.0-py3-none-any.whl", hash = "sha256:336098e3bbd8193276867cc87db8b22903c3927665dff9d1ac8684c02f597b68"},
 ]
 
 [package.dependencies]
@@ -2855,14 +2885,14 @@ test = ["pytest"]
 
 [[package]]
 name = "starknet-devnet"
-version = "0.4.4"
+version = "0.4.5"
 description = "A local testnet for Starknet"
 category = "dev"
 optional = false
 python-versions = ">=3.8,<3.10"
 files = [
-    {file = "starknet_devnet-0.4.4-py3-none-any.whl", hash = "sha256:28e2c47aabbc744a4b63d4d14b0074d8cff5f5a7914a4a551c953e03b3ecc3a3"},
-    {file = "starknet_devnet-0.4.4.tar.gz", hash = "sha256:fa4497883d2e4795a21687605a3acc8dd4a74f34904df02c94cc6a25e74d5e86"},
+    {file = "starknet_devnet-0.4.5-py3-none-any.whl", hash = "sha256:9f25dcd7e151e97740b05c33f83b3a50c6007bbca6219c373c7d290900bd48f2"},
+    {file = "starknet_devnet-0.4.5.tar.gz", hash = "sha256:a35b46dc29bb67c2efd023f74a5d9db0f25a24ba9a32d70da8b795aa9e8e7277"},
 ]
 
 [package.dependencies]
@@ -2872,7 +2902,9 @@ crypto-cpp-py = ">=1.0.4,<1.1.0"
 Flask = {version = ">=2.0.3,<2.1.0", extras = ["async"]}
 flask-cors = ">=3.0.10,<3.1.0"
 gunicorn = ">=20.1.0,<20.2.0"
+jsonschema = ">=4.17.0,<4.18.0"
 marshmallow = ">=3.17.0,<3.18.0"
+marshmallow-dataclass = ">=8.4,<8.5"
 typing-extensions = ">=4.3.0,<4.4.0"
 Werkzeug = ">=2.0.3,<2.1.0"
 
@@ -3336,4 +3368,4 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.9"
-content-hash = "a35a4d835e2151b74e7540cb47b9f528d69e63554f1e5337405dfdfadec476e0"
+content-hash = "6bf3a3b32bc987f38d06a1e5d4a53831e88933338ecbbf09fb41bc17118a8c3b"

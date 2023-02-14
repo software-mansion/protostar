@@ -167,7 +167,7 @@
     [
       138,
       [
-        "\nmemory[ap + 0] = 0; \nroll(address=[fp + -4], caller_address=[fp + -3])\n"
+        "\nmemory[ap + 0] = roll(address=[fp + -4], caller_address=[fp + -3]); \n\n"
       ]
     ],
     [

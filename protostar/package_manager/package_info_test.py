@@ -8,7 +8,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 from protostar.git.create_and_commit_sample_file import create_and_commit_sample_file
-from protostar.git import Git, GitRepository
+from protostar.git import GitRepository
 
 from .package_info import (
     IncorrectURL,
@@ -137,7 +137,7 @@ class LoadNormalizedToRealNameMapTest:
 
     @pytest.fixture
     def package_repo(self, package_repo_dir: Path) -> GitRepository:
-        repo = Git.init(package_repo_dir)
+        repo = GitRepository.create(package_repo_dir)
 
         create_and_commit_sample_file(repo, package_repo_dir)
 
@@ -152,7 +152,7 @@ class LoadNormalizedToRealNameMapTest:
         packages_dir_name: str,
         package_repo_dir: Path,
     ):
-        repo = Git.init(repo_with_normal_name_package_dir)
+        repo = GitRepository.create(repo_with_normal_name_package_dir)
 
         packages_dir = repo_with_normal_name_package_dir / packages_dir_name
         mkdir(packages_dir)
@@ -175,7 +175,7 @@ class LoadNormalizedToRealNameMapTest:
         packages_dir_name: str,
         package_repo_dir: Path,
     ):
-        repo = Git.init(repo_with_custom_name_package_dir)
+        repo = GitRepository.create(repo_with_custom_name_package_dir)
 
         packages_dir = repo_with_custom_name_package_dir / packages_dir_name
         mkdir(packages_dir)

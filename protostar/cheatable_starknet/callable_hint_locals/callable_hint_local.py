@@ -43,6 +43,6 @@ class CallableHintLocal(HintLocal, ABC):
                 result = self._build()(*args, **kwargs)
                 return ValidExecution(ok=result)
             except TransactionRevertException as ex:
-                return InvalidExecution(err_code=encode_shortstring(ex.message))
+                return InvalidExecution(err_code=encode_shortstring(ex.message[:31]))
 
         return wrapper

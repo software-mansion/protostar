@@ -10,25 +10,7 @@ from protostar.cairo.cairo1_test_suite_parser import parse_test_suite
 
 @pytest.fixture(name="test_suite_json")
 def test_suite_json_fixture(datadir: Path) -> str:
-    """
-    Cairo source code of the tested fixture
-    -----------------------------------------
-    fn test_cheatcode_caller() {
-       roll(1, 2)
-    }
-
-    fn test_cheatcode_caller_twice() {
-       roll(1, 2);
-       roll(1, 2)
-    }
-
-    fn test_cheatcode_caller_three() {
-       roll(1, 2);
-       roll(1, 2);
-       roll(1, 2)
-    }
-    -----------------------------------------
-    """
+    # Cairo source code of the tested fixture - ../cairo_compiler/contracts/roll_test.cairo
     with open(datadir / "compiled_test_suite.json", "r") as file:
         return file.read()
 
@@ -36,6 +18,7 @@ def test_suite_json_fixture(datadir: Path) -> str:
 def test_parse(mocker: MockerFixture, test_suite_json: str):
     test_suite = parse_test_suite(Path("test_source.cairo"), test_suite_json)
     cheat_mock = mocker.MagicMock()
+    cheat_mock.return_value = 0
     for case in test_suite.test_cases:
         runner = CairoFunctionRunner(program=test_suite.program, layout="all")
         runner.run_from_entrypoint(

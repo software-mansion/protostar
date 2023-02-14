@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Dict, Optional
 
 from protostar.protostar_exception import ProtostarException
-from protostar.git import Git, Submodule
+from protostar.git import GitRepository, Submodule
 
 PackageInfo = Submodule
 
@@ -47,7 +47,7 @@ def retrieve_real_package_name(
 
 
 def load_normalized_to_real_name_map(repo_dir: Path, packages_dir: Path):
-    repo = Git.load_existing_repo(repo_dir)
+    repo = GitRepository.from_existing(repo_dir)
 
     mapping: Dict["str", "str"] = {}
 

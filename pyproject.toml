@@ -15,7 +15,7 @@ cairo-lang = "0.10.3"
 colorama = "^0.4.6"
 crypto-cpp-py = "^1.0.4"
 flatdict = "^4.0.1"
-hypothesis = "^6.67.1"
+hypothesis = "^6.68.1"
 packaging = "^23.0"
 pytest-datadir = "^1.4.1"
 python = ">=3.9.14, <3.10"
@@ -26,6 +26,7 @@ tomli-w = "^1.0.0"
 tqdm = "^4.64.1"
 typing-extensions = "^4.3.0"
 tomlkit = "^0.11.6"
+maturin = "^0.14.13"
 
 [tool.poetry.dev-dependencies]
 GitPython = "^3.1.29"
@@ -33,17 +34,17 @@ black = "^23.1.0"
 freezegun = "^1.2.1"
 pexpect = "^4.8.0"
 poethepoet = "^0.18.1"
-pyinstaller = "^5.7"
+pyinstaller = "^5.8"
 pylint = "^2.15.10"
 pyright = "^1.1.292"
 pytest = "^7.2.1"
 pytest-datadir = "^1.4.1"
 pytest-mock = "^3.10.0"
 pytest-timeout = "^2.1.0"
-pytest-xdist = "^3.1.0"
+pytest-xdist = "^3.2.0"
 re-assert = "^1.1.0"
 snakeviz = "^2.1.1"
-starknet-devnet = "^0.4.4"
+starknet-devnet = "^0.4.5"
 pytest-random-order = "^1.1.0"
 
 [tool.poe.tasks]
@@ -71,6 +72,8 @@ lint = "./scripts/run_lint.sh"
 
 format_check_selected = "black --check"
 lint_selected = "pylint"
+
+install_cairo_bindings = "./scripts/install_cairo_bindings.sh"
 
 local_static_check = [
     "format",

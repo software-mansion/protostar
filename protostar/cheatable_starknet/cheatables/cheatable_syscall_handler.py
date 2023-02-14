@@ -17,6 +17,7 @@ from starkware.starknet.security.secure_hints import HintsWhitelist
 from starkware.starknet.services.api.contract_class import EntryPointType
 
 from protostar.starknet.address import Address
+from protostar.starknet.selector import Selector
 
 if TYPE_CHECKING:
     from protostar.cheatable_starknet.cheatables.cheatable_cached_state import (
@@ -78,20 +79,18 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
         class_hash: Optional[bytes] = None
         if syscall_name == "call_contract":
             code_address = cast(int, request.contract_address)
+            contract_address = code_address
 
             # region Modified Starknet code.
-            # TODO: Add mock logic through cheatable state
-            # if code_address in self.cheatable_state.mocked_calls_map:
-            #     if (
-            #         request.function_selector
-            #         in self.cheatable_state.mocked_calls_map[code_address]
-            #     ):
-            #         return self.cheatable_state.mocked_calls_map[code_address][
-            #             request.function_selector
-            #         ]
+            if (
+                mocked_response := self.cheatable_state.get_mocked_response(
+                    target_address=Address(contract_address),
+                    entrypoint=Selector(cast(int, request.function_selector)),
+                )
+            ) is not None:
+                return mocked_response
             # endregion
 
-            contract_address = code_address
             caller_address = self.contract_address
             entry_point_type = EntryPointType.EXTERNAL
             call_type = CallType.CALL
