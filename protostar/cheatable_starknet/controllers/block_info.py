@@ -1,9 +1,9 @@
-import dataclasses
 from typing import TYPE_CHECKING
 
 from starkware.starknet.business_logic.state.state_api_objects import BlockInfo
 
 from protostar.starknet.address import Address
+from protostar.starknet.cheaters.block_info import replace_in_marshmallow_dataclass
 
 if TYPE_CHECKING:
     from protostar.cheatable_starknet.cheatables.cheatable_cached_state import (
@@ -22,7 +22,7 @@ class BlockInfoController:
             contract_address
         )
         if block_timestamp is not None:
-            block_info = dataclasses.replace(
+            block_info = replace_in_marshmallow_dataclass(
                 block_info,
                 block_timestamp=block_timestamp,
             )
@@ -31,7 +31,7 @@ class BlockInfoController:
             contract_address
         )
         if block_number is not None:
-            block_info = dataclasses.replace(
+            block_info = replace_in_marshmallow_dataclass(
                 block_info,
                 block_number=block_number,
             )
