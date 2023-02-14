@@ -1,6 +1,6 @@
 import importlib
 import os
-from typing import Any, Optional, Type, Union
+from typing import Any, Optional, Type
 
 from starknet_py.net.signer import BaseSigner
 from starknet_py.net.signer.stark_curve_signer import KeyPair, StarkCurveSigner
