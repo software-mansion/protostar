@@ -55,13 +55,13 @@ def test_cairo_path_for_starknet_test(prepare_files: PrepareFilesFixture):
 
     _, test_names = call_test_collector(
         input_path=CONTRACTS_DIR / "starknet_project",
-        output_path=prepared_files["output_sierra"][0],
+        output_path=prepared_files["output_sierra"].path,
         cairo_paths=[CONTRACTS_DIR / "external_lib"],
     )
     assert test_names
     protostar_casm = call_protostar_sierra_to_casm(
         named_tests=test_names,
-        input_path=prepared_files["output_sierra"][0],
+        input_path=prepared_files["output_sierra"].path,
     )
     assert protostar_casm
 
@@ -82,11 +82,11 @@ def test_cairo_path_for_regular_compiler(prepare_files: PrepareFilesFixture):
 
     call_cairo_to_sierra_compiler(
         input_path=CONTRACTS_DIR / "regular_project" / "mycontract.cairo",
-        output_path=prepared_files["output_sierra"][0],
+        output_path=prepared_files["output_sierra"].path,
         cairo_paths=[CONTRACTS_DIR / "external_lib"],
     )
     casm_contents = call_sierra_to_casm_compiler(
-        input_path=prepared_files["output_sierra"][0],
+        input_path=prepared_files["output_sierra"].path,
     )
     assert casm_contents
 
