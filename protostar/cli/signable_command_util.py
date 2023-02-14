@@ -14,7 +14,7 @@ from protostar.cli.common_arguments import PRIVATE_KEY_ENV_VAR_NAME
 def get_signer(
     args: Any,
     network_config: NetworkConfig,
-    account_address: Optional[Union[Address, int, str]],
+    account_address: Optional[Address],
 ) -> BaseSigner:
     if args.signer_class:
         *module_names, class_name = args.signer_class.split(".")
