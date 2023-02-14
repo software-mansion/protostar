@@ -1,7 +1,14 @@
 from pathlib import Path
 from typing import Optional
+from dataclasses import dataclass
 
 import cairo_python_bindings
+
+
+@dataclass
+class TestCollectorOutput:
+    sierra_output: Optional[str]
+    test_names: list[str]
 
 
 def call_cairo_to_sierra_compiler(
@@ -52,12 +59,13 @@ def call_test_collector(
     input_path: Path,
     output_path: Optional[Path] = None,
     cairo_paths: Optional[list[Path]] = None,
-) -> tuple[Optional[str], list[str]]:
-    return cairo_python_bindings.call_test_collector(  # pyright: ignore
+) -> TestCollectorOutput:
+    output = cairo_python_bindings.call_test_collector(  # pyright: ignore
         str(input_path),
         str(output_path) if output_path else None,
         [str(path) for path in cairo_paths] if cairo_paths else None,
     )
+    return TestCollectorOutput(sierra_output=output[0], test_names=output[1])
 
 
 def call_protostar_sierra_to_casm(
