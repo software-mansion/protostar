@@ -13,7 +13,7 @@ from protostar.cairo.cairo_bindings import (
 from tests.integration.conftest import CreateProtostarProjectFixture
 from tests.integration.cairo_compiler.prepare_files_fixture import (
     PrepareFilesFixture,
-    RequestedFiles,
+    RequestedFile,
 )
 
 
@@ -46,7 +46,7 @@ def test_cairo_path_for_starknet_contract():
 def test_cairo_path_for_starknet_test(prepare_files: PrepareFilesFixture):
     prepared_files = prepare_files.prepare_files(
         requested_files=[
-            RequestedFiles.output_sierra,
+            RequestedFile.output_sierra,
         ]
     )
 
@@ -69,8 +69,8 @@ def test_cairo_path_for_starknet_test(prepare_files: PrepareFilesFixture):
 def test_cairo_path_for_regular_compiler(prepare_files: PrepareFilesFixture):
     prepared_files = prepare_files.prepare_files(
         requested_files=[
-            RequestedFiles.output_sierra,
-            RequestedFiles.output_casm,
+            RequestedFile.output_sierra,
+            RequestedFile.output_casm,
         ]
     )
 
