@@ -70,7 +70,6 @@ def test_cairo_path_for_regular_compiler(prepare_files: PrepareFilesFixture):
     prepared_files = prepare_files.prepare_files(
         requested_files=[
             RequestedFile.output_sierra,
-            RequestedFile.output_casm,
         ]
     )
 
