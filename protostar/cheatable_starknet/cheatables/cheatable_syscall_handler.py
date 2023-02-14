@@ -170,10 +170,9 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
         )
 
         # region Modified Starknet code.
-        # TODO: Add logic through cheatable state
-        # self.cheatable_state.contract_address_to_class_hash_map[
-        #     Address(contract_address)
-        # ] = class_hash
+        self.cheatable_state.contract_address_to_class_hash_map[
+            Address(contract_address)
+        ] = class_hash
         # endregion
 
         # Initialize the contract.
