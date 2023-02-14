@@ -104,4 +104,4 @@ def test_wrong_format_of_private_key_file(
     with pytest.raises(
         ProtostarException, match=re.escape("Invalid private key format")
     ):
-        get_signer(args, network_config,  Address.from_user_input("0x123"))
+        get_signer(args, network_config, Address.from_user_input("0x123"))
