@@ -132,7 +132,7 @@ class DeployCommand(ProtostarCommand):
         network_config = network_command_util.get_network_config()
         gateway_client = network_command_util.get_gateway_client()
         gateway_facade = self._gateway_facade_factory.create(gateway_client)
-        signer = get_signer(args, network_config, args.account_address)
+        signer = get_signer(args, network_config, Address.from_user_input(args.account_address))
 
         write = self._messenger_factory.from_args(args)
 

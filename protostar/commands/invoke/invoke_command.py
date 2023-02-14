@@ -100,7 +100,7 @@ class InvokeCommand(ProtostarCommand):
         network_command_util = NetworkCommandUtil(args)
         network_config = network_command_util.get_network_config()
         gateway_client = network_command_util.get_gateway_client()
-        signer = get_signer(args, network_config, args.account_address)
+        signer = get_signer(args, network_config, Address.from_user_input(args.account_address))
         block_explorer = create_block_explorer(
             block_explorer_name=args.block_explorer,
             network=network_config.network_name,

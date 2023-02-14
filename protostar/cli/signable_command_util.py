@@ -57,7 +57,7 @@ def get_signer(
         )
     except ValueError as v_err:
         raise ProtostarException(
-            f"Invalid account address format ({args.account_address}). "
+            f"Invalid account address format ({account_address}). "
             "Please provide hex-encoded number."
         ) from v_err
 
