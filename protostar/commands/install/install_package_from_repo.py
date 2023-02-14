@@ -35,4 +35,5 @@ def install_package_from_repo(
 
     repo.add_submodule(url, package_dir, name, tag)
     repo.add(package_dir)
-    repo.commit(f"add {name}")
+    if repo.get_status().staged_file_paths:
+        repo.commit(f"add {name}")

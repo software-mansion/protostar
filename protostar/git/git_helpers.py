@@ -32,17 +32,18 @@ def run_git(*args: Union[str, Path], cwd: Path):
     credentials = [] if has_user_git_credentials() else DEFAULT_CREDENTIALS
     str_args: list[str] = [str(arg) for arg in args]
     try:
-        return (
-            subprocess.run(
-                ["git", *credentials, *str_args],
-                check=True,
-                cwd=cwd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-            )
-            .stdout.decode("utf-8")
-            .strip()
+        result = subprocess.run(
+            ["git", *credentials, *str_args],
+            check=False,
+            cwd=cwd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
         )
+        output = result.stdout.decode("utf-8").strip()
+        if result.returncode == 0:
+            return output
+        raise ProtostarGitException(" ".join(["git", *str_args]) + "\n\n" + output)
+
     except subprocess.CalledProcessError as ex:
         raise ProtostarGitException(str(ex)) from ex
 
