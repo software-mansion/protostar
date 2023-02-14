@@ -146,7 +146,7 @@ python-versions = "*"
 
 [[package]]
 name = "black"
-version = "22.12.0"
+version = "23.1.0"
 description = "The uncompromising code formatter."
 category = "dev"
 optional = false
@@ -155,9 +155,10 @@ python-versions = ">=3.7"
 [package.dependencies]
 click = ">=8.0.0"
 mypy-extensions = ">=0.4.3"
+packaging = ">=22.0"
 pathspec = ">=0.9.0"
 platformdirs = ">=2"
-tomli = {version = ">=1.1.0", markers = "python_full_version < \"3.11.0a7\""}
+tomli = {version = ">=1.1.0", markers = "python_version < \"3.11\""}
 typing-extensions = {version = ">=3.10.0.0", markers = "python_version < \"3.10\""}
 
 [package.extras]
@@ -636,7 +637,7 @@ test = ["eth-utils (>=1.0.1,<3)", "hypothesis (>=3.44.24,<=6.31.6)", "pytest (>=
 
 [[package]]
 name = "hypothesis"
-version = "6.65.2"
+version = "6.68.1"
 description = "A library for property-based testing"
 category = "main"
 optional = false
@@ -837,22 +838,22 @@ tests = ["pytest", "pytz", "simplejson"]
 
 [[package]]
 name = "marshmallow-dataclass"
-version = "8.5.8"
+version = "8.4.2"
 description = "Python library to convert dataclasses into marshmallow schemas."
 category = "main"
 optional = false
 python-versions = ">=3.6"
 
 [package.dependencies]
-marshmallow = ">=3.13.0,<4.0"
+marshmallow = ">=3.0.0,<4.0"
 typing-inspect = ">=0.7.1"
 
 [package.extras]
-dev = ["marshmallow-enum", "pre-commit (>=2.17,<3.0)", "pytest (>=5.4)", "pytest-mypy-plugins (>=1.2.0)", "sphinx", "typeguard", "typing-extensions (>=3.7.2)"]
+dev = ["marshmallow-enum", "pre-commit (>=1.18,<2.0)", "pytest (>=5.4)", "pytest-mypy-plugins (>=1.2.0)", "sphinx", "typeguard", "typing-extensions (>=3.7.2,<3.8.0)"]
 docs = ["sphinx"]
 enum = ["marshmallow-enum"]
-lint = ["pre-commit (>=2.17,<3.0)"]
-tests = ["pytest (>=5.4)", "pytest-mypy-plugins (>=1.2.0)", "typing-extensions (>=3.7.2)"]
+lint = ["pre-commit (>=1.18,<2.0)"]
+tests = ["pytest (>=5.4)", "pytest-mypy-plugins (>=1.2.0)", "typing-extensions (>=3.7.2,<3.8.0)"]
 union = ["typeguard"]
 
 [[package]]
@@ -884,7 +885,7 @@ tests = ["mock", "pytest"]
 
 [[package]]
 name = "maturin"
-version = "0.14.12"
+version = "0.14.13"
 description = "Build and publish crates with pyo3, rust-cpython and cffi bindings as well as rust binaries as python packages"
 category = "main"
 optional = false
@@ -1130,7 +1131,7 @@ plugins = ["importlib-metadata"]
 
 [[package]]
 name = "pyinstaller"
-version = "5.7.0"
+version = "5.8.0"
 description = "PyInstaller bundles a Python application and all its dependencies into a single package."
 category = "dev"
 optional = false
@@ -1181,7 +1182,7 @@ testutils = ["gitpython (>3)"]
 
 [[package]]
 name = "pyright"
-version = "1.1.291"
+version = "1.1.292"
 description = "Command line wrapper for pyright"
 category = "dev"
 optional = false
@@ -1285,7 +1286,7 @@ pytest = ">=5.0.0"
 
 [[package]]
 name = "pytest-xdist"
-version = "3.1.0"
+version = "3.2.0"
 description = "pytest xdist plugin for distributed testing, most importantly across multiple CPUs"
 category = "dev"
 optional = false
@@ -1600,7 +1601,7 @@ Werkzeug = ">=2.0.3,<2.1.0"
 
 [[package]]
 name = "starknet-py"
-version = "0.13.0a0"
+version = "0.14.0a0"
 description = "A python SDK for StarkNet"
 category = "main"
 optional = false
@@ -1612,6 +1613,7 @@ cairo-lang = "0.10.3"
 crypto-cpp-py = ">=1.0.4,<2.0.0"
 furo = ">=2022.12.7,<2023.0.0"
 marshmallow = ">=3.15.0,<4.0.0"
+marshmallow-dataclass = "<8.5.0"
 marshmallow-oneofschema = ">=3.0.1,<4.0.0"
 typing-extensions = ">=4.3.0,<5.0.0"
 
@@ -1824,7 +1826,7 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.9.14, <3.10"
-content-hash = "b2c7e91e9f7f9bcad8dac3f3c6ab706e9f2e3cd3baa47fd92de9d42ee543e5cd"
+content-hash = "0a63a76564a8c470f973298a0f5d1a32203c4561acecf8ade67a09ad111cea12"
 
 [metadata.files]
 aiohttp = [
@@ -2034,15 +2036,7 @@ bitarray = [
     {file = "bitarray-2.6.0-cp39-cp39-win_amd64.whl", hash = "sha256:f37b5282b029d9f51454f8c580eb6a24e5dc140ef5866290afb20e607d2dce5f"},
     {file = "bitarray-2.6.0.tar.gz", hash = "sha256:56d3f16dd807b1c56732a244ce071c135ee973d3edc9929418c1b24c5439a0fd"},
 ]
-
-[[package]]
-name = "black"
-version = "23.1.0"
-description = "The uncompromising code formatter."
-category = "dev"
-optional = false
-python-versions = ">=3.7"
-files = [
+black = [
     {file = "black-23.1.0-cp310-cp310-macosx_10_16_arm64.whl", hash = "sha256:b6a92a41ee34b883b359998f0c8e6eb8e99803aa8bf3123bf2b2e6fec505a221"},
     {file = "black-23.1.0-cp310-cp310-macosx_10_16_universal2.whl", hash = "sha256:57c18c5165c1dbe291d5306e53fb3988122890e57bd9b3dcb75f967f13411a26"},
     {file = "black-23.1.0-cp310-cp310-macosx_10_16_x86_64.whl", hash = "sha256:9880d7d419bb7e709b37e28deb5e68a49227713b623c72b2b931028ea65f619b"},
@@ -2069,30 +2063,7 @@ files = [
     {file = "black-23.1.0-py3-none-any.whl", hash = "sha256:7a0f701d314cfa0896b9001df70a530eb2472babb76086344e688829efd97d32"},
     {file = "black-23.1.0.tar.gz", hash = "sha256:b0bd97bea8903f5a2ba7219257a44e3f1f9d00073d6cc1add68f0beec69692ac"},
 ]
-
-[package.dependencies]
-click = ">=8.0.0"
-mypy-extensions = ">=0.4.3"
-packaging = ">=22.0"
-pathspec = ">=0.9.0"
-platformdirs = ">=2"
-tomli = {version = ">=1.1.0", markers = "python_version < \"3.11\""}
-typing-extensions = {version = ">=3.10.0.0", markers = "python_version < \"3.10\""}
-
-[package.extras]
-colorama = ["colorama (>=0.4.3)"]
-d = ["aiohttp (>=3.7.4)"]
-jupyter = ["ipython (>=7.8.0)", "tokenize-rt (>=3.2.0)"]
-uvloop = ["uvloop (>=0.15.2)"]
-
-[[package]]
-name = "cachetools"
-version = "5.2.0"
-description = "Extensible memoizing collections and decorators"
-category = "main"
-optional = false
-python-versions = "~=3.7"
-files = [
+cachetools = [
     {file = "cachetools-5.2.0-py3-none-any.whl", hash = "sha256:f9f17d2aec496a9aa6b76f53e3b614c965223c061982d434d160f930c698a9db"},
     {file = "cachetools-5.2.0.tar.gz", hash = "sha256:6a94c6402995a99c3970cc7e4884bb60b4a8639938157eeed436098bf9831757"},
 ]
@@ -2416,21 +2387,7 @@ hexbytes = [
     {file = "hexbytes-0.3.0-py3-none-any.whl", hash = "sha256:21c3a5bd00a383097f0369c387174e79839d75c4ccc3a7edda315c9644f4458a"},
     {file = "hexbytes-0.3.0.tar.gz", hash = "sha256:afeebfb800f5f15a3ca5bab52e49eabcb4b6dac06ec8ff01a94fdb890c6c0712"},
 ]
-
-[package.extras]
-dev = ["Sphinx (>=4.0.0,<5)", "black (>=22,<23)", "bumpversion (>=0.5.3,<1)", "eth-utils (>=1.0.1,<3)", "flake8 (==3.7.9)", "hypothesis (>=3.44.24,<=6.31.6)", "ipython", "isort (>=4.2.15,<5)", "mypy (==0.971)", "pydocstyle (>=5.0.0,<6)", "pytest (>=7,<8)", "pytest-watch (>=4.1.0,<5)", "pytest-xdist", "sphinx-rtd-theme (>=0.1.9,<1)", "towncrier (>=21,<22)", "tox (>=3.25.1,<4)", "twine", "wheel"]
-doc = ["Sphinx (>=4.0.0,<5)", "sphinx-rtd-theme (>=0.1.9,<1)", "towncrier (>=21,<22)"]
-lint = ["black (>=22,<23)", "flake8 (==3.7.9)", "isort (>=4.2.15,<5)", "mypy (==0.971)", "pydocstyle (>=5.0.0,<6)"]
-test = ["eth-utils (>=1.0.1,<3)", "hypothesis (>=3.44.24,<=6.31.6)", "pytest (>=7,<8)", "pytest-xdist", "tox (>=3.25.1,<4)"]
-
-[[package]]
-name = "hypothesis"
-version = "6.68.1"
-description = "A library for property-based testing"
-category = "main"
-optional = false
-python-versions = ">=3.7"
-files = [
+hypothesis = [
     {file = "hypothesis-6.68.1-py3-none-any.whl", hash = "sha256:3ff6076920e61d4e6362e93edaf09be3034ea7e39e3a75e731d4d1c525dafd84"},
     {file = "hypothesis-6.68.1.tar.gz", hash = "sha256:b37bd77b4b7f404a59ff965e24be8aec4209323866e34ececdf416522c6d0854"},
 ]
@@ -2627,48 +2584,11 @@ marshmallow = [
     {file = "marshmallow-3.17.1-py3-none-any.whl", hash = "sha256:1172ce82765bf26c24a3f9299ed6dbeeca4d213f638eaa39a37772656d7ce408"},
     {file = "marshmallow-3.17.1.tar.gz", hash = "sha256:48e2d88d4ab431ad5a17c25556d9da529ea6e966876f2a38d274082e270287f0"},
 ]
-
-[package.dependencies]
-packaging = ">=17.0"
-
-[package.extras]
-dev = ["flake8 (==5.0.4)", "flake8-bugbear (==22.8.22)", "mypy (==0.971)", "pre-commit (>=2.4,<3.0)", "pytest", "pytz", "simplejson", "tox"]
-docs = ["alabaster (==0.7.12)", "autodocsumm (==0.2.9)", "sphinx (==5.1.1)", "sphinx-issues (==3.0.1)", "sphinx-version-warning (==1.1.2)"]
-lint = ["flake8 (==5.0.4)", "flake8-bugbear (==22.8.22)", "mypy (==0.971)", "pre-commit (>=2.4,<3.0)"]
-tests = ["pytest", "pytz", "simplejson"]
-
-[[package]]
-name = "marshmallow-dataclass"
-version = "8.4.2"
-description = "Python library to convert dataclasses into marshmallow schemas."
-category = "main"
-optional = false
-python-versions = ">=3.6"
-files = [
+marshmallow-dataclass = [
     {file = "marshmallow_dataclass-8.4.2-py3-none-any.whl", hash = "sha256:f3b39bfb9da25f46f12f118b067f9eebc754472d76259b525e561e429337530f"},
     {file = "marshmallow_dataclass-8.4.2.tar.gz", hash = "sha256:2948a0e1ffbec5ecc41242ec194216be99264cbb23ee117c90b97bfbbe7d0566"},
 ]
-
-[package.dependencies]
-marshmallow = ">=3.0.0,<4.0"
-typing-inspect = ">=0.7.1"
-
-[package.extras]
-dev = ["marshmallow-enum", "pre-commit (>=1.18,<2.0)", "pytest (>=5.4)", "pytest-mypy-plugins (>=1.2.0)", "sphinx", "typeguard", "typing-extensions (>=3.7.2,<3.8.0)"]
-docs = ["sphinx"]
-enum = ["marshmallow-enum"]
-lint = ["pre-commit (>=1.18,<2.0)"]
-tests = ["pytest (>=5.4)", "pytest-mypy-plugins (>=1.2.0)", "typing-extensions (>=3.7.2,<3.8.0)"]
-union = ["typeguard"]
-
-[[package]]
-name = "marshmallow-enum"
-version = "1.5.1"
-description = "Enum field for Marshmallow"
-category = "main"
-optional = false
-python-versions = "*"
-files = [
+marshmallow-enum = [
     {file = "marshmallow-enum-1.5.1.tar.gz", hash = "sha256:38e697e11f45a8e64b4a1e664000897c659b60aa57bfa18d44e226a9920b6e58"},
     {file = "marshmallow_enum-1.5.1-py2.py3-none-any.whl", hash = "sha256:57161ab3dbfde4f57adeb12090f39592e992b9c86d206d02f6bd03ebec60f072"},
 ]
@@ -2676,23 +2596,7 @@ marshmallow-oneofschema = [
     {file = "marshmallow-oneofschema-3.0.1.tar.gz", hash = "sha256:62cd2099b29188c92493c2940ee79d1bf2f2619a71721664e5a98ec2faa58237"},
     {file = "marshmallow_oneofschema-3.0.1-py2.py3-none-any.whl", hash = "sha256:bd29410a9f2f7457a2b428286e2a80ef76b8ddc3701527dc1f935a88914b02f2"},
 ]
-
-[package.dependencies]
-marshmallow = ">=3.0.0,<4.0.0"
-
-[package.extras]
-dev = ["flake8 (==3.9.2)", "flake8-bugbear (==21.4.3)", "mock", "pre-commit (>=2.7,<3.0)", "pytest", "tox"]
-lint = ["flake8 (==3.9.2)", "flake8-bugbear (==21.4.3)", "pre-commit (>=2.7,<3.0)"]
-tests = ["mock", "pytest"]
-
-[[package]]
-name = "maturin"
-version = "0.14.13"
-description = "Build and publish crates with pyo3, rust-cpython and cffi bindings as well as rust binaries as python packages"
-category = "main"
-optional = false
-python-versions = ">=3.7"
-files = [
+maturin = [
     {file = "maturin-0.14.13-py3-none-linux_armv6l.whl", hash = "sha256:d062a779239829adc1fd157912ae4d2d24695843823e23c47ccd4ff5395c2b9c"},
     {file = "maturin-0.14.13-py3-none-macosx_10_7_x86_64.whl", hash = "sha256:a5d6c5aeb1af92eaef64ddb6b5f2f51baed80893d5700e62fbb943e081462c8e"},
     {file = "maturin-0.14.13-py3-none-macosx_10_9_x86_64.macosx_11_0_arm64.macosx_10_9_universal2.whl", hash = "sha256:764eb486a93a50330ca6291d10c65f83fd0b2c31d5e323640126f5c638af85de"},
@@ -2707,22 +2611,7 @@ files = [
     {file = "maturin-0.14.13-py3-none-win_arm64.whl", hash = "sha256:25586d8092a6ad12faca35596be441b7b5dc9cc3d32eeeb978ce9860d3087247"},
     {file = "maturin-0.14.13.tar.gz", hash = "sha256:ace81e9572c8b29211c3356900d675a29656f395d9a5bb5939104d20bfd57c2f"},
 ]
-
-[package.dependencies]
-tomli = {version = ">=1.1.0", markers = "python_version < \"3.11\""}
-
-[package.extras]
-patchelf = ["patchelf"]
-zig = ["ziglang (>=0.10.0,<0.11.0)"]
-
-[[package]]
-name = "mccabe"
-version = "0.7.0"
-description = "McCabe checker, plugin for flake8"
-category = "dev"
-optional = false
-python-versions = ">=3.6"
-files = [
+mccabe = [
     {file = "mccabe-0.7.0-py2.py3-none-any.whl", hash = "sha256:6c2d30ab6be0e4a46919781807b4f0d834ebdd6c6e3dca0bda5a15f863427b6e"},
     {file = "mccabe-0.7.0.tar.gz", hash = "sha256:348e0240c33b60bbdf4e523192ef919f28cb2c3d7d5c7794f74009290f236325"},
 ]
@@ -2943,18 +2832,7 @@ pygments = [
     {file = "Pygments-2.14.0-py3-none-any.whl", hash = "sha256:fa7bd7bd2771287c0de303af8bfdfc731f51bd2c6a47ab69d117138893b82717"},
     {file = "Pygments-2.14.0.tar.gz", hash = "sha256:b3ed06a9e8ac9a9aae5a6f5dbe78a8a58655d17b43b93c078f094ddc476ae297"},
 ]
-
-[package.extras]
-plugins = ["importlib-metadata"]
-
-[[package]]
-name = "pyinstaller"
-version = "5.8.0"
-description = "PyInstaller bundles a Python application and all its dependencies into a single package."
-category = "dev"
-optional = false
-python-versions = "<3.12,>=3.7"
-files = [
+pyinstaller = [
     {file = "pyinstaller-5.8.0-py3-none-macosx_10_13_universal2.whl", hash = "sha256:502a2166165a8e8c3d99c19272e923d2548bac2132424d78910ef9dd8bb11705"},
     {file = "pyinstaller-5.8.0-py3-none-manylinux2014_aarch64.whl", hash = "sha256:bf1f7b7e88b467d7aefcdb2bc9cbd2e856ca88c5ab232c0efe0848f146d3bd5f"},
     {file = "pyinstaller-5.8.0-py3-none-manylinux2014_i686.whl", hash = "sha256:a62ee598b137202ef2e99d8dbaee6bc7379a6565c3ddf0331decb41b98eff1a2"},
@@ -3050,18 +2928,7 @@ pytest-timeout = [
     {file = "pytest-timeout-2.1.0.tar.gz", hash = "sha256:c07ca07404c612f8abbe22294b23c368e2e5104b521c1790195561f37e1ac3d9"},
     {file = "pytest_timeout-2.1.0-py3-none-any.whl", hash = "sha256:f6f50101443ce70ad325ceb4473c4255e9d74e3c7cd0ef827309dfa4c0d975c6"},
 ]
-
-[package.dependencies]
-pytest = ">=5.0.0"
-
-[[package]]
-name = "pytest-xdist"
-version = "3.2.0"
-description = "pytest xdist plugin for distributed testing, most importantly across multiple CPUs"
-category = "dev"
-optional = false
-python-versions = ">=3.7"
-files = [
+pytest-xdist = [
     {file = "pytest-xdist-3.2.0.tar.gz", hash = "sha256:fa10f95a2564cd91652f2d132725183c3b590d9fdcdec09d3677386ecf4c1ce9"},
     {file = "pytest_xdist-3.2.0-py3-none-any.whl", hash = "sha256:336098e3bbd8193276867cc87db8b22903c3927665dff9d1ac8684c02f597b68"},
 ]
@@ -3337,28 +3204,7 @@ python-versions = ">=3.8,<3.10"
 files = [
     {file = "starknet_py-0.14.0a0.tar.gz", hash = "sha256:8a1c1551e3de15471cc20f9fb6daa3b9c3e363526f223a7c3204647dc8018598"},
 ]
-
-[package.dependencies]
-asgiref = ">=3.4.1,<4.0.0"
-cairo-lang = "0.10.3"
-crypto-cpp-py = ">=1.0.4,<2.0.0"
-furo = ">=2022.12.7,<2023.0.0"
-marshmallow = ">=3.15.0,<4.0.0"
-marshmallow-dataclass = "<8.5.0"
-marshmallow-oneofschema = ">=3.0.1,<4.0.0"
-typing-extensions = ">=4.3.0,<5.0.0"
-
-[package.extras]
-docs = ["enum-tools[sphinx] (==0.9.0.post1)", "sphinx (>=4.3.1,<6.0.0)"]
-
-[[package]]
-name = "sympy"
-version = "1.11.1"
-description = "Computer algebra system (CAS) in Python"
-category = "main"
-optional = false
-python-versions = ">=3.8"
-files = [
+sympy = [
     {file = "sympy-1.11.1-py3-none-any.whl", hash = "sha256:938f984ee2b1e8eae8a07b884c8b7a1146010040fccddc6539c54f401c8f6fcf"},
     {file = "sympy-1.11.1.tar.gz", hash = "sha256:e32380dce63cb7c0108ed525570092fd45168bdae2faa17e528221ef72e88658"},
 ]
