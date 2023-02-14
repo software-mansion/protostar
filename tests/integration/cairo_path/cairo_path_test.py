@@ -76,11 +76,11 @@ def test_cairo_path_for_regular_compiler(prepare_files: PrepareFilesFixture):
     # cairo -> sierra -> casm
     with pytest.raises(Exception):
         call_cairo_to_sierra_compiler(
-            input_path=CONTRACTS_DIR / "regular_project" / "mycontract.cairo"
+            input_path=CONTRACTS_DIR / "regular_project" / "sample_cairo_code.cairo"
         )
 
     call_cairo_to_sierra_compiler(
-        input_path=CONTRACTS_DIR / "regular_project" / "mycontract.cairo",
+        input_path=CONTRACTS_DIR / "regular_project" / "sample_cairo_code.cairo",
         output_path=prepared_files["output_sierra"].path,
         cairo_paths=[CONTRACTS_DIR / "external_lib"],
     )
@@ -92,11 +92,11 @@ def test_cairo_path_for_regular_compiler(prepare_files: PrepareFilesFixture):
     # cairo -> casm
     with pytest.raises(Exception):
         call_cairo_to_casm_compiler(
-            input_path=CONTRACTS_DIR / "regular_project" / "mycontract.cairo"
+            input_path=CONTRACTS_DIR / "regular_project" / "sample_cairo_code.cairo"
         )
 
     casm_contents = call_cairo_to_casm_compiler(
-        input_path=CONTRACTS_DIR / "regular_project" / "mycontract.cairo",
+        input_path=CONTRACTS_DIR / "regular_project" / "sample_cairo_code.cairo",
         cairo_paths=[CONTRACTS_DIR / "external_lib"],
     )
     assert casm_contents
