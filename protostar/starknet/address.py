@@ -30,11 +30,14 @@ class Address:
     @classmethod
     def from_user_input(cls, raw_address: RawAddress) -> Self:
         try:
-            value = (
-                raw_address
-                if isinstance(raw_address, int)
-                else int(raw_address, base=0)
-            )
+            if isinstance(raw_address, int):
+                value = raw_address
+            else:
+                value = (
+                    int(raw_address, 16)
+                    if raw_address.startswith("0x")
+                    else int(raw_address)
+                )
         except ValueError as err:
             raise AddressValidationError(raw_address) from err
         if value < 0:
