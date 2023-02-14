@@ -1,6 +1,6 @@
 import dataclasses
 from copy import copy
-from typing import Optional, Callable
+from typing import Any, Optional, Callable
 
 from starkware.starknet.business_logic.state.state_api_objects import BlockInfo
 from typing_extensions import Self
@@ -21,14 +21,14 @@ class BlockInfoCheater(Cheater):
 
         block_timestamp = self.contract_address_to_block_timestamp.get(contract_address)
         if block_timestamp is not None:
-            block_info = dataclasses.replace(
+            block_info = replace_in_marshmallow_dataclass(
                 block_info,
                 block_timestamp=block_timestamp,
             )
 
         block_number = self.contract_address_to_block_number.get(contract_address)
         if block_number is not None:
-            block_info = dataclasses.replace(
+            block_info = replace_in_marshmallow_dataclass(
                 block_info,
                 block_number=block_number,
             )
@@ -69,3 +69,7 @@ class BlockInfoCheater(Cheater):
             **parent.contract_address_to_block_number,
             **self.contract_address_to_block_number,
         }
+
+
+def replace_in_marshmallow_dataclass(instance: Any, **changes: Any):
+    return dataclasses.replace(instance, **changes)
