@@ -24,6 +24,3 @@ class PrankHintLocal(CallableHintLocal):
             caller_address=Address.from_user_input(caller_address),
             target_address=valid_target_address,
         )
-        return lambda: self._contracts_controller.cancel_prank(
-            target_address=valid_target_address
-        )
