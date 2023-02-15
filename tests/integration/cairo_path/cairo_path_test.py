@@ -81,10 +81,19 @@ def test_cairo_path_for_starknet_test(prepare_files: PrepareFilesFixture):
     with pytest.raises(Exception):
         call_test_collector(input_path=CONTRACTS_DIR / "starknet_project")
 
+    with pytest.raises(Exception):
+        call_test_collector(
+            input_path=CONTRACTS_DIR / "starknet_project",
+            cairo_path=[CONTRACTS_DIR / "external_lib_foo"],
+        )
+
     test_collector_output = call_test_collector(
         input_path=CONTRACTS_DIR / "starknet_project",
         output_path=prepared_files["output_sierra"].path,
-        cairo_path=[CONTRACTS_DIR / "external_lib_foo"],
+        cairo_path=[
+            CONTRACTS_DIR / "external_lib_foo",
+            CONTRACTS_DIR / "external_lib_bar",
+        ],
     )
     assert test_collector_output.test_names
     protostar_casm = call_protostar_sierra_to_casm(
