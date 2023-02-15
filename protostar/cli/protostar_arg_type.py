@@ -34,7 +34,7 @@ def map_protostar_type_name_to_parser(
     if argument_type == "fee":
         return parse_fee_arg_type
     if argument_type == "address":
-        return parse_address_arg_type
+        return parse_hex_or_decimal
     if argument_type == "class_hash":
         return parse_hex_or_decimal
     if argument_type == "wei":

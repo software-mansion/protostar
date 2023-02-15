@@ -1,6 +1,5 @@
 import pytest
 
-from protostar.starknet import Address
 from .protostar_arg_type import map_protostar_type_name_to_parser
 
 
@@ -38,7 +37,7 @@ def test_fee_type():
 def test_address_arg_type():
     parser = map_protostar_type_name_to_parser("address")
     result = parser("0xdeadbeef123")
-    assert isinstance(result, Address)
+    assert isinstance(result, int)
     assert result == 15302363377955
 
 
