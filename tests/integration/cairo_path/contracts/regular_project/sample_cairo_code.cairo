@@ -1,4 +1,4 @@
-use external_lib::foo::foo;
+use external_lib_foo::foo::foo;
 
 fn main() -> felt {
     let a = 5;
