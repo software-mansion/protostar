@@ -70,7 +70,7 @@ curl -L https://raw.githubusercontent.com/software-mansion/protostar/master/inst
     - MacBook M1/M2: `CFLAGS=-I/opt/homebrew/opt/gmp/include LDFLAGS=-L/opt/homebrew/opt/gmp/lib poetry install`
 1. Install bindings for the rust tools used by protostar:
     - [install rust](https://www.rust-lang.org/tools/install)
-    - poetry run poe install_cairo_bindings
+    - `poetry run poe install_cairo_bindings`
 1. Patch the git's config by always allowing file transport: `git config --global protocol.file.allow always` (needed for some tests to pass) 
 1. Verify the setup by running tests: `poe test`
 1. Build Protostar: `poe build`
