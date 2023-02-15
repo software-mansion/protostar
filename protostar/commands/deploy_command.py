@@ -5,10 +5,13 @@ from typing import Optional
 from protostar.cli import (
     ProtostarArgument,
     ProtostarCommand,
-    SignableCommandUtil,
     MessengerFactory,
+    get_signer,
 )
 from protostar.cli.common_arguments import (
+    ACCOUNT_ADDRESS_ARG,
+    PRIVATE_KEY_PATH_ARG,
+    SIGNER_CLASS_ARG,
     BLOCK_EXPLORER_ARG,
     WAIT_FOR_ACCEPTANCE_ARG,
     MAX_FEE_ARG,
@@ -84,7 +87,9 @@ class DeployCommand(ProtostarCommand):
             WAIT_FOR_ACCEPTANCE_ARG,
             *MessengerFactory.OUTPUT_ARGUMENTS,
             *NetworkCommandUtil.network_arguments,
-            *SignableCommandUtil.signable_arguments,
+            ACCOUNT_ADDRESS_ARG,
+            PRIVATE_KEY_PATH_ARG,
+            SIGNER_CLASS_ARG,
             ProtostarArgument(
                 name="class-hash",
                 description="The hash of the declared contract class.",
@@ -123,12 +128,11 @@ class DeployCommand(ProtostarCommand):
 
     async def run(self, args: Namespace):
         network_command_util = NetworkCommandUtil(args)
-        signable_command_util = SignableCommandUtil(args)
 
         network_config = network_command_util.get_network_config()
         gateway_client = network_command_util.get_gateway_client()
         gateway_facade = self._gateway_facade_factory.create(gateway_client)
-        signer = signable_command_util.get_signer(network_config)
+        signer = get_signer(args, network_config, args.account_address)
 
         write = self._messenger_factory.from_args(args)
 

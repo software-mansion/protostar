@@ -7,10 +7,13 @@ from protostar.cli import (
     NetworkCommandUtil,
     ProtostarArgument,
     ProtostarCommand,
-    SignableCommandUtil,
+    get_signer,
     MessengerFactory,
 )
 from protostar.cli.common_arguments import (
+    ACCOUNT_ADDRESS_ARG,
+    PRIVATE_KEY_PATH_ARG,
+    SIGNER_CLASS_ARG,
     BLOCK_EXPLORER_ARG,
     MAX_FEE_ARG,
     WAIT_FOR_ACCEPTANCE_ARG,
@@ -61,7 +64,9 @@ class InvokeCommand(ProtostarCommand):
     @property
     def arguments(self):
         return [
-            *SignableCommandUtil.signable_arguments,
+            ACCOUNT_ADDRESS_ARG,
+            PRIVATE_KEY_PATH_ARG,
+            SIGNER_CLASS_ARG,
             *NetworkCommandUtil.network_arguments,
             *MessengerFactory.OUTPUT_ARGUMENTS,
             BLOCK_EXPLORER_ARG,
@@ -93,10 +98,9 @@ class InvokeCommand(ProtostarCommand):
     async def run(self, args: Any):
         write = self._messenger_factory.from_args(args)
         network_command_util = NetworkCommandUtil(args)
-        signable_command_util = SignableCommandUtil(args)
         network_config = network_command_util.get_network_config()
         gateway_client = network_command_util.get_gateway_client()
-        signer = signable_command_util.get_signer(network_config)
+        signer = get_signer(args, network_config, args.account_address)
         block_explorer = create_block_explorer(
             block_explorer_name=args.block_explorer,
             network=network_config.network_name,

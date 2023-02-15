@@ -159,10 +159,6 @@ Used by whitelisted users for deploying contracts in Alpha MainNet.
 Waits for transaction to be accepted on chain.
 ### `deploy-account`
 Sends deploy-account transaction. The account contract must be already declared and prefunded.
-#### `--account-address ADDRESS`
-Required.
-
-Account address.
 #### `--account-address-salt INT`
 Required.
 

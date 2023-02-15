@@ -8,12 +8,15 @@ from starknet_py.net.signer import BaseSigner
 
 from protostar.cli import ProtostarArgument, ProtostarCommand, MessengerFactory
 from protostar.cli.common_arguments import (
+    ACCOUNT_ADDRESS_ARG,
+    PRIVATE_KEY_PATH_ARG,
+    SIGNER_CLASS_ARG,
     BLOCK_EXPLORER_ARG,
     MAX_FEE_ARG,
     WAIT_FOR_ACCEPTANCE_ARG,
 )
 from protostar.cli.network_command_util import NetworkCommandUtil
-from protostar.cli.signable_command_util import SignableCommandUtil
+from protostar.cli.signable_command_util import get_signer
 from protostar.io import StructuredMessage, LogColorProvider
 from protostar.starknet import Address
 from protostar.starknet_gateway import (
@@ -73,7 +76,9 @@ class DeclareCommand(ProtostarCommand):
     @property
     def arguments(self):
         return [
-            *SignableCommandUtil.signable_arguments,
+            ACCOUNT_ADDRESS_ARG,
+            PRIVATE_KEY_PATH_ARG,
+            SIGNER_CLASS_ARG,
             *NetworkCommandUtil.network_arguments,
             *MessengerFactory.OUTPUT_ARGUMENTS,
             BLOCK_EXPLORER_ARG,
@@ -103,10 +108,9 @@ class DeclareCommand(ProtostarCommand):
         assert isinstance(args.wait_for_acceptance, bool)
 
         network_command_util = NetworkCommandUtil(args)
-        signable_command_util = SignableCommandUtil(args)
         network_config = network_command_util.get_network_config()
         gateway_client = network_command_util.get_gateway_client()
-        signer = signable_command_util.get_signer(network_config)
+        signer = get_signer(args, network_config, args.account_address)
 
         block_explorer = create_block_explorer(
             block_explorer_name=args.block_explorer,

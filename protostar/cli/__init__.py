@@ -6,4 +6,4 @@ from .network_command_util import NetworkCommandUtil
 from .protostar_arg_type import map_protostar_type_name_to_parser
 from .protostar_argument import ProtostarArgument
 from .protostar_command import ProtostarCommand
-from .signable_command_util import SignableCommandUtil
+from .signable_command_util import get_signer
