@@ -14,12 +14,12 @@ class TestCollectorOutput:
 def call_cairo_to_sierra_compiler(
     input_path: Path,
     output_path: Optional[Path] = None,
-    cairo_paths: Optional[list[Path]] = None,
+    cairo_path: Optional[list[Path]] = None,
 ) -> Optional[str]:
     return cairo_python_bindings.call_cairo_to_sierra_compiler(  # pyright: ignore
         str(input_path),
         str(output_path) if output_path else None,
-        [str(path) for path in cairo_paths] if cairo_paths else None,
+        [str(path) for path in cairo_path] if cairo_path else None,
     )
 
 
@@ -34,36 +34,36 @@ def call_sierra_to_casm_compiler(
 def call_cairo_to_casm_compiler(
     input_path: Path,
     output_path: Optional[Path] = None,
-    cairo_paths: Optional[list[Path]] = None,
+    cairo_path: Optional[list[Path]] = None,
 ) -> Optional[str]:
     return cairo_python_bindings.call_cairo_to_casm_compiler(  # pyright: ignore
         str(input_path),
         str(output_path) if output_path else None,
-        [str(path) for path in cairo_paths] if cairo_paths else None,
+        [str(path) for path in cairo_path] if cairo_path else None,
     )
 
 
 def call_starknet_contract_compiler(
     input_path: Path,
     output_path: Optional[Path] = None,
-    cairo_paths: Optional[list[Path]] = None,
+    cairo_path: Optional[list[Path]] = None,
 ) -> Optional[str]:
     return cairo_python_bindings.call_starknet_contract_compiler(  # pyright: ignore
         str(input_path),
         str(output_path) if output_path else None,
-        [str(path) for path in cairo_paths] if cairo_paths else None,
+        [str(path) for path in cairo_path] if cairo_path else None,
     )
 
 
 def call_test_collector(
     input_path: Path,
     output_path: Optional[Path] = None,
-    cairo_paths: Optional[list[Path]] = None,
+    cairo_path: Optional[list[Path]] = None,
 ) -> TestCollectorOutput:
     output = cairo_python_bindings.call_test_collector(  # pyright: ignore
         str(input_path),
         str(output_path) if output_path else None,
-        [str(path) for path in cairo_paths] if cairo_paths else None,
+        [str(path) for path in cairo_path] if cairo_path else None,
     )
     return TestCollectorOutput(sierra_output=output[0], test_names=output[1])
 
