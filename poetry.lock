@@ -754,7 +754,7 @@ i18n = ["Babel (>=2.7)"]
 
 [[package]]
 name = "jsonschema"
-version = "4.16.0"
+version = "4.17.3"
 description = "An implementation of JSON Schema validation for Python"
 category = "main"
 optional = false
@@ -1182,7 +1182,7 @@ testutils = ["gitpython (>3)"]
 
 [[package]]
 name = "pyright"
-version = "1.1.292"
+version = "1.1.293"
 description = "Command line wrapper for pyright"
 category = "dev"
 optional = false
@@ -1582,7 +1582,7 @@ test = ["pytest"]
 
 [[package]]
 name = "starknet-devnet"
-version = "0.4.4"
+version = "0.4.5"
 description = "A local testnet for Starknet"
 category = "dev"
 optional = false
@@ -1595,7 +1595,9 @@ crypto-cpp-py = ">=1.0.4,<1.1.0"
 Flask = {version = ">=2.0.3,<2.1.0", extras = ["async"]}
 flask-cors = ">=3.0.10,<3.1.0"
 gunicorn = ">=20.1.0,<20.2.0"
+jsonschema = ">=4.17.0,<4.18.0"
 marshmallow = ">=3.17.0,<3.18.0"
+marshmallow-dataclass = ">=8.4,<8.5"
 typing-extensions = ">=4.3.0,<4.4.0"
 Werkzeug = ">=2.0.3,<2.1.0"
 
@@ -1826,7 +1828,7 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.9.14, <3.10"
-content-hash = "0a63a76564a8c470f973298a0f5d1a32203c4561acecf8ade67a09ad111cea12"
+content-hash = "1a2e365c2c5ebd6fec1fbadec90a3bb91e7b79265958793f8c583577b4ffa3f2"
 
 [metadata.files]
 aiohttp = [
@@ -2423,21 +2425,7 @@ Jinja2 = [
     {file = "Jinja2-3.1.2-py3-none-any.whl", hash = "sha256:6088930bfe239f0e6710546ab9c19c9ef35e29792895fed6e6e31a023a182a61"},
     {file = "Jinja2-3.1.2.tar.gz", hash = "sha256:31351a702a408a9e7595a8fc6150fc3f43bb6bf7e319770cbc0db9df9437e852"},
 ]
-
-[package.dependencies]
-MarkupSafe = ">=2.0"
-
-[package.extras]
-i18n = ["Babel (>=2.7)"]
-
-[[package]]
-name = "jsonschema"
-version = "4.17.3"
-description = "An implementation of JSON Schema validation for Python"
-category = "main"
-optional = false
-python-versions = ">=3.7"
-files = [
+jsonschema = [
     {file = "jsonschema-4.17.3-py3-none-any.whl", hash = "sha256:a870ad254da1a8ca84b6a2905cac29d265f805acc57af304784962a2aa6508f6"},
     {file = "jsonschema-4.17.3.tar.gz", hash = "sha256:0f864437ab8b6076ba6707453ef8f98a6a0d512a80e93f8abdb676f737ecb60d"},
 ]
@@ -2854,30 +2842,7 @@ pylint = [
     {file = "pylint-2.15.10-py3-none-any.whl", hash = "sha256:9df0d07e8948a1c3ffa3b6e2d7e6e63d9fb457c5da5b961ed63106594780cc7e"},
     {file = "pylint-2.15.10.tar.gz", hash = "sha256:b3dc5ef7d33858f297ac0d06cc73862f01e4f2e74025ec3eff347ce0bc60baf5"},
 ]
-
-[package.dependencies]
-astroid = ">=2.12.13,<=2.14.0-dev0"
-colorama = {version = ">=0.4.5", markers = "sys_platform == \"win32\""}
-dill = {version = ">=0.2", markers = "python_version < \"3.11\""}
-isort = ">=4.2.5,<6"
-mccabe = ">=0.6,<0.8"
-platformdirs = ">=2.2.0"
-tomli = {version = ">=1.1.0", markers = "python_version < \"3.11\""}
-tomlkit = ">=0.10.1"
-typing-extensions = {version = ">=3.10.0", markers = "python_version < \"3.10\""}
-
-[package.extras]
-spelling = ["pyenchant (>=3.2,<4.0)"]
-testutils = ["gitpython (>3)"]
-
-[[package]]
-name = "pyright"
-version = "1.1.293"
-description = "Command line wrapper for pyright"
-category = "dev"
-optional = false
-python-versions = ">=3.7"
-files = [
+pyright = [
     {file = "pyright-1.1.293-py3-none-any.whl", hash = "sha256:afc05309e775a9869c864da4e8c0c7a3e3be9d8fe202e780c3bae981bbb13936"},
     {file = "pyright-1.1.293.tar.gz", hash = "sha256:9397fdfcbc684fe5b87abbf9c27f540fe3b8d75999a5f187519cae1d065be38c"},
 ]
@@ -3164,44 +3129,11 @@ sphinxcontrib-serializinghtml = [
     {file = "sphinxcontrib-serializinghtml-1.1.5.tar.gz", hash = "sha256:aa5f6de5dfdf809ef505c4895e51ef5c9eac17d0f287933eb49ec495280b6952"},
     {file = "sphinxcontrib_serializinghtml-1.1.5-py2.py3-none-any.whl", hash = "sha256:352a9a00ae864471d3a7ead8d7d79f5fc0b57e8b3f95e9867eb9eb28999b92fd"},
 ]
-
-[package.extras]
-lint = ["docutils-stubs", "flake8", "mypy"]
-test = ["pytest"]
-
-[[package]]
-name = "starknet-devnet"
-version = "0.4.5"
-description = "A local testnet for Starknet"
-category = "dev"
-optional = false
-python-versions = ">=3.8,<3.10"
-files = [
+starknet-devnet = [
     {file = "starknet_devnet-0.4.5-py3-none-any.whl", hash = "sha256:9f25dcd7e151e97740b05c33f83b3a50c6007bbca6219c373c7d290900bd48f2"},
     {file = "starknet_devnet-0.4.5.tar.gz", hash = "sha256:a35b46dc29bb67c2efd023f74a5d9db0f25a24ba9a32d70da8b795aa9e8e7277"},
 ]
-
-[package.dependencies]
-cairo-lang = "0.10.3"
-cloudpickle = ">=2.1.0,<2.2.0"
-crypto-cpp-py = ">=1.0.4,<1.1.0"
-Flask = {version = ">=2.0.3,<2.1.0", extras = ["async"]}
-flask-cors = ">=3.0.10,<3.1.0"
-gunicorn = ">=20.1.0,<20.2.0"
-jsonschema = ">=4.17.0,<4.18.0"
-marshmallow = ">=3.17.0,<3.18.0"
-marshmallow-dataclass = ">=8.4,<8.5"
-typing-extensions = ">=4.3.0,<4.4.0"
-Werkzeug = ">=2.0.3,<2.1.0"
-
-[[package]]
-name = "starknet-py"
-version = "0.14.0a0"
-description = "A python SDK for StarkNet"
-category = "main"
-optional = false
-python-versions = ">=3.8,<3.10"
-files = [
+starknet-py = [
     {file = "starknet_py-0.14.0a0.tar.gz", hash = "sha256:8a1c1551e3de15471cc20f9fb6daa3b9c3e363526f223a7c3204647dc8018598"},
 ]
 sympy = [
@@ -3434,12 +3366,3 @@ zipp = [
     {file = "zipp-3.11.0-py3-none-any.whl", hash = "sha256:83a28fcb75844b5c0cdaf5aa4003c2d728c77e05f5aeabe8e95e56727005fbaa"},
     {file = "zipp-3.11.0.tar.gz", hash = "sha256:a7a22e05929290a67401440b39690ae6563279bced5f314609d9d03798f56766"},
 ]
-
-[package.extras]
-docs = ["furo", "jaraco.packaging (>=9)", "jaraco.tidelift (>=1.4)", "rst.linker (>=1.9)", "sphinx (>=3.5)"]
-testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools", "more-itertools", "pytest (>=6)", "pytest-black (>=0.3.7)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=1.3)", "pytest-flake8", "pytest-mypy (>=0.9.1)"]
-
-[metadata]
-lock-version = "2.0"
-python-versions = "~3.9"
-content-hash = "1a2e365c2c5ebd6fec1fbadec90a3bb91e7b79265958793f8c583577b4ffa3f2"
