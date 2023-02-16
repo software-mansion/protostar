@@ -30,6 +30,7 @@ async def test_expect_call(protostar: ProtostarFixture):
         testing_summary,
         expected_passed_test_cases_names=[
             "test_expect_call_success",
+            "test_expect_call_with_stop",
         ],
         expected_failed_test_cases_names=[
             "test_expect_call_after_the_call",
@@ -38,6 +39,7 @@ async def test_expect_call(protostar: ProtostarFixture):
             "test_expect_call_partial_fail",
             "test_expect_call_expected_but_not_found",
             "test_expect_call_wrong_function_called",
+            "test_expect_call_after_stop",
         ],
     )
 
