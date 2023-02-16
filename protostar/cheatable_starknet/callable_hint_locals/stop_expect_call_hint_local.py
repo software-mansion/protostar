@@ -25,7 +25,7 @@ class StopExpectCallHintLocal(CallableHintLocal):
         return self.stop_expect_call
 
     def stop_expect_call(self, address: RawAddress, fn_name: str, calldata: CairoData):
-        self._controller.stop_expecing_call(
+        self._controller.stop_expecting_call(
             expected_call=ExpectedCall(
                 address=Address.from_user_input(address),
                 fn_selector=Selector(fn_name),
