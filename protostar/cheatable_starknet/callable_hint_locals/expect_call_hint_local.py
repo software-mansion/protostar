@@ -5,6 +5,7 @@ from starknet_py.utils.data_transformer.data_transformer import CairoData
 from protostar.cheatable_starknet.controllers.expect_call_controller import (
     ExpectCallController,
     ExpectedCall,
+    FunctionCall,
 )
 from protostar.cheatable_starknet.callable_hint_locals.callable_hint_local import (
     CallableHintLocal,
@@ -28,7 +29,6 @@ class ExpectCallHintLocal(CallableHintLocal):
         self._controller.add_expected_call(
             expected_call=ExpectedCall(
                 address=Address.from_user_input(address),
-                fn_selector=Selector(fn_name),
-                calldata=calldata,
+                call=FunctionCall(fn_selector=Selector(fn_name), calldata=calldata),
             )
         )

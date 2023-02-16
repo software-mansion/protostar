@@ -21,6 +21,7 @@ from protostar.starknet.selector import Selector
 
 from protostar.cheatable_starknet.controllers.expect_call_controller import (
     ExpectedCall,
+    FunctionCall,
     ExpectCallController,
 )
 
@@ -130,10 +131,9 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
         # region Modified Starknet code.
         ExpectCallController.remove_expected_call_static(
             cheatable_state=self.cheatable_state,
-            expected_call=ExpectedCall(
+            expected_call_to_remove=ExpectedCall(
                 address=Address(contract_address),
-                fn_selector=function_selector,
-                calldata=calldata,
+                call=FunctionCall(fn_selector=function_selector, calldata=calldata),
             ),
         )
 

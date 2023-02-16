@@ -13,10 +13,25 @@ if TYPE_CHECKING:
 
 
 @dataclass
-class ExpectedCall:
-    address: Address
+class FunctionCall:
     fn_selector: Selector
     calldata: CairoOrPythonData
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, FunctionCall):
+            return NotImplemented
+        return self.fn_selector == other.fn_selector and self.calldata == other.calldata
+
+
+@dataclass
+class ExpectedCall:
+    address: Address
+    call: FunctionCall
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ExpectedCall):
+            return NotImplemented
+        return self.call == other.call and self.address == other.address
 
 
 class ExpectCallController:
@@ -31,48 +46,49 @@ class ExpectCallController:
 
     def add_expected_call(self, expected_call: ExpectedCall):
         contract_address = Address(int(expected_call.address))
-        calldata = expected_call.calldata
+        calldata = expected_call.call.calldata
         if self._cheatable_state.expected_contract_calls.get(contract_address):
             self._cheatable_state.expected_contract_calls[contract_address].append(
-                (int(expected_call.fn_selector), calldata)
+                FunctionCall(
+                    fn_selector=expected_call.call.fn_selector, calldata=calldata
+                )
             )
         else:
             self._cheatable_state.expected_contract_calls[contract_address] = [
-                (int(expected_call.fn_selector), calldata)
+                FunctionCall(
+                    fn_selector=expected_call.call.fn_selector, calldata=calldata
+                ),
             ]
 
     @staticmethod
     def remove_expected_call_static(
-        expected_call: ExpectedCall, cheatable_state: "CheatableCachedState"
+        expected_call_to_remove: ExpectedCall, cheatable_state: "CheatableCachedState"
     ):
-        data_for_address = cheatable_state.expected_contract_calls.get(
-            expected_call.address
+        expected_calls = cheatable_state.expected_contract_calls.get(
+            expected_call_to_remove.address
         )
-        if data_for_address is not None:
-            for index, (selector, calldata) in enumerate(data_for_address):
-                if (
-                    selector == int(expected_call.fn_selector)
-                    and calldata == expected_call.calldata
-                ):
-                    del data_for_address[index]
-            if not data_for_address:
-                del cheatable_state.expected_contract_calls[expected_call.address]
+        if expected_calls is not None:
+            for index, expected_call_item in enumerate(expected_calls):
+                if expected_call_item == expected_call_to_remove.call:
+                    del expected_calls[index]
+            if not expected_calls:
+                del cheatable_state.expected_contract_calls[
+                    expected_call_to_remove.address
+                ]
 
     def remove_expected_call(self, expected_call: ExpectedCall):
         ExpectCallController.remove_expected_call_static(
-            expected_call=expected_call, cheatable_state=self._cheatable_state
+            expected_call_to_remove=expected_call, cheatable_state=self._cheatable_state
         )
 
     def assert_no_expected_calls_left(self):
         try:
             address = next(iter(self._cheatable_state.expected_contract_calls))
-            fn_selector, calldata = self._cheatable_state.expected_contract_calls[
-                address
-            ][0]
+            function_call = self._cheatable_state.expected_contract_calls[address][0]
             raise ExpectedCallException(
                 contract_address=address,
-                fn_name=str(fn_selector),
-                calldata=calldata,
+                fn_name=str(function_call.fn_selector),
+                calldata=function_call.calldata,
             )
         except StopIteration:
             pass
