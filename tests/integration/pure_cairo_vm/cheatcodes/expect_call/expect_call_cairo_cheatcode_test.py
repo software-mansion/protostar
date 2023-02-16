@@ -40,3 +40,24 @@ async def test_expect_call(protostar: ProtostarFixture):
             "test_expect_call_wrong_function_called",
         ],
     )
+
+
+async def test_expect_call_with_proxy(protostar: ProtostarFixture):
+    protostar.create_contracts(
+        {
+            "basic": CONTRACTS_PATH / "basic_contract.cairo",
+            "proxy": CONTRACTS_PATH / "proxy_for_basic_contract.cairo",
+        }
+    )
+    testing_summary = await protostar.run_test_runner(
+        Path(__file__).parent / "expect_call_with_proxy_test.cairo",
+        cairo_test_runner=True,
+    )
+
+    assert_cairo_test_cases(
+        testing_summary,
+        expected_passed_test_cases_names=[
+            "test_expect_call_with_proxy_simple",
+            "test_expect_call_with_proxy_deeper",
+        ],
+    )
