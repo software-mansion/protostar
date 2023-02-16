@@ -43,6 +43,7 @@ def call_protostar_sierra_to_casm_from_path(
         named_tests, str(input_path), str(output_path) if output_path else None
     )
 
+
 def call_protostar_sierra_to_casm(
     named_tests: list[str], input_data: str, output_path: Optional[Path] = None
 ) -> Optional[str]:
