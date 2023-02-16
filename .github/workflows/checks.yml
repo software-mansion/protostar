@@ -25,9 +25,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install poetry
           poetry install
-      - name: Install cairo bindings
-        run: |
-          poetry run ./scripts/install_cairo_bindings.sh
       - name: Populate caches
         uses: actions/cache@v3
         with:
@@ -57,10 +54,6 @@ jobs:
           path: | 
             ~/.cache/pypoetry
           key: poetry-${{ hashFiles('poetry.lock') }}
-      - name: Install cairo bindings
-        run: |
-          poetry run ./scripts/install_cairo_bindings.sh
-
       - name: Check types
         run: |
           poetry run poe type_check
@@ -94,10 +87,6 @@ jobs:
           path: |
             ~/.cache/pypoetry
           key: poetry-${{ hashFiles('poetry.lock') }}
-      - name: Install cairo bindings
-        run: |
-          poetry run ./scripts/install_cairo_bindings.sh
-
       - name: Patch git config
         run: |
           git config --global protocol.file.allow always
@@ -130,11 +119,6 @@ jobs:
           path: |
             ~/.cache/pypoetry
           key: poetry-${{ hashFiles('poetry.lock') }}
-      - name: Install cairo bindings
-        run: |
-          poetry run ./scripts/install_cairo_bindings.sh
-        shell: bash
-
       - name: Build
         run: |
           poetry run poe build
