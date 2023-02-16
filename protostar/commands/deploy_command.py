@@ -95,6 +95,7 @@ class DeployCommand(ProtostarCommand):
                 description="The hash of the declared contract class.",
                 type="class_hash",
                 is_positional=True,
+                is_required=True,
             ),
             ProtostarArgument(
                 name="inputs",
