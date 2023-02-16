@@ -20,6 +20,7 @@ from protostar.cheatable_starknet.callable_hint_locals import (
     ExpectEventsHintLocal,
     LoadHintLocal,
     MockCallHintLocal,
+    ExpectCallHintLocal,
 )
 from protostar.cheatable_starknet.cheatables.cheatable_cached_state import (
     CheatableCachedState,
@@ -28,6 +29,7 @@ from protostar.cheatable_starknet.controllers import (
     StorageController,
     ContractsController,
     BlockInfoController,
+    ExpectCallController,
 )
 from protostar.cheatable_starknet.controllers.expect_events_controller import (
     ExpectEventsController,
@@ -67,6 +69,11 @@ class CairoSharedHintLocalFactory:
             contracts_controller=contracts_controller,
         )
 
+        expect_call_controller = ExpectCallController(
+            test_finish_hook=self._test_finish_hook,
+            cheatable_state=self._test_execution_state.cheatable_state,
+        )
+
         return [
             WarpHintLocal(block_info_controller=block_info_controller),
             RollHintLocal(block_info_controller=block_info_controller),
@@ -82,7 +89,10 @@ class CairoSharedHintLocalFactory:
                 prepare_cheatcode=prepare_cheatcode,
                 deploy_cheatcode=deploy_cheatcode,
             ),
-            CallHintLocal(contracts_controller=contracts_controller),
+            CallHintLocal(
+                contracts_controller=contracts_controller,
+                expect_call_controller=expect_call_controller,
+            ),
             InvokeHintLocal(contracts_controller=contracts_controller),
             StoreHintLocal(storage_controller=storage_controller),
             LoadHintLocal(storage_controller=storage_controller),
@@ -94,6 +104,7 @@ class CairoSharedHintLocalFactory:
                 ),
             ),
             MockCallHintLocal(controller=contracts_controller),
+            ExpectCallHintLocal(controller=expect_call_controller),
         ]
 
 

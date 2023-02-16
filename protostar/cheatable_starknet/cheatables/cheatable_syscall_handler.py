@@ -19,6 +19,11 @@ from starkware.starknet.services.api.contract_class import EntryPointType
 from protostar.starknet.address import Address
 from protostar.starknet.selector import Selector
 
+from protostar.cheatable_starknet.controllers.expect_call_controller import (
+    remove_expected_call_external,
+    ExpectedCall,
+)
+
 if TYPE_CHECKING:
     from protostar.cheatable_starknet.cheatables.cheatable_cached_state import (
         CheatableCachedState,
@@ -77,6 +82,7 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
 
         code_address: Optional[int] = None
         class_hash: Optional[bytes] = None
+        function_selector = Selector(cast(int, request.function_selector))
         if syscall_name == "call_contract":
             code_address = cast(int, request.contract_address)
             contract_address = code_address
@@ -85,7 +91,7 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
             if (
                 mocked_response := self.cheatable_state.get_mocked_response(
                     target_address=Address(contract_address),
-                    entrypoint=Selector(cast(int, request.function_selector)),
+                    entrypoint=function_selector,
                 )
             ) is not None:
                 return mocked_response
@@ -122,11 +128,14 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
             raise NotImplementedError(f"Unsupported call type {syscall_name}.")
 
         # region Modified Starknet code.
-        # TODO
-        # contract_calldata = (int(str(request.function_selector)), calldata)
-        # self.cheaters.?.unregister_expected_call(
-        #     contract_address=Address(contract_address), calldata=contract_calldata
-        # )
+        remove_expected_call_external(
+            cheatable_state=self.cheatable_state,
+            expected_call=ExpectedCall(
+                address=Address(contract_address),
+                fn_selector=function_selector,
+                calldata=calldata,
+            ),
+        )
 
         # endregion
 
