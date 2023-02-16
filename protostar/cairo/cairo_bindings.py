@@ -11,38 +11,6 @@ class TestCollectorOutput:
     test_names: list[str]
 
 
-def call_cairo_to_sierra_compiler(
-    input_path: Path,
-    output_path: Optional[Path] = None,
-    cairo_path: Optional[list[Path]] = None,
-) -> Optional[str]:
-    return cairo_python_bindings.call_cairo_to_sierra_compiler(  # pyright: ignore
-        str(input_path),
-        str(output_path) if output_path else None,
-        [str(path) for path in cairo_path] if cairo_path else None,
-    )
-
-
-def call_sierra_to_casm_compiler(
-    input_path: Path, output_path: Optional[Path] = None
-) -> Optional[str]:
-    return cairo_python_bindings.call_sierra_to_casm_compiler(  # pyright: ignore
-        str(input_path), str(output_path) if output_path else None
-    )
-
-
-def call_cairo_to_casm_compiler(
-    input_path: Path,
-    output_path: Optional[Path] = None,
-    cairo_path: Optional[list[Path]] = None,
-) -> Optional[str]:
-    return cairo_python_bindings.call_cairo_to_casm_compiler(  # pyright: ignore
-        str(input_path),
-        str(output_path) if output_path else None,
-        [str(path) for path in cairo_path] if cairo_path else None,
-    )
-
-
 def call_starknet_contract_compiler(
     input_path: Path,
     output_path: Optional[Path] = None,
@@ -73,4 +41,11 @@ def call_protostar_sierra_to_casm_from_path(
 ) -> Optional[str]:
     return cairo_python_bindings.call_protostar_sierra_to_casm_from_path(  # pyright: ignore
         named_tests, str(input_path), str(output_path) if output_path else None
+    )
+
+def call_protostar_sierra_to_casm(
+    named_tests: list[str], input_data: str, output_path: Optional[Path] = None
+) -> Optional[str]:
+    return cairo_python_bindings.call_protostar_sierra_to_casm(  # pyright: ignore
+        named_tests, input_data, str(output_path) if output_path else None
     )
