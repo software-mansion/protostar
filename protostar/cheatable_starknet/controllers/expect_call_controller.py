@@ -19,23 +19,6 @@ class ExpectedCall:
     calldata: CairoOrPythonData
 
 
-def remove_expected_call_external(
-    expected_call: ExpectedCall, cheatable_state: "CheatableCachedState"
-):
-    data_for_address = cheatable_state.expected_contract_calls.get(
-        expected_call.address
-    )
-    if data_for_address is not None:
-        for index, (selector, calldata) in enumerate(data_for_address):
-            if (
-                selector == int(expected_call.fn_selector)
-                and calldata == expected_call.calldata
-            ):
-                del data_for_address[index]
-        if not data_for_address:
-            del cheatable_state.expected_contract_calls[expected_call.address]
-
-
 class ExpectCallController:
     def __init__(
         self,
@@ -58,8 +41,25 @@ class ExpectCallController:
                 (int(expected_call.fn_selector), calldata)
             ]
 
+    @staticmethod
+    def remove_expected_call_static(
+        expected_call: ExpectedCall, cheatable_state: "CheatableCachedState"
+    ):
+        data_for_address = cheatable_state.expected_contract_calls.get(
+            expected_call.address
+        )
+        if data_for_address is not None:
+            for index, (selector, calldata) in enumerate(data_for_address):
+                if (
+                    selector == int(expected_call.fn_selector)
+                    and calldata == expected_call.calldata
+                ):
+                    del data_for_address[index]
+            if not data_for_address:
+                del cheatable_state.expected_contract_calls[expected_call.address]
+
     def remove_expected_call(self, expected_call: ExpectedCall):
-        remove_expected_call_external(
+        ExpectCallController.remove_expected_call_static(
             expected_call=expected_call, cheatable_state=self._cheatable_state
         )
 

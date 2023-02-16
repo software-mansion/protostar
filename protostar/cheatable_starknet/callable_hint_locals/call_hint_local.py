@@ -57,7 +57,7 @@ class CallHintLocal(CallableHintLocal):
                 ExpectedCall(
                     address=contract_address,
                     fn_selector=entry_point_selector,
-                    calldata=calldata if calldata else [],
+                    calldata=calldata or [],
                 )
             )
             return await self._contracts_controller.call(

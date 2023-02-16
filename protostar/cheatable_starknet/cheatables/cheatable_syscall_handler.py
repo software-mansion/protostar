@@ -20,8 +20,8 @@ from protostar.starknet.address import Address
 from protostar.starknet.selector import Selector
 
 from protostar.cheatable_starknet.controllers.expect_call_controller import (
-    remove_expected_call_external,
     ExpectedCall,
+    ExpectCallController,
 )
 
 if TYPE_CHECKING:
@@ -128,7 +128,7 @@ class CheatableSysCallHandler(BusinessLogicSysCallHandler):
             raise NotImplementedError(f"Unsupported call type {syscall_name}.")
 
         # region Modified Starknet code.
-        remove_expected_call_external(
+        ExpectCallController.remove_expected_call_static(
             cheatable_state=self.cheatable_state,
             expected_call=ExpectedCall(
                 address=Address(contract_address),
