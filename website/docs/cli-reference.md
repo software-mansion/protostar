@@ -114,6 +114,8 @@ protostar deploy 0x4221deadbeef123 --network testnet
 ```
 Deploy contracts.
 #### `class-hash CLASS_HASH`
+Required.
+
 The hash of the declared contract class.
 #### `--account-address ADDRESS`
 Required.
