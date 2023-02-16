@@ -3,7 +3,7 @@ import pytest
 
 from protostar.cairo.cairo_bindings import (
     call_test_collector,
-    call_protostar_sierra_to_casm,
+    call_protostar_sierra_to_casm_from_path,
     call_cairo_to_casm_compiler,
     call_cairo_to_sierra_compiler,
     call_sierra_to_casm_compiler,
@@ -96,7 +96,7 @@ def test_cairo_path_for_starknet_test(prepare_files: PrepareFilesFixture):
         ],
     )
     assert test_collector_output.test_names
-    protostar_casm = call_protostar_sierra_to_casm(
+    protostar_casm = call_protostar_sierra_to_casm_from_path(
         named_tests=test_collector_output.test_names,
         input_path=prepared_files["output_sierra"].path,
     )

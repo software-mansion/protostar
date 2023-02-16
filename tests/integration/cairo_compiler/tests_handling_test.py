@@ -8,7 +8,7 @@ from starkware.cairo.lang.vm.utils import RunResources
 from protostar.cairo.cairo1_test_suite_parser import parse_test_suite
 from protostar.cairo.cairo_bindings import (
     call_test_collector,
-    call_protostar_sierra_to_casm,
+    call_protostar_sierra_to_casm_from_path,
 )
 
 from tests.integration.conftest import CreateProtostarProjectFixture
@@ -47,7 +47,7 @@ def test_compilator_and_parser(
     assert not test_collector_output.sierra_output and test_collector_output.test_names
     assert prepared_files["output_sierra"].path.read_text()
 
-    protostar_casm_json = call_protostar_sierra_to_casm(
+    protostar_casm_json = call_protostar_sierra_to_casm_from_path(
         test_collector_output.test_names,
         prepared_files["output_sierra"].path,
     )
