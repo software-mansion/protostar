@@ -8,13 +8,12 @@ from starkware.cairo.lang.vm.utils import RunResources
 from protostar.cairo.cairo1_test_suite_parser import parse_test_suite
 from protostar.cairo.cairo_bindings import (
     call_test_collector,
-    call_protostar_sierra_to_casm_from_path,
+    call_protostar_sierra_to_casm,
 )
 
 from tests.integration.conftest import CreateProtostarProjectFixture
 from tests.integration.cairo_compiler.prepare_files_fixture import (
     PrepareFilesFixture,
-    RequestedFile,
 )
 
 
@@ -26,35 +25,25 @@ def prepare_files_fixture(create_protostar_project: CreateProtostarProjectFixtur
 
 
 def test_compilator_and_parser(
-    prepare_files: PrepareFilesFixture, mocker: MockerFixture
+   mocker: MockerFixture, datadir: Path
 ):
-    prepared_files = prepare_files.prepare_files(
-        requested_files=[
-            RequestedFile.input_roll_test_cairo,
-            RequestedFile.output_sierra,
-            RequestedFile.output_casm,
-        ]
+    test_collector_output = call_test_collector(
+        datadir / "roll_test.cairo"
     )
 
-    test_collector_output = call_test_collector(
-        prepared_files["input_roll_test_cairo"].path
-    )
-    assert test_collector_output.sierra_output and test_collector_output.test_names
-    test_collector_output = call_test_collector(
-        prepared_files["input_roll_test_cairo"].path,
-        prepared_files["output_sierra"].path,
-    )
-    assert not test_collector_output.sierra_output and test_collector_output.test_names
-    assert prepared_files["output_sierra"].path.read_text()
+    assert test_collector_output.sierra_output
+    assert test_collector_output.test_names == ["roll_test::roll_test::test_cheatcode_caller", "roll_test::roll_test::test_cheatcode_caller_twice", "roll_test::roll_test::test_cheatcode_caller_three"]
 
-    protostar_casm_json = call_protostar_sierra_to_casm_from_path(
+    protostar_casm_json = call_protostar_sierra_to_casm(
         test_collector_output.test_names,
-        prepared_files["output_sierra"].path,
+        test_collector_output.sierra_output
     )
     assert protostar_casm_json
+
     test_suite = parse_test_suite(
-        Path(str(prepared_files["output_casm"].path)), protostar_casm_json
+        datadir / "roll_test.cairo", protostar_casm_json
     )
+
     cheat_mock = mocker.MagicMock()
     cheat_mock.return_value = 0
     # TODO https://github.com/software-mansion/protostar/issues/1434
