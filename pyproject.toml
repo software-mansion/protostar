@@ -73,7 +73,7 @@ lint = "./scripts/run_lint.sh"
 
 format_check_selected = "black --check"
 lint_selected = "pylint"
-
+install_cairo_bindings = "./scripts/install_cairo_bindings.sh"
 local_static_check = [
     "format",
     "lint",
