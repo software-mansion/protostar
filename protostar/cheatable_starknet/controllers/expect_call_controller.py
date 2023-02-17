@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     )
 
 
-@dataclass
+@dataclass(frozen=True)
 class FunctionCall:
     fn_selector: Selector
     calldata: CairoOrPythonData
@@ -23,7 +23,7 @@ class FunctionCall:
         return self.fn_selector == other.fn_selector and self.calldata == other.calldata
 
 
-@dataclass
+@dataclass(frozen=True)
 class ExpectedCall:
     address: Address
     call: FunctionCall
@@ -47,17 +47,16 @@ class ExpectCallController:
     def add_expected_call(self, expected_call: ExpectedCall):
         contract_address = Address(int(expected_call.address))
         calldata = expected_call.call.calldata
+        function_call = FunctionCall(
+            fn_selector=expected_call.call.fn_selector, calldata=calldata
+        )
         if self._cheatable_state.expected_contract_calls.get(contract_address):
             self._cheatable_state.expected_contract_calls[contract_address].append(
-                FunctionCall(
-                    fn_selector=expected_call.call.fn_selector, calldata=calldata
-                )
+                function_call
             )
         else:
             self._cheatable_state.expected_contract_calls[contract_address] = [
-                FunctionCall(
-                    fn_selector=expected_call.call.fn_selector, calldata=calldata
-                ),
+                function_call
             ]
 
     @staticmethod
