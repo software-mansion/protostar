@@ -82,7 +82,7 @@ curl -L https://raw.githubusercontent.com/software-mansion/protostar/master/inst
 Run the following script to enable lint checks and automatic formatting before commit/push.
 
 ```shell
-./scripts/apply-hooks.sh
+./scripts/apply_hooks.sh
 ```
 
 ## Updating website/docs
