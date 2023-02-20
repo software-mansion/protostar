@@ -6,14 +6,11 @@ from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.cairo.lang.vm.utils import RunResources
 
 from protostar.cairo.cairo1_test_suite_parser import parse_test_suite
-from protostar.cairo.cairo_bindings import (
-    call_test_collector,
-    call_protostar_sierra_to_casm,
-)
+import protostar.cairo.cairo_bindings as cairo1
 
 
 def test_compilator_and_parser(mocker: MockerFixture, datadir: Path):
-    test_collector_output = call_test_collector(datadir / "roll_test.cairo")
+    test_collector_output = cairo1.collect_tests(datadir / "roll_test.cairo")
 
     assert test_collector_output.sierra_output
     assert test_collector_output.test_names == [
@@ -22,7 +19,7 @@ def test_compilator_and_parser(mocker: MockerFixture, datadir: Path):
         "roll_test::roll_test::test_cheatcode_caller_three",
     ]
 
-    protostar_casm_json = call_protostar_sierra_to_casm(
+    protostar_casm_json = cairo1.compile_protostar_sierra_to_casm(
         test_collector_output.test_names, test_collector_output.sierra_output
     )
     assert protostar_casm_json
@@ -53,15 +50,15 @@ def test_compilator_and_parser(mocker: MockerFixture, datadir: Path):
 
 def test_cairo_path_for_tests(datadir: Path, shared_datadir: Path):
     with pytest.raises(Exception):
-        call_test_collector(input_path=datadir / "test_with_deps.cairo")
+        cairo1.collect_tests(input_path=datadir / "test_with_deps.cairo")
 
     with pytest.raises(Exception):
-        call_test_collector(
+        cairo1.collect_tests(
             input_path=datadir / "test_with_deps.cairo",
             cairo_path=[shared_datadir / "external_lib_foo"],
         )
 
-    result = call_test_collector(
+    result = cairo1.collect_tests(
         input_path=datadir / "test_with_deps.cairo",
         cairo_path=[
             shared_datadir / "external_lib_foo",
@@ -71,7 +68,7 @@ def test_cairo_path_for_tests(datadir: Path, shared_datadir: Path):
     assert result.sierra_output
     assert result.test_names == ["test_with_deps::test_with_deps::test_assert_true"]
 
-    protostar_casm = call_protostar_sierra_to_casm(
+    protostar_casm = cairo1.compile_protostar_sierra_to_casm(
         result.test_names,
         result.sierra_output,
     )
