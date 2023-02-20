@@ -293,8 +293,12 @@ class ContractsController:
             calldata=cairo_calldata,
             entry_point_selector=entry_point_selector,
         )
+        state_copy = copy.deepcopy(self.cheatable_state)
+        state_copy.expected_contract_calls = (
+            self.cheatable_state.expected_contract_calls
+        )
         result = await entry_point.execute_for_testing(
-            state=copy.deepcopy(self.cheatable_state),
+            state=state_copy,
             general_config=StarknetGeneralConfig(),
         )
         return result.retdata

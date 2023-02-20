@@ -17,8 +17,9 @@ from protostar.cheatable_starknet.controllers.expect_events_controller import Ev
 from protostar.starknet.address import Address
 from protostar.cheatable_starknet.controllers.block_info import BlockInfoController
 from protostar.starknet.selector import Selector
-from protostar.starknet.types import ClassHashType, SelectorType
-from protostar.starknet.data_transformer import CairoOrPythonData, CairoData
+from protostar.starknet.types import ClassHashType
+from protostar.starknet.data_transformer import CairoData
+from protostar.cheatable_starknet.controllers.expect_call_controller import ExpectedCall
 
 
 # pylint: disable=too-many-instance-attributes
@@ -43,9 +44,7 @@ class CheatableCachedState(CachedState):
         self.class_hash_to_contract_abi_map: Dict[ClassHashType, AbiType] = {}
         self.class_hash_to_contract_path_map: Dict[ClassHashType, Path] = {}
         self.contract_address_to_class_hash_map: Dict[Address, ClassHashType] = {}
-        self.expected_contract_calls: dict[
-            Address, list[tuple[SelectorType, CairoOrPythonData]]
-        ] = {}
+        self.expected_contract_calls: dict[Address, list[ExpectedCall]] = {}
 
         self.contract_address_to_block_timestamp: dict[Address, int] = {}
         self.contract_address_to_block_number: dict[Address, int] = {}
