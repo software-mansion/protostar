@@ -11,7 +11,7 @@ class TestCollectorOutput:
     test_names: list[str]
 
 
-def call_starknet_contract_compiler(
+def compile_starknet_contract(
     input_path: Path,
     output_path: Optional[Path] = None,
     cairo_path: Optional[list[Path]] = None,
@@ -23,7 +23,7 @@ def call_starknet_contract_compiler(
     )
 
 
-def call_test_collector(
+def collect_tests(
     input_path: Path,
     output_path: Optional[Path] = None,
     cairo_path: Optional[list[Path]] = None,
@@ -36,7 +36,7 @@ def call_test_collector(
     return TestCollectorOutput(sierra_output=output[0], test_names=output[1])
 
 
-def call_protostar_sierra_to_casm_from_path(
+def compile_protostar_sierra_to_casm_from_path(
     named_tests: list[str], input_path: Path, output_path: Optional[Path] = None
 ) -> Optional[str]:
     return cairo_python_bindings.call_protostar_sierra_to_casm_from_path(  # pyright: ignore
@@ -44,7 +44,7 @@ def call_protostar_sierra_to_casm_from_path(
     )
 
 
-def call_protostar_sierra_to_casm(
+def compile_protostar_sierra_to_casm(
     named_tests: list[str], input_data: str, output_path: Optional[Path] = None
 ) -> Optional[str]:
     return cairo_python_bindings.call_protostar_sierra_to_casm(  # pyright: ignore
