@@ -13,18 +13,20 @@ from protostar.starknet.selector import Selector
 from protostar.starknet import RawAddress, Address
 
 
-class StopExpectCallHintLocal(CallableHintLocal):
+class AssertExpectCallHintLocal(CallableHintLocal):
     def __init__(self, controller: ExpectCallController):
         self._controller = controller
 
     @property
     def name(self) -> str:
-        return "stop_expect_call"
+        return "assert_expect_call"
 
     def _build(self) -> Callable:
-        return self.stop_expect_call
+        return self.assert_expect_call
 
-    def stop_expect_call(self, address: RawAddress, fn_name: str, calldata: CairoData):
+    def assert_expect_call(
+        self, address: RawAddress, fn_name: str, calldata: CairoData
+    ):
         self._controller.stop_expecting_call(
             expected_call=ExpectedCall(
                 address=Address.from_user_input(address),

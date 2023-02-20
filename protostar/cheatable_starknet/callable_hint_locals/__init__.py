@@ -15,4 +15,4 @@ from .expect_events_hint_local import ExpectEventsHintLocal
 from .load_hint_local import LoadHintLocal
 from .mock_call_hint_local import MockCallHintLocal
 from .expect_call_hint_local import ExpectCallHintLocal
-from .stop_expect_call_hint_local import StopExpectCallHintLocal
+from .assert_expect_call_hint_local import AssertExpectCallHintLocal
