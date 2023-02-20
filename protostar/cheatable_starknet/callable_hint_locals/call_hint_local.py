@@ -7,10 +7,7 @@ from protostar.cheatable_starknet.controllers.contracts import (
     ContractsController,
 )
 from protostar.cheatable_starknet.controllers import ExpectCallController
-from protostar.cheatable_starknet.controllers.expect_call_controller import (
-    ExpectedCall,
-    FunctionCall,
-)
+from protostar.cheatable_starknet.controllers.expect_call_controller import ExpectedCall
 from protostar.starknet.data_transformer import CairoOrPythonData, CairoData
 from protostar.starknet.selector import Selector
 
@@ -59,9 +56,8 @@ class CallHintLocal(CallableHintLocal):
             self._expect_call_controller.remove_expected_call(
                 ExpectedCall(
                     address=contract_address,
-                    call=FunctionCall(
-                        fn_selector=entry_point_selector, calldata=calldata or []
-                    ),
+                    fn_selector=entry_point_selector,
+                    calldata=calldata or [],
                 )
             )
             return await self._contracts_controller.call(

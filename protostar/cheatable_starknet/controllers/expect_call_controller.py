@@ -13,25 +13,19 @@ if TYPE_CHECKING:
 
 
 @dataclass(frozen=True)
-class FunctionCall:
+class ExpectedCall:
+    address: Address
     fn_selector: Selector
     calldata: CairoOrPythonData
 
     def __eq__(self, other: object) -> bool:
-        if not isinstance(other, FunctionCall):
-            return NotImplemented
-        return self.fn_selector == other.fn_selector and self.calldata == other.calldata
-
-
-@dataclass(frozen=True)
-class ExpectedCall:
-    address: Address
-    call: FunctionCall
-
-    def __eq__(self, other: object) -> bool:
         if not isinstance(other, ExpectedCall):
             return NotImplemented
-        return self.call == other.call and self.address == other.address
+        return (
+            self.address == other.address
+            and self.fn_selector == other.fn_selector
+            and self.calldata == other.calldata
+        )
 
 
 class ExpectCallController:
@@ -46,17 +40,13 @@ class ExpectCallController:
 
     def add_expected_call(self, expected_call: ExpectedCall):
         contract_address = Address(int(expected_call.address))
-        calldata = expected_call.call.calldata
-        function_call = FunctionCall(
-            fn_selector=expected_call.call.fn_selector, calldata=calldata
-        )
         if self._cheatable_state.expected_contract_calls.get(contract_address):
             self._cheatable_state.expected_contract_calls[contract_address].append(
-                function_call
+                expected_call
             )
         else:
             self._cheatable_state.expected_contract_calls[contract_address] = [
-                function_call
+                expected_call
             ]
 
     @staticmethod
@@ -68,7 +58,7 @@ class ExpectCallController:
         )
         if expected_calls is not None:
             for index, expected_call_item in enumerate(expected_calls):
-                if expected_call_item == expected_call_to_remove.call:
+                if expected_call_item == expected_call_to_remove:
                     del expected_calls[index]
             if not expected_calls:
                 del cheatable_state.expected_contract_calls[
@@ -83,11 +73,11 @@ class ExpectCallController:
     def assert_no_expected_calls_left(self):
         try:
             address = next(iter(self._cheatable_state.expected_contract_calls))
-            function_call = self._cheatable_state.expected_contract_calls[address][0]
+            expected_call = self._cheatable_state.expected_contract_calls[address][0]
             raise ExpectedCallException(
                 contract_address=address,
-                fn_name=str(function_call.fn_selector),
-                calldata=function_call.calldata,
+                fn_name=str(expected_call.fn_selector),
+                calldata=expected_call.calldata,
             )
         except StopIteration:
             pass
