@@ -27,7 +27,7 @@ def test_compilator_and_parser(mocker: MockerFixture, datadir: Path):
     test_suite = parse_test_suite(datadir / "roll_test.cairo", protostar_casm_json)
 
     cheat_mock = mocker.MagicMock()
-    cheat_mock.return_value = 0
+    cheat_mock.return_value = type("return_value", (object,), {"err_code": 0})()
     # TODO https://github.com/software-mansion/protostar/issues/1434
     for case in test_suite.test_cases:
         runner = CairoFunctionRunner(program=test_suite.program, layout="all")
