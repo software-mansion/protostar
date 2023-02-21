@@ -31,6 +31,8 @@ from protostar.io.output import Messenger
 
 from .messages import TestCollectorResultMessage
 from .test_command_cache import TestCommandCache
+from ...cairo_testing.cairo1_test_collector import Cairo1TestCollector
+from ...cairo_testing.cairo1_test_runner_adapter import Cairo1TestRunnerAdapter
 
 
 class TestCommand(ProtostarCommand):
@@ -187,6 +189,7 @@ A glob or globs to a directory or a test suite, for example:
         targets: List[str],
         messenger: Messenger,
         use_cairo_test_runner: bool = False,
+        use_cairo1_test_runner: bool = False,
         ignored_targets: Optional[List[str]] = None,
         cairo_path: Optional[List[Path]] = None,
         disable_hint_validation: bool = False,
@@ -203,6 +206,7 @@ A glob or globs to a directory or a test suite, for example:
             str(path)
             for path in [
                 self._protostar_directory.protostar_test_only_cairo_packages_path,
+                self._protostar_directory.protostar_cairo1_corelib_path,
                 *self._project_cairo_path_builder.build_project_cairo_path_list(
                     cairo_path or []
                 ),
@@ -220,9 +224,12 @@ A glob or globs to a directory or a test suite, for example:
             self._log_color_provider.colorize("GRAY", "Collecting tests")
         ):
             compiler_config = CairoCompilerConfig(
-                disable_hint_validation=True, include_paths=include_paths
+                disable_hint_validation=True,
+                include_paths=include_paths,
             )
-            if use_cairo_test_runner:
+            if use_cairo1_test_runner:
+                test_collector = Cairo1TestCollector(compiler_config.include_paths)
+            elif use_cairo_test_runner:
                 cairo_compiler = CairoCompiler(compiler_config)
                 test_collector = TestCollector(
                     get_suite_function_names=cairo_compiler.get_function_names,
@@ -264,9 +271,12 @@ A glob or globs to a directory or a test suite, for example:
                 project_root_path=self._project_root_path,
                 write=messenger,
             )
-            worker = (
-                CairoTestRunner.worker if use_cairo_test_runner else TestRunner.worker
-            )
+            if use_cairo_test_runner:
+                worker = CairoTestRunner.worker
+            elif use_cairo1_test_runner:
+                worker = Cairo1TestRunnerAdapter.worker
+            else:
+                worker = TestRunner.worker
 
             TestScheduler(live_logger=live_logger, worker=worker).run(
                 include_paths=include_paths,

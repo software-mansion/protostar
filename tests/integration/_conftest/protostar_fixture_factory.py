@@ -47,6 +47,9 @@ def fake_activity_indicator(message: str) -> Generator[None, None, None]:
     yield
 
 
+REPOSITORY_ROOT = (Path(__file__).parent / ".." / ".." / "..").resolve()
+
+
 def create_protostar_fixture(
     mocker: MockerFixture,
     project_root_path: Path,
@@ -84,7 +87,7 @@ def create_protostar_fixture(
     )
 
     new_project_creator = NewProjectCreator(
-        script_root=Path(__file__).parent / ".." / ".." / "..",
+        script_root=REPOSITORY_ROOT,
         requester=input_requester,
         configuration_file_content_factory=configuration_file_content_factory,
         protostar_version=parse_protostar_version("0.0.0"),
@@ -135,7 +138,7 @@ def create_protostar_fixture(
 
     test_command = TestCommand(
         project_root_path=project_root_path,
-        protostar_directory=ProtostarDirectory(project_root_path),
+        protostar_directory=ProtostarDirectory(REPOSITORY_ROOT),
         project_cairo_path_builder=ProjectCairoPathBuilder(
             project_root_path,
         ),

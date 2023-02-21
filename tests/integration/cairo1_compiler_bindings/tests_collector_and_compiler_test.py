@@ -5,7 +5,10 @@ from pytest_mock import MockerFixture
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.cairo.lang.vm.utils import RunResources
 
-from protostar.cairo.cairo1_test_suite_parser import parse_test_suite
+from protostar.cairo.cairo1_test_suite_parser import (
+    program_from_casm,
+    get_test_name_to_offset_map_from_casm,
+)
 import protostar.cairo.cairo_bindings as cairo1
 
 
@@ -24,15 +27,16 @@ def test_compilator_and_parser(mocker: MockerFixture, datadir: Path):
     )
     assert protostar_casm_json
 
-    test_suite = parse_test_suite(datadir / "roll_test.cairo", protostar_casm_json)
+    program = program_from_casm(protostar_casm_json)
+    test_name_to_offset_map = get_test_name_to_offset_map_from_casm(protostar_casm_json)
 
     cheat_mock = mocker.MagicMock()
     cheat_mock.return_value = type("return_value", (object,), {"err_code": 0})()
     # TODO https://github.com/software-mansion/protostar/issues/1434
-    for case in test_suite.test_cases:
-        runner = CairoFunctionRunner(program=test_suite.program, layout="all")
+    for offset in test_name_to_offset_map.values():
+        runner = CairoFunctionRunner(program=program, layout="all")
         runner.run_from_entrypoint(
-            case.offset,
+            offset,
             *[],
             hint_locals={"roll": cheat_mock},
             static_locals={

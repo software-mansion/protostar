@@ -1,11 +1,12 @@
 # pylint: disable="protected-access"
 from dataclasses import dataclass
-from pathlib import Path
 from typing import Any
 import json
 
 from starkware.cairo.lang.compiler.program import Program
 from starkware.starkware_utils.marshmallow_dataclass_fields import IntAsHex
+
+from protostar.cairo.cairo_function_executor import Offset
 
 
 @dataclass(frozen=True)
@@ -13,19 +14,6 @@ class CairoHintCode:
     code: str
     accessible_scopes: list[Any]
     flow_tracking_data: Any
-
-
-@dataclass(frozen=True)
-class TestCase:
-    name: str
-    offset: int
-
-
-@dataclass(frozen=True)
-class TestSuite:
-    path: Path
-    test_cases: list[TestCase]
-    program: Program
 
 
 InstructionPc = int
@@ -41,7 +29,8 @@ def build_instruction_pc_to_hint(
     return hints
 
 
-def parse_test_suite(path: Path, json_raw: str) -> TestSuite:
+# TODO: Extract loading dictionary to before usage
+def program_from_casm(json_raw: str) -> Program:
     json_dict = json.loads(json_raw)
     prime: int = IntAsHex()._deserialize(json_dict["prime"], None, None)  # pylint
     data: list[int] = [
@@ -50,7 +39,7 @@ def parse_test_suite(path: Path, json_raw: str) -> TestSuite:
     instruction_pc_to_hint = build_instruction_pc_to_hint(json_dict)
     builtins = []
 
-    program = Program(
+    return Program(
         prime=prime,
         data=data,
         hints=instruction_pc_to_hint,
@@ -63,8 +52,10 @@ def parse_test_suite(path: Path, json_raw: str) -> TestSuite:
         debug_info=None,
     )  # type: ignore
 
-    test_cases = [
-        TestCase(name=case["name"], offset=int(case["offset"]))
+
+def get_test_name_to_offset_map_from_casm(json_raw: str) -> dict[str, Offset]:
+    json_dict = json.loads(json_raw)
+    return {
+        str(case["name"]).rsplit("::", maxsplit=1)[-1]: int(case["offset"])
         for case in json_dict["test_entry_points"]
-    ]
-    return TestSuite(path=path, test_cases=test_cases, program=program)
+    }

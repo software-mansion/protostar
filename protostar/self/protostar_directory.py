@@ -45,7 +45,13 @@ class ProtostarDirectory:
     @property
     def protostar_test_only_cairo_packages_path(self) -> Path:
         assert self.protostar_binary_dir_path is not None
-        return self.protostar_binary_dir_path / "cairo"
+        return self.protostar_binary_dir_path / "protostar_cairo"
+
+    # TODO: This probably should have other values for dev and built binary
+    @property
+    def protostar_cairo1_corelib_path(self) -> Path:
+        assert self.protostar_binary_dir_path is not None
+        return self.protostar_binary_dir_path / "cairo" / "corelib"
 
     def _read_runtime_constants(self) -> Optional[RuntimeConstantsDict]:
         constants_str = (
