@@ -49,7 +49,7 @@ class ExpectCallController:
                 expected_call
             ]
 
-    def stop_expecting_call(self, expected_call: ExpectedCall):
+    def assert_expect_call(self, expected_call: ExpectedCall):
         contract_address = expected_call.address
         expected_calls = self._cheatable_state.expected_contract_calls.get(
             contract_address

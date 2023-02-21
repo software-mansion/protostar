@@ -27,7 +27,7 @@ class AssertExpectCallHintLocal(CallableHintLocal):
     def assert_expect_call(
         self, address: RawAddress, fn_name: str, calldata: CairoData
     ):
-        self._controller.stop_expecting_call(
+        self._controller.assert_expect_call(
             expected_call=ExpectedCall(
                 address=Address.from_user_input(address),
                 fn_selector=Selector(fn_name),

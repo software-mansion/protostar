@@ -10,7 +10,7 @@ func test_expect_call_success() {
   return ();
 }
 
-func test_expect_call_with_stop() {
+func test_expect_call_with_assert() {
   %{
     addr = deploy_contract("./src/basic.cairo").ok.contract_address
     expect_call(addr, "get_balance", [])
@@ -81,7 +81,7 @@ func test_expect_call_wrong_function_called() {
   return ();
 }
 
-func test_expect_call_after_stop() {
+func test_expect_call_after_assert() {
   %{
     addr = deploy_contract("./src/basic.cairo").ok.contract_address
     expect_call(addr, "get_balance", [])
