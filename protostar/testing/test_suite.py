@@ -13,6 +13,13 @@ class TestCase:
         self.test_fn_name = test_fn_name
         self.setup_fn_name = setup_fn_name
 
+    def __eq__(self, other: Self) -> bool:
+        return (
+            other.test_path == self.test_path
+            and other.test_fn_name == self.test_fn_name
+            and other.setup_fn_name == self.setup_fn_name
+        )
+
 
 class TestSuite:
     def __init__(
