@@ -9,11 +9,11 @@ This way requires you to pass a private key (for signing) and account contract's
 You can obtain the key and account address e.g. from [Argentx](https://chrome.google.com/webstore/detail/argent-x/dlcobpjiigpikoobohmabehhmhfoodbb) or [Braavos](https://chrome.google.com/webstore/detail/braavos-wallet/jnlgamecbpmbajjfhmmmlhejkemejdma) wallets. 
 
 2 options are used for this:
-- `private-key-path` - a path to the file containing hex-encoded private key
-- `account-address` - your account contract's address (hex-encoded as well) on the appropriate network
+- `private-key-path` - a path to the file containing private key in hex (prefixed with '0x') or decimal representation 
+- `account-address` - your account contract's address on the appropriate network in hex (prefixed with '0x') or decimal representation
 
 Alternatively, if you prefer not to store private key in a file, we check for `PROTOSTAR_ACCOUNT_PRIVATE_KEY` environment variable, and use it if it's available.   
-It should be in the same hex-encoded format, like all the options above.
+It should be in the same hex (prefixed with '0x') or decimal representation, like all the options above.
 
 ### 2. Using a custom signer class
 
