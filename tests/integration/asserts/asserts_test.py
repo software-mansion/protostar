@@ -8,7 +8,8 @@ from tests.integration.conftest import (
 
 async def test_asserts(run_test_runner: RunTestRunnerFixture):
     testing_summary = await run_test_runner(
-        Path(__file__).parent / "asserts_test.cairo", cairo_path=[Path() / "cairo"]
+        Path(__file__).parent / "asserts_test.cairo",
+        cairo_path=[Path() / "protostar_cairo"],
     )
 
     assert_cairo_test_cases(
