@@ -25,14 +25,18 @@ function install_dev() {
 }
 
 function install_prod() {
-  git submodule update --init --recursive
-
+  git pull --recurse-submodules
+  git submodule update --remote --recursive --init
   pushd cairo
   pushd crates/cairo-lang-python-bindings
   rustup override set nightly || return 1;
   maturin build || return 1;
   popd # cairo
-  pip install $(ls ./target/wheels | grep cairo_python_bindings)
+
+  pushd target/wheels
+  pip install "./$(ls | grep cairo_python_bindings)" || return 1;
+
+  popd # cairo
   popd # cairo/crates/cairo_python_bindings
 }
 
