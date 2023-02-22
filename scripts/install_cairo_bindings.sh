@@ -17,10 +17,10 @@ function install() {
 
   pushd cairo
   pushd crates/cairo-lang-python-bindings
-  rustup override set nightly
+  rustup override set nightly || return 1;
   maturin develop --release || return 1;
   popd # cairo
   popd # cairo/crates/cairo_python_bindings
 }
 
-install && echo "DONE" || echo "installation failed"
+install && echo "DONE" || echo "installation failed" && exit 1

@@ -29,7 +29,6 @@ jobs:
 
       - name: Install cairo bindings
         run: |
-          poetry shell
           poetry run poe install_cairo_bindings
 
       - name: Build binary
