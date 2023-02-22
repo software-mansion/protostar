@@ -35,15 +35,24 @@ function install_prod() {
 
   pushd target/wheels
   pip install "./$(ls | grep cairo_python_bindings)" || return 1;
-
   popd # cairo
   popd # cairo/crates/cairo_python_bindings
 }
 
 if [ "$1" == "prod" ]; then
-    install_prod && echo "DONE" || echo "installation failed" && exit 1
+    if install_prod; then
+      echo "DONE"
+    else
+      echo "installation failed"
+      exit 1
+    fi
   else
-    install_dev && echo "DONE" || echo "installation failed" && exit 1
+    if install_dev; then
+      echo "DONE"
+    else
+      echo "installation failed"
+      exit 1
+    fi
 fi
 
 
