@@ -12,7 +12,7 @@ if [ "$1" == "--cleanup" ]; then
   fi
 fi
 
-function install() {
+function install_dev() {
   git submodule update --init --recursive
 
   pushd cairo
@@ -23,4 +23,22 @@ function install() {
   popd # cairo/crates/cairo_python_bindings
 }
 
-install && echo "DONE" || echo "installation failed" && exit 1
+function install_prod() {
+  git submodule update --init --recursive
+
+  pushd cairo
+  pushd crates/cairo-lang-python-bindings
+  rustup override set nightly || return 1;
+  maturin build || return 1;
+  popd # cairo
+  pip install $(ls ./target/wheels | grep cairo_python_bindings)
+  popd # cairo/crates/cairo_python_bindings
+}
+
+if [ "$1" == "prod" ]; then
+    install_prod && echo "DONE" || echo "installation failed" && exit 1
+  else
+    install_dev && echo "DONE" || echo "installation failed" && exit 1
+fi
+
+

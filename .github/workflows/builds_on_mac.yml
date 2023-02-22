@@ -19,7 +19,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install poetry
-        # poetry config virtualenvs.create false # Uncomment when installing bindings will run in production mode
+          poetry config virtualenvs.create false
           
       - name: Install project dependencies
         run: |
@@ -29,7 +29,7 @@ jobs:
 
       - name: Install cairo bindings
         run: |
-          poe install_cairo_bindings
+          poe install_cairo_bindings prod
           
       - name: Build binary
         run: |
