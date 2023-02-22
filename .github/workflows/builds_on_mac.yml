@@ -26,9 +26,9 @@ jobs:
           poetry export -o requirements.txt
           pip install -r requirements.txt
           poetry install
+
       - name: Install cairo bindings
         run: |
-          poetry shell
           poe install_cairo_bindings
           
       - name: Build binary
