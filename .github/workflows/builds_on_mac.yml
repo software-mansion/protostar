@@ -8,6 +8,8 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v2
+        with:
+          submodules: recursive
       - name: Set up Python 3.9.14
         uses: actions/setup-python@v2
         with:
@@ -26,7 +28,8 @@ jobs:
           poetry install
       - name: Install cairo bindings
         run: |
-          poetry run poe install_cairo_bindings
+          poetry shell
+          poe install_cairo_bindings
           
       - name: Build binary
         run: |
