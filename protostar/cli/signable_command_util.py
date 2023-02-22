@@ -47,7 +47,12 @@ def get_signer(
             f"Invalid private key format ({private_key_str}). Please provide hex-encoded number."
         ) from v_err
 
-    key_pair = KeyPair.from_private_key(private_key)
+    try:
+        key_pair = KeyPair.from_private_key(private_key)
+    except AssertionError as a_err:
+        raise ProtostarException(
+            "Invalid private key value. Please provide a valid private key."
+        ) from a_err
 
     try:
         signer = StarkCurveSigner(
