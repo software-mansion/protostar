@@ -40,9 +40,23 @@ class CairoInjectableFunctionRunner:
         offset: Offset,
         *args: Any,
         **kwargs: Any,
-    ):  # pylint: disable=unused-argument
+    ):
         with self.vm_exception_handling():
-            raise NotImplementedError("Not implemented")  # TODO: Implement
+            runner = CairoFunctionRunner(program=self._program, layout="all")
+            runner.run_from_entrypoint(
+                offset,
+                *args,
+                hint_locals=self._hint_locals,
+                static_locals={
+                    "__find_element_max_size": 2**20,
+                    "__squash_dict_max_size": 2**20,
+                    "__keccak_max_size": 2**20,
+                    "__usort_max_size": 2**20,
+                    "__chained_ec_op_max_len": 1000,
+                },
+                verify_secure=False,
+                **kwargs,
+            )
 
     def run_cairo_function_by_name(
         self,
