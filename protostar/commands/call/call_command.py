@@ -5,11 +5,15 @@ from starknet_py.net.gateway_client import GatewayClient
 
 from protostar.cli import (
     NetworkCommandUtil,
-    ProtostarArgument,
     ProtostarCommand,
     MessengerFactory,
 )
-from protostar.cli.common_arguments import ABI_PATH_ARG
+from protostar.cli.common_arguments import (
+    ABI_PATH_ARG,
+    FUNCTION_ARG,
+    CONTRACT_ADDRESS_ARG,
+    INPUTS_ARG,
+)
 from protostar.starknet import Address, Selector
 from protostar.starknet.contract_abi import ContractAbi
 from protostar.starknet_gateway import (
@@ -51,25 +55,9 @@ class CallCommand(ProtostarCommand):
             *NetworkCommandUtil.network_arguments,
             *MessengerFactory.OUTPUT_ARGUMENTS,
             ABI_PATH_ARG,
-            ProtostarArgument(
-                name="contract-address",
-                description="The address of the contract being called.",
-                type="address",
-                is_required=True,
-            ),
-            ProtostarArgument(
-                name="function",
-                description="The name of the function being called.",
-                type="str",
-                is_required=True,
-            ),
-            ProtostarArgument(
-                name="inputs",
-                # pylint: disable=line-too-long
-                description="Inputs to the function being called, represented either by a list of space-delimited values (`1 2 3`) or by a mapping of their names to their values (`a=11 b=12 c=13`).",
-                type="input",
-                value_parser="list_or_dict",
-            ),
+            CONTRACT_ADDRESS_ARG,
+            FUNCTION_ARG,
+            INPUTS_ARG,
         ]
 
     async def run(self, args: Any) -> SuccessfulCallMessage:

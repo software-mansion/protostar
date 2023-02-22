@@ -105,3 +105,46 @@ def test_wrong_format_of_private_key_file(
         ProtostarException, match=re.escape("Invalid private key format")
     ):
         get_signer(args, network_config, Address.from_user_input("0x123"))
+
+
+def test_wrong_value_of_private_key_env(
+    monkeypatch: MonkeyPatch, mocker: MockerFixture
+):
+    args = SimpleNamespace()
+
+    network_config = mocker.MagicMock()
+    network_config.chain_id = StarknetChainId.TESTNET.value
+
+    args.signer_class = None
+    args.private_key_path = None
+
+    monkeypatch.setenv(
+        PRIVATE_KEY_ENV_VAR_NAME,
+        "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF",
+    )
+
+    with pytest.raises(
+        ProtostarException, match=re.escape("Invalid private key value")
+    ):
+        get_signer(args, network_config, Address.from_user_input("0x123"))
+
+
+def test_wrong_value_of_private_key_file(
+    mocker: MockerFixture, pkey_file_factory: PkeyFileFactoryFixture
+):
+    args = SimpleNamespace()
+
+    network_config = mocker.MagicMock()
+    network_config.chain_id = StarknetChainId.TESTNET.value
+
+    args.signer_class = None
+    args.private_key_path = str(
+        pkey_file_factory(
+            "0xFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"
+        )
+    )
+
+    with pytest.raises(
+        ProtostarException, match=re.escape("Invalid private key value")
+    ):
+        get_signer(args, network_config, Address.from_user_input("0x123"))

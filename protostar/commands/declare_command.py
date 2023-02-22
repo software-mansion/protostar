@@ -14,6 +14,7 @@ from protostar.cli.common_arguments import (
     BLOCK_EXPLORER_ARG,
     MAX_FEE_ARG,
     WAIT_FOR_ACCEPTANCE_ARG,
+    TOKEN_ARG,
 )
 from protostar.cli.network_command_util import NetworkCommandUtil
 from protostar.cli.signable_command_util import get_signer
@@ -89,11 +90,7 @@ class DeclareCommand(ProtostarCommand):
                 is_positional=True,
                 is_required=True,
             ),
-            ProtostarArgument(
-                name="token",
-                description="Used for declaring contracts in Alpha MainNet.",
-                type="str",
-            ),
+            TOKEN_ARG,
             MAX_FEE_ARG,
             WAIT_FOR_ACCEPTANCE_ARG,
         ]
