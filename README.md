@@ -11,10 +11,12 @@
 ## Table of contents <!-- omit in toc -->
 - [About](#about)
 - [Documentation](#documentation)
+  - [Additional resources](#additional-resources)
 - [Installation](#installation)
 - [Development](#development)
   - [Requirements](#requirements)
   - [Setting up environment](#setting-up-environment)
+    - [Submodules development](#submodules-development)
     - [Git hooks](#git-hooks)
 - [Updating website/docs](#updating-websitedocs)
 - [Deployment](#deployment)
@@ -76,6 +78,13 @@ curl -L https://raw.githubusercontent.com/software-mansion/protostar/master/inst
 1. Build Protostar: `poe build`
     - You can find the newly created binary at `dist/protostar/protostar`
 
+#### Submodules development 
+You can use submodules from a different branch than main. Run commands
+```shell
+git submodule set-branch --branch <your-branch>
+poetry run poe install_cairo_bindings
+```
+Remember to not push those changes to repository.
 
 #### Git hooks
 
