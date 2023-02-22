@@ -5,7 +5,6 @@ from starknet_py.net.signer import BaseSigner
 
 from protostar.cli import (
     NetworkCommandUtil,
-    ProtostarArgument,
     ProtostarCommand,
     get_signer,
     MessengerFactory,
@@ -17,6 +16,9 @@ from protostar.cli.common_arguments import (
     BLOCK_EXPLORER_ARG,
     MAX_FEE_ARG,
     WAIT_FOR_ACCEPTANCE_ARG,
+    CONTRACT_ADDRESS_ARG,
+    FUNCTION_ARG,
+    INPUTS_ARG,
 )
 from protostar.io.output import Messenger
 from protostar.starknet import Address, CairoOrPythonData, Selector
@@ -70,27 +72,9 @@ class InvokeCommand(ProtostarCommand):
             *NetworkCommandUtil.network_arguments,
             *MessengerFactory.OUTPUT_ARGUMENTS,
             BLOCK_EXPLORER_ARG,
-            ProtostarArgument(
-                name="contract-address",
-                description="The address of the contract being called.",
-                type="address",
-                is_required=True,
-            ),
-            ProtostarArgument(
-                name="function",
-                description="The name of the function being called.",
-                type="str",
-                is_required=True,
-            ),
-            ProtostarArgument(
-                name="inputs",
-                description=(
-                    "Inputs to the function being called, represented either by a list of space-delimited "
-                    "values (`1 2 3`) or by a mapping of their names to their values (`a=11 b=12 c=13`)."
-                ),
-                type="input",
-                value_parser="list_or_dict",
-            ),
+            CONTRACT_ADDRESS_ARG,
+            FUNCTION_ARG,
+            INPUTS_ARG,
             MAX_FEE_ARG,
             WAIT_FOR_ACCEPTANCE_ARG,
         ]

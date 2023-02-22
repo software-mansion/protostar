@@ -99,7 +99,7 @@ ABI_PATH_ARG = ProtostarArgument(
 
 ACCOUNT_ADDRESS_ARG = ProtostarArgument(
     name="account-address",
-    description="Account address.",
+    description="Account address in hex (prefixed with '0x') or decimal representation.",
     type="address",
     is_required=True,
 )
@@ -108,7 +108,8 @@ PRIVATE_KEY_ENV_VAR_NAME = "PROTOSTAR_ACCOUNT_PRIVATE_KEY"
 
 PRIVATE_KEY_PATH_ARG = ProtostarArgument(
     name="private-key-path",
-    description="Path to the file, which stores your private key (in hex representation) for the account. \n"
+    description="Path to the file, which stores your private key "
+    "for the account in hex (prefixed with '0x') or decimal representation.\n"
     f"Can be used instead of {PRIVATE_KEY_ENV_VAR_NAME} env variable.",
     type="path",
 )
@@ -116,5 +117,39 @@ PRIVATE_KEY_PATH_ARG = ProtostarArgument(
 SIGNER_CLASS_ARG = ProtostarArgument(
     name="signer-class",
     description="Custom signer class module path.",
+    type="str",
+)
+
+CONTRACT_ADDRESS_ARG = ProtostarArgument(
+    name="contract-address",
+    description="The address of the contract being called in hex (prefixed with '0x') or decimal representation.",
+    type="address",
+    is_required=True,
+)
+
+FUNCTION_ARG = ProtostarArgument(
+    name="function",
+    description="The name of the function being called.",
+    type="str",
+    is_required=True,
+)
+
+INPUTS_ARG = ProtostarArgument(
+    name="inputs",
+    short_name="i",
+    description=(
+        "Inputs to the constructor, represented either by a list of space-delimited values (`1 2 3`) "
+        "or by a mapping of their names to their values (`a=11 b=12 c=13`).\n"
+        "Calldata arguments may be of any type that does not contain pointers.\n"
+        "[Read more about representing Cairo data types in the CLI.]"
+        "(https://www.cairo-lang.org/docs/hello_starknet/more_features.html#array-arguments-in-calldata)"
+    ),
+    type="input",
+    value_parser="list_or_dict",
+)
+
+TOKEN_ARG = ProtostarArgument(
+    name="token",
+    description="Used by whitelisted users for deploying contracts in Alpha MainNet.",
     type="str",
 )

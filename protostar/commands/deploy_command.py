@@ -15,6 +15,8 @@ from protostar.cli.common_arguments import (
     BLOCK_EXPLORER_ARG,
     WAIT_FOR_ACCEPTANCE_ARG,
     MAX_FEE_ARG,
+    INPUTS_ARG,
+    TOKEN_ARG,
 )
 from protostar.cli.network_command_util import NetworkCommandUtil
 from protostar.io import StructuredMessage, LogColorProvider
@@ -97,24 +99,8 @@ class DeployCommand(ProtostarCommand):
                 is_positional=True,
                 is_required=True,
             ),
-            ProtostarArgument(
-                name="inputs",
-                short_name="i",
-                description=(
-                    # pylint: disable=line-too-long
-                    "Inputs to the constructor, represented either by a list of space-delimited values (`1 2 3`) or by a mapping of their names to their values (`a=11 b=12 c=13`).\n"
-                    "Calldata arguments may be of any type that does not contain pointers.\n"
-                    # pylint: disable=line-too-long
-                    "[Read more about representing Cairo data types in the CLI.](https://www.cairo-lang.org/docs/hello_starknet/more_features.html#array-arguments-in-calldata)"
-                ),
-                type="input",
-                value_parser="list_or_dict",
-            ),
-            ProtostarArgument(
-                name="token",
-                description="Used by whitelisted users for deploying contracts in Alpha MainNet.",
-                type="str",
-            ),
+            INPUTS_ARG,
+            TOKEN_ARG,
             ProtostarArgument(
                 name="salt",
                 description=(

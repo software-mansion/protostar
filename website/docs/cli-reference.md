@@ -47,15 +47,17 @@ The chain id. It is required unless `--network` is provided.
 #### `--contract-address ADDRESS`
 Required.
 
-The address of the contract being called.
+The address of the contract being called in hex (prefixed with '0x') or decimal representation.
 #### `--function STRING`
 Required.
 
 The name of the function being called.
 #### `--gateway-url STRING`
 The URL of a StarkNet gateway. It is required unless `--network` is provided.
-#### `--inputs INPUT[]`
-Inputs to the function being called, represented either by a list of space-delimited values (`1 2 3`) or by a mapping of their names to their values (`a=11 b=12 c=13`).
+#### `-i` `--inputs INPUT[]`
+Inputs to the constructor, represented either by a list of space-delimited values (`1 2 3`) or by a mapping of their names to their values (`a=11 b=12 c=13`).
+Calldata arguments may be of any type that does not contain pointers.
+[Read more about representing Cairo data types in the CLI.](https://www.cairo-lang.org/docs/hello_starknet/more_features.html#array-arguments-in-calldata)
 #### `--json`
 Print machine-readable output in [NDJSON](https://github.com/ndjson/ndjson-spec) format.
 #### `-n` `--network STRING`
@@ -75,7 +77,7 @@ Path to compiled contract.
 #### `--account-address ADDRESS`
 Required.
 
-Account address.
+Account address in hex (prefixed with '0x') or decimal representation.
 #### `--block-explorer BLOCK_EXPLORER`
 Generated links will point to that block explorer. Available values:
 - starkscan
@@ -100,12 +102,12 @@ Supported StarkNet networks:
 - `mainnet`
 - `testnet2`
 #### `--private-key-path PATH`
-Path to the file, which stores your private key (in hex representation) for the account. 
+Path to the file, which stores your private key for the account in hex (prefixed with '0x') or decimal representation.
 Can be used instead of PROTOSTAR_ACCOUNT_PRIVATE_KEY env variable.
 #### `--signer-class STRING`
 Custom signer class module path.
 #### `--token STRING`
-Used for declaring contracts in Alpha MainNet.
+Used by whitelisted users for deploying contracts in Alpha MainNet.
 #### `--wait-for-acceptance`
 Waits for transaction to be accepted on chain.
 ### `deploy`
@@ -120,7 +122,7 @@ The hash of the declared contract class.
 #### `--account-address ADDRESS`
 Required.
 
-Account address.
+Account address in hex (prefixed with '0x') or decimal representation.
 #### `--block-explorer BLOCK_EXPLORER`
 Generated links will point to that block explorer. Available values:
 - starkscan
@@ -149,7 +151,7 @@ Supported StarkNet networks:
 - `mainnet`
 - `testnet2`
 #### `--private-key-path PATH`
-Path to the file, which stores your private key (in hex representation) for the account. 
+Path to the file, which stores your private key for the account in hex (prefixed with '0x') or decimal representation.
 Can be used instead of PROTOSTAR_ACCOUNT_PRIVATE_KEY env variable.
 #### `--salt FELT`
 An optional salt controlling where the contract will be deployed. The contract deployment address is determined by the hash of contract, salt and caller. If the salt is not supplied, the contract will be deployed with a random salt.
@@ -192,7 +194,7 @@ Supported StarkNet networks:
 #### `--nonce INT`
 Protects against the replay attacks.
 #### `--private-key-path PATH`
-Path to the file, which stores your private key (in hex representation) for the account. 
+Path to the file, which stores your private key for the account in hex (prefixed with '0x') or decimal representation.
 Can be used instead of PROTOSTAR_ACCOUNT_PRIVATE_KEY env variable.
 #### `--signer-class STRING`
 Custom signer class module path.
@@ -240,7 +242,7 @@ Sends an invoke transaction to the StarkNet sequencer.
 #### `--account-address ADDRESS`
 Required.
 
-Account address.
+Account address in hex (prefixed with '0x') or decimal representation.
 #### `--block-explorer BLOCK_EXPLORER`
 Generated links will point to that block explorer. Available values:
 - starkscan
@@ -251,15 +253,17 @@ The chain id. It is required unless `--network` is provided.
 #### `--contract-address ADDRESS`
 Required.
 
-The address of the contract being called.
+The address of the contract being called in hex (prefixed with '0x') or decimal representation.
 #### `--function STRING`
 Required.
 
 The name of the function being called.
 #### `--gateway-url STRING`
 The URL of a StarkNet gateway. It is required unless `--network` is provided.
-#### `--inputs INPUT[]`
-Inputs to the function being called, represented either by a list of space-delimited values (`1 2 3`) or by a mapping of their names to their values (`a=11 b=12 c=13`).
+#### `-i` `--inputs INPUT[]`
+Inputs to the constructor, represented either by a list of space-delimited values (`1 2 3`) or by a mapping of their names to their values (`a=11 b=12 c=13`).
+Calldata arguments may be of any type that does not contain pointers.
+[Read more about representing Cairo data types in the CLI.](https://www.cairo-lang.org/docs/hello_starknet/more_features.html#array-arguments-in-calldata)
 #### `--json`
 Print machine-readable output in [NDJSON](https://github.com/ndjson/ndjson-spec) format.
 #### `--max-fee FEE`
@@ -275,7 +279,7 @@ Supported StarkNet networks:
 - `mainnet`
 - `testnet2`
 #### `--private-key-path PATH`
-Path to the file, which stores your private key (in hex representation) for the account. 
+Path to the file, which stores your private key for the account in hex (prefixed with '0x') or decimal representation.
 Can be used instead of PROTOSTAR_ACCOUNT_PRIVATE_KEY env variable.
 #### `--signer-class STRING`
 Custom signer class module path.
@@ -312,7 +316,7 @@ inputs = [42]
 #### `--account-address ADDRESS`
 Required.
 
-Account address.
+Account address in hex (prefixed with '0x') or decimal representation.
 #### `--block-explorer BLOCK_EXPLORER`
 Generated links will point to that block explorer. Available values:
 - starkscan
@@ -337,7 +341,7 @@ Supported StarkNet networks:
 - `mainnet`
 - `testnet2`
 #### `--private-key-path PATH`
-Path to the file, which stores your private key (in hex representation) for the account. 
+Path to the file, which stores your private key for the account in hex (prefixed with '0x') or decimal representation.
 Can be used instead of PROTOSTAR_ACCOUNT_PRIVATE_KEY env variable.
 #### `--signer-class STRING`
 Custom signer class module path.
