@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Union
 from typing_extensions import Self
 
 from protostar.cairo.cairo_function_executor import Offset
@@ -21,11 +21,28 @@ class TestCase:
         )
 
 
+class TestCaseWithOffsets(TestCase):
+    def __init__(
+        self,
+        test_path: Path,
+        test_fn_name: str,
+        test_fn_offset: int,
+        setup_fn_name: Optional[str] = None,
+        setup_fn_offset: Optional[int] = None,
+    ):
+        super().__init__(test_path, test_fn_name, setup_fn_name)
+        self.test_fn_offset = test_fn_offset
+        self.setup_fn_offset = setup_fn_offset
+
+
+TestCases = Union[List[TestCase], List[TestCaseWithOffsets]]
+
+
 class TestSuite:
     def __init__(
         self,
         test_path: Path,
-        test_cases: List[TestCase],
+        test_cases: TestCases,
         setup_fn_name: Optional[str] = None,
     ):
         self.test_path = test_path
@@ -52,7 +69,7 @@ class Cairo1TestSuite(TestSuite):
     def __init__(
         self,
         test_path: Path,
-        test_cases: List[TestCase],
+        test_cases: TestCases,
         sierra_output: str,
         setup_fn_name: Optional[str] = None,
     ):
@@ -67,17 +84,3 @@ class Cairo1TestSuite(TestSuite):
             setup_fn_name=test_suite.setup_fn_name,
             sierra_output=sierra_output,
         )
-
-
-class TestCaseWithOffsets(TestCase):
-    def __init__(
-        self,
-        test_path: Path,
-        test_fn_name: str,
-        test_fn_offset: int,
-        setup_fn_name: Optional[str] = None,
-        setup_fn_offset: Optional[int] = None,
-    ):
-        super().__init__(test_path, test_fn_name, setup_fn_name)
-        self.test_fn_offset = test_fn_offset
-        self.setup_fn_offset = setup_fn_offset

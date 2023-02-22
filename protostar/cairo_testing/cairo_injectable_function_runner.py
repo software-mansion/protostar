@@ -24,18 +24,15 @@ class CairoInjectableFunctionRunner:
     ):
         loop = asyncio.get_running_loop()
 
-        if isinstance(function_identifier, Offset):
-            executor = lambda: self.run_cairo_function_by_offset(
-                function_identifier, *args, **kwargs
-            )
-        else:
-            executor = lambda: self.run_cairo_function_by_name(
-                function_identifier, *args, **kwargs
-            )
+        def function_runner():
+            if isinstance(function_identifier, Offset):
+                self.run_cairo_function_by_offset(function_identifier, *args, **kwargs)
+            else:
+                self.run_cairo_function_by_name(function_identifier, *args, **kwargs)
 
         await loop.run_in_executor(
             executor=None,
-            func=executor,
+            func=function_runner,
         )
 
     def run_cairo_function_by_offset(
@@ -43,9 +40,9 @@ class CairoInjectableFunctionRunner:
         offset: Offset,
         *args: Any,
         **kwargs: Any,
-    ):
+    ):  # pylint: disable=unused-argument
         with self.vm_exception_handling():
-            pass  # TODO: Implement
+            raise NotImplementedError("Not implemented")  # TODO: Implement
 
     def run_cairo_function_by_name(
         self,

@@ -1,10 +1,10 @@
 from pathlib import Path
-from typing import List
+from typing import List, Iterable
 
 import protostar.cairo.cairo_bindings as cairo1
 from protostar.testing import TestCollector
 from protostar.testing.test_collector import TestSuiteInfo
-from protostar.testing.test_suite import Cairo1TestSuite, TestSuite
+from protostar.testing.test_suite import Cairo1TestSuite, TestSuite, TestCase
 
 
 class Cairo1TestCollectionException(Exception):
@@ -54,3 +54,22 @@ class Cairo1TestCollector(TestCollector):
             test_suite,
             sierra_output=test_suite_sierra_output,
         )
+
+    def _collect_test_cases(
+        self,
+        function_names: List[str],
+        test_path: Path,
+    ) -> Iterable[TestCase]:
+        setup_prefix = "setup_"
+
+        fn_names = set(function_names)
+        for test_fn_name in fn_names:
+            setup_fn_name = setup_prefix + test_fn_name
+            if setup_fn_name not in fn_names:
+                setup_fn_name = None
+
+            yield TestCase(
+                test_path=test_path,
+                test_fn_name=test_fn_name,
+                setup_fn_name=setup_fn_name,
+            )

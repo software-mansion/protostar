@@ -56,6 +56,5 @@ def program_from_casm(json_raw: str) -> Program:
 def get_test_name_to_offset_map_from_casm(json_raw: str) -> dict[str, Offset]:
     json_dict = json.loads(json_raw)
     return {
-        str(case["name"]).rsplit("::", maxsplit=1)[-1]: int(case["offset"])
-        for case in json_dict["test_entry_points"]
+        case["name"]: int(case["offset"]) for case in json_dict["test_entry_points"]
     }
