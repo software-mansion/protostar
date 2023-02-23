@@ -84,7 +84,7 @@ You can use submodules from a different branch than main. Run commands
 git submodule set-branch --branch <your-branch>
 poetry run poe install_cairo_bindings
 ```
-Remember to not push those changes to repository.
+Remember to not push those changes to the repository.
 
 #### Git hooks
 
