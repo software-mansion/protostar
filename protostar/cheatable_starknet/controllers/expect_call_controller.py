@@ -49,6 +49,21 @@ class ExpectCallController:
                 expected_call
             ]
 
+    def assert_expect_call(self, expected_call: ExpectedCall):
+        contract_address = expected_call.address
+        expected_calls = self._cheatable_state.expected_contract_calls.get(
+            contract_address
+        )
+        if not expected_calls:
+            return
+        for expected_call_item in expected_calls:
+            if expected_call == expected_call_item:
+                raise ExpectedCallException(
+                    contract_address=contract_address,
+                    fn_name=str(expected_call.fn_selector),
+                    calldata=expected_call.calldata,
+                )
+
     @staticmethod
     def remove_expected_call_static(
         expected_call_to_remove: ExpectedCall, cheatable_state: "CheatableCachedState"
