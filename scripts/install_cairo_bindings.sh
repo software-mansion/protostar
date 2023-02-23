@@ -14,7 +14,6 @@ fi
 
 function install_dev() {
   git pull --recurse-submodules
-  git submodule update --remote --recursive --init
 
   pushd cairo
   pushd crates/cairo-lang-python-bindings
