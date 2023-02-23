@@ -14,10 +14,6 @@ fi
 
 function install() {
   git pull --recurse-submodules
-  pushd cairo
-  git checkout 8b197424aa034e68db629d2d341a5a34fe0d068f # Latest commit
-  popd # cairo
-
   git submodule update --remote --recursive --init
 
   pushd cairo
