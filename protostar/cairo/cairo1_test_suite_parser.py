@@ -1,7 +1,6 @@
 # pylint: disable="protected-access"
 from dataclasses import dataclass
 from typing import Any
-import json
 
 from starkware.cairo.lang.compiler.program import Program
 from starkware.starkware_utils.marshmallow_dataclass_fields import IntAsHex
@@ -20,23 +19,21 @@ InstructionPc = int
 
 
 def build_instruction_pc_to_hint(
-    json_dict: Any,
+    casm_json: dict,
 ) -> dict[InstructionPc, list[CairoHintCode]]:
     hints: dict[InstructionPc, list[CairoHintCode]] = {}
-    for h in json_dict["hints"]:
+    for h in casm_json["hints"]:
         codes = [CairoHintCode(str(e), [None], None) for e in h[1]]
         hints[int(h[0])] = codes
     return hints
 
 
-# TODO: Extract loading dictionary to before usage
-def program_from_casm(json_raw: str) -> Program:
-    json_dict = json.loads(json_raw)
-    prime: int = IntAsHex()._deserialize(json_dict["prime"], None, None)  # pylint
+def program_from_casm(casm_json: dict) -> Program:
+    prime: int = IntAsHex()._deserialize(casm_json["prime"], None, None)  # pylint
     data: list[int] = [
-        IntAsHex()._deserialize(v, None, None) for v in json_dict["bytecode"]
+        IntAsHex()._deserialize(v, None, None) for v in casm_json["bytecode"]
     ]
-    instruction_pc_to_hint = build_instruction_pc_to_hint(json_dict)
+    instruction_pc_to_hint = build_instruction_pc_to_hint(casm_json)
     builtins = []
 
     return Program(
@@ -53,8 +50,7 @@ def program_from_casm(json_raw: str) -> Program:
     )  # type: ignore
 
 
-def get_test_name_to_offset_map_from_casm(json_raw: str) -> dict[str, Offset]:
-    json_dict = json.loads(json_raw)
+def get_test_name_to_offset_map_from_casm(casm_json: dict) -> dict[str, Offset]:
     return {
-        case["name"]: int(case["offset"]) for case in json_dict["test_entry_points"]
+        case["name"]: int(case["offset"]) for case in casm_json["test_entry_points"]
     }

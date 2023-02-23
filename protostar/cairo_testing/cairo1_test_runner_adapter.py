@@ -22,7 +22,6 @@ from protostar.testing.test_suite import Cairo1TestSuite, TestSuite, TestCase
 from protostar.testing.testing_seed import Seed
 
 
-# TODO: Implement running setup-case and setup-suite
 class Cairo1TestRunnerAdapter(CairoTestRunner):
     async def run_test_suite(
         self,
