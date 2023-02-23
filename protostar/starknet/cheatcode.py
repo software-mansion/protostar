@@ -9,7 +9,7 @@ from starkware.starknet.business_logic.execution.objects import (
 from starkware.starknet.business_logic.fact_state.state import ExecutionResourcesManager
 from starkware.starknet.business_logic.state.state import StateSyncifier
 from starkware.starknet.business_logic.state.state_api import SyncState
-from starkware.starknet.core.os.syscall_utils import BusinessLogicSysCallHandler
+from starkware.starknet.core.os.syscall_handler import BusinessLogicSyscallHandler
 from starkware.starknet.definitions.general_config import StarknetGeneralConfig
 from typing_extensions import TypedDict
 
@@ -23,7 +23,7 @@ if TYPE_CHECKING:
     )
 
 
-class Cheatcode(BusinessLogicSysCallHandler, HintLocal):
+class Cheatcode(BusinessLogicSyscallHandler, HintLocal):
     class SyscallDependencies(TypedDict):
         execute_entry_point_cls: Type["CheatableExecuteEntryPoint"]
         tx_execution_context: TransactionExecutionContext

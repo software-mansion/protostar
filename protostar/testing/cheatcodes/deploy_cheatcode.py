@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Any, Callable
 
 from starkware.python.utils import to_bytes
-from starkware.starknet.services.api.contract_class import EntryPointType
+from starkware.starknet.services.api.contract_class.contract_class import EntryPointType
 
 from protostar.starknet import Cheatcode, CheatcodeException
 from protostar.starknet.data_transformer import (

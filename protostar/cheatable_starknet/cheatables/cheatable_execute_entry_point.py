@@ -35,7 +35,7 @@ from starkware.starkware_utils.error_handling import (
     StarkException,
     wrap_with_stark_exception,
 )
-from starkware.starknet.services.api.contract_class import EntryPointType
+from starkware.starknet.services.api.contract_class.contract_class import EntryPointType
 
 from protostar.starknet import Address
 from protostar.cheatable_starknet.controllers.transaction_revert_exception import (
@@ -84,13 +84,13 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
         resources_manager: ExecutionResourcesManager,
         general_config: StarknetGeneralConfig,
         tx_execution_context: TransactionExecutionContext,
-    ) -> Tuple[CairoFunctionRunner, syscall_utils.BusinessLogicSysCallHandler]:
+    ) -> Tuple[CairoFunctionRunner, syscall_utils.BusinessLogicSyscallHandler]:
         """
         Runs the selected entry point with the given calldata in the code of the contract deployed
         at self.code_address.
         The execution is done in the context (e.g., storage) of the contract at
         self.contract_address.
-        Returns the corresponding CairoFunctionRunner and BusinessLogicSysCallHandler in order to
+        Returns the corresponding CairoFunctionRunner and BusinessLogicSyscallHandler in order to
         retrieve the execution information.
         """
         # Prepare input for Cairo function runner.

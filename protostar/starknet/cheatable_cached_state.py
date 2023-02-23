@@ -1,16 +1,13 @@
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from services.everest.business_logic.state_api import StateProxy
-from starkware.starknet.business_logic.state.state import (
-    ContractClassCache,
-)
 from starkware.starknet.public.abi import AbiType
 from starkware.starknet.business_logic.state.state_api_objects import BlockInfo
 from starkware.starknet.business_logic.state.state_api import StateReader
 
 from starkware.starknet.business_logic.fact_state.state import CarriedState
-from starkware.starknet.business_logic.state.state import CachedState, StateSyncifier
+from starkware.starknet.business_logic.state.state import CachedState, StateSyncifier, CompiledClassCache
 from typing_extensions import Self
 
 from protostar.starknet.cheaters import BlockInfoCheater, Cheaters
@@ -26,7 +23,7 @@ class CheatableCachedState(CachedState):
         self,
         block_info: BlockInfo,
         state_reader: StateReader,
-        contract_class_cache: ContractClassCache,
+        contract_class_cache: Optional[CompiledClassCache] = None,
     ):
         super().__init__(
             block_info=block_info,

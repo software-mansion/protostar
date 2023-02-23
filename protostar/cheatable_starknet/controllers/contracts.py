@@ -21,7 +21,7 @@ from starkware.starknet.core.os.contract_address.contract_address import (
     calculate_contract_address_from_hash,
 )
 from starkware.starknet.definitions.general_config import StarknetGeneralConfig
-from starkware.starknet.services.api.contract_class import EntryPointType, ContractClass
+from starkware.starknet.services.api.contract_class.contract_class import EntryPointType, ContractClass
 
 from protostar.cheatable_starknet.cheatables.cheatable_execute_entry_point import (
     CheatableExecuteEntryPoint,
