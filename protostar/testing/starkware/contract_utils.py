@@ -1,7 +1,7 @@
 from typing import List, Optional
 
 from starkware.starknet.compiler.compile import compile_starknet_files
-from starkware.starknet.services.api.contract_class import ContractClass
+from starkware.starknet.services.api.contract_class.contract_class import ContractClass
 
 
 def get_contract_class(

@@ -12,9 +12,9 @@ from starkware.starknet.business_logic.state.state_api_objects import BlockInfo
 from starkware.starknet.core.os.contract_address.contract_address import (
     calculate_contract_address_from_hash,
 )
-from starkware.starknet.core.os.syscall_utils import BusinessLogicSysCallHandler
+from starkware.starknet.core.os.syscall_handler import BusinessLogicSyscallHandler
 from starkware.starknet.security.secure_hints import HintsWhitelist
-from starkware.starknet.services.api.contract_class import EntryPointType
+from starkware.starknet.services.api.contract_class.contract_class import EntryPointType
 
 from protostar.starknet.types import SelectorType
 from .cheatable_cached_state import CheatableCachedState, cheaters_of
@@ -27,7 +27,7 @@ class CheatableSysCallHandlerException(Exception):
         super().__init__(message)
 
 
-class CheatableSysCallHandler(BusinessLogicSysCallHandler):
+class CheatableSysCallHandler(BusinessLogicSyscallHandler):
     def __init__(self, state: SyncState, **kwargs: Any):
         # This field must be set before entering super constructor,
         # because it calls the setter for the `block_info` property.

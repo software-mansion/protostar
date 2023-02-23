@@ -5,7 +5,7 @@ from logging import getLogger
 from pathlib import Path
 from typing import List, Optional
 
-from starkware.starknet.services.api.contract_class import ContractClass
+from starkware.starknet.services.api.contract_class.contract_class import ContractClass
 from starkware.starkware_utils.error_handling import StarkException
 
 from protostar.compiler import (

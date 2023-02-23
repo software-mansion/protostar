@@ -16,7 +16,7 @@ from starkware.starknet.business_logic.state.state_api_objects import BlockInfo
 from starkware.starknet.definitions import constants
 from starkware.starknet.definitions.general_config import StarknetGeneralConfig
 from starkware.starknet.public.abi import get_selector_from_name
-from starkware.starknet.services.api.contract_class import EntryPointType
+from starkware.starknet.services.api.contract_class.contract_class import EntryPointType
 from starkware.starknet.testing.state import StarknetState, CastableToAddress
 from starkware.storage.dict_storage import DictStorage
 from starkware.storage.storage import FactFetchingContext

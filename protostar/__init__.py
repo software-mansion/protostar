@@ -3,7 +3,7 @@ from copy import copy
 from typing import Any
 
 from crypto_cpp_py.cpp_bindings import cpp_hash
-from starkware.starknet.services.api.contract_class import ContractClass
+from starkware.starknet.services.api.contract_class.contract_class import ContractClass
 
 
 def patched_pedersen_hash(left: int, right: int) -> int:

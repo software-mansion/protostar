@@ -30,11 +30,11 @@ from starkware.starknet.business_logic.fact_state.state import ExecutionResource
 from starkware.starknet.business_logic.state.state import StateSyncifier
 from starkware.starknet.business_logic.state.state_api import State, SyncState
 from starkware.starknet.business_logic.utils import validate_contract_deployed
-from starkware.starknet.core.os import os_utils, syscall_utils
+from starkware.starknet.core.os import os_utils, syscall_utils, syscall_handler
 from starkware.starknet.definitions.error_codes import StarknetErrorCode
 from starkware.starknet.definitions.general_config import StarknetGeneralConfig
 from starkware.starknet.public import abi as starknet_abi
-from starkware.starknet.services.api.contract_class import (
+from starkware.starknet.services.api.contract_class.contract_class import (
     ContractClass,
     ContractEntryPoint,
 )
@@ -101,13 +101,13 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
         resources_manager: ExecutionResourcesManager,
         general_config: StarknetGeneralConfig,
         tx_execution_context: TransactionExecutionContext,
-    ) -> Tuple[CairoFunctionRunner, syscall_utils.BusinessLogicSysCallHandler]:
+    ) -> Tuple[CairoFunctionRunner, syscall_handler.BusinessLogicSyscallHandler]:
         """
         Runs the selected entry point with the given calldata in the code of the contract deployed
         at self.code_address.
         The execution is done in the context (e.g., storage) of the contract at
         self.contract_address.
-        Returns the corresponding CairoFunctionRunner and BusinessLogicSysCallHandler in order to
+        Returns the corresponding CairoFunctionRunner and BusinessLogicSyscallHandler in order to
         retrieve the execution information.
         """
         # Prepare input for Cairo function runner.

@@ -5,7 +5,7 @@ from starkware.starknet.business_logic.execution.execute_entry_point import (
 )
 from starkware.starknet.business_logic.execution.objects import CallType
 from starkware.starknet.public.abi import get_selector_from_name, AbiType
-from starkware.starknet.services.api.contract_class import EntryPointType
+from starkware.starknet.services.api.contract_class.contract_class import EntryPointType
 
 from protostar.starknet import Cheatcode, CheatcodeException
 from protostar.starknet.data_transformer import (

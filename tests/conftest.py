@@ -8,13 +8,13 @@ from typing import ContextManager, List, Protocol, Union
 
 import pytest
 import requests
-from starknet_py.net import AccountClient, KeyPair
-from starknet_py.net.gateway_client import GatewayClient
-from starknet_py.net.models import StarknetChainId
-from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
+# from starknet_py.net import AccountClient, KeyPair
+# from starknet_py.net.gateway_client import GatewayClient
+# from starknet_py.net.models import StarknetChainId
+# from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
 
-from protostar.cli.signable_command_util import PRIVATE_KEY_ENV_VAR_NAME
-from protostar.starknet import Address
+# from protostar.cli.signable_command_util import PRIVATE_KEY_ENV_VAR_NAME
+# from protostar.starknet import Address
 from tests._conftest.compiled_account import (
     compile_account_contract_with_validate_deploy,
 )
@@ -78,26 +78,26 @@ def devnet_port_fixture() -> int:
         return socket.getsockname()[1]
 
 
-@pytest.fixture(name="devnet_accounts")
-def devnet_accounts_fixture(devnet_gateway_url: str) -> list[DevnetAccount]:
-    response = requests.get(f"{devnet_gateway_url}/predeployed_accounts", timeout=30)
-    devnet_account_dicts = json.loads(response.content)
-    return [
-        DevnetAccount(
-            address=Address.from_user_input(devnet_account_dict["address"]),
-            private_key=devnet_account_dict["private_key"],
-            public_key=devnet_account_dict["public_key"],
-            signer=StarkCurveSigner(
-                account_address=devnet_account_dict["address"],
-                key_pair=KeyPair(
-                    private_key=int(devnet_account_dict["private_key"], base=16),
-                    public_key=int(devnet_account_dict["public_key"], base=16),
-                ),
-                chain_id=StarknetChainId.TESTNET,
-            ),
-        )
-        for devnet_account_dict in devnet_account_dicts
-    ]
+# @pytest.fixture(name="devnet_accounts")
+# def devnet_accounts_fixture(devnet_gateway_url: str) -> list[DevnetAccount]:
+#     response = requests.get(f"{devnet_gateway_url}/predeployed_accounts", timeout=30)
+#     devnet_account_dicts = json.loads(response.content)
+#     return [
+#         DevnetAccount(
+#             address=Address.from_user_input(devnet_account_dict["address"]),
+#             private_key=devnet_account_dict["private_key"],
+#             public_key=devnet_account_dict["public_key"],
+#             signer=StarkCurveSigner(
+#                 account_address=devnet_account_dict["address"],
+#                 key_pair=KeyPair(
+#                     private_key=int(devnet_account_dict["private_key"], base=16),
+#                     public_key=int(devnet_account_dict["public_key"], base=16),
+#                 ),
+#                 chain_id=StarknetChainId.TESTNET,
+#             ),
+#         )
+#         for devnet_account_dict in devnet_account_dicts
+#     ]
 
 
 @pytest.fixture(name="devnet_account")
@@ -110,17 +110,17 @@ class SetPrivateKeyEnvVarFixture(Protocol):
         ...
 
 
-@pytest.fixture(name="set_private_key_env_var")
-def set_private_key_env_var_fixture(
-    monkeypatch: pytest.MonkeyPatch,
-) -> SetPrivateKeyEnvVarFixture:
-    @contextmanager
-    def set_private_key_env_var(private_key: str):
-        monkeypatch.setenv(PRIVATE_KEY_ENV_VAR_NAME, private_key)
-        yield
-        monkeypatch.delenv(PRIVATE_KEY_ENV_VAR_NAME)
+# @pytest.fixture(name="set_private_key_env_var")
+# def set_private_key_env_var_fixture(
+#     monkeypatch: pytest.MonkeyPatch,
+# ) -> SetPrivateKeyEnvVarFixture:
+#     @contextmanager
+#     def set_private_key_env_var(private_key: str):
+#         monkeypatch.setenv(PRIVATE_KEY_ENV_VAR_NAME, private_key)
+#         yield
+#         monkeypatch.delenv(PRIVATE_KEY_ENV_VAR_NAME)
 
-    return set_private_key_env_var
+#     return set_private_key_env_var
 
 
 PathStr = str
@@ -145,40 +145,40 @@ def account_with_validate_deploy_compiled_contract_fixture() -> str:
     return compile_account_contract_with_validate_deploy()
 
 
-@pytest.fixture(name="devnet")
-def devnet_fixture(
-    devnet_gateway_url: str,
-    devnet_account: DevnetAccount,
-    devnet_accounts: list[DevnetAccount],
-    account_with_validate_deploy_compiled_contract: str,
-) -> DevnetFixture:
-    gateway_client = GatewayClient(
-        devnet_gateway_url,
-    )
-    key_pair = KeyPair(
-        private_key=int(devnet_account.private_key, base=0),
-        public_key=int(devnet_account.public_key, base=0),
-    )
-    predeployed_account_client = AccountClient(
-        address=int(devnet_account.address),
-        client=gateway_client,
-        key_pair=key_pair,
-        chain=StarknetChainId.TESTNET,
-        supported_tx_version=1,
-    )
-    faucet_contract = FaucetContract(
-        devnet_gateway_url=devnet_gateway_url,
-    )
-    account_preparator = DevnetAccountPreparator(
-        compiled_account_contract=account_with_validate_deploy_compiled_contract,
-        predeployed_account_client=predeployed_account_client,
-        faucet_contract=faucet_contract,
-    )
-    return DevnetFixture(
-        devnet_account_preparator=account_preparator,
-        devnet_gateway_url=devnet_gateway_url,
-        predeployed_accounts=devnet_accounts,
-    )
+# @pytest.fixture(name="devnet")
+# def devnet_fixture(
+#     devnet_gateway_url: str,
+#     devnet_account: DevnetAccount,
+#     devnet_accounts: list[DevnetAccount],
+#     account_with_validate_deploy_compiled_contract: str,
+# ) -> DevnetFixture:
+#     gateway_client = GatewayClient(
+#         devnet_gateway_url,
+#     )
+#     key_pair = KeyPair(
+#         private_key=int(devnet_account.private_key, base=0),
+#         public_key=int(devnet_account.public_key, base=0),
+#     )
+#     predeployed_account_client = AccountClient(
+#         address=int(devnet_account.address),
+#         client=gateway_client,
+#         key_pair=key_pair,
+#         chain=StarknetChainId.TESTNET,
+#         supported_tx_version=1,
+#     )
+#     faucet_contract = FaucetContract(
+#         devnet_gateway_url=devnet_gateway_url,
+#     )
+#     account_preparator = DevnetAccountPreparator(
+#         compiled_account_contract=account_with_validate_deploy_compiled_contract,
+#         predeployed_account_client=predeployed_account_client,
+#         faucet_contract=faucet_contract,
+#     )
+#     return DevnetFixture(
+#         devnet_account_preparator=account_preparator,
+#         devnet_gateway_url=devnet_gateway_url,
+#         predeployed_accounts=devnet_accounts,
+#     )
 
 
 TESTS_ROOT_PATH = Path(__file__).parent

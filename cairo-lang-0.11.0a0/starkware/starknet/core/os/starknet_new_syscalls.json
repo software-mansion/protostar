@@ -1,0 +1,167 @@
+{
+    "attributes": [],
+    "builtins": [],
+    "compiler_version": "0.11.0a0",
+    "data": [],
+    "debug_info": {
+        "file_contents": {
+            "/app/src/starkware/cairo/lang/compiler/lib/registers.cairo": "// Returns the contents of the fp and pc registers of the calling function.\n// The pc register's value is the address of the instruction that follows directly after the\n// invocation of get_fp_and_pc().\nfunc get_fp_and_pc() -> (fp_val: felt*, pc_val: felt*) {\n    // The call instruction itself already places the old fp and the return pc at\n    // [ap - 2], [ap - 1].\n    return (fp_val=cast([ap - 2], felt*), pc_val=cast([ap - 1], felt*));\n}\n\n// Returns the content of the ap register just before this function was invoked.\n@known_ap_change\nfunc get_ap() -> (ap_val: felt*) {\n    // Once get_ap() is invoked, fp points to ap + 2 (since the call instruction placed the old fp\n    // and pc in memory, advancing ap accordingly).\n    // Hence, the desired ap value is fp - 2.\n    let (fp_val, pc_val) = get_fp_and_pc();\n    return (ap_val=fp_val - 2);\n}\n",
+            "/app/src/starkware/starknet/common/new_syscalls.cairo": "// Syscall selectors.\n\nconst GET_CALLER_ADDRESS_SELECTOR = 'GetCallerAddress';\nconst EMIT_EVENT_SELECTOR = 'EmitEvent';\nconst STORAGE_READ_SELECTOR = 'StorageRead';\nconst STORAGE_WRITE_SELECTOR = 'StorageWrite';\n\n// Shared attributes.\n\nstruct RequestHeader {\n    // The syscall selector.\n    selector: felt,\n    // The amount of gas left before the syscall execution.\n    gas: felt,\n}\n\nstruct ResponseHeader {\n    // The amount of gas left after the syscall execution.\n    gas: felt,\n    // 0 if the syscall succeeded; 1 otherwise.\n    failure_flag: felt,\n}\n\nstruct FailureReason {\n    start: felt*,\n    end: felt*,\n}\n\n// Syscall requests.\n\nstruct EmptyRequest {\n}\n\nstruct StorageReadRequest {\n    reserved: felt,\n    key: felt,\n}\n\nstruct StorageWriteRequest {\n    reserved: felt,\n    key: felt,\n    value: felt,\n}\n\nstruct EmitEventRequest {\n    keys_start: felt*,\n    keys_end: felt*,\n    data_start: felt*,\n    data_end: felt*,\n}\n\n// Syscall responses.\n\nstruct StorageReadResponse {\n    value: felt,\n}\n\nstruct GetCallerAddressResponse {\n    caller_address: felt,\n}\n"
+        },
+        "instruction_locations": {}
+    },
+    "hints": {},
+    "identifiers": {
+        "__main__.EMIT_EVENT_SELECTOR": {
+            "type": "const",
+            "value": 1280709301550335749748
+        },
+        "__main__.EmitEventRequest": {
+            "full_name": "__main__.EmitEventRequest",
+            "members": {
+                "data_end": {
+                    "cairo_type": "felt*",
+                    "offset": 3
+                },
+                "data_start": {
+                    "cairo_type": "felt*",
+                    "offset": 2
+                },
+                "keys_end": {
+                    "cairo_type": "felt*",
+                    "offset": 1
+                },
+                "keys_start": {
+                    "cairo_type": "felt*",
+                    "offset": 0
+                }
+            },
+            "size": 4,
+            "type": "struct"
+        },
+        "__main__.EmptyRequest": {
+            "full_name": "__main__.EmptyRequest",
+            "members": {},
+            "size": 0,
+            "type": "struct"
+        },
+        "__main__.FailureReason": {
+            "full_name": "__main__.FailureReason",
+            "members": {
+                "end": {
+                    "cairo_type": "felt*",
+                    "offset": 1
+                },
+                "start": {
+                    "cairo_type": "felt*",
+                    "offset": 0
+                }
+            },
+            "size": 2,
+            "type": "struct"
+        },
+        "__main__.GET_CALLER_ADDRESS_SELECTOR": {
+            "type": "const",
+            "value": 94901967781393078444254803017658102643
+        },
+        "__main__.GetCallerAddressResponse": {
+            "full_name": "__main__.GetCallerAddressResponse",
+            "members": {
+                "caller_address": {
+                    "cairo_type": "felt",
+                    "offset": 0
+                }
+            },
+            "size": 1,
+            "type": "struct"
+        },
+        "__main__.RequestHeader": {
+            "full_name": "__main__.RequestHeader",
+            "members": {
+                "gas": {
+                    "cairo_type": "felt",
+                    "offset": 1
+                },
+                "selector": {
+                    "cairo_type": "felt",
+                    "offset": 0
+                }
+            },
+            "size": 2,
+            "type": "struct"
+        },
+        "__main__.ResponseHeader": {
+            "full_name": "__main__.ResponseHeader",
+            "members": {
+                "failure_flag": {
+                    "cairo_type": "felt",
+                    "offset": 1
+                },
+                "gas": {
+                    "cairo_type": "felt",
+                    "offset": 0
+                }
+            },
+            "size": 2,
+            "type": "struct"
+        },
+        "__main__.STORAGE_READ_SELECTOR": {
+            "type": "const",
+            "value": 100890693370601760042082660
+        },
+        "__main__.STORAGE_WRITE_SELECTOR": {
+            "type": "const",
+            "value": 25828017502874050592466629733
+        },
+        "__main__.StorageReadRequest": {
+            "full_name": "__main__.StorageReadRequest",
+            "members": {
+                "key": {
+                    "cairo_type": "felt",
+                    "offset": 1
+                },
+                "reserved": {
+                    "cairo_type": "felt",
+                    "offset": 0
+                }
+            },
+            "size": 2,
+            "type": "struct"
+        },
+        "__main__.StorageReadResponse": {
+            "full_name": "__main__.StorageReadResponse",
+            "members": {
+                "value": {
+                    "cairo_type": "felt",
+                    "offset": 0
+                }
+            },
+            "size": 1,
+            "type": "struct"
+        },
+        "__main__.StorageWriteRequest": {
+            "full_name": "__main__.StorageWriteRequest",
+            "members": {
+                "key": {
+                    "cairo_type": "felt",
+                    "offset": 1
+                },
+                "reserved": {
+                    "cairo_type": "felt",
+                    "offset": 0
+                },
+                "value": {
+                    "cairo_type": "felt",
+                    "offset": 2
+                }
+            },
+            "size": 3,
+            "type": "struct"
+        }
+    },
+    "main_scope": "__main__",
+    "prime": "0x800000000000011000000000000000000000000000000000000000000000001",
+    "reference_manager": {
+        "references": []
+    }
+}

@@ -6,7 +6,7 @@ from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
     PreprocessorError,
 )
 from starkware.cairo.lang.vm.vm_exceptions import VmException
-from starkware.starknet.services.api.contract_class import ContractClass
+from starkware.starknet.services.api.contract_class.contract_class import ContractClass
 from starkware.starkware_utils.error_handling import StarkException
 from starkware.starknet.core.os.class_hash import compute_class_hash
 
