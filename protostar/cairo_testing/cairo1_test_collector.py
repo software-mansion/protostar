@@ -25,7 +25,6 @@ class Cairo1TestCollector(TestCollector):
     ) -> List[str]:
         collector_output = cairo1.collect_tests(
             file_path,
-            output_path=None,
             cairo_path=[Path(cp) for cp in self._cairo_path],
         )
         if not collector_output.sierra_output:
