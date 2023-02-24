@@ -1,8 +1,9 @@
+# FIXME: Probably code of execute entry point was changed. THIS FILE NEEDS TO BE UPDATED
 # pylint: disable=duplicate-code
 import logging
 import re
 from dataclasses import dataclass
-from typing import Optional, Tuple, cast
+from typing import Optional, Tuple, cast, Any
 from copy import deepcopy
 
 from starkware.starknet.business_logic.execution.objects import (
@@ -22,20 +23,32 @@ from starkware.cairo.lang.vm.vm_exceptions import (
 from starkware.python.utils import to_bytes
 from starkware.starknet.business_logic.execution.execute_entry_point import (
     ExecuteEntryPoint,
+    EntryPointArgs,
 )
 from starkware.starknet.business_logic.fact_state.state import ExecutionResourcesManager
 from starkware.starknet.business_logic.state.state import StateSyncifier
 from starkware.starknet.business_logic.state.state_api import State, SyncState
-from starkware.starknet.business_logic.utils import validate_contract_deployed
-from starkware.starknet.core.os import os_utils, syscall_utils
+from starkware.starknet.business_logic.utils import (
+    validate_contract_deployed,
+    get_call_result_for_version0_class,
+)
+from starkware.starknet.core.os import os_utils
+from starkware.starknet.core.os.syscall_handler import BusinessLogicSyscallHandler
+from starkware.starknet.core.os.syscall_utils import HandlerException
 from starkware.starknet.definitions.error_codes import StarknetErrorCode
-from starkware.starknet.definitions.general_config import StarknetGeneralConfig
+from starkware.starknet.definitions.general_config import (
+    StarknetGeneralConfig,
+    STARKNET_LAYOUT_INSTANCE,
+)
 from starkware.starknet.public import abi as starknet_abi
 from starkware.starkware_utils.error_handling import (
     StarkException,
     wrap_with_stark_exception,
 )
-from starkware.starknet.services.api.contract_class.contract_class import EntryPointType
+from starkware.starknet.services.api.contract_class.contract_class import (
+    EntryPointType,
+    DeprecatedCompiledClass,
+)
 
 from protostar.starknet import Address
 from protostar.cheatable_starknet.controllers.transaction_revert_exception import (
@@ -78,48 +91,33 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
             class_hash=class_hash,
         )
 
-    def _run(
+    def _execute_version0_class(
         self,
         state: SyncState,
         resources_manager: ExecutionResourcesManager,
-        general_config: StarknetGeneralConfig,
         tx_execution_context: TransactionExecutionContext,
-    ) -> Tuple[CairoFunctionRunner, syscall_utils.BusinessLogicSyscallHandler]:
-        """
-        Runs the selected entry point with the given calldata in the code of the contract deployed
-        at self.code_address.
-        The execution is done in the context (e.g., storage) of the contract at
-        self.contract_address.
-        Returns the corresponding CairoFunctionRunner and BusinessLogicSyscallHandler in order to
-        retrieve the execution information.
-        """
-        # Prepare input for Cairo function runner.
-        class_hash = self._get_code_class_hash(state=state)
+        class_hash: int,
+        compiled_class: DeprecatedCompiledClass,
+        general_config: StarknetGeneralConfig,
+    ) -> CallInfo:
+        # Fix the current resources usage, in order to calculate the usage of this run at the end.
+        previous_cairo_usage = resources_manager.cairo_usage
 
-        # Hack to prevent version 0 attack on argent accounts.
-        if (tx_execution_context.version == 0) and (class_hash == FAULTY_CLASS_HASH):
-            raise StarkException(
-                code=StarknetErrorCode.TRANSACTION_FAILED,
-                message="Fraud attempt blocked.",
+        # Prepare runner.
+        with wrap_with_stark_exception(code=StarknetErrorCode.SECURITY_ERROR):
+            runner = CairoFunctionRunner(
+                program=compiled_class.program,
+                layout=STARKNET_LAYOUT_INSTANCE.layout_name,
             )
 
-        contract_class = state.get_contract_class(class_hash=class_hash)
-        contract_class.validate()
-
-        entry_point = self._get_selected_entry_point(
-            contract_class=contract_class, class_hash=class_hash
+        # Prepare implicit arguments.
+        implicit_args = os_utils.prepare_os_implicit_args_for_version0_class(
+            runner=runner
         )
 
-        # Run the specified contract entry point with given calldata.
-        with wrap_with_stark_exception(code=StarknetErrorCode.SECURITY_ERROR):
-            runner = CairoFunctionRunner(program=contract_class.program, layout="all")
-
-        os_context = os_utils.prepare_os_context(runner=runner)
-
-        validate_contract_deployed(state=state, contract_address=self.contract_address)
-
+        # Prepare syscall handler.
         initial_syscall_ptr = cast(
-            RelocatableValue, os_context[starknet_abi.SYSCALL_PTR_OFFSET]
+            RelocatableValue, implicit_args[starknet_abi.SYSCALL_PTR_OFFSET_IN_VERSION0]
         )
 
         # region Modified Starknet code.
@@ -135,91 +133,54 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
             contract_address=self.contract_address,
             general_config=general_config,
             initial_syscall_ptr=initial_syscall_ptr,
+            segments=runner.segments,
         )
         # endregion
 
-        # Positional arguments are passed to *args in the 'run_from_entrypoint' function.
-        entry_points_args = [
+        # Prepare all arguments.
+        entry_point_args: EntryPointArgs = [
             self.entry_point_selector,
-            os_context,
+            implicit_args,
             len(self.calldata),
             # Allocate and mark the segment as read-only (to mark every input array as read-only).
-            # pylint: disable=protected-access
-            syscall_handler._allocate_segment(
-                segments=runner.segments, data=self.calldata
-            ),
+            syscall_handler._allocate_segment(data=self.calldata),
         ]
 
-        try:
-            runner.run_from_entrypoint(
-                entry_point.offset,
-                *entry_points_args,
-                # region Modified Starknet code.
-                hint_locals={
-                    "syscall_handler": syscall_handler,
-                },
-                # endregion
-                static_locals={
-                    "__find_element_max_size": 2**20,
-                    "__squash_dict_max_size": 2**20,
-                    "__keccak_max_size": 2**20,
-                    "__usort_max_size": 2**20,
-                    "__chained_ec_op_max_len": 1000,
-                },
-                run_resources=tx_execution_context.run_resources,
-                verify_secure=True,
-            )
+        # Get offset to run from.
+        entry_point = self._get_selected_entry_point(
+            compiled_class=compiled_class, class_hash=class_hash
+        )
+        entry_point_offset = entry_point.offset
 
-        except VmException as exception:
-            code = StarknetErrorCode.TRANSACTION_FAILED
-            if isinstance(exception.inner_exc, HintException):
-                hint_exception = exception.inner_exc
-
-                if isinstance(hint_exception.inner_exc, syscall_utils.HandlerException):
-                    stark_exception = hint_exception.inner_exc.stark_exception
-                    code = stark_exception.code
-                    called_contract_address = (
-                        hint_exception.inner_exc.called_contract_address
-                    )
-                    message_prefix = f"Error in the called contract ({hex(called_contract_address)}):\n"
-                    # Override python's traceback and keep the Cairo one of the inner exception.
-                    exception.notes = [message_prefix + str(stark_exception.message)]
-
-            if isinstance(exception.inner_exc, ResourcesError):
-                code = StarknetErrorCode.OUT_OF_RESOURCES
-
-            raise StarkException(code=code, message=str(exception)) from exception
-        except VmExceptionBase as exception:
-            raise StarkException(
-                code=StarknetErrorCode.TRANSACTION_FAILED, message=str(exception)
-            ) from exception
-        except SecurityError as exception:
-            raise StarkException(
-                code=StarknetErrorCode.SECURITY_ERROR, message=str(exception)
-            ) from exception
-        except Exception as exception:
-            logger.error("Got an unexpected exception.", exc_info=True)
-            raise StarkException(
-                code=StarknetErrorCode.UNEXPECTED_FAILURE,
-                message="Got an unexpected exception during the execution of the transaction.",
-            ) from exception
-
-        # Complete handler validations.
-        os_utils.validate_and_process_os_context(
+        # Run.
+        self._run(
             runner=runner,
-            syscall_handler=syscall_handler,
-            initial_os_context=os_context,
+            entry_point_offset=entry_point_offset,
+            entry_point_args=entry_point_args,
+            hint_locals={"syscall_handler": syscall_handler},
+            run_resources=tx_execution_context.run_resources,
         )
 
-        # When execution starts the stack holds entry_points_args + [ret_fp, ret_pc].
-        args_ptr = runner.initial_fp - (len(entry_points_args) + 2)
+        # Complete validations.
+        os_utils.validate_and_process_os_context_for_version0_class(
+            runner=runner,
+            syscall_handler=syscall_handler,
+            initial_os_context=implicit_args,
+        )
 
-        # The arguments are touched by the OS and should not be counted as holes, mark them
-        # as accessed.
-        assert isinstance(args_ptr, RelocatableValue)  # Downcast.
-        runner.mark_as_accessed(address=args_ptr, size=len(entry_points_args))
+        # Update resources usage (for the bouncer and fee calculation).
+        resources_manager.cairo_usage += runner.get_execution_resources()
 
-        return runner, syscall_handler
+        # Build and return the call info.
+        return self._build_call_info(
+            storage=syscall_handler.starknet_storage,
+            events=syscall_handler.events,
+            l2_to_l1_messages=syscall_handler.l2_to_l1_messages,
+            internal_calls=syscall_handler.internal_calls,
+            execution_resources=resources_manager.cairo_usage - previous_cairo_usage,
+            result=get_call_result_for_version0_class(runner=runner),
+            class_hash=class_hash,
+        )
 
     async def execute_for_testing(
         self,
@@ -244,13 +205,15 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
         resources_manager: ExecutionResourcesManager,
         general_config: StarknetGeneralConfig,
         tx_execution_context: TransactionExecutionContext,
+        support_reverted: bool = False,
     ):
         try:
             return super().execute(
-                state,
-                resources_manager,
-                self._change_max_steps_in_general_config(general_config),
-                tx_execution_context,
+                state=state,
+                resources_manager=resources_manager,
+                tx_execution_context=tx_execution_context,
+                general_config=self._change_max_steps_in_general_config(general_config),
+                support_reverted=support_reverted,
             )
         except StarkException as ex:
             raise self._wrap_stark_exception(ex)

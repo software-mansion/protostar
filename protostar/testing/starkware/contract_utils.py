@@ -1,15 +1,17 @@
 from typing import List, Optional
 
 from starkware.starknet.compiler.compile import compile_starknet_files
-from starkware.starknet.services.api.contract_class.contract_class import ContractClass
+from starkware.starknet.services.api.contract_class.contract_class import (
+    DeprecatedCompiledClass,
+)
 
 
 def get_contract_class(
     source: Optional[str] = None,
-    contract_class: Optional[ContractClass] = None,
+    contract_class: Optional[DeprecatedCompiledClass] = None,
     cairo_path: Optional[List[str]] = None,
     disable_hint_validation: bool = False,
-) -> ContractClass:
+) -> DeprecatedCompiledClass:
     """
     This function (compared to the original) allows disabling hint validation.
     """

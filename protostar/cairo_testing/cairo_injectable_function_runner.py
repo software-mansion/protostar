@@ -33,7 +33,7 @@ class CairoInjectableFunctionRunner:
         **kwargs: Any,
     ):
         try:
-            runner = CairoFunctionRunner(program=self._program, layout="all")
+            runner = CairoFunctionRunner(program=self._program, layout="starknet")
             runner.run(function_name, *args, hint_locals=self._hint_locals, **kwargs)
         except VmException as vm_ex:
             error_message = vm_ex.message

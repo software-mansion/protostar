@@ -87,6 +87,7 @@ class CheatableStarknetState(StarknetState):
             entry_point_type=EntryPointType.EXTERNAL,
             calldata=calldata,
             caller_address=caller_address,
+            initial_gas=10**10,
         )
         # endregion
 
@@ -114,6 +115,7 @@ class CheatableStarknetState(StarknetState):
         )
         state_reader = PatriciaStateReader(
             global_state_root=empty_shared_state.contract_states,
+            contract_class_root=empty_shared_state.contract_classes,
             ffc=ffc,
             contract_class_storage=ffc.storage,
         )

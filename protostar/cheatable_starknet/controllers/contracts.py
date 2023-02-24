@@ -8,12 +8,15 @@ from starkware.starknet.business_logic.execution.objects import CallType
 from starkware.starknet.business_logic.execution.objects import Event as StarknetEvent
 from starkware.python.utils import to_bytes, from_bytes
 from starkware.starknet.business_logic.transaction.objects import InternalDeclare
+from starkware.starknet.core.os.contract_class.deprecated_class_hash import (
+    compute_deprecated_class_hash,
+)
 from starkware.starknet.public.abi import AbiType, CONSTRUCTOR_ENTRY_POINT_SELECTOR
 from starkware.starknet.services.api.gateway.transaction import (
     DEFAULT_DECLARE_SENDER_ADDRESS,
 )
 from starkware.starknet.testing.contract import DeclaredClass
-from starkware.starknet.testing.contract_utils import get_abi, EventManager
+from starkware.starknet.testing.contract_utils import EventManager
 from starkware.starknet.business_logic.execution.execute_entry_point import (
     ExecuteEntryPoint,
 )
@@ -21,7 +24,10 @@ from starkware.starknet.core.os.contract_address.contract_address import (
     calculate_contract_address_from_hash,
 )
 from starkware.starknet.definitions.general_config import StarknetGeneralConfig
-from starkware.starknet.services.api.contract_class.contract_class import EntryPointType, ContractClass
+from starkware.starknet.services.api.contract_class.contract_class import (
+    EntryPointType,
+    DeprecatedCompiledClass,
+)
 
 from protostar.cheatable_starknet.cheatables.cheatable_execute_entry_point import (
     CheatableExecuteEntryPoint,
@@ -86,7 +92,7 @@ class ContractsController:
         contract_address_int = int(contract_address)
         class_hash = await self.cheatable_state.get_class_hash_at(contract_address_int)
         return await self._transform_calldata_to_cairo_data(
-            class_hash=from_bytes(class_hash, "big"),
+            class_hash=class_hash,
             function_name=function_name,
             calldata=calldata,
         )
@@ -98,9 +104,7 @@ class ContractsController:
         calldata: Optional[CairoOrPythonData] = None,
     ) -> CairoData:
         if isinstance(calldata, collections.Mapping):
-            contract_class = await self.cheatable_state.get_contract_class(
-                class_hash=to_bytes(class_hash, 32, "big")
-            )
+            contract_class = await self.cheatable_state.get_contract_class(class_hash)
             assert contract_class.abi, f"No abi found for the contract at {class_hash}"
 
             transformer = from_python_transformer(
@@ -117,10 +121,10 @@ class ContractsController:
 
     async def declare_contract(
         self,
-        contract_class: ContractClass,
+        contract_class: DeprecatedCompiledClass,
     ):
         starknet_config = StarknetGeneralConfig()
-        tx = InternalDeclare.create(
+        tx = InternalDeclare.create_deprecated(
             contract_class=contract_class,
             chain_id=starknet_config.chain_id.value,
             sender_address=DEFAULT_DECLARE_SENDER_ADDRESS,
@@ -135,13 +139,11 @@ class ContractsController:
                 state=state_copy, general_config=starknet_config
             )
 
-        abi = get_abi(contract_class=contract_class)
+        abi = contract_class.abi
         self._add_event_abi_to_state(abi)
         class_hash = tx.class_hash
         assert class_hash is not None
         await self.cheatable_state.set_contract_class(class_hash, contract_class)
-
-        class_hash = from_bytes(class_hash)
 
         if contract_class.abi:
             self.cheatable_state.class_hash_to_contract_abi_map[
@@ -150,7 +152,7 @@ class ContractsController:
 
         return DeclaredClass(
             class_hash=class_hash,
-            abi=get_abi(contract_class=contract_class),
+            abi=abi,
         )
 
     def bind_class_hash_to_contract_identifier(
@@ -173,11 +175,11 @@ class ContractsController:
     async def deploy_prepared(self, prepared: PreparedContract) -> DeployedContract:
         await self.cheatable_state.deploy_contract(
             contract_address=int(prepared.contract_address),
-            class_hash=to_bytes(prepared.class_hash),
+            class_hash=prepared.class_hash,
         )
 
         contract_class = await self.cheatable_state.get_contract_class(
-            class_hash=to_bytes(prepared.class_hash)
+            class_hash=prepared.class_hash
         )
 
         has_constructor = len(
@@ -199,14 +201,14 @@ class ContractsController:
             calldata=prepared.constructor_calldata,
         )
         await self.execute_constructor_entry_point(
-            class_hash_bytes=to_bytes(prepared.class_hash),
+            class_hash=prepared.class_hash,
             constructor_calldata=prepared.constructor_calldata,
             contract_address=int(prepared.contract_address),
         )
 
     async def execute_constructor_entry_point(
         self,
-        class_hash_bytes: bytes,
+        class_hash: int,
         constructor_calldata: List[int],
         contract_address: int,
     ):
@@ -218,7 +220,8 @@ class ContractsController:
                 caller_address=0,
                 entry_point_type=EntryPointType.CONSTRUCTOR,
                 call_type=CallType.DELEGATE,
-                class_hash=class_hash_bytes,
+                class_hash=class_hash,
+                initial_gas=100000000000000000000000,
             ).execute_for_testing(
                 state=self.cheatable_state,
                 general_config=StarknetGeneralConfig(),

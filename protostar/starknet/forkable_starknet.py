@@ -2,7 +2,9 @@ import copy
 from typing import List, Optional, cast
 
 from starkware.starknet.definitions.general_config import StarknetGeneralConfig
-from starkware.starknet.services.api.contract_class.contract_class import ContractClass
+from starkware.starknet.services.api.contract_class.contract_class import (
+    DeprecatedCompiledClass,
+)
 from starkware.starknet.testing.contract import StarknetContract
 from starkware.starknet.testing.starknet import Starknet
 from starkware.starknet.testing.state import CastableToAddressSalt
@@ -45,7 +47,7 @@ class ForkableStarknet(Starknet):
     async def deploy(
         self,
         source: Optional[str] = None,
-        contract_class: Optional[ContractClass] = None,
+        contract_class: Optional[DeprecatedCompiledClass] = None,
         contract_address_salt: Optional[CastableToAddressSalt] = None,
         cairo_path: Optional[List[str]] = None,
         constructor_calldata: Optional[List[int]] = None,

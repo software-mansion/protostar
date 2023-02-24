@@ -6,13 +6,13 @@ from starkware.cairo.lang.compiler.program import CairoHint
 from starkware.cairo.lang.vm.memory_segments import MemorySegmentManager
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
 from starkware.python.utils import to_bytes
-from starkware.starknet.business_logic.execution.objects import CallType
+from starkware.starknet.business_logic.execution.objects import CallType, CallResult
 from starkware.starknet.business_logic.state.state import StateSyncifier
 from starkware.starknet.business_logic.state.state_api_objects import BlockInfo
 from starkware.starknet.core.os.contract_address.contract_address import (
     calculate_contract_address_from_hash,
 )
-from starkware.starknet.core.os.syscall_handler import BusinessLogicSyscallHandler
+from starkware.starknet.core.os.syscall_handler import BusinessLogicSyscallHandler, DeprecatedBlSyscallHandler
 from starkware.starknet.security.secure_hints import HintsWhitelist
 from starkware.starknet.services.api.contract_class.contract_class import EntryPointType
 
@@ -36,7 +36,7 @@ class CheatableSysCallHandlerException(Exception):
         super().__init__(message)
 
 
-class CheatableSysCallHandler(BusinessLogicSyscallHandler):
+class CheatableSysCallHandler(DeprecatedBlSyscallHandler):
     def __init__(self, state: StateSyncifier, **kwargs: Any):
         self.cheatable_state: "CheatableCachedState" = cast(
             "CheatableCachedState", state.async_state
@@ -55,11 +55,10 @@ class CheatableSysCallHandler(BusinessLogicSyscallHandler):
 
     def _get_caller_address(
         self,
-        segments: MemorySegmentManager,
         syscall_ptr: RelocatableValue,
     ) -> int:
         caller_address = super()._get_caller_address(
-            segments=segments, syscall_ptr=syscall_ptr
+            syscall_ptr=syscall_ptr
         )
         pranked_address = self.cheatable_state.get_pranked_address(
             Address(self.contract_address)
@@ -68,15 +67,14 @@ class CheatableSysCallHandler(BusinessLogicSyscallHandler):
 
     def _call_contract(
         self,
-        segments: MemorySegmentManager,
         syscall_ptr: RelocatableValue,
         syscall_name: str,
-    ) -> List[int]:
+    ) -> CallResult:
         # Parse request and prepare the call.
         request = self._read_and_validate_syscall_request(
-            syscall_name=syscall_name, segments=segments, syscall_ptr=syscall_ptr
+            syscall_name=syscall_name, syscall_ptr=syscall_ptr
         )
-        calldata = segments.memory.get_range_as_ints(
+        calldata = self.segments.memory.get_range_as_ints(
             addr=request.calldata, size=request.calldata_size
         )
 
@@ -148,23 +146,23 @@ class CheatableSysCallHandler(BusinessLogicSyscallHandler):
             entry_point_type=entry_point_type,
             calldata=calldata,
             caller_address=caller_address,
+            initial_gas=10**10,
         )
 
         return self.execute_entry_point(call=call)
 
     def _deploy(
         self,
-        segments: MemorySegmentManager,
         syscall_ptr: RelocatableValue,
     ) -> int:
         request = self._read_and_validate_syscall_request(
-            syscall_name="deploy", segments=segments, syscall_ptr=syscall_ptr
+            syscall_name="deploy", syscall_ptr=syscall_ptr
         )
         assert request.deploy_from_zero in [
             0,
             1,
         ], "The deploy_from_zero field in the deploy system call must be 0 or 1."
-        constructor_calldata = segments.memory.get_range_as_ints(
+        constructor_calldata = self.segments.memory.get_range_as_ints(
             addr=cast(RelocatableValue, request.constructor_calldata),
             size=cast(int, request.constructor_calldata_size),
         )
@@ -185,14 +183,13 @@ class CheatableSysCallHandler(BusinessLogicSyscallHandler):
         # endregion
 
         # Initialize the contract.
-        class_hash_bytes = to_bytes(class_hash)
         self.sync_state.deploy_contract(
-            contract_address=contract_address, class_hash=class_hash_bytes
+            contract_address=contract_address, class_hash=class_hash
         )
 
         self.execute_constructor_entry_point(
             contract_address=contract_address,
-            class_hash_bytes=class_hash_bytes,
+            class_hash=class_hash,
             constructor_calldata=constructor_calldata,
         )
 

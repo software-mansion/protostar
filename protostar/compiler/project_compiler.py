@@ -6,9 +6,13 @@ from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
     PreprocessorError,
 )
 from starkware.cairo.lang.vm.vm_exceptions import VmException
-from starkware.starknet.services.api.contract_class.contract_class import ContractClass
+from starkware.starknet.core.os.contract_class.deprecated_class_hash import (
+    compute_deprecated_class_hash,
+)
+from starkware.starknet.services.api.contract_class.contract_class import (
+    DeprecatedCompiledClass,
+)
 from starkware.starkware_utils.error_handling import StarkException
-from starkware.starknet.core.os.class_hash import compute_class_hash
 
 from protostar.compiler.compiled_contract_writer import CompiledContractWriter
 from protostar.configuration_file.configuration_file import ConfigurationFile
@@ -54,7 +58,7 @@ class ProjectCompiler:
         class_hashes = {}
         for contract_name in self._configuration_file.get_contract_names():
             contract = self.compile_contract_from_contract_name(contract_name, config)
-            class_hash = compute_class_hash(contract_class=contract)
+            class_hash = compute_deprecated_class_hash(contract_class=contract)
             class_hashes[contract_name] = class_hash
             CompiledContractWriter(contract, contract_name).save(
                 output_dir=self.get_compilation_output_dir(output_dir)
@@ -65,7 +69,7 @@ class ProjectCompiler:
         self,
         contract_identifier: ContractIdentifier,
         config: Optional[ProjectCompilerConfig] = None,
-    ) -> ContractClass:
+    ) -> DeprecatedCompiledClass:
         if isinstance(contract_identifier, str):
             contract_identifier = (
                 Path(contract_identifier).resolve()
@@ -81,7 +85,7 @@ class ProjectCompiler:
 
     def compile_contract_from_contract_name(
         self, contract_name: str, config: Optional[ProjectCompilerConfig] = None
-    ) -> ContractClass:
+    ) -> DeprecatedCompiledClass:
         try:
             contract_paths = self._configuration_file.get_contract_source_paths(
                 contract_name
@@ -95,7 +99,7 @@ class ProjectCompiler:
 
     def compile_contract_from_contract_source_paths(
         self, contract_paths: List[Path], config: Optional[ProjectCompilerConfig] = None
-    ) -> ContractClass:
+    ) -> DeprecatedCompiledClass:
         current_config = config or self._default_config
 
         return StarknetCompiler(

@@ -7,7 +7,11 @@ from starkware.starknet.business_logic.state.state_api_objects import BlockInfo
 from starkware.starknet.business_logic.state.state_api import StateReader
 
 from starkware.starknet.business_logic.fact_state.state import CarriedState
-from starkware.starknet.business_logic.state.state import CachedState, StateSyncifier, CompiledClassCache
+from starkware.starknet.business_logic.state.state import (
+    CachedState,
+    StateSyncifier,
+    CompiledClassCache,
+)
 from typing_extensions import Self
 
 from protostar.starknet.cheaters import BlockInfoCheater, Cheaters
@@ -15,6 +19,9 @@ from protostar.starknet.types import ClassHashType, SelectorType
 from protostar.starknet.data_transformer import CairoOrPythonData
 
 from protostar.starknet.address import Address
+from starkware.starknet.services.api.contract_class.contract_class import (
+    DeprecatedCompiledClass,
+)
 
 
 # pylint: disable=too-many-instance-attributes
@@ -131,6 +138,14 @@ class CheatableCachedState(CachedState):
     ):
         for selector, name in local_event_selector_to_name_map.items():
             self.event_selector_to_name_map[selector] = name
+
+    async def set_contract_class(
+        self, class_hash: int, contract_class: DeprecatedCompiledClass
+    ):
+        self.contract_classes[class_hash] = contract_class
+
+    async def get_contract_class(self, class_hash: int) -> DeprecatedCompiledClass:
+        return await self.get_compiled_class(class_hash)
 
     def get_abi_from_contract_address(self, contract_address: int) -> AbiType:
         if contract_address not in self.contract_address_to_class_hash_map:

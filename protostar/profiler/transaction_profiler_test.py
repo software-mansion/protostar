@@ -2,9 +2,6 @@ from dataclasses import replace
 from typing import Dict, List, Tuple
 
 import pytest
-from starkware.starknet.business_logic.execution.execute_entry_point import (
-    ContractEntryPoint,
-)
 from protostar.profiler.contract_profiler import Function, RuntimeProfile, Instruction
 from protostar.profiler.transaction_profiler import (
     build_global_functions,
@@ -18,6 +15,9 @@ from protostar.profiler.transaction_profiler import (
 from protostar.starknet.cheatable_execute_entry_point import (
     ContractProfile,
     ContractFilename,
+)
+from starkware.starknet.services.api.contract_class.contract_class import (
+    ContractEntryPoint,
 )
 
 profile = RuntimeProfile(

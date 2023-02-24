@@ -30,7 +30,7 @@ def test_compilator_and_parser(mocker: MockerFixture, datadir: Path):
     cheat_mock.return_value = type("return_value", (object,), {"err_code": 0})()
     # TODO https://github.com/software-mansion/protostar/issues/1434
     for case in test_suite.test_cases:
-        runner = CairoFunctionRunner(program=test_suite.program, layout="all")
+        runner = CairoFunctionRunner(program=test_suite.program, layout="starknet")
         runner.run_from_entrypoint(
             case.offset,
             *[],

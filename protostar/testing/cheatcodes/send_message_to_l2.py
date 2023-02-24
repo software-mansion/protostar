@@ -5,7 +5,10 @@ from starkware.starknet.business_logic.execution.execute_entry_point import (
 )
 from starkware.starknet.business_logic.execution.objects import CallType
 from starkware.starknet.public.abi import get_selector_from_name, AbiType
-from starkware.starknet.services.api.contract_class.contract_class import EntryPointType
+from starkware.starknet.services.api.contract_class.contract_class import (
+    EntryPointType,
+    DeprecatedCompiledClass,
+)
 
 from protostar.starknet import Cheatcode, CheatcodeException
 from protostar.starknet.data_transformer import (
@@ -53,7 +56,10 @@ class SendMessageToL2Cheatcode(Cheatcode):
         to_address = to_address if to_address else self.contract_address
 
         class_hash = self.state.get_class_hash_at(to_address)
-        contract_class = self.state.get_contract_class(class_hash)
+        contract_class = self.state.get_compiled_class(class_hash)
+        assert isinstance(
+            contract_class, DeprecatedCompiledClass
+        ), "Cairo1 class used instead of cairo0 class"
 
         if not contract_class.abi:
             raise CheatcodeException(
@@ -81,5 +87,6 @@ class SendMessageToL2Cheatcode(Cheatcode):
                 entry_point_type=EntryPointType.L1_HANDLER,
                 call_type=CallType.DELEGATE,
                 class_hash=class_hash,
+                initial_gas=10**10,
             )
         )

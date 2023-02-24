@@ -5,8 +5,8 @@ from pathlib import Path
 from typing import Dict, Optional
 
 from starkware.starknet.business_logic.state.state import (
-    ContractClassCache,
     CachedState,
+    CompiledClassCache,
 )
 from starkware.starknet.public.abi import AbiType
 from starkware.starknet.business_logic.state.state_api_objects import BlockInfo
@@ -20,6 +20,9 @@ from protostar.starknet.selector import Selector
 from protostar.starknet.types import ClassHashType
 from protostar.starknet.data_transformer import CairoData
 from protostar.cheatable_starknet.controllers.expect_call_controller import ExpectedCall
+from starkware.starknet.services.api.contract_class.contract_class import (
+    DeprecatedCompiledClass,
+)
 
 
 # pylint: disable=too-many-instance-attributes
@@ -28,7 +31,7 @@ class CheatableCachedState(CachedState):
         self,
         block_info: BlockInfo,
         state_reader: StateReader,
-        contract_class_cache: ContractClassCache,
+        contract_class_cache: CompiledClassCache,
     ):
         super().__init__(
             block_info=block_info,
@@ -78,6 +81,14 @@ class CheatableCachedState(CachedState):
 
     def get_block_info(self, contract_address: int) -> BlockInfo:
         return BlockInfoController(self).get_for_contract(Address(contract_address))
+
+    async def set_contract_class(
+        self, class_hash: int, contract_class: DeprecatedCompiledClass
+    ):
+        self.contract_classes[class_hash] = contract_class
+
+    async def get_contract_class(self, class_hash: int) -> DeprecatedCompiledClass:
+        return await self.get_compiled_class(class_hash)
 
     def _copy(self):
         copied = CheatableCachedState(
