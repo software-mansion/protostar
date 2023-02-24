@@ -37,5 +37,6 @@ async def test_roll_cheatcode(protostar: ProtostarFixture):
         expected_passed_test_cases_names=[
             "test_roll",
             "test_roll_with_invoke",
+            "test_roll_with_invoke_depth_2",
         ],
     )

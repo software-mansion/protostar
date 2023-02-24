@@ -33,5 +33,9 @@ async def test_warp_cheatcode(protostar: ProtostarFixture):
 
     assert_cairo_test_cases(
         testing_summary,
-        expected_passed_test_cases_names=["test_warp", "test_warp_with_invoke"],
+        expected_passed_test_cases_names=[
+            "test_warp",
+            "test_warp_with_invoke",
+            "test_warp_with_invoke_depth_2",
+        ],
     )
