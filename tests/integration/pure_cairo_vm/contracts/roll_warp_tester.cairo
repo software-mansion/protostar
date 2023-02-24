@@ -52,7 +52,7 @@ func block_number_setter{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_c
 }
 
 @contract_interface
-namespace TimestampAndBlockNumberSetter {
+namespace TimestampAndBlockNumberTesterContract {
     func block_timestamp_setter() {
     }
 
@@ -62,12 +62,12 @@ namespace TimestampAndBlockNumberSetter {
 
 @external
 func call_block_timestamp_setter{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(contract_address: felt) {
-    TimestampAndBlockNumberSetter.block_timestamp_setter(contract_address=contract_address);
+    TimestampAndBlockNumberTesterContract.block_timestamp_setter(contract_address=contract_address);
     return ();
 }
 
 @external
 func call_block_number_setter{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(contract_address: felt) {
-    TimestampAndBlockNumberSetter.block_number_setter(contract_address=contract_address);
+    TimestampAndBlockNumberTesterContract.block_number_setter(contract_address=contract_address);
     return ();
 }
