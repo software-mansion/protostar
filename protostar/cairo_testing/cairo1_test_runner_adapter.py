@@ -15,7 +15,12 @@ from protostar.testing.test_case_runners.cairo1_test_case_runner import (
 )
 
 from protostar.testing.test_config import TestConfig
-from protostar.testing.test_suite import Cairo1TestSuite, TestSuite, TestCase
+from protostar.testing.test_suite import (
+    Cairo1TestSuite,
+    TestSuite,
+    TestCase,
+    TestCaseWithOffsets,
+)
 from protostar.testing.testing_seed import Seed
 
 
@@ -50,7 +55,7 @@ class Cairo1TestRunnerAdapter(CairoTestRunner):
 
             protostar_casm = ProtostarCasm.from_json(casm_json)
 
-            test_suite.add_offsets_to_cases(protostar_casm.offset_map)
+            test_suite.add_offsets_to_cases(offset_map=protostar_casm.offset_map)
 
             await self._invoke_test_cases(
                 test_suite=test_suite,
@@ -65,7 +70,9 @@ class Cairo1TestRunnerAdapter(CairoTestRunner):
         program: Program,
     ) -> TestResult:
         state: CairoTestExecutionState = initial_state.fork()
-
+        assert isinstance(
+            test_case, TestCaseWithOffsets
+        ), "Cairo 1 runner only supports test cases with offsets!"
         # TODO #1537: Plug in setups
         # if test_case.setup_fn_name:
         #     setup_case_result = await self._run_setup_case(
