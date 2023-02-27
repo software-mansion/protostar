@@ -59,3 +59,7 @@ def test_declare(mocker: MockerFixture, datadir: Path):
 
 def test_start_prank(mocker: MockerFixture, datadir: Path):
     check_library_function(mocker, "start_prank", datadir / "start_prank_test.cairo")
+
+
+def test_warp(mocker: MockerFixture, datadir: Path):
+    check_library_function(mocker, "warp", datadir / "warp_test.cairo")
