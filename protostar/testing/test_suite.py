@@ -80,17 +80,16 @@ class Cairo1TestSuite(TestSuite):
                 test_case, TestCase
             ), f"Test case {test_case.test_fn_name} is not a plain test case!"
 
-        mapped_cases = [
+        self.test_cases = [
             self._convert_to_case_with_offsets(test_case=case, offset_map=offset_map)
             for case in self.test_cases
         ]
-        self.test_cases.extend(mapped_cases)
 
     def _convert_to_case_with_offsets(
         self, test_case: TestCase, offset_map: dict[str, Offset]
     ) -> TestCaseWithOffsets:
         test_fn_offset = offset_map.get(test_case.test_fn_name)
-        if not test_fn_offset:
+        if test_fn_offset is None:
             raise KeyError(
                 f"No code offset found for test function: {test_case.test_fn_name}"
             )

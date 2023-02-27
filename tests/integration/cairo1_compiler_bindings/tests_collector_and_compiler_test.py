@@ -29,9 +29,7 @@ def test_compilator_and_parser(mocker: MockerFixture, datadir: Path):
     # TODO https://github.com/software-mansion/protostar/issues/1434
     cairo_runner_facade = CairoRunnerFacade(program=protostar_casm.program)
     for offset in protostar_casm.offset_map.values():
-        cairo_runner_facade.run_from_offset(
-            offset=offset, hint_locals={"roll": cheat_mock}
-        )
+        cairo_runner_facade.run_from_offset(offset, hint_locals={"roll": cheat_mock})
 
     assert cheat_mock.call_count == 6
 
