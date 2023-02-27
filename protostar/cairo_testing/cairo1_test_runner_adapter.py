@@ -66,7 +66,7 @@ class Cairo1TestRunnerAdapter(CairoTestRunner):
     ) -> TestResult:
         state: CairoTestExecutionState = initial_state.fork()
 
-        # TODO: Plug in setups
+        # TODO #1537: Plug in setups
         # if test_case.setup_fn_name:
         #     setup_case_result = await self._run_setup_case(
         #         test_case=test_case, state=state, program=program
