@@ -400,6 +400,7 @@ class ProtostarFixture:
         target: Union[str, Path],
         cairo_test_runner: bool = False,
         cairo1_test_runner: bool = False,
+        cairo_path: Optional[List[Path]] = None,
     ) -> TestingSummary:
         """
         Runs test runner safely, without assertions on state of the summary and cache mechanism
@@ -422,6 +423,7 @@ class ProtostarFixture:
             messenger=messenger_factory.human(),
             use_cairo_test_runner=cairo_test_runner,
             use_cairo1_test_runner=cairo1_test_runner,
+            cairo_path=cairo_path,
         )
 
     def _parse(
