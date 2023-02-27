@@ -24,7 +24,7 @@ async def test_l1_to_l2_message_cheatcode(
     protostar.create_contracts(
         {
             "l1_handler_contract": CONTRACTS_PATH / "l1_handler_contract.cairo",
-            "roll_warp_tester": CONTRACTS_PATH / "roll_warp_tester.cairo",
+            "warp_contract": CONTRACTS_PATH / "warp_contract.cairo",
         }
     )
 

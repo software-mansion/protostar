@@ -23,7 +23,7 @@ def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
 async def test_stop_roll_cheatcode(protostar: ProtostarFixture):
     protostar.create_files(
         {
-            "src/main.cairo": CONTRACTS_PATH / "roll_warp_tester.cairo",
+            "src/main.cairo": CONTRACTS_PATH / "roll_contract.cairo",
         }
     )
 

@@ -13,7 +13,7 @@ func test_warp(){
 
     local stored_block_timestamp;
     %{
-        ids.stored_block_timestamp = call(ids.deployed_contract_address, "timestamp_getter").ok[0]
+        ids.stored_block_timestamp = call(ids.deployed_contract_address, "get_syscall_block_timestamp").ok[0]
     %}
 
     assert stored_block_timestamp = 123;
@@ -33,11 +33,11 @@ func test_warp_with_invoke(){
     assert_not_zero(deployed_contract_address);
 
     // Set the storage variable stored_block_timestamp to warped value
-    %{ assert invoke(ids.deployed_contract_address, "block_timestamp_setter").err_code == 0 %}
+    %{ assert invoke(ids.deployed_contract_address, "set_stored_block_timestamp_to_syscall_value").err_code == 0 %}
 
     // Retrieve the stored value
     local stored_block_timestamp;
-    %{ ids.stored_block_timestamp = call(ids.deployed_contract_address, "stored_block_timestamp_getter").ok[0] %}
+    %{ ids.stored_block_timestamp = call(ids.deployed_contract_address, "get_stored_block_timestamp").ok[0] %}
     assert stored_block_timestamp = 123;
 
     return ();
@@ -59,11 +59,12 @@ func test_warp_with_invoke_depth_2(){
     assert_not_zero(deployed_contract_address_B);
 
     // Set the storage variable stored_block_timestamp of contract B to warped value
-    %{ assert invoke(ids.deployed_contract_address_A, "call_block_timestamp_setter", [ids.deployed_contract_address_B]).err_code == 0 %}
+    %{ assert invoke(ids.deployed_contract_address_A, "call_set_stored_block_timestamp_to_syscall_value",
+       [ids.deployed_contract_address_B]).err_code == 0 %}
 
     // Retrieve the stored value from contract B
     local stored_block_timestamp_B;
-    %{ ids.stored_block_timestamp_B = call(ids.deployed_contract_address_B, "stored_block_timestamp_getter").ok[0] %}
+    %{ ids.stored_block_timestamp_B = call(ids.deployed_contract_address_B, "get_stored_block_timestamp").ok[0] %}
     assert stored_block_timestamp_B = 123;
 
     return ();

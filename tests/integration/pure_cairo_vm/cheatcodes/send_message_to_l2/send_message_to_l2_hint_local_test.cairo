@@ -33,12 +33,12 @@ func test_other_cheatcodes_impact_l1_handler() {
 
 func test_other_cheatcodes_impact_contracts_called_from_l1_handler() {
     %{
-        tester_address = deploy_contract("roll_warp_tester").ok.contract_address
+        tester_address = deploy_contract("warp_contract").ok.contract_address
         contract_address = deploy_contract("l1_handler_contract").ok.contract_address
         fake_block_timestamp = 321
         assert warp(tester_address, fake_block_timestamp).err_code == 0
         assert send_message_to_l2(
-            function_name="call_set_block_timestamp",
+            function_name="call_set_set_stored_block_timestamp_to_syscall_value_and_get_its_value",
             from_address=123,
             to_address=contract_address,
             payload=[tester_address],
