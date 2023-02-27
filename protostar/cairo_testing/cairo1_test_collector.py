@@ -64,8 +64,7 @@ class Cairo1TestCollector(TestCollector):
         fn_names = set(function_names)
         for test_fn_name in fn_names:
             setup_fn_name = setup_prefix + test_fn_name
-            if setup_fn_name not in fn_names:
-                setup_fn_name = None
+            setup_fn_name = setup_fn_name if setup_fn_name in fn_names else None
 
             yield TestCase(
                 test_path=test_path,
