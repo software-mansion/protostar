@@ -227,7 +227,7 @@ class GatewayFacade(MulticallClientProtocol):
             )
         except ClientError as ex:
             message = (
-                f"No account associated with provided account address found. Contact your wallet provider."
+                "No account associated with provided account address found. Contact your wallet provider."
                 if "StarknetErrorCode.UNINITIALIZED_CONTRACT" in ex.message
                 else ex.message
             )
