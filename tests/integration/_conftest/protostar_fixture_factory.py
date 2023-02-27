@@ -47,7 +47,7 @@ def fake_activity_indicator(message: str) -> Generator[None, None, None]:
     yield
 
 
-REPOSITORY_ROOT = (Path(__file__).parent / ".." / ".." / "..").resolve()
+REPOSITORY_ROOT = Path(__file__).parent.parent.parent.parent.resolve()
 
 
 def create_protostar_fixture(
