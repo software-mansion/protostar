@@ -43,7 +43,7 @@ class CairoInjectableFunctionRunner:
     ):
         with self.vm_exception_handling():
             self._cairo_runner_facade.run_from_offset(
-                offset=offset, hint_locals={}, *args, **kwargs
+                offset=offset, hint_locals=self._hint_locals, *args, **kwargs
             )
 
     def run_cairo_function_by_name(
@@ -55,7 +55,7 @@ class CairoInjectableFunctionRunner:
         with self.vm_exception_handling():
             self._cairo_runner_facade.run_by_function_name(
                 function_name,
-                hint_locals={},
+                hint_locals=self._hint_locals,
                 *args,
                 **kwargs,
             )
