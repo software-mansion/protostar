@@ -2,10 +2,7 @@ from typing import Optional
 
 from starkware.cairo.lang.compiler.program import Program
 
-from protostar.cairo.cairo1_test_suite_parser import (
-    get_test_name_to_offset_map_from_casm,
-    program_from_casm,
-)
+from protostar.cairo.cairo1_test_suite_parser import ProtostarCasm
 import protostar.cairo.cairo_bindings as cairo1
 from protostar.cairo_testing import CairoTestExecutionState
 from protostar.cairo_testing.cairo_test_runner import CairoTestRunner
@@ -51,14 +48,13 @@ class Cairo1TestRunnerAdapter(CairoTestRunner):
 
             assert casm_json, f"No CASM was emitted for {test_suite.test_path}"
 
-            offset_map = get_test_name_to_offset_map_from_casm(casm_json)
-            program = program_from_casm(casm_json)
+            protostar_casm = ProtostarCasm.from_json(casm_json)
 
-            test_suite.add_offsets_to_cases(offset_map)
+            test_suite.add_offsets_to_cases(protostar_casm.offset_map)
 
             await self._invoke_test_cases(
                 test_suite=test_suite,
-                program=program,
+                program=protostar_casm.program,
                 test_execution_state=test_execution_state,
             )
 

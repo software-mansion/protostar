@@ -28,29 +28,36 @@ def build_instruction_pc_to_hint(
     return hints
 
 
-def program_from_casm(casm_json: dict) -> Program:
-    prime: int = IntAsHex()._deserialize(casm_json["prime"], None, None)  # pylint
-    data: list[int] = [
-        IntAsHex()._deserialize(v, None, None) for v in casm_json["bytecode"]
-    ]
-    instruction_pc_to_hint = build_instruction_pc_to_hint(casm_json)
-    builtins = []
-
-    return Program(
-        prime=prime,
-        data=data,
-        hints=instruction_pc_to_hint,
-        builtins=builtins,
-        main_scope=None,
-        identifiers=None,
-        reference_manager=None,
-        compiler_version="111v",
-        attributes=[],
-        debug_info=None,
-    )  # type: ignore
+TestName = str
 
 
-def get_test_name_to_offset_map_from_casm(casm_json: dict) -> dict[str, Offset]:
-    return {
-        case["name"]: int(case["offset"]) for case in casm_json["test_entry_points"]
-    }
+@dataclass
+class ProtostarCasm:
+    program: Program
+    offset_map: dict[TestName, Offset]
+
+    @classmethod
+    def from_json(cls, casm_json: dict):
+        prime: int = IntAsHex()._deserialize(casm_json["prime"], None, None)  # pylint
+        data: list[int] = [
+            IntAsHex()._deserialize(v, None, None) for v in casm_json["bytecode"]
+        ]
+        instruction_pc_to_hint = build_instruction_pc_to_hint(casm_json)
+        builtins = []
+
+        program = Program(
+            prime=prime,
+            data=data,
+            hints=instruction_pc_to_hint,
+            builtins=builtins,
+            main_scope=None,
+            identifiers=None,
+            reference_manager=None,
+            compiler_version="111v",
+            attributes=[],
+            debug_info=None,
+        )  # type: ignore
+        offset_map = {
+            case["name"]: int(case["offset"]) for case in casm_json["test_entry_points"]
+        }
+        return cls(program=program, offset_map=offset_map)
