@@ -53,6 +53,11 @@ class TestSuite:
         return [tc.test_fn_name for tc in self.test_cases]
 
     def add_offsets_to_cases(self, offset_map: dict[str, Offset]):
+        for test_case in self.test_cases:
+            assert isinstance(
+                test_case, TestCase
+            ), f"Test offset already added for {test_case.test_fn_name}"
+
         self.test_cases = [
             TestCaseWithOffsets(
                 test_path=case.test_path,
