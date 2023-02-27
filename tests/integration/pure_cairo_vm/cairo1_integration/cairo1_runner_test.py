@@ -35,5 +35,4 @@ async def test_cairo_1_runner(protostar: ProtostarFixture):
         expected_passed_test_cases_names=[
             "test_cairo1::test_cairo1::passing_test",
         ],
-        expected_failed_test_cases_names=[],
     )
