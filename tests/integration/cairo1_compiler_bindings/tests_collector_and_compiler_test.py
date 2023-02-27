@@ -5,10 +5,7 @@ from pytest_mock import MockerFixture
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.cairo.lang.vm.utils import RunResources
 
-from protostar.cairo.cairo1_test_suite_parser import (
-    program_from_casm,
-    get_test_name_to_offset_map_from_casm,
-)
+from protostar.cairo.cairo1_test_suite_parser import ProtostarCasm
 import protostar.cairo.cairo_bindings as cairo1
 
 
@@ -27,14 +24,13 @@ def test_compilator_and_parser(mocker: MockerFixture, datadir: Path):
     )
     assert protostar_casm_json
 
-    program = program_from_casm(protostar_casm_json)
-    test_name_to_offset_map = get_test_name_to_offset_map_from_casm(protostar_casm_json)
+    protostar_casm = ProtostarCasm.from_json(protostar_casm_json)
 
     cheat_mock = mocker.MagicMock()
     cheat_mock.return_value = type("return_value", (object,), {"err_code": 0})()
     # TODO https://github.com/software-mansion/protostar/issues/1434
-    for offset in test_name_to_offset_map.values():
-        runner = CairoFunctionRunner(program=program, layout="all")
+    for offset in protostar_casm.offset_map.values():
+        runner = CairoFunctionRunner(program=protostar_casm.program, layout="all")
         runner.run_from_entrypoint(
             offset,
             *[],

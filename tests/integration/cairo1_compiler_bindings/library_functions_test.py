@@ -6,8 +6,7 @@ from starkware.cairo.lang.vm.utils import RunResources
 
 import protostar.cairo.cairo_bindings as cairo1
 from protostar.cairo.cairo1_test_suite_parser import (
-    program_from_casm,
-    get_test_name_to_offset_map_from_casm,
+    ProtostarCasm,
 )
 
 
@@ -35,11 +34,10 @@ def check_library_function(
     )
     assert protostar_casm_json
     for mocked_error_code in [0, 1, 50]:
-        program = program_from_casm(protostar_casm_json)
-        test_name_to_offset = get_test_name_to_offset_map_from_casm(protostar_casm_json)
+        protostar_casm = ProtostarCasm.from_json(protostar_casm_json)
 
-        for offset in test_name_to_offset.values():
-            runner = CairoFunctionRunner(program, layout="all")
+        for offset in protostar_casm.offset_map.values():
+            runner = CairoFunctionRunner(protostar_casm.program, layout="all")
             runner.run_from_entrypoint(
                 offset,
                 *[],

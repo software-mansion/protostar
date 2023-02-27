@@ -15,15 +15,12 @@ def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
         yield protostar
 
 
-CAIRO_PROJECT_CONTENTS = """
-    [crate_roots]
-    root = "."
-"""
-
-
-async def test_cairo_1_runner(protostar: ProtostarFixture):
+async def test_cairo_1_runner(protostar: ProtostarFixture, shared_datadir: Path):
     protostar.create_files(
-        {"cairo_project.toml": CAIRO_PROJECT_CONTENTS, "lib.cairo": ""}
+        {
+            "cairo_project.toml": shared_datadir / "cairo_project.toml",
+            "lib.cairo": shared_datadir / "lib.cairo",
+        }
     )
     testing_summary = await protostar.run_test_runner(
         Path(__file__).parent / "test_cairo1.cairo",
@@ -35,5 +32,4 @@ async def test_cairo_1_runner(protostar: ProtostarFixture):
         expected_passed_test_cases_names=[
             "test_cairo1::test_cairo1::passing_test",
         ],
-        expected_failed_test_cases_names=[],
     )
