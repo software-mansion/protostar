@@ -178,6 +178,7 @@ A glob or globs to a directory or a test suite, for example:
             slowest_tests_to_report_count=args.report_slowest_tests,
             gas_estimation_enabled=args.estimate_gas,
             messenger=messenger,
+            use_cairo1_test_runner=args.cairo1,
         )
         cache.write_failed_tests_to_cache(summary)
 
@@ -227,6 +228,9 @@ A glob or globs to a directory or a test suite, for example:
                 disable_hint_validation=True,
                 include_paths=include_paths,
             )
+
+            print("XDDDDDD")
+            print(compiler_config.include_paths)
             if use_cairo1_test_runner:
                 test_collector = Cairo1TestCollector(compiler_config.include_paths)
             elif use_cairo_test_runner:
