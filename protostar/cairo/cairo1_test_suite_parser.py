@@ -22,9 +22,9 @@ def build_instruction_pc_to_hint(
     casm_json: dict,
 ) -> dict[InstructionPc, list[CairoHintCode]]:
     hints: dict[InstructionPc, list[CairoHintCode]] = {}
-    for h in casm_json["hints"]:
-        codes = [CairoHintCode(str(e), [None], None) for e in h[1]]
-        hints[int(h[0])] = codes
+    for hint in casm_json["hints"]:
+        codes = [CairoHintCode(str(e), [None], None) for e in hint[1]]
+        hints[int(hint[0])] = codes
     return hints
 
 
