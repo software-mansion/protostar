@@ -59,7 +59,7 @@ func test_warp_with_invoke_depth_2(){
     assert_not_zero(deployed_contract_address_B);
 
     // Set the storage variable stored_block_timestamp of contract B to warped value
-    %{ assert invoke(ids.deployed_contract_address_A, "call_set_stored_block_timestamp_to_syscall_value",
+    %{ assert invoke(ids.deployed_contract_address_A, "invoke_set_stored_block_timestamp_to_syscall_value",
        [ids.deployed_contract_address_B]).err_code == 0 %}
 
     // Retrieve the stored value from contract B

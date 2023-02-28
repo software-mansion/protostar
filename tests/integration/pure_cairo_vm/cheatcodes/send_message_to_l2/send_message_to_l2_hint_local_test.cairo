@@ -38,7 +38,7 @@ func test_other_cheatcodes_impact_contracts_called_from_l1_handler() {
         fake_block_timestamp = 321
         assert warp(tester_address, fake_block_timestamp).err_code == 0
         assert send_message_to_l2(
-            function_name="call_set_set_stored_block_timestamp_to_syscall_value_and_get_its_value",
+            function_name="invoke_set_stored_block_timestamp_to_syscall_value",
             from_address=123,
             to_address=contract_address,
             payload=[tester_address],

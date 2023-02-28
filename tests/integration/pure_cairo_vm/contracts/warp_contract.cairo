@@ -34,7 +34,7 @@ namespace TimestampTesterContract {
 }
 
 @external
-func call_set_stored_block_timestamp_to_syscall_value{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(contract_address: felt) {
+func invoke_set_stored_block_timestamp_to_syscall_value{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(contract_address: felt) {
     TimestampTesterContract.set_stored_block_timestamp_to_syscall_value(contract_address=contract_address);
     return ();
 }
