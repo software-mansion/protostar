@@ -11,6 +11,7 @@ from starkware.starkware_utils.error_handling import StarkException
 from starkware.starknet.core.os.class_hash import compute_class_hash
 
 from protostar.compiler.compiled_contract_writer import CompiledContractWriter
+from protostar.compiler.project_cairo_path_builder import LinkedLibrariesBuilder
 from protostar.configuration_file.configuration_file import ConfigurationFile
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet import (
@@ -19,7 +20,6 @@ from protostar.starknet import (
     StarknetCompilerConfig,
 )
 
-from .project_cairo_path_builder import ProjectCairoPathBuilder
 
 ContractName = str
 ContractSourcePath = Path
@@ -37,7 +37,7 @@ class ProjectCompiler:
     def __init__(
         self,
         project_root_path: Path,
-        project_cairo_path_builder: ProjectCairoPathBuilder,
+        project_cairo_path_builder: LinkedLibrariesBuilder,
         configuration_file: ConfigurationFile,
         default_config: Optional[ProjectCompilerConfig] = None,
     ):

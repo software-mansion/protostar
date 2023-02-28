@@ -1,7 +1,5 @@
 import os
-import pytest
 from tests.e2e.conftest import CopyFixture, ProtostarFixture
-
 
 
 def test_testing(protostar: ProtostarFixture, copy_fixture: CopyFixture):

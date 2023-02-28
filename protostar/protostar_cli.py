@@ -9,7 +9,7 @@ from typing import Any, List, Optional
 from protostar.argument_parser import CLIApp
 from protostar.cli import ProtostarArgument, ProtostarCommand
 from protostar.commands import MigrateConfigurationFileCommand
-from protostar.compiler import ProjectCairoPathBuilder
+from protostar.compiler import LinkedLibrariesBuilder
 from protostar.configuration_file import (
     CommandNamesProviderProtocol,
     ConfigurationFile,
@@ -38,7 +38,7 @@ class ProtostarCLI(CLIApp, CommandNamesProviderProtocol):
     def __init__(
         self,
         log_color_provider: LogColorProvider,
-        project_cairo_path_builder: ProjectCairoPathBuilder,
+        project_cairo_path_builder: LinkedLibrariesBuilder,
         latest_version_checker: LatestVersionChecker,
         version_manager: VersionManager,
         commands: List[ProtostarCommand],
@@ -118,10 +118,12 @@ class ProtostarCLI(CLIApp, CommandNamesProviderProtocol):
             cairo_path_arg = vars(args).get("cairo_path")
             self._extend_pythonpath_with_cairo_path(cairo_path_arg)
             _apply_pythonpath()
-        
+
         # This is only temporary until all commands will support cairo1 variants
         if args.cairo1 and args.command not in ["test"]:
-            raise ProtostarException(f"Command {args.command} does not have cairo1 variant for now")
+            raise ProtostarException(
+                f"Command {args.command} does not have cairo1 variant for now"
+            )
 
         await super().run(args)
 

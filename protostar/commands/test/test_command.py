@@ -8,7 +8,7 @@ from protostar.commands.test.messages.testing_summary_message import (
     TestingSummaryResultMessage,
 )
 from protostar.commands.test.testing_live_logger import TestingLiveLogger
-from protostar.compiler import ProjectCairoPathBuilder
+from protostar.compiler import LinkedLibrariesBuilder
 from protostar.io.log_color_provider import LogColorProvider
 from protostar.protostar_exception import ProtostarException
 from protostar.self.cache_io import CacheIO
@@ -40,7 +40,7 @@ class TestCommand(ProtostarCommand):
         self,
         project_root_path: Path,
         protostar_directory: ProtostarDirectory,
-        project_cairo_path_builder: ProjectCairoPathBuilder,
+        project_cairo_path_builder: LinkedLibrariesBuilder,
         log_color_provider: LogColorProvider,
         cwd: Path,
         active_profile_name: Optional[str],
@@ -209,7 +209,7 @@ A glob or globs to a directory or a test suite, for example:
                 self._protostar_directory.protostar_test_only_cairo_packages_path,
                 self._protostar_directory.protostar_cairo1_corelib_path,
                 *self._project_cairo_path_builder.build_project_cairo_path_list(
-                    cairo_path or [], include_root=(not use_cairo1_test_runner)
+                    cairo_path or []
                 ),
             ]
         ]

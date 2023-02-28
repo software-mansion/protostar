@@ -192,7 +192,6 @@ def build_di_container(
         TestCairo1Command(
             project_root_path,
             protostar_directory,
-            project_cairo_path_builder,
             log_color_provider=log_color_provider,
             active_profile_name=active_configuration_profile_name,
             cwd=cwd,

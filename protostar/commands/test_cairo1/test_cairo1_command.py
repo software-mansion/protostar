@@ -1,40 +1,19 @@
 from argparse import Namespace
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional
 
 from protostar.commands.test import TestCommand
 
 from protostar.cli import ProtostarArgument, ProtostarCommand, MessengerFactory
-from protostar.cli.activity_indicator import ActivityIndicator
-from protostar.commands.test.messages.testing_summary_message import (
-    TestingSummaryResultMessage,
-)
-from protostar.commands.test.testing_live_logger import TestingLiveLogger
-from protostar.compiler import ProjectCairoPathBuilder
+from protostar.compiler import LinkedLibrariesBuilder
 from protostar.io.log_color_provider import LogColorProvider
-from protostar.protostar_exception import ProtostarException
 from protostar.self.cache_io import CacheIO
 from protostar.self.protostar_directory import ProtostarDirectory
-from protostar.starknet.pass_managers import (
-    StarknetPassManagerFactory,
-    TestCollectorPassManagerFactory,
-)
-from protostar.starknet import StarknetCompiler
-from protostar.cairo import CairoCompiler, CairoCompilerConfig
 from protostar.testing import (
-    TestCollector,
     TestingSummary,
-    TestRunner,
-    TestScheduler,
-    determine_testing_seed,
 )
-from protostar.cairo_testing.cairo_test_runner import CairoTestRunner
-from protostar.io.output import Messenger
 
-from  protostar.commands.test import TestCollectorResultMessage
 from protostar.commands.test import TestCommandCache
-from ...cairo_testing.cairo1_test_collector import Cairo1TestCollector
-from ...cairo_testing.cairo1_test_runner_adapter import Cairo1TestRunnerAdapter
 
 
 class TestCairo1Command(ProtostarCommand):
@@ -42,7 +21,6 @@ class TestCairo1Command(ProtostarCommand):
         self,
         project_root_path: Path,
         protostar_directory: ProtostarDirectory,
-        project_cairo_path_builder: ProjectCairoPathBuilder,
         log_color_provider: LogColorProvider,
         cwd: Path,
         active_profile_name: Optional[str],
@@ -52,7 +30,7 @@ class TestCairo1Command(ProtostarCommand):
         self._log_color_provider = log_color_provider
         self._project_root_path = project_root_path
         self._protostar_directory = protostar_directory
-        self._project_cairo_path_builder = project_cairo_path_builder
+        self._project_cairo_path_builder = LinkedLibrariesBuilder()
         self._cwd = cwd
         self._active_profile_name = active_profile_name
         self._messenger_factory = messenger_factory

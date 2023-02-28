@@ -55,7 +55,9 @@ def copy_fixture(
             shutil.copytree(cairo_fixtures_dir / file, dst)
         else:
             shutil.copy(cairo_fixtures_dir / file, dst)
+
     return copy_content
+
 
 @pytest.fixture
 def project_name() -> str:
