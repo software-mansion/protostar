@@ -7,7 +7,9 @@ from unittest.mock import MagicMock
 import pytest
 from pytest_mock import MockerFixture
 
-from protostar.commands.install.pull_package_submodules import pull_package_submodules
+from protostar.commands.cairo0.install.pull_package_submodules import (
+    pull_package_submodules,
+)
 from protostar.git import GitRepository
 
 # - repo

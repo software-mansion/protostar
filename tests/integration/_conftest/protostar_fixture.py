@@ -9,7 +9,7 @@ from starknet_py.net.models import StarknetChainId
 from protostar.argument_parser import ArgumentParserFacade, CLIApp
 from protostar.cli import MessengerFactory
 from protostar.cli.signable_command_util import PRIVATE_KEY_ENV_VAR_NAME
-from protostar.commands import (
+from protostar.commands.cairo0 import (
     BuildCommand,
     CalculateAccountAddressCommand,
     CallCommand,
@@ -19,10 +19,10 @@ from protostar.commands import (
     InvokeCommand,
     MulticallCommand,
 )
-from protostar.commands.deploy_account_command import DeployAccountCommand
-from protostar.commands.deploy_command import DeployCommand
-from protostar.commands.test import TestCommand
-from protostar.commands.test.test_result_formatter import format_test_result
+from protostar.commands.cairo0.deploy_account_command import DeployAccountCommand
+from protostar.commands.cairo0.deploy_command import DeployCommand
+from protostar.commands.cairo0.test import TestCommand
+from protostar.commands.cairo0.test import format_test_result
 from protostar.configuration_file import (
     ConfigurationFileV2Model,
     ConfigurationFileV2,

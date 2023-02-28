@@ -3,10 +3,10 @@ from glob import glob
 from typing import Optional
 
 from protostar.cli import ProtostarArgument, ProtostarCommand
-from protostar.commands.init.project_creator.adapted_project_creator import (
+from protostar.commands.cairo0.init.project_creator.adapted_project_creator import (
     AdaptedProjectCreator,
 )
-from protostar.commands.init.project_creator.new_project_creator import (
+from protostar.commands.cairo0.init.project_creator.new_project_creator import (
     NewProjectCreator,
 )
 from protostar.io.input_requester import InputRequester

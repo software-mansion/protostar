@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from protostar.commands.test.test_result_formatter import format_test_result
+from protostar.commands.cairo0.test import format_test_result
 from protostar.testing import TestingSummary
 from protostar.testing.test_results import BrokenTestCaseResult
 from protostar.io.log_color_provider import log_color_provider

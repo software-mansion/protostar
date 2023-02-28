@@ -10,7 +10,7 @@ from protostar.cli import (
     ActivityIndicator,
 )
 from protostar.cli.lib_path_resolver import LibPathResolver
-from protostar.commands import (
+from protostar.commands.cairo0 import (
     BuildCommand,
     CalculateAccountAddressCommand,
     CallCommand,
@@ -28,8 +28,8 @@ from protostar.commands import (
     UpgradeCommand,
     MulticallCommand,
 )
-from protostar.commands.cairo_migrate_command import CairoMigrateCommand
-from protostar.commands.init.project_creator import (
+from protostar.commands.cairo0.cairo_migrate_command import CairoMigrateCommand
+from protostar.commands.cairo0.init.project_creator import (
     AdaptedProjectCreator,
     NewProjectCreator,
 )

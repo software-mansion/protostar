@@ -3,8 +3,8 @@ from pathlib import Path
 
 import pytest
 
-from protostar.commands.remove import removal_exceptions
-from protostar.commands.remove.remove_package import remove_package
+from protostar.commands.cairo0.remove import removal_exceptions
+from protostar.commands.cairo0.remove.remove_package import remove_package
 from protostar.git import GitRepository
 
 

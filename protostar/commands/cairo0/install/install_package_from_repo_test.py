@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from protostar.commands.install.install_package_from_repo import (
+from protostar.commands.cairo0.install.install_package_from_repo import (
     install_package_from_repo,
 )
 from protostar.git import GitRepository

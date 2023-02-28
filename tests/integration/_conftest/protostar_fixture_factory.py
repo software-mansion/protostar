@@ -7,7 +7,7 @@ from pytest_mock import MockerFixture
 
 from protostar.argument_parser import ArgumentParserFacade, CLIApp
 from protostar.cli import map_protostar_type_name_to_parser, MessengerFactory
-from protostar.commands import (
+from protostar.commands.cairo0 import (
     BuildCommand,
     CalculateAccountAddressCommand,
     CallCommand,
@@ -17,12 +17,12 @@ from protostar.commands import (
     InvokeCommand,
     MulticallCommand,
 )
-from protostar.commands.deploy_account_command import DeployAccountCommand
-from protostar.commands.deploy_command import DeployCommand
-from protostar.commands.init.project_creator.new_project_creator import (
+from protostar.commands.cairo0.deploy_account_command import DeployAccountCommand
+from protostar.commands.cairo0.deploy_command import DeployCommand
+from protostar.commands.cairo0.init.project_creator.new_project_creator import (
     NewProjectCreator,
 )
-from protostar.commands.test import TestCommand
+from protostar.commands.cairo0.test import TestCommand
 from protostar.compiler import ProjectCairoPathBuilder, ProjectCompiler
 from protostar.configuration_file import (
     ConfigurationFileFactory,

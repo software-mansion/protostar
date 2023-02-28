@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from protostar.commands.test.test_result_formatter import format_test_result
+from protostar.commands.cairo0.test import format_test_result
 from protostar.io.log_color_provider import log_color_provider
 
 from tests.integration.conftest import (
