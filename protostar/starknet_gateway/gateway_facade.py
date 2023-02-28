@@ -229,7 +229,8 @@ class GatewayFacade(MulticallClientProtocol):
             account_address_found_in_message = hex(int(account_address)) in ex.message
             message = (
                 "No account associated with provided account address found. Contact your wallet provider."
-                if "StarknetErrorCode.UNINITIALIZED_CONTRACT" in ex.message and account_address_found_in_message
+                if "StarknetErrorCode.UNINITIALIZED_CONTRACT" in ex.message
+                and account_address_found_in_message
                 else ex.message
             )
             raise ProtostarException(message) from ex
