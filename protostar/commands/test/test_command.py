@@ -209,7 +209,7 @@ A glob or globs to a directory or a test suite, for example:
                 self._protostar_directory.protostar_test_only_cairo_packages_path,
                 self._protostar_directory.protostar_cairo1_corelib_path,
                 *self._project_cairo_path_builder.build_project_cairo_path_list(
-                    cairo_path or []
+                    cairo_path or [], include_root=(not use_cairo1_test_runner)
                 ),
             ]
         ]
@@ -229,8 +229,6 @@ A glob or globs to a directory or a test suite, for example:
                 include_paths=include_paths,
             )
 
-            print("XDDDDDD")
-            print(compiler_config.include_paths)
             if use_cairo1_test_runner:
                 test_collector = Cairo1TestCollector(compiler_config.include_paths)
             elif use_cairo_test_runner:

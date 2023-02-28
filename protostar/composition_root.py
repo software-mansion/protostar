@@ -2,6 +2,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
+from protostar.commands.test_cairo1.test_cairo1_command import TestCairo1Command
+
 from protostar.argument_parser import ArgumentParserFacade
 from protostar.cli import (
     ProtostarCommand,
@@ -179,6 +181,15 @@ def build_di_container(
             ),
         ),
         TestCommand(
+            project_root_path,
+            protostar_directory,
+            project_cairo_path_builder,
+            log_color_provider=log_color_provider,
+            active_profile_name=active_configuration_profile_name,
+            cwd=cwd,
+            messenger_factory=messenger_factory,
+        ),
+        TestCairo1Command(
             project_root_path,
             protostar_directory,
             project_cairo_path_builder,

@@ -2,4 +2,4 @@
 protostar-version = "0.9.1"
 
 lib-path = "lib"
-cairo-path = ["lib/external_lib_bar","lib/external_lib_foo"]
+linked-libraries = ["libraries/external_lib_bar", "libraries/external_lib_foo"]

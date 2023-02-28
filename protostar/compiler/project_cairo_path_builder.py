@@ -1,6 +1,5 @@
 from pathlib import Path
 
-
 class ProjectCairoPathBuilder:
     def __init__(
         self,
@@ -8,11 +7,10 @@ class ProjectCairoPathBuilder:
     ) -> None:
         super().__init__()
         self._project_root_path = project_root_path
-
     def build_project_cairo_path_list(
-        self, relative_cairo_path_list: list[Path]
+        self, relative_cairo_path_list: list[Path], include_root: bool = True 
     ) -> list[Path]:
+        root: list[Path] = ([self._project_root_path] if include_root else [])
         return [
             *relative_cairo_path_list,
-            self._project_root_path,
-        ]
+        ] + root
