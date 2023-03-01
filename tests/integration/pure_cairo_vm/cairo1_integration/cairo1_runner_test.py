@@ -32,7 +32,7 @@ async def test_cairo_1_runner(
     assert_cairo_test_cases(
         testing_summary,
         expected_passed_test_cases_names=[
-            "test_cairo1::test_cairo1::passing_test",
+            "passing_test",
         ],
     )
 
@@ -56,7 +56,7 @@ async def test_cairo_1_runner_with_external_lib(
     assert_cairo_test_cases(
         testing_summary,
         expected_passed_test_cases_names=[
-            "test_cairo1_ext_lib::test_cairo1_ext_lib::passing_test_using_foo",
+            "passing_test_using_foo",
         ],
     )
 
@@ -97,8 +97,8 @@ async def test_cairo_1_runner_multiple_suites(
     assert_cairo_test_cases(
         testing_summary,
         expected_passed_test_cases_names=[
-            "test_cairo1::test_cairo1::passing_test",
-            "test_cairo1_ext_lib::test_cairo1_ext_lib::passing_test_using_foo",
+            "passing_test",
+            "passing_test_using_foo",
         ],
     )
 
@@ -118,3 +118,50 @@ async def test_cairo_1_runner_broken_suite(
         cairo1_test_runner=True,
     )
     assert len(testing_summary.broken_suites) == 1
+
+
+async def test_cairo_1_runner_skip_unmarked_test(
+    protostar: ProtostarFixture, shared_datadir: Path, datadir: Path
+):
+    protostar.create_files(
+        {
+            "cairo_project.toml": shared_datadir / "cairo_project.toml",
+            "lib.cairo": shared_datadir / "lib.cairo",
+        }
+    )
+
+    testing_summary = await protostar.run_test_runner(
+        datadir / "test_cairo1_two_cases.cairo",
+        cairo1_test_runner=True,
+    )
+
+    assert_cairo_test_cases(
+        testing_summary,
+        expected_passed_test_cases_names=[
+            "first_test",
+            "second_test",
+        ],
+    )
+
+
+async def test_cairo_1_runner_single_case(
+    protostar: ProtostarFixture, shared_datadir: Path, datadir: Path
+):
+    protostar.create_files(
+        {
+            "cairo_project.toml": shared_datadir / "cairo_project.toml",
+            "lib.cairo": shared_datadir / "lib.cairo",
+        }
+    )
+
+    test_path_str = str(datadir / "test_cairo1_two_cases.cairo")
+    testing_summary = await protostar.run_test_runner(
+        f"{test_path_str}::second_test",
+        cairo1_test_runner=True,
+    )
+    assert_cairo_test_cases(
+        testing_summary,
+        expected_passed_test_cases_names=[
+            "second_test",
+        ],
+    )

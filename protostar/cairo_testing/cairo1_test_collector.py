@@ -43,7 +43,10 @@ class Cairo1TestCollector(TestCollector):
         self._cairo_1_test_path_to_sierra_output[
             file_path
         ] = collector_output.sierra_output
-        return collector_output.test_names
+        return [
+            namespaced_test_name.split("::")[-1]
+            for namespaced_test_name in collector_output.test_names
+        ]
 
     def _build_test_suite_from_test_suite_info(
         self, test_suite_info: TestSuiteInfo
