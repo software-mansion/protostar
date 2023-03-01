@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any, cast, Optional
 
 from tqdm import tqdm as bar
 
-from protostar.commands.cairo0.test.test_result_formatter import format_test_result
+from protostar.commands.test.test_result_formatter import format_test_result
 from protostar.testing.test_scheduler import make_path_relative_if_possible
 from protostar.testing import (
     AcceptableResult,

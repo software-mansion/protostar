@@ -5,8 +5,8 @@ from typing import Optional
 
 import pytest
 
-from protostar.commands.cairo0.update.update_package import update_package
-from protostar.commands.cairo0.update.updating_exceptions import (
+from protostar.commands.update.update_package import update_package
+from protostar.commands.update.updating_exceptions import (
     PackageAlreadyUpToDateException,
 )
 from protostar.git import GitRepository

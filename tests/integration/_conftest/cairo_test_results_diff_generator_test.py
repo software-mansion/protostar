@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from protostar.commands.cairo0.test import format_test_result
+from protostar.commands.test.test_result_formatter import format_test_result
 from protostar.io import log_color_provider
 from protostar.starknet.cheatable_starknet_exceptions import ReportedException
 from protostar.testing.test_results import FailedTestCaseResult

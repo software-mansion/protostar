@@ -13,4 +13,3 @@ from .unexpected_broken_test_suite_result_message import (
 )
 from .test_collector_result_message import TestCollectorResultMessage
 from .testing_summary_message import TestingSummaryResultMessage
-from .testing_summary_message import _format_slow_test_cases_list

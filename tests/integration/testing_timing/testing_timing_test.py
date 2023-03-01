@@ -5,7 +5,7 @@ from typing import Set
 import pytest
 
 from protostar.io.log_color_provider import LogColorProvider
-from protostar.commands.cairo0.test.messages import (
+from protostar.commands.test.messages.testing_summary_message import (
     _format_slow_test_cases_list,
 )
 from protostar.testing import TestingSummary

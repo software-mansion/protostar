@@ -4,10 +4,10 @@ from typing import List, Optional
 
 from protostar.cli import ProtostarArgument, ProtostarCommand, MessengerFactory
 from protostar.cli.activity_indicator import ActivityIndicator
-from protostar.commands.cairo0.test.messages.testing_summary_message import (
+from protostar.commands.test.messages.testing_summary_message import (
     TestingSummaryResultMessage,
 )
-from protostar.commands.cairo0.test.testing_live_logger import TestingLiveLogger
+from protostar.commands.test.testing_live_logger import TestingLiveLogger
 from protostar.compiler import ProjectCairoPathBuilder
 from protostar.io.log_color_provider import LogColorProvider
 from protostar.protostar_exception import ProtostarException

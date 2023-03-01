@@ -2,7 +2,7 @@ from logging import getLogger
 from pathlib import Path
 from typing import Any, Optional, cast
 
-from protostar.commands.cairo0.update.updating_exceptions import (
+from protostar.commands.update.updating_exceptions import (
     PackageAlreadyUpToDateException,
 )
 from protostar.git import GitRepository, ProtostarGitException

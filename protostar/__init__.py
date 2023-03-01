@@ -39,7 +39,7 @@ setattr(ContractClass, "__deepcopy__", shallow_copy)
 
 # Python complains about importing `Project`` if the import below is removed
 # pylint: disable=C0413
-from protostar.commands.cairo0 import (
+from protostar.commands import (
     BuildCommand,
     InitCommand,
     InstallCommand,

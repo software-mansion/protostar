@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import cast
 
 from protostar.git import GitRepository, InvalidGitRepositoryException
-from protostar.commands.cairo0.remove import removal_exceptions
+from protostar.commands.remove import removal_exceptions
 
 
 def remove_package(package_name: str, repo_dir: Path):

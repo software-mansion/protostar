@@ -8,7 +8,7 @@ from protostar.cli.common_arguments import (
     PACKAGE_ARG,
     INTERNAL_DEPENDENCY_REFERENCE_DESCRIPTION,
 )
-from protostar.commands.cairo0.remove.remove_package import remove_package
+from protostar.commands.remove.remove_package import remove_package
 from protostar.io import log_color_provider
 from protostar.package_manager import retrieve_real_package_name
 

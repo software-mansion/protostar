@@ -1,8 +1,6 @@
 from pathlib import Path
 
-from protostar.commands.cairo0.init.project_creator._project_creator import (
-    ProjectCreator,
-)
+from protostar.commands.init.project_creator._project_creator import ProjectCreator
 
 
 class AdaptedProjectCreator(ProjectCreator):

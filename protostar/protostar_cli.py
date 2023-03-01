@@ -8,7 +8,7 @@ from typing import Any, List, Optional
 
 from protostar.argument_parser import CLIApp
 from protostar.cli import ProtostarArgument, ProtostarCommand
-from protostar.commands.cairo0 import MigrateConfigurationFileCommand
+from protostar.commands import MigrateConfigurationFileCommand
 from protostar.compiler import ProjectCairoPathBuilder
 from protostar.configuration_file import (
     CommandNamesProviderProtocol,
