@@ -1,6 +1,10 @@
 from pathlib import Path
 from typing import List, Iterable
 
+from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
+    PreprocessorError,
+)
+
 import protostar.cairo.cairo_bindings as cairo1
 from protostar.testing import TestCollector
 from protostar.testing.test_collector import TestSuiteInfo
@@ -23,10 +27,14 @@ class Cairo1TestCollector(TestCollector):
         self,
         file_path: Path,
     ) -> List[str]:
-        collector_output = cairo1.collect_tests(
-            file_path,
-            cairo_path=[Path(cp) for cp in self._cairo_path],
-        )
+        try:
+            collector_output = cairo1.collect_tests(
+                file_path,
+                cairo_path=[Path(cp) for cp in self._cairo_path],
+            )
+        except RuntimeError as rt_err:
+            raise PreprocessorError(str(rt_err)) from rt_err
+
         if not collector_output.sierra_output:
             raise Cairo1TestCollectionException(
                 f"Compiler did not emit sierra output for {file_path}"
@@ -35,7 +43,10 @@ class Cairo1TestCollector(TestCollector):
         self._cairo_1_test_path_to_sierra_output[
             file_path
         ] = collector_output.sierra_output
-        return collector_output.test_names
+        return [
+            namespaced_test_name.split("::")[-1]
+            for namespaced_test_name in collector_output.test_names
+        ]
 
     def _build_test_suite_from_test_suite_info(
         self, test_suite_info: TestSuiteInfo
