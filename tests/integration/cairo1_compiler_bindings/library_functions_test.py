@@ -14,6 +14,7 @@ def get_mock_for_lib_func(
     lib_func_name: str,
     err_code: int,
     memory: MemoryDict,
+    test_case_name: str,
     args_validator: Optional[Callable] = None,
 ):
     if lib_func_name == "declare":
@@ -26,7 +27,7 @@ def get_mock_for_lib_func(
 
     def mock(*args: Any, **kwargs: Any):
         if args_validator:
-            args_validator(memory, *args, **kwargs)
+            args_validator(memory, test_case_name, *args, **kwargs)
         return return_value
 
     return mock
@@ -53,6 +54,7 @@ def check_library_function(
                         lib_func_name=lib_func_name,
                         err_code=mocked_error_code,
                         memory=runner.vm_memory,
+                        test_case_name=case.name,
                         args_validator=args_validator,
                     ),
                 },
@@ -80,11 +82,18 @@ def test_warp(datadir: Path):
 
 
 def test_invoke(datadir: Path):
-    def args_validator(memory: MemoryDict, *args: Any, **kwargs: Any):
+    expected_calldatas = {
+        "test_invoke": [101, 202, 303, 405, 508, 613, 721],
+        "test_invoke_no_args": [],
+    }
+
+    def args_validator(
+        memory: MemoryDict, test_case_name: str, *args: Any, **kwargs: Any
+    ):
+        expected_calldata = expected_calldatas[test_case_name.split("::")[-1]]
         assert not args
         contract_address = memory.data[kwargs["contract_address"][0]]
         assert contract_address == 123
-        expected_calldata = [101, 202, 303, 405, 508, 613, 721]
         actual_calldata = []
         calldata_start = memory.data[kwargs["calldata_start"][0]]
         calldata_end = memory.data[kwargs["calldata_end"][0]]

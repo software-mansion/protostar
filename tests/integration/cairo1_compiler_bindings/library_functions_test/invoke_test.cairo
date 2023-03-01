@@ -20,3 +20,16 @@ fn test_invoke() {
    }
 }
 
+#[test]
+fn test_invoke_no_args() {
+   let mut arr = ArrayTrait::new();
+   match invoke(123, 'test', arr) {
+      Result::Ok(class_hash) => (),
+      Result::Err(x) => {
+         let mut data = array_new::<felt>();
+         array_append::<felt>(ref data, x);
+         panic(data)
+      },
+   }
+}
+
