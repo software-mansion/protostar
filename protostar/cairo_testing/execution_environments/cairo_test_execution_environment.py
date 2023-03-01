@@ -8,6 +8,7 @@ from protostar.testing.hook import Hook
 from protostar.testing.test_context import TestContextHintLocal
 from protostar.cairo_testing.cairo_test_execution_state import CairoTestExecutionState
 from protostar.cairo import HintLocalsDict
+from protostar.cairo.cairo_function_executor import OffsetOrName
 
 from .cairo_execution_environment import CairoExecutionEnvironment
 from ..cairo_hint_local_factory import (
@@ -30,21 +31,21 @@ class CairoTestExecutionEnvironment(CairoExecutionEnvironment):
         )
         self._expect_revert_context = ExpectRevertContext()
 
-    async def execute(self, function_name: str) -> Any:
+    async def execute(self, function_identifier: OffsetOrName) -> Any:
         with self.state.output_recorder.redirect("test"):
-            await self.execute_test_case(function_name)
+            await self.execute_test_case(function_identifier)
             return TestExecutionResult(execution_resources=None)
 
     # TODO #1303: Estimate gas if self.state.config.gas_estimation_enabled
     async def execute_test_case(
         self,
-        function_name: str,
+        function_identifier: OffsetOrName,
         *args: Any,
         **kwargs: Any,
     ):
         async with self._expect_revert_context.test():
             async with self._finish_hook.run_after():
-                await self.run_cairo_function(function_name, *args, **kwargs)
+                await self.run_cairo_function(function_identifier, *args, **kwargs)
 
     def _get_hint_locals(self, state: CairoTestExecutionState) -> HintLocalsDict:
         hint_locals: HintLocalsDict = {}

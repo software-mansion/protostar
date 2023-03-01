@@ -9,14 +9,18 @@ from .setup_execution_environment import (
     SetupCheatcodeFactory,
     SetupExecutionEnvironment,
 )
+from ...cairo.cairo_function_executor import OffsetOrName
 
 
 class SetupCaseExecutionEnvironment(SetupExecutionEnvironment):
-    async def execute(self, function_name: str):
+    async def execute(self, function_identifier: OffsetOrName):
+        assert isinstance(
+            function_identifier, str
+        ), "Only test function names are supported in legacy flow"
         self.set_cheatcodes(SetupCaseCheatcodeFactory(self.state))
 
         with self.state.output_recorder.redirect("setup case"):
-            await self.perform_execute(function_name)
+            await self.perform_execute(function_identifier)
 
 
 class SetupCaseCheatcodeFactory(SetupCheatcodeFactory):

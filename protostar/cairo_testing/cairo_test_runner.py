@@ -1,5 +1,6 @@
 import asyncio
 import traceback
+from contextlib import contextmanager
 from logging import getLogger
 from pathlib import Path
 from typing import List, Optional, TYPE_CHECKING
@@ -171,11 +172,11 @@ class CairoTestRunner:
         testing_seed: Seed,
         max_steps: Optional[int],
     ):
-        try:
+        with self.suite_exception_handling(test_suite):
             preprocessed = self.cairo_compiler.preprocess(test_suite.test_path)
             compiled_program = self.cairo_compiler.compile_preprocessed(preprocessed)
 
-            test_config = TestConfig(  # pylint: disable=unused-variable
+            test_config = TestConfig(
                 seed=testing_seed,
                 profiling=self.profiling,
                 max_steps=max_steps,
@@ -193,6 +194,11 @@ class CairoTestRunner:
                 program=compiled_program,
                 test_execution_state=test_execution_state,
             )
+
+    @contextmanager
+    def suite_exception_handling(self, test_suite: TestSuite):
+        try:
+            yield
         except (ProtostarException, ReportedException, RevertableException) as ex:
             self.shared_tests_state.put_result(
                 BrokenTestSuiteResult(

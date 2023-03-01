@@ -2,11 +2,9 @@ from pathlib import Path
 import pytest
 from pytest_mock import MockerFixture
 
-from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
-from starkware.cairo.lang.vm.utils import RunResources
-
-from protostar.cairo.cairo1_test_suite_parser import parse_test_suite
+from protostar.cairo.cairo1_test_suite_parser import ProtostarCasm
 import protostar.cairo.cairo_bindings as cairo1
+from protostar.cairo.cairo_function_runner_facade import CairoRunnerFacade
 
 
 def test_compilator_and_parser(mocker: MockerFixture, datadir: Path):
@@ -24,27 +22,15 @@ def test_compilator_and_parser(mocker: MockerFixture, datadir: Path):
     )
     assert protostar_casm_json
 
-    test_suite = parse_test_suite(datadir / "roll_test.cairo", protostar_casm_json)
+    protostar_casm = ProtostarCasm.from_json(protostar_casm_json)
 
     cheat_mock = mocker.MagicMock()
     cheat_mock.return_value = type("return_value", (object,), {"err_code": 0})()
     # TODO https://github.com/software-mansion/protostar/issues/1434
-    for case in test_suite.test_cases:
-        runner = CairoFunctionRunner(program=test_suite.program, layout="all")
-        runner.run_from_entrypoint(
-            case.offset,
-            *[],
-            hint_locals={"roll": cheat_mock},
-            static_locals={
-                "__find_element_max_size": 2**20,
-                "__squash_dict_max_size": 2**20,
-                "__keccak_max_size": 2**20,
-                "__usort_max_size": 2**20,
-                "__chained_ec_op_max_len": 1000,
-            },
-            run_resources=RunResources(n_steps=100000000000000000),
-            verify_secure=False,
-        )
+    cairo_runner_facade = CairoRunnerFacade(program=protostar_casm.program)
+    for offset in protostar_casm.offset_map.values():
+        cairo_runner_facade.run_from_offset(offset, hint_locals={"roll": cheat_mock})
+
     assert cheat_mock.call_count == 6
 
 

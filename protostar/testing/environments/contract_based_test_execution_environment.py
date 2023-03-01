@@ -34,6 +34,7 @@ from protostar.testing.test_environment_exceptions import (
 
 from .common_test_cheatcode_factory import CommonTestCheatcodeFactory
 from .execution_environment import ExecutionEnvironment, TestExecutionResult
+from ...cairo.cairo_function_executor import OffsetOrName
 
 
 @dataclass
@@ -53,9 +54,14 @@ class ContractBasedTestExecutionEnvironment(
         self._expect_revert_context = ExpectRevertContext()
         self._finish_hook = Hook()
 
-    async def execute(self, function_name: str) -> Optional[TestExecutionResult]:
+    async def execute(
+        self, function_identifier: OffsetOrName
+    ) -> Optional[TestExecutionResult]:
+        assert isinstance(
+            function_identifier, str
+        ), "Only test function names are supported in legacy flow"
         assert not has_function_parameters(
-            self.state.contract.abi, function_name
+            self.state.contract.abi, function_identifier
         ), f"{self.__class__.__name__} expects no function parameters."
 
         self.set_profile_flag(self.state.config.profiling)
@@ -70,7 +76,7 @@ class ContractBasedTestExecutionEnvironment(
 
         with self.state.output_recorder.redirect("test"):
             return TestExecutionResult(
-                execution_resources=await self.execute_test_case(function_name)
+                execution_resources=await self.execute_test_case(function_identifier)
             )
 
     async def execute_test_case(
