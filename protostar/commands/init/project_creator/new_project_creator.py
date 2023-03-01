@@ -31,7 +31,9 @@ class NewProjectCreator(ProjectCreator):
         self._output_dir_path = output_dir_path or Path()
         self._configuration_file_content_factory = configuration_file_content_factory
 
-    def run(self, is_cairo_1: bool = False, project_name: Optional[str] = None):
+    def run(
+        self, is_cairo_1: Optional[bool] = None, project_name: Optional[str] = None
+    ):
         project_config = (
             NewProjectCreator.NewProjectConfig(project_name)
             if project_name
@@ -50,7 +52,9 @@ class NewProjectCreator(ProjectCreator):
         return NewProjectCreator.NewProjectConfig(project_dirname)
 
     def _create_project(
-        self, user_input: "NewProjectCreator.NewProjectConfig", is_cairo_1: bool
+        self,
+        user_input: "NewProjectCreator.NewProjectConfig",
+        is_cairo_1: Optional[bool],
     ) -> None:
         output_dir_path = self._output_dir_path
         project_root_path = output_dir_path / user_input.project_dirname

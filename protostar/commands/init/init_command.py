@@ -18,7 +18,7 @@ class InitCommand(ProtostarCommand):
         requester: InputRequester,
         new_project_creator: NewProjectCreator,
         adapted_project_creator: AdaptedProjectCreator,
-        is_cairo_1: bool = False,
+        is_cairo_1: bool,
     ) -> None:
         super().__init__()
         self._adapted_project_creator = adapted_project_creator
@@ -32,11 +32,15 @@ class InitCommand(ProtostarCommand):
 
     @property
     def description(self) -> str:
-        return "Create a Protostar project."
+        return (
+            "Create a Protostar project with cairo "
+            + ("1" if self._is_cairo_1 else "0")
+            + " template."
+        )
 
     @property
     def example(self) -> Optional[str]:
-        return "$ protostar init"
+        return "$ protostar " + self.name
 
     @property
     def arguments(self):
@@ -79,7 +83,7 @@ class InitCommand(ProtostarCommand):
                 )
 
         if should_adapt_existing_project:
-            self._adapted_project_creator.run(self._is_cairo_1)
+            self._adapted_project_creator.run()
         else:
             self._new_project_creator.run(self._is_cairo_1, project_name)
 

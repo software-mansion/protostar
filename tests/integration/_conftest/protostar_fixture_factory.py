@@ -98,6 +98,7 @@ def create_protostar_fixture(
         input_requester,
         new_project_creator=new_project_creator,
         adapted_project_creator=mocker.MagicMock(),
+        is_cairo_1=False,
     )
 
     messenger_factory = MessengerFactory(

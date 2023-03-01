@@ -47,5 +47,5 @@ class ProjectCreator(ABC):
         )
 
     @abstractmethod
-    def run(self, is_cairo_1: bool) -> None:
+    def run(self) -> None:
         ...
