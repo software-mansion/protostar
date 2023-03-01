@@ -101,3 +101,20 @@ async def test_cairo_1_runner_multiple_suites(
             "test_cairo1_ext_lib::test_cairo1_ext_lib::passing_test_using_foo",
         ],
     )
+
+
+async def test_cairo_1_runner_broken_suite(
+    protostar: ProtostarFixture, shared_datadir: Path, datadir: Path
+):
+    protostar.create_files(
+        {
+            "cairo_project.toml": shared_datadir / "cairo_project.toml",
+            "lib.cairo": shared_datadir / "lib.cairo",
+        }
+    )
+
+    testing_summary = await protostar.run_test_runner(
+        datadir / "test_cairo1_broken_suite.cairo",
+        cairo1_test_runner=True,
+    )
+    assert len(testing_summary.broken_suites) == 1
