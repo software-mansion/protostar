@@ -81,6 +81,8 @@ class ProjectInitializer(Protocol):
 def init_project(
     protostar_bin: Path,
     project_name: str,
+    cairo_fixtures_dir: Path,
+    tmp_path: Path,
 ) -> ProjectInitializer:
     def _init_project(
         override_project_name: Optional[str] = None, cairo1: Optional[bool] = False
@@ -89,19 +91,12 @@ def init_project(
             real_project_name = project_name
         else:
             real_project_name = override_project_name
-
         child = pexpect.spawn(f"{protostar_bin} init {real_project_name}")
         child.expect(pexpect.EOF, timeout=30)
         if cairo1:
-            project_dir = Path(os.getcwd()) / "foobar"
+            project_dir = tmp_path / "protostar_project" / real_project_name
             main_path = project_dir / "src" / "main.cairo"
-            fixture_path = (
-                Path(__file__).parent.parent.parent
-                / "tests"
-                / "e2e"
-                / "fixtures"
-                / "basic_cairo1.cairo"
-            )
+            fixture_path = cairo_fixtures_dir / "basic_cairo1.cairo"
             assert main_path.exists() and fixture_path.exists()
             main_path.write_text(fixture_path.read_text())
             Path(project_dir / "build").mkdir()
