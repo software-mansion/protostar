@@ -11,7 +11,7 @@ class CairoRunnerFacade:
         self._previous_runner: Optional[CairoFunctionRunner] = None
 
     @contextmanager
-    def fresh_runner(self) -> Generator[CairoFunctionRunner, None, None]:
+    def new_runner(self) -> Generator[CairoFunctionRunner, None, None]:
         self._previous_runner = None
         runner = CairoFunctionRunner(program=self._program, layout="all")
         yield runner
@@ -24,7 +24,7 @@ class CairoRunnerFacade:
         hint_locals: Optional[dict] = None,
         **kwargs: Any,
     ):
-        with self.fresh_runner() as function_runner:
+        with self.new_runner() as function_runner:
             function_runner.run_from_entrypoint(
                 *args,
                 entrypoint=offset,
@@ -47,7 +47,7 @@ class CairoRunnerFacade:
         hint_locals: Optional[dict] = None,
         **kwargs: Any,
     ):
-        with self.fresh_runner() as function_runner:
+        with self.new_runner() as function_runner:
             function_runner.run(
                 func_name, *args, hint_locals=hint_locals or {}, **kwargs
             )
