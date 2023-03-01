@@ -14,11 +14,9 @@ class Cairo1BuildCommand(ProtostarCommand):
     def __init__(
         self,
         project_compiler: ProjectCompiler,
-        messenger_factory: MessengerFactory,
     ):
         super().__init__()
         self._project_compiler = project_compiler
-        self._messenger_factory = messenger_factory
 
     @property
     def example(self) -> Optional[str]:

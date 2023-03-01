@@ -167,10 +167,7 @@ def build_di_container(
             project_compiler=project_compiler,
             messenger_factory=messenger_factory,
         ),
-        Cairo1BuildCommand(
-            project_compiler=project_compiler,
-            messenger_factory=messenger_factory,
-        ),
+        Cairo1BuildCommand(project_compiler=project_compiler),
         InstallCommand(
             log_color_provider=log_color_provider,
             project_root_path=project_root_path,

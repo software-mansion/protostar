@@ -9,6 +9,7 @@ from protostar.argument_parser import ArgumentParserFacade, CLIApp
 from protostar.cli import map_protostar_type_name_to_parser, MessengerFactory
 from protostar.commands import (
     BuildCommand,
+    Cairo1BuildCommand,
     CalculateAccountAddressCommand,
     CallCommand,
     DeclareCommand,
@@ -16,7 +17,6 @@ from protostar.commands import (
     InitCommand,
     InvokeCommand,
     MulticallCommand,
-    Cairo1BuildCommand,
 )
 from protostar.commands.deploy_account_command import DeployAccountCommand
 from protostar.commands.deploy_command import DeployCommand
@@ -113,10 +113,7 @@ def create_protostar_fixture(
         messenger_factory=messenger_factory,
     )
 
-    cairo1_build_command = Cairo1BuildCommand(
-        project_compiler=project_compiler,
-        messenger_factory=messenger_factory,
-    )
+    cairo1_build_command = Cairo1BuildCommand(project_compiler=project_compiler)
 
     transaction_registry = TransactionRegistry()
 

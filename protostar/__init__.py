@@ -41,6 +41,7 @@ setattr(ContractClass, "__deepcopy__", shallow_copy)
 # pylint: disable=C0413
 from protostar.commands import (
     BuildCommand,
+    Cairo1BuildCommand,
     InitCommand,
     InstallCommand,
     RemoveCommand,
