@@ -16,6 +16,7 @@ from protostar.commands import (
     InitCommand,
     InvokeCommand,
     MulticallCommand,
+    Cairo1BuildCommand,
 )
 from protostar.commands.deploy_account_command import DeployAccountCommand
 from protostar.commands.deploy_command import DeployCommand
@@ -112,6 +113,11 @@ def create_protostar_fixture(
         messenger_factory=messenger_factory,
     )
 
+    cairo1_build_command = Cairo1BuildCommand(
+        project_compiler=project_compiler,
+        messenger_factory=messenger_factory,
+    )
+
     transaction_registry = TransactionRegistry()
 
     gateway_facade_factory = SpyingGatewayFacadeFactory(
@@ -183,6 +189,7 @@ def create_protostar_fixture(
         init_command=init_command,
         call_command=call_command,
         build_command=build_command,
+        cairo1_build_command=cairo1_build_command,
         format_command=format_command,
         declare_command=declare_command,
         deploy_command=deploy_command,

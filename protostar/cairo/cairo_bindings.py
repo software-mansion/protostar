@@ -12,7 +12,7 @@ class TestCollectorOutput:
     test_names: list[str]
 
 
-def compile_starknet_contract(
+def compile_starknet_contract_from_path(
     input_path: Path,
     output_path: Optional[Path] = None,
     cairo_path: Optional[list[Path]] = None,
