@@ -22,7 +22,9 @@ class ProjectCreator(ABC):
         self._configuration_file_content_factory = configuration_file_content_factory
         self._protostar_version = protostar_version
 
-    def copy_template(self, template_name: Literal["default"], project_root_path: Path):
+    def copy_template(
+        self, template_name: Literal["cairo0", "cairo1"], project_root_path: Path
+    ):
         template_path = self.script_root / "templates" / template_name
         shutil.copytree(template_path, project_root_path)
 
@@ -45,5 +47,5 @@ class ProjectCreator(ABC):
         )
 
     @abstractmethod
-    def run(self) -> None:
+    def run(self, is_cairo_1: bool) -> None:
         ...

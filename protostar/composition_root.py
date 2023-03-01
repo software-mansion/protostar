@@ -153,6 +153,13 @@ def build_di_container(
             requester=input_requester,
             new_project_creator=new_project_creator,
             adapted_project_creator=adapted_project_creator,
+            is_cairo_1=False,
+        ),
+        InitCommand(
+            requester=input_requester,
+            new_project_creator=new_project_creator,
+            adapted_project_creator=adapted_project_creator,
+            is_cairo_1=True,
         ),
         BuildCommand(
             project_compiler=project_compiler,
