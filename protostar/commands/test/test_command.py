@@ -204,14 +204,19 @@ A glob or globs to a directory or a test suite, for example:
     ) -> TestingSummary:
         include_paths = [
             str(path)
-            for path in [
-                self._protostar_directory.protostar_test_only_cairo_packages_path,
-                self._protostar_directory.protostar_cairo1_corelib_path,
-                *self._project_cairo_path_builder.build_project_cairo_path_list(
-                    cairo_path or []
-                ),
-            ]
+            for path in self._project_cairo_path_builder.build_project_cairo_path_list(
+                cairo_path or []
+            )
         ]
+        if use_cairo1_test_runner:
+            include_paths.append(
+                str(self._protostar_directory.protostar_cairo1_corelib_path)
+            )
+        else:
+            include_paths.append(
+                str(self._protostar_directory.protostar_test_only_cairo_packages_path)
+            )
+
         factory = (
             StarknetPassManagerFactory
             if safe_collecting
