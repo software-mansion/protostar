@@ -69,7 +69,11 @@ def protostar_toml_protostar_version() -> Optional[str]:
 
 
 class ProjectInitializer(Protocol):
-    def __call__(self, override_project_name: Optional[str] = None) -> None:
+    def __call__(
+        self,
+        override_project_name: Optional[str] = None,
+        cairo1: Optional[bool] = False,
+    ) -> None:
         ...
 
 
@@ -78,7 +82,9 @@ def init_project(
     protostar_bin: Path,
     project_name: str,
 ) -> ProjectInitializer:
-    def _init_project(override_project_name: Optional[str] = None) -> None:
+    def _init_project(
+        override_project_name: Optional[str] = None, cairo1: Optional[bool] = False
+    ) -> None:
         if override_project_name is None:
             real_project_name = project_name
         else:
@@ -86,6 +92,19 @@ def init_project(
 
         child = pexpect.spawn(f"{protostar_bin} init {real_project_name}")
         child.expect(pexpect.EOF, timeout=30)
+        if cairo1:
+            project_dir = Path(os.getcwd()) / "foobar"
+            main_path = project_dir / "src" / "main.cairo"
+            fixture_path = (
+                Path(__file__).parent.parent.parent
+                / "tests"
+                / "e2e"
+                / "fixtures"
+                / "basic_cairo1.cairo"
+            )
+            assert main_path.exists() and fixture_path.exists()
+            main_path.write_text(fixture_path.read_text())
+            Path(project_dir / "build").mkdir()
 
     return _init_project
 
@@ -200,7 +219,43 @@ def init(
     init_project: ProjectInitializer,
     libs_path: Optional[str],
 ) -> InitFixture:
-    init_project()
+    _init(
+        project_name=project_name,
+        protostar_toml_protostar_version=protostar_toml_protostar_version,
+        init_project=init_project,
+        libs_path=libs_path,
+    )
+    yield
+    chdir(protostar_repo_root)
+
+
+@pytest.fixture
+def init_cairo1(
+    protostar_repo_root: Path,
+    project_name: str,
+    protostar_toml_protostar_version: str,
+    init_project: ProjectInitializer,
+    libs_path: Optional[str],
+) -> InitFixture:
+    _init(
+        project_name=project_name,
+        protostar_toml_protostar_version=protostar_toml_protostar_version,
+        init_project=init_project,
+        libs_path=libs_path,
+        cairo1=True,
+    )
+    yield
+    chdir(protostar_repo_root)
+
+
+def _init(
+    project_name: str,
+    protostar_toml_protostar_version: str,
+    init_project: ProjectInitializer,
+    libs_path: Optional[str],
+    cairo1: Optional[bool] = False,
+):
+    init_project(cairo1=cairo1)
     chdir(project_name)
     if protostar_toml_protostar_version or libs_path:
         protostar_toml_content = Path("protostar.toml").read_text(encoding="utf-8")
@@ -222,8 +277,6 @@ def init(
         (Path() / "protostar.toml").write_text(
             "\n".join(new_protostar_toml_content_lines), encoding="utf-8"
         )
-    yield
-    chdir(protostar_repo_root)
 
 
 MyPrivateLibsSetupFixture = Tuple[Path,]
