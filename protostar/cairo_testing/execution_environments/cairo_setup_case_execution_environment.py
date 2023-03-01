@@ -5,6 +5,7 @@ from protostar.cairo_testing.cairo_hint_local_factory import (
     CairoSharedHintLocalFactory,
     CairoSetupHintLocalFactory,
 )
+from protostar.cairo.cairo_function_executor import OffsetOrName
 from protostar.cairo_testing.cairo_test_execution_state import CairoTestExecutionState
 from protostar.cairo_testing.execution_environments.cairo_execution_environment import (
     CairoExecutionEnvironment,
@@ -24,9 +25,9 @@ class CairoSetupCaseExecutionEnvironment(CairoExecutionEnvironment):
         )  # assigned before super call, because _get_hint_locals uses this hook
         super().__init__(state, program, self._get_hint_locals(state))
 
-    async def execute(self, function_name: str):
+    async def execute(self, function_identifier: OffsetOrName):
         with self.state.output_recorder.redirect("setup case"):
-            await self.run_cairo_function(function_name)
+            await self.run_cairo_function(function_identifier)
 
     def _get_hint_locals(self, state: CairoTestExecutionState) -> HintLocalsDict:
         hint_locals: HintLocalsDict = {}

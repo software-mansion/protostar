@@ -9,6 +9,7 @@ from hypothesis.errors import InvalidArgument
 from hypothesis.reporting import with_reporter
 from hypothesis.strategies import SearchStrategy
 
+from protostar.cairo.cairo_function_executor import OffsetOrName
 from protostar.starknet import BreakingReportedException, ReportedException
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet.abi import get_function_parameters
@@ -51,9 +52,14 @@ class FuzzTestExecutionEnvironment(ContractBasedTestExecutionEnvironment):
         self.initial_state = state
         self.given_strategies: dict[str, SearchStrategy] = {}
 
-    async def execute(self, function_name: str) -> FuzzTestExecutionResult:
+    async def execute(
+        self, function_identifier: OffsetOrName
+    ) -> FuzzTestExecutionResult:
+        assert isinstance(
+            function_identifier, str
+        ), "Only test function names are supported in legacy flow"
         abi = self.state.contract.abi
-        parameters = get_function_parameters(abi, function_name)
+        parameters = get_function_parameters(abi, function_identifier)
         assert (
             parameters
         ), f"{self.__class__.__name__} expects at least one function parameter."
@@ -86,7 +92,7 @@ class FuzzTestExecutionEnvironment(ContractBasedTestExecutionEnvironment):
         def test_thread():
             with with_reporter(protostar_reporter):
                 self.build_and_run_test(
-                    function_name=function_name,
+                    function_name=function_identifier,
                     database=database,
                     execution_resources=execution_resources,
                     runs_counter=runs_counter,

@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 from typing import Optional
 from dataclasses import dataclass
@@ -38,15 +39,19 @@ def collect_tests(
 
 def compile_protostar_sierra_to_casm_from_path(
     named_tests: list[str], input_path: Path, output_path: Optional[Path] = None
-) -> Optional[str]:
-    return cairo_python_bindings.compile_protostar_sierra_to_casm_from_path(  # pyright: ignore
+) -> Optional[dict]:
+    compiled_str = cairo_python_bindings.compile_protostar_sierra_to_casm_from_path(  # pyright: ignore
         named_tests, str(input_path), str(output_path) if output_path else None
     )
+    return json.loads(compiled_str)
 
 
 def compile_protostar_sierra_to_casm(
     named_tests: list[str], input_data: str, output_path: Optional[Path] = None
-) -> Optional[str]:
-    return cairo_python_bindings.compile_protostar_sierra_to_casm(  # pyright: ignore
-        named_tests, input_data, str(output_path) if output_path else None
+) -> Optional[dict]:
+    compiled_str = (
+        cairo_python_bindings.compile_protostar_sierra_to_casm(  # pyright: ignore
+            named_tests, input_data, str(output_path) if output_path else None
+        )
     )
+    return json.loads(compiled_str)

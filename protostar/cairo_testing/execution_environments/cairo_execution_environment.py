@@ -4,7 +4,7 @@ from typing import Any
 from starkware.cairo.lang.compiler.program import Program
 
 from protostar.cairo import HintLocalsDict
-from protostar.cairo.cairo_function_executor import CairoFunctionExecutor
+from protostar.cairo.cairo_function_executor import CairoFunctionExecutor, OffsetOrName
 from protostar.cairo_testing.cairo_injectable_function_runner import (
     CairoInjectableFunctionRunner,
 )
@@ -24,10 +24,10 @@ class CairoExecutionEnvironment(CairoFunctionExecutor, ABC):
 
     async def run_cairo_function(
         self,
-        function_name: str,
+        function_identifier: OffsetOrName,
         *args: Any,
         **kwargs: Any,
     ):
         await CairoInjectableFunctionRunner(
             hint_locals=self.hint_locals, program=self.program
-        ).run_cairo_function(function_name, *args, **kwargs)
+        ).run_cairo_function(function_identifier, *args, **kwargs)

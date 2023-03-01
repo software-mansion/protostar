@@ -27,7 +27,7 @@ jobs:
           poetry install
       - name: Install cairo bindings
         run: |
-          poetry run ./scripts/install_cairo_bindings.sh
+          poetry run poe install_cairo_bindings prod
       - name: Populate caches
         uses: actions/cache@v3
         with:
