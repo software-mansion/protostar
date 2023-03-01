@@ -13,7 +13,7 @@ func test_stop_roll(){
 
     local block_nb;
     %{
-        ids.block_nb = call(ids.deployed_contract_address, "block_number_getter").ok[0]
+        ids.block_nb = call(ids.deployed_contract_address, "get_syscall_block_number").ok[0]
     %}
 
     assert block_nb = 123;
@@ -24,7 +24,7 @@ func test_stop_roll(){
 
     local block_nb_after_stopping;
     %{
-        ids.block_nb_after_stopping = call(ids.deployed_contract_address, "block_number_getter").ok[0]
+        ids.block_nb_after_stopping = call(ids.deployed_contract_address, "get_syscall_block_number").ok[0]
     %}
 
     assert_not_equal(block_nb_after_stopping, 123);
@@ -42,18 +42,18 @@ func test_stop_roll_with_invoke(){
     %}
     assert_not_zero(deployed_contract_address);
 
-    %{ assert invoke(ids.deployed_contract_address, "block_number_setter").err_code == 0 %}
+    %{ assert invoke(ids.deployed_contract_address, "set_stored_block_number_to_syscall_value").err_code == 0 %}
 
     local stored_block_number;
-    %{ ids.stored_block_number = call(ids.deployed_contract_address, "stored_block_number_getter").ok[0] %}
+    %{ ids.stored_block_number = call(ids.deployed_contract_address, "get_stored_block_number").ok[0] %}
     assert stored_block_number = 123;
 
 
     local stored_block_number_after_stopping;
     %{
         assert stop_roll(ids.deployed_contract_address).err_code == 0
-        assert invoke(ids.deployed_contract_address, "block_number_setter").err_code == 0
-        ids.stored_block_number_after_stopping = call(ids.deployed_contract_address, "stored_block_number_getter").ok[0]
+        assert invoke(ids.deployed_contract_address, "set_stored_block_number_to_syscall_value").err_code == 0
+        ids.stored_block_number_after_stopping = call(ids.deployed_contract_address, "get_stored_block_number").ok[0]
     %}
 
     assert_not_equal(stored_block_number_after_stopping, 123);

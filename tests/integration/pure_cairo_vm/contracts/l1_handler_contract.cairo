@@ -36,15 +36,19 @@ func on_l1_msg_set_block_timestamp{syscall_ptr: felt*, pedersen_ptr: HashBuiltin
 
 @contract_interface
 namespace TimestampTesterContract {
-    func block_timestamp_setter() -> (res: felt) {
+    func set_stored_block_timestamp_to_syscall_value() {
+    }
+
+    func get_stored_block_timestamp() -> (res:felt) {
     }
 }
 
 @l1_handler
-func call_set_block_timestamp{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+func invoke_set_stored_block_timestamp_to_syscall_value{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
     from_address: felt, target_address: felt
 ) {
-    let (block_timestamp) = TimestampTesterContract.block_timestamp_setter(target_address);
+    TimestampTesterContract.set_stored_block_timestamp_to_syscall_value(target_address);
+    let (block_timestamp) = TimestampTesterContract.get_stored_block_timestamp(target_address);
     state.write(block_timestamp);
     return ();
 }

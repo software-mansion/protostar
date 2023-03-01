@@ -218,11 +218,23 @@ class GatewayFacade(MulticallClientProtocol):
         account_client = await self._create_account_client(
             account_address=account_address, signer=signer
         )
-        declare_tx = await account_client.sign_declare_transaction(
-            compiled_contract=compiled_contract,
-            max_fee=max_fee if isinstance(max_fee, int) else None,
-            auto_estimate=max_fee == "auto",
-        )
+
+        try:
+            declare_tx = await account_client.sign_declare_transaction(
+                compiled_contract=compiled_contract,
+                max_fee=max_fee if isinstance(max_fee, int) else None,
+                auto_estimate=max_fee == "auto",
+            )
+        except ClientError as ex:
+            account_address_found_in_message = hex(int(account_address)) in ex.message
+            message = (
+                "No account associated with provided account address found. Contact your wallet provider."
+                if "StarknetErrorCode.UNINITIALIZED_CONTRACT" in ex.message
+                and account_address_found_in_message
+                else ex.message
+            )
+            raise ProtostarException(message) from ex
+
         try:
             response = await self._gateway_client.declare(declare_tx, token=token)
 
