@@ -89,17 +89,14 @@ async def test_cairo_1_runner_multiple_suites(
     )
 
     testing_summary = await protostar.run_test_runner(
-        datadir,
+        datadir / "multiple_suites",
         cairo1_test_runner=True,
         cairo_path=[datadir / "external_lib_foo"],
     )
 
     assert_cairo_test_cases(
         testing_summary,
-        expected_passed_test_cases_names=[
-            "passing_test",
-            "passing_test_using_foo",
-        ],
+        expected_passed_test_cases_names=["first_test", "second_test", "third_test"],
     )
 
 
@@ -114,7 +111,7 @@ async def test_cairo_1_runner_broken_suite(
     )
 
     testing_summary = await protostar.run_test_runner(
-        datadir / "test_cairo1_broken_suite.cairo",
+        datadir / "broken" / "test_cairo1_broken_suite.cairo",
         cairo1_test_runner=True,
     )
     assert len(testing_summary.broken_suites) == 1
