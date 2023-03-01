@@ -2,7 +2,7 @@ import logging
 from pathlib import Path
 from typing import List, Optional, Any
 
-from protostar.cli import ProtostarArgument, ProtostarCommand, MessengerFactory
+from protostar.cli import ProtostarArgument, ProtostarCommand
 from protostar.cli.common_arguments import COMPILED_CONTRACTS_DIR_ARG
 from protostar.compiler import (
     ProjectCompiler,
@@ -33,7 +33,6 @@ class Cairo1BuildCommand(ProtostarCommand):
     @property
     def arguments(self):
         return [
-            *MessengerFactory.OUTPUT_ARGUMENTS,
             ProtostarArgument(
                 name="cairo-path",
                 description="Additional directories to look for sources.",

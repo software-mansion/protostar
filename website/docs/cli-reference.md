@@ -20,6 +20,15 @@ An output directory used to put the compiled contracts in.
 Disable validation of hints when building the contracts.
 #### `--json`
 Print machine-readable output in [NDJSON](https://github.com/ndjson/ndjson-spec) format.
+### `build-cairo1`
+```shell
+$ protostar build-cairo1
+```
+Compile cairo1 contracts.
+#### `--cairo-path PATH[]`
+Additional directories to look for sources.
+#### `--compiled-contracts-dir PATH=build`
+An output directory used to put the compiled contracts in.
 ### `cairo-migrate`
 Migrate project sources to Cairo 0.10.
 #### `targets STRING[]=['.']`
