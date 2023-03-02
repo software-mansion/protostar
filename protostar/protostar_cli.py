@@ -67,12 +67,7 @@ class ProtostarCLI(CLIApp, CommandNamesProviderProtocol):
                     name="no-color",
                     type="bool",
                     description="Disable colors.",
-                ),
-                ProtostarArgument(
-                    name="cairo1",
-                    type="bool",
-                    description="Use cairo1 variant of commands",
-                ),
+                )
             ],
         )
 
@@ -118,12 +113,6 @@ class ProtostarCLI(CLIApp, CommandNamesProviderProtocol):
             cairo_path_arg = vars(args).get("cairo_path")
             self._extend_pythonpath_with_cairo_path(cairo_path_arg)
             _apply_pythonpath()
-
-        # This is only temporary until all commands will support cairo1 variants
-        if args.cairo1 and args.command not in ["test"]:
-            raise ProtostarException(
-                f"Command {args.command} does not have cairo1 variant for now"
-            )
 
         await super().run(args)
 
