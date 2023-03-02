@@ -1,5 +1,7 @@
+from typing import Optional, Callable, Any
 from pathlib import Path
-from pytest_mock import MockerFixture
+
+from starkware.cairo.lang.vm.memory_dict import MemoryDict
 
 import protostar.cairo.cairo_bindings as cairo1
 from protostar.cairo.cairo1_test_suite_parser import (
@@ -8,21 +10,37 @@ from protostar.cairo.cairo1_test_suite_parser import (
 from protostar.cairo.cairo_function_runner_facade import CairoRunnerFacade
 
 
-def get_mock_for_lib_func(mocker: MockerFixture, lib_func_name: str, err_code: int):
+def get_mock_for_lib_func(
+    lib_func_name: str,
+    err_code: int,
+    cairo_runner_facade: CairoRunnerFacade,
+    test_case_name: str,
+    args_validator: Optional[Callable] = None,
+):
     if lib_func_name == "declare":
-        declare_mock = mocker.MagicMock()
         ok = type("ok", (object,), {"class_hash": 0})()
-        declare_mock.return_value = type(
+        return_value = type(
             "return_value", (object,), {"err_code": err_code, "ok": ok}
         )()
-        return declare_mock
-    cheat_mock = mocker.MagicMock()
-    cheat_mock.return_value = type("return_value", (object,), {"err_code": err_code})()
-    return cheat_mock
+    else:
+        return_value = type("return_value", (object,), {"err_code": err_code})()
+
+    def mock(*args: Any, **kwargs: Any):
+        if args_validator:
+            assert cairo_runner_facade.current_runner
+            args_validator(
+                cairo_runner_facade.current_runner.memory,
+                test_case_name,
+                *args,
+                **kwargs,
+            )
+        return return_value
+
+    return mock
 
 
 def check_library_function(
-    mocker: MockerFixture, lib_func_name: str, cairo_test_path: Path
+    lib_func_name: str, cairo_test_path: Path, args_validator: Optional[Callable] = None
 ):
     test_collector_output = cairo1.collect_tests(input_path=cairo_test_path)
     assert test_collector_output.sierra_output
@@ -34,12 +52,16 @@ def check_library_function(
     for mocked_error_code in [0, 1, 50]:
         protostar_casm = ProtostarCasm.from_json(protostar_casm_json)
         cairo_runner_facade = CairoRunnerFacade(program=protostar_casm.program)
-        for offset in protostar_casm.offset_map.values():
+        for test_case_name, offset in protostar_casm.offset_map.items():
             cairo_runner_facade.run_from_offset(
                 offset=offset,
                 hint_locals={
                     lib_func_name: get_mock_for_lib_func(
-                        mocker, lib_func_name, mocked_error_code
+                        lib_func_name=lib_func_name,
+                        err_code=mocked_error_code,
+                        cairo_runner_facade=cairo_runner_facade,
+                        test_case_name=test_case_name,
+                        args_validator=args_validator,
                     ),
                 },
             )
@@ -49,17 +71,44 @@ def check_library_function(
             )
 
 
-def test_roll(mocker: MockerFixture, datadir: Path):
-    check_library_function(mocker, "roll", datadir / "roll_test.cairo")
+def test_roll(datadir: Path):
+    check_library_function("roll", datadir / "roll_test.cairo")
 
 
-def test_declare(mocker: MockerFixture, datadir: Path):
-    check_library_function(mocker, "declare", datadir / "declare_test.cairo")
+def test_declare(datadir: Path):
+    check_library_function("declare", datadir / "declare_test.cairo")
 
 
-def test_start_prank(mocker: MockerFixture, datadir: Path):
-    check_library_function(mocker, "start_prank", datadir / "start_prank_test.cairo")
+def test_start_prank(datadir: Path):
+    check_library_function("start_prank", datadir / "start_prank_test.cairo")
 
 
-def test_warp(mocker: MockerFixture, datadir: Path):
-    check_library_function(mocker, "warp", datadir / "warp_test.cairo")
+def test_warp(datadir: Path):
+    check_library_function("warp", datadir / "warp_test.cairo")
+
+
+def test_invoke(datadir: Path):
+    expected_calldatas = {
+        "test_invoke": [101, 202, 303, 405, 508, 613, 721],
+        "test_invoke_no_args": [],
+    }
+
+    def args_validator(
+        memory: MemoryDict, test_case_name: str, *args: Any, **kwargs: Any
+    ):
+        expected_calldata = expected_calldatas[test_case_name.split("::")[-1]]
+        assert not args
+        contract_address = memory.data[kwargs["contract_address"][0]]
+        assert contract_address == 123
+        actual_calldata = []
+        calldata_start = memory.data[kwargs["calldata_start"][0]]
+        calldata_end = memory.data[kwargs["calldata_end"][0]]
+        iterator = calldata_start
+        while iterator != calldata_end:
+            actual_calldata.append(memory.data[iterator])
+            iterator = iterator + 1
+        assert actual_calldata == expected_calldata
+
+    check_library_function(
+        "invoke", datadir / "invoke_test.cairo", args_validator=args_validator
+    )
