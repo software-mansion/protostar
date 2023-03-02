@@ -67,7 +67,7 @@ class ProtostarCLI(CLIApp, CommandNamesProviderProtocol):
                     name="no-color",
                     type="bool",
                     description="Disable colors.",
-                )
+                ),
             ],
         )
 
