@@ -76,7 +76,7 @@ def compile_protostar_sierra_to_casm(
 def handle_bindings_errors(binding_name: str):
     try:
         yield
-    except Exception as ex:
+    except RuntimeError as ex:
         raise ProtostarException(
             message=f"An error occurred in binding {binding_name}: {str(ex)}"
         ) from ex
