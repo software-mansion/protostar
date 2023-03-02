@@ -59,3 +59,21 @@ class CairoRunnerFacade:
             self._previous_runner
         ), "No runs were performed, so no return values are available!"
         return self._previous_runner.get_return_values(n_ret)
+
+    def is_panic(self) -> bool:
+        result = self.get_return_values(3)
+        return result[0] != 0
+
+    def get_panic_data(self) -> list[int]:
+        assert self.is_panic()
+        assert self._previous_runner
+        result = self.get_return_values(3)
+
+        panic_data_start = result[1]
+        panic_data_end = result[2]
+        iterator = panic_data_start
+        panic_data = []
+        while iterator != panic_data_end:
+            panic_data.append(self._previous_runner.vm_memory.data[iterator])
+            iterator = iterator + 1
+        return panic_data

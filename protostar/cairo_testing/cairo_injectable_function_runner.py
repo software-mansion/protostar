@@ -45,6 +45,10 @@ class CairoInjectableFunctionRunner:
             self._cairo_runner_facade.run_from_offset(
                 offset=offset, hint_locals=self._hint_locals, *args, **kwargs
             )
+            if self._cairo_runner_facade.is_panic():
+                panic_data = self._cairo_runner_facade.get_panic_data()
+                assert panic_data == [101, 202, 303]
+                # probably we want covert it to strings
 
     def run_cairo_function_by_name(
         self,
