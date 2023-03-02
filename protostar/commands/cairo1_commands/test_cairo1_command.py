@@ -45,7 +45,7 @@ class TestCairo1Command(ProtostarCommand):
 
     @property
     def example(self) -> Optional[str]:
-        return "$ protostar test"
+        return "$ protostar test-cairo1"
 
     @property
     def arguments(self):

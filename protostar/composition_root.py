@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
-from protostar.commands.test_cairo1.test_cairo1_command import TestCairo1Command
+from protostar.commands.cairo1_commands import TestCairo1Command
 
 from protostar.argument_parser import ArgumentParserFacade
 from protostar.cli import (

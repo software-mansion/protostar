@@ -400,7 +400,7 @@ Use Cairo compiler for test collection.
 Set a seed to use for all fuzz tests.
 ### `test-cairo1`
 ```shell
-$ protostar test
+$ protostar test-cairo1
 ```
 Executes cairo1 tests.
 #### `target STRING[]=['.']`
