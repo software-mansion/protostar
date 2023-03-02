@@ -15,5 +15,10 @@ fi
 
 
 git submodule update --recursive --remote --init cairo
+if [ -z "$(git status --porcelain)" ]; then
+  >&2 echo "Bindings are up to date!"
+  exit 0
+fi
+
 git add ./cairo
 git commit -m "Bump cairo bindings" --no-verify
