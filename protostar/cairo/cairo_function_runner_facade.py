@@ -8,12 +8,14 @@ from starkware.cairo.lang.compiler.program import Program
 class CairoRunnerFacade:
     def __init__(self, program: Program):
         self._program: Program = program
+        self.current_runner: Optional[CairoFunctionRunner] = None
         self._previous_runner: Optional[CairoFunctionRunner] = None
 
     @contextmanager
     def new_runner(self) -> Generator[CairoFunctionRunner, None, None]:
         self._previous_runner = None
         runner = CairoFunctionRunner(program=self._program, layout="all")
+        self.current_runner = runner
         yield runner
         self._previous_runner = runner
 

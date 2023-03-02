@@ -13,7 +13,7 @@ from protostar.cairo.cairo_function_runner_facade import CairoRunnerFacade
 def get_mock_for_lib_func(
     lib_func_name: str,
     err_code: int,
-    memory: MemoryDict,
+    cairo_runner_facade: CairoRunnerFacade,
     test_case_name: str,
     args_validator: Optional[Callable] = None,
 ):
@@ -27,7 +27,13 @@ def get_mock_for_lib_func(
 
     def mock(*args: Any, **kwargs: Any):
         if args_validator:
-            args_validator(memory, test_case_name, *args, **kwargs)
+            assert cairo_runner_facade.current_runner
+            args_validator(
+                cairo_runner_facade.current_runner.memory,
+                test_case_name,
+                *args,
+                **kwargs,
+            )
         return return_value
 
     return mock
@@ -46,15 +52,15 @@ def check_library_function(
     for mocked_error_code in [0, 1, 50]:
         protostar_casm = ProtostarCasm.from_json(protostar_casm_json)
         cairo_runner_facade = CairoRunnerFacade(program=protostar_casm.program)
-        for offset in protostar_casm.offset_map.values():
+        for test_case_name, offset in protostar_casm.offset_map.items():
             cairo_runner_facade.run_from_offset(
                 offset=offset,
                 hint_locals={
                     lib_func_name: get_mock_for_lib_func(
                         lib_func_name=lib_func_name,
                         err_code=mocked_error_code,
-                        memory=runner.vm_memory,
-                        test_case_name=case.name,
+                        cairo_runner_facade=cairo_runner_facade,
+                        test_case_name=test_case_name,
                         args_validator=args_validator,
                     ),
                 },
