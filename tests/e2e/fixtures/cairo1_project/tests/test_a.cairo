@@ -1,12 +1,12 @@
 #[test]
-fn test_assert_trueA() {
+fn test_A() {
     let x = 1;
 }
 #[test]
-fn test_assert_trueB() {
+fn test_B() {
     let x = 1;
 }
 #[test]
-fn test_assert_trueC() {
+fn test_C() {
     let x = 1;
 }
