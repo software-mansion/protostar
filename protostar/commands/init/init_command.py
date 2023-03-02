@@ -10,6 +10,7 @@ from protostar.commands.init.project_creator.new_project_creator import (
     NewProjectCreator,
 )
 from protostar.io.input_requester import InputRequester
+from protostar.cairo import CairoVersion
 
 
 class InitCommand(ProtostarCommand):
@@ -18,23 +19,25 @@ class InitCommand(ProtostarCommand):
         requester: InputRequester,
         new_project_creator: NewProjectCreator,
         adapted_project_creator: AdaptedProjectCreator,
-        is_cairo_1: bool,
+        cairo_version: CairoVersion,
     ) -> None:
         super().__init__()
         self._adapted_project_creator = adapted_project_creator
         self._new_project_creator = new_project_creator
         self._requester = requester
-        self._is_cairo_1 = is_cairo_1
+        self._cairo_version = cairo_version
 
     @property
     def name(self) -> str:
-        return "init" + ("-cairo1" if self._is_cairo_1 else "")
+        return "init" + (
+            "-cairo1" if self._cairo_version == CairoVersion.cairo1 else ""
+        )
 
     @property
     def description(self) -> str:
         return (
             "Create a Protostar project with cairo "
-            + ("1" if self._is_cairo_1 else "0")
+            + ("1" if self._cairo_version == CairoVersion.cairo1 else "0")
             + " template."
         )
 
@@ -85,7 +88,7 @@ class InitCommand(ProtostarCommand):
         if should_adapt_existing_project:
             self._adapted_project_creator.run()
         else:
-            self._new_project_creator.run(self._is_cairo_1, project_name)
+            self._new_project_creator.run(self._cairo_version, project_name)
 
     @staticmethod
     def _can_be_protostar_project() -> bool:

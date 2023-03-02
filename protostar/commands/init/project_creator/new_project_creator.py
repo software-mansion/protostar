@@ -6,6 +6,7 @@ from protostar.commands.init.project_creator._project_creator import ProjectCrea
 from protostar.configuration_file import ConfigurationFileV2ContentFactory
 from protostar.io import InputRequester
 from protostar.self import ProtostarVersion
+from protostar.cairo import CairoVersion
 
 
 class NewProjectCreator(ProjectCreator):
@@ -31,16 +32,14 @@ class NewProjectCreator(ProjectCreator):
         self._output_dir_path = output_dir_path or Path()
         self._configuration_file_content_factory = configuration_file_content_factory
 
-    def run(
-        self, is_cairo_1: Optional[bool] = None, project_name: Optional[str] = None
-    ):
+    def run(self, cairo_version: CairoVersion, project_name: Optional[str] = None):
         project_config = (
             NewProjectCreator.NewProjectConfig(project_name)
             if project_name
             else self._gather_input()
         )
 
-        self._create_project(project_config, is_cairo_1)
+        self._create_project(project_config, cairo_version)
 
     def _gather_input(self) -> "NewProjectCreator.NewProjectConfig":
         project_dirname = self._requester.request_input("project directory name")
@@ -54,12 +53,9 @@ class NewProjectCreator(ProjectCreator):
     def _create_project(
         self,
         user_input: "NewProjectCreator.NewProjectConfig",
-        is_cairo_1: Optional[bool],
+        cairo_version: CairoVersion,
     ) -> None:
         output_dir_path = self._output_dir_path
         project_root_path = output_dir_path / user_input.project_dirname
-        if is_cairo_1:
-            self.copy_template("cairo1", project_root_path)
-        else:
-            self.copy_template("cairo0", project_root_path)
+        self.copy_template(cairo_version, project_root_path)
         self.save_protostar_toml(project_root_path=project_root_path)
