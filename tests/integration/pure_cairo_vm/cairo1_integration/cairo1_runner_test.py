@@ -8,8 +8,6 @@ from tests.integration.conftest import (
     assert_cairo_test_cases,
 )
 
-from protostar.protostar_exception import ProtostarException
-
 
 @pytest.fixture(name="protostar", scope="function")
 def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
@@ -111,11 +109,12 @@ async def test_cairo_1_runner_broken_suite(
             "lib.cairo": shared_datadir / "lib.cairo",
         }
     )
-    with pytest.raises(ProtostarException):
-        await protostar.run_test_runner(
-            datadir / "broken" / "test_cairo1_broken_suite.cairo",
-            cairo1_test_runner=True,
-        )
+
+    testing_summary = await protostar.run_test_runner(
+        datadir / "broken" / "test_cairo1_broken_suite.cairo",
+        cairo1_test_runner=True,
+    )
+    assert len(testing_summary.broken_suites) == 1
 
 
 async def test_cairo_1_runner_skip_unmarked_test(

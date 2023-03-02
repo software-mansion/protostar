@@ -40,7 +40,7 @@ def collect_tests(
     cairo_path: Optional[list[Path]] = None,
 ) -> TestCollectorOutput:
     ensure_output_path(output_path=output_path)
-    with collect_tests("collect_tests"):
+    with handle_bindings_errors("collect_tests"):
         output = cairo_python_bindings.collect_tests(  # pyright: ignore
             str(input_path),
             str(output_path) if output_path else None,
@@ -65,10 +65,11 @@ def compile_protostar_sierra_to_casm(
 ) -> Optional[dict]:
     ensure_output_path(output_path=output_path)
     with handle_bindings_errors("compile_protostar_sierra_to_casm"):
-        compiled_str = 
+        compiled_str = (
             cairo_python_bindings.compile_protostar_sierra_to_casm(  # pyright: ignore
                 named_tests, input_data, str(output_path) if output_path else None
             )
+        )
         return json.loads(compiled_str)
 
 
