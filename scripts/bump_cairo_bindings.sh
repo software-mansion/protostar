@@ -16,7 +16,7 @@ fi
 
 git submodule update --recursive --remote --init cairo
 if [ -z "$(git status --porcelain)" ]; then
-  >&2 echo "Bindings are up to date!"
+  >&2 echo "Bindings are already up to date!"
   exit 0
 fi
 
