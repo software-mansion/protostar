@@ -14,7 +14,6 @@ fi
 
 function install_dev() {
   git pull --recurse-submodules
-  git submodule update --remote --recursive --init
 
   pushd cairo
   pushd crates/cairo-lang-python-bindings
@@ -26,7 +25,7 @@ function install_dev() {
 
 function install_prod() {
   git pull --recurse-submodules
-  git submodule update --remote --recursive --init
+
   pushd cairo
   pushd crates/cairo-lang-python-bindings
   rustup override set nightly || return 1;
