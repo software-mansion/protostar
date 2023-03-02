@@ -6,9 +6,9 @@ if [ -n "$(git status --porcelain)" ]; then
   exit 1
 fi
 
-tracking_branch = "$(git for-each-ref --format='%(upstream:short)' "$(git symbolic-ref -q HEAD)")"
+tracking_branch="$(git for-each-ref --format='%(upstream:short)' "$(git symbolic-ref -q HEAD)")"
 
-if [ tracking_branch == "origin/master" ] ; then
+if [ $tracking_branch == "origin/master" ] ; then
   >&2 echo "You are currently tracking master branch. Checkout to another branch before bumping submodule version"
   exit 1
 fi
