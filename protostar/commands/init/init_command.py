@@ -36,9 +36,7 @@ class InitCommand(ProtostarCommand):
     @property
     def description(self) -> str:
         return (
-            "Create a Protostar project with cairo "
-            + ("1" if self._cairo_version == CairoVersion.cairo1 else "0")
-            + " template."
+            f"Create a Protostar project with {self._cairo_version.value} template."
         )
 
     @property
