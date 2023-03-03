@@ -51,7 +51,6 @@ def copy_fixture(
     cairo_fixtures_dir: Path,
 ) -> CopyFixture:
     def copy_content(file: Union[Path, str], dst: Union[Path, str]):
-        assert Path(dst).is_dir()
         if (cairo_fixtures_dir / file).is_dir():
             shutil.copytree(cairo_fixtures_dir / file, dst)
         else:
