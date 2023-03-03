@@ -21,7 +21,6 @@ async def test_prank_cheatcode(protostar: ProtostarFixture):
 
     testing_summary = await protostar.run_test_runner(
         Path(__file__).parent / "prank_cairo_cheatcode_test.cairo",
-        cairo_test_runner=True,
     )
 
     assert_cairo_test_cases(

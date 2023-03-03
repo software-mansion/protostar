@@ -26,7 +26,6 @@ async def test_mock_call(protostar: ProtostarFixture):
 
     testing_summary = await protostar.run_test_runner(
         Path(__file__).parent / "mock_call_hint_local_test.cairo",
-        cairo_test_runner=True,
     )
 
     assert_cairo_test_cases(

@@ -31,7 +31,6 @@ async def test_invoke(protostar: ProtostarFixture):
 
     testing_summary = await protostar.run_test_runner(
         TEST_PATH / "invoke_test.cairo",
-        cairo_test_runner=True,
     )
 
     assert_cairo_test_cases(

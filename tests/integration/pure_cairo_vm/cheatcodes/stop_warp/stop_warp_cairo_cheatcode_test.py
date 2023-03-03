@@ -28,7 +28,7 @@ async def test_stop_warp_cheatcode(protostar: ProtostarFixture):
     )
 
     testing_summary = await protostar.run_test_runner(
-        TEST_PATH / "stop_warp_test.cairo", cairo_test_runner=True
+        TEST_PATH / "stop_warp_test.cairo"
     )
 
     assert_cairo_test_cases(

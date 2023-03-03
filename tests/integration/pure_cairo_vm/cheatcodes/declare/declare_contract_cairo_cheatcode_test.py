@@ -29,7 +29,6 @@ async def test_declare(protostar: ProtostarFixture):
 
     testing_summary = await protostar.run_test_runner(
         TEST_PATH / "declare_contract_test.cairo",
-        cairo_test_runner=True,
     )
 
     assert_cairo_test_cases(

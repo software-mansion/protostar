@@ -23,7 +23,7 @@ async def test_expect_call(protostar: ProtostarFixture):
         }
     )
     testing_summary = await protostar.run_test_runner(
-        Path(__file__).parent / "expect_call_test.cairo", cairo_test_runner=True
+        Path(__file__).parent / "expect_call_test.cairo"
     )
 
     assert_cairo_test_cases(
@@ -53,7 +53,6 @@ async def test_expect_call_with_proxy(protostar: ProtostarFixture):
     )
     testing_summary = await protostar.run_test_runner(
         Path(__file__).parent / "expect_call_with_proxy_test.cairo",
-        cairo_test_runner=True,
     )
 
     assert_cairo_test_cases(

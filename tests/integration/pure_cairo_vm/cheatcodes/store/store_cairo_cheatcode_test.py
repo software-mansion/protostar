@@ -30,7 +30,6 @@ async def test_store_cairo_cheatcode(
 
     testing_summary = await protostar.run_test_runner(
         TEST_PATH / "store_test.cairo",
-        cairo_test_runner=True,
     )
 
     assert_cairo_test_cases(

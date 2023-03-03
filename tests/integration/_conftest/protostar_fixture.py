@@ -398,7 +398,6 @@ class ProtostarFixture:
     async def run_test_runner(
         self,
         target: Union[str, Path],
-        cairo_test_runner: bool = False,
         cairo1_test_runner: bool = False,
         cairo_path: Optional[List[Path]] = None,
     ) -> TestingSummary:
@@ -421,7 +420,6 @@ class ProtostarFixture:
         return await self._test_command.test(
             targets=targets,
             messenger=messenger_factory.human(),
-            use_cairo_test_runner=cairo_test_runner,
             use_cairo1_test_runner=cairo1_test_runner,
             cairo_path=cairo_path,
         )
