@@ -215,7 +215,7 @@ Log information about already formatted files as well.
 ```shell
 $ protostar init
 ```
-Create a Protostar project with cairo 0 template.
+Create a Protostar project with cairo0 template.
 #### `name STRING`
 Name of the directory a new project will be placed in.Ignored when `--existing` is passed.
 #### `--existing`
@@ -224,7 +224,7 @@ Adapt current directory to a Protostar project.
 ```shell
 $ protostar init-cairo1
 ```
-Create a Protostar project with cairo 1 template.
+Create a Protostar project with cairo1 template.
 #### `name STRING`
 Name of the directory a new project will be placed in.Ignored when `--existing` is passed.
 #### `--existing`

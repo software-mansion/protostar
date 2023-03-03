@@ -35,9 +35,7 @@ class InitCommand(ProtostarCommand):
 
     @property
     def description(self) -> str:
-        return (
-            f"Create a Protostar project with {self._cairo_version.value} template."
-        )
+        return f"Create a Protostar project with {self._cairo_version.value} template."
 
     @property
     def example(self) -> Optional[str]:
