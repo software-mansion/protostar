@@ -55,3 +55,11 @@ def compile_protostar_sierra_to_casm(
         )
     )
     return json.loads(compiled_str)
+
+
+def typecheck_sierra_tests(
+    named_tests: list[str], sierra_contents: str
+) -> Optional[dict]:
+    cairo_python_bindings.typecheck_sierra_tests(  # pyright: ignore
+        named_tests, sierra_contents
+    )
