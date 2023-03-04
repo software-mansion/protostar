@@ -6,10 +6,12 @@ from typing import Callable, ContextManager, List, Optional, cast
 
 import pytest
 from pytest import TempPathFactory
+from pytest import FixtureRequest
 from pytest_mock import MockerFixture
 from starkware.starknet.public.abi import AbiType
 from typing_extensions import Protocol
 
+from protostar.cairo import CairoVersion
 from protostar.commands.test.test_command import TestCommand
 from protostar.compiler.project_cairo_path_builder import ProjectCairoPathBuilder
 from protostar.io.log_color_provider import LogColorProvider
@@ -136,9 +138,15 @@ class CreateProtostarProjectFixture(Protocol):
 
 @pytest.fixture(name="create_protostar_project", scope="module")
 def create_protostar_project_fixture(
+    request: FixtureRequest,
     session_mocker: MockerFixture,
     tmp_path_factory: TempPathFactory,
 ) -> CreateProtostarProjectFixture:
+    cairo_version = (
+        CairoVersion.cairo0 if not hasattr(request, "param") else request.param
+    )
+    assert isinstance(cairo_version, CairoVersion)
+
     @contextmanager
     def create_protostar_project():
         tmp_path = tmp_path_factory.mktemp("project_name")
@@ -147,6 +155,7 @@ def create_protostar_project_fixture(
         protostar = create_protostar_fixture(
             mocker=session_mocker,
             project_root_path=tmp_path,
+            cairo_version=cairo_version,
         )
         project_name = "project_name"
         protostar.init_sync(project_name)
@@ -157,6 +166,7 @@ def create_protostar_project_fixture(
         yield create_protostar_fixture(
             mocker=session_mocker,
             project_root_path=project_root_path,
+            cairo_version=cairo_version,
         )
         os.chdir(cwd)
 

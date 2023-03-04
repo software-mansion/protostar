@@ -55,6 +55,7 @@ REPOSITORY_ROOT = Path(__file__).parent.parent.parent.parent.resolve()
 def create_protostar_fixture(
     mocker: MockerFixture,
     project_root_path: Path,
+    cairo_version: CairoVersion,
 ):
     version_manager = mocker.MagicMock()
     version_manager.protostar_version = mocker.MagicMock()
@@ -100,7 +101,7 @@ def create_protostar_fixture(
         input_requester,
         new_project_creator=new_project_creator,
         adapted_project_creator=mocker.MagicMock(),
-        cairo_version=CairoVersion.cairo0,
+        cairo_version=cairo_version,
     )
 
     messenger_factory = MessengerFactory(
