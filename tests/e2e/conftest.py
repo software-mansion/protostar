@@ -91,8 +91,8 @@ def init_project(
             real_project_name = project_name
         else:
             real_project_name = override_project_name
-        init_command = (
-            "init" + "-cairo1" if cairo_version == CairoVersion.cairo1 else ""
+        init_command = "init" + (
+            "-cairo1" if cairo_version == CairoVersion.cairo1 else ""
         )
         child = pexpect.spawn(f"{protostar_bin} { init_command } {real_project_name}")
         child.expect(pexpect.EOF, timeout=30)
