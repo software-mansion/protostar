@@ -8,7 +8,7 @@ from tests.integration.conftest import CreateProtostarProjectFixture
 from tests.conftest import PROJECT_ROOT
 
 
-@pytest.mark.parametrize("cairo_version", [CairoVersion.cairo0, CairoVersion.cairo0])
+@pytest.mark.parametrize("cairo_version", [CairoVersion.cairo0, CairoVersion.cairo1])
 def test_init(
     create_protostar_project: CreateProtostarProjectFixture, cairo_version: CairoVersion
 ):
