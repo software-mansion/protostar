@@ -1,21 +1,6 @@
-#[contract]
-mod BalanceContract {
-    struct Storage {
-        balance: felt
-    }
-
-    #[external]
-    fn increase_balance(amount: felt) {
-        balance::write(balance::read() + amount);
-    }
-
-    #[view]
-    fn get_balance() -> felt {
-        balance::read()
-    }
-
-    #[constructor]
-    fn constructor() {
-        balance::write(0);
+fn fib(a: felt, b: felt, n: felt) -> felt {
+    match n {
+        0 => a,
+        _ => fib(b, a + b, n - 1),
     }
 }
