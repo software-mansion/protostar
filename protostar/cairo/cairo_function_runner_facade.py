@@ -59,3 +59,6 @@ class CairoRunnerFacade:
             self._previous_runner
         ), "No runs were performed, so no return values are available!"
         return self._previous_runner.get_return_values(n_ret)
+
+    def did_panic(self):
+        return self.get_return_values(3)[0] == 1

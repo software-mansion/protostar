@@ -67,9 +67,7 @@ def check_library_function(
                 },
             )
 
-            assert cairo_runner_facade.get_return_values(3)[0] == int(
-                bool(mocked_error_code)
-            )
+            assert cairo_runner_facade.did_panic() == int(bool(mocked_error_code))
 
 
 def test_roll(datadir: Path):
