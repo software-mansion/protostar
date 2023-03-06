@@ -6,6 +6,7 @@ import crypto_cpp_py
 block_cipher = None
 extra_files = [
     ("protostar_cairo", "protostar_cairo"),
+    ("cairo/corelib", "cairo/corelib"),
     ('templates', 'templates'),
     ('constants.json', 'info'),
 ] + collect_data_files('starkware')

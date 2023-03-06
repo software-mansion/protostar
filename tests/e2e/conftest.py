@@ -50,7 +50,13 @@ CopyFixture = Callable[[Union[Path, str], Union[Path, str]], None]
 def copy_fixture(
     cairo_fixtures_dir: Path,
 ) -> CopyFixture:
-    return lambda file, dst: shutil.copy(cairo_fixtures_dir / file, dst)
+    def copy_content(file: Union[Path, str], dst: Union[Path, str]):
+        if (cairo_fixtures_dir / file).is_dir():
+            shutil.copytree(cairo_fixtures_dir / file, dst)
+        else:
+            shutil.copy(cairo_fixtures_dir / file, dst)
+
+    return copy_content
 
 
 @pytest.fixture
