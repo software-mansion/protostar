@@ -19,8 +19,7 @@ def test_return_value(datadir: Path):
     cairo_runner_facade = CairoRunnerFacade(program=protostar_casm.program)
 
     expected_outcome = {
-        "test::test::test_empty": False,
-        "test::test::test_with_result": False,
+        "test::test::test_ok": False,
         "test::test::test_panic": True,
     }
     actual_outcome = {}
