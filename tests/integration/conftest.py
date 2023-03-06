@@ -6,7 +6,6 @@ from typing import Callable, ContextManager, List, Optional, cast
 
 import pytest
 from pytest import TempPathFactory
-from pytest import FixtureRequest
 from pytest_mock import MockerFixture
 from starkware.starknet.public.abi import AbiType
 from typing_extensions import Protocol
@@ -132,23 +131,19 @@ def run_test_runner_fixture(
 
 
 class CreateProtostarProjectFixture(Protocol):
-    def __call__(self) -> ContextManager[ProtostarFixture]:
+    def __call__(
+        self, cairo_version: CairoVersion = CairoVersion.cairo0
+    ) -> ContextManager[ProtostarFixture]:
         ...
 
 
 @pytest.fixture(name="create_protostar_project", scope="module")
 def create_protostar_project_fixture(
-    request: FixtureRequest,
     session_mocker: MockerFixture,
     tmp_path_factory: TempPathFactory,
 ) -> CreateProtostarProjectFixture:
-    cairo_version = (
-        CairoVersion.cairo0 if not hasattr(request, "param") else request.param
-    )
-    assert isinstance(cairo_version, CairoVersion)
-
     @contextmanager
-    def create_protostar_project():
+    def create_protostar_project(cairo_version: CairoVersion = CairoVersion.cairo0):
         tmp_path = tmp_path_factory.mktemp("project_name")
         project_root_path = tmp_path
         cwd = Path().resolve()
