@@ -12,6 +12,7 @@ import pexpect
 import pytest
 from typing_extensions import Protocol
 
+from protostar.cairo import CairoVersion
 from protostar.self.protostar_directory import ProtostarDirectory
 from tests.conftest import run_devnet
 
@@ -72,7 +73,7 @@ class ProjectInitializer(Protocol):
     def __call__(
         self,
         override_project_name: Optional[str] = None,
-        cairo1: Optional[bool] = False,
+        cairo_version: CairoVersion = CairoVersion.cairo0,
     ) -> None:
         ...
 
@@ -81,25 +82,20 @@ class ProjectInitializer(Protocol):
 def init_project(
     protostar_bin: Path,
     project_name: str,
-    cairo_fixtures_dir: Path,
-    tmp_path: Path,
 ) -> ProjectInitializer:
     def _init_project(
-        override_project_name: Optional[str] = None, cairo1: Optional[bool] = False
+        override_project_name: Optional[str] = None,
+        cairo_version: CairoVersion = CairoVersion.cairo0,
     ) -> None:
         if override_project_name is None:
             real_project_name = project_name
         else:
             real_project_name = override_project_name
-        child = pexpect.spawn(f"{protostar_bin} init {real_project_name}")
+        init_command = (
+            "init" + "-cairo1" if cairo_version == CairoVersion.cairo1 else ""
+        )
+        child = pexpect.spawn(f"{protostar_bin} { init_command } {real_project_name}")
         child.expect(pexpect.EOF, timeout=30)
-        if cairo1:
-            project_dir = tmp_path / "protostar_project" / real_project_name
-            main_path = project_dir / "src" / "main.cairo"
-            fixture_path = cairo_fixtures_dir / "basic_cairo1.cairo"
-            assert main_path.exists() and fixture_path.exists()
-            main_path.write_text(fixture_path.read_text())
-            Path(project_dir / "build").mkdir()
 
     return _init_project
 
@@ -237,7 +233,7 @@ def init_cairo1(
         protostar_toml_protostar_version=protostar_toml_protostar_version,
         init_project=init_project,
         libs_path=libs_path,
-        cairo1=True,
+        cairo_version=CairoVersion.cairo1,
     )
     yield
     chdir(protostar_repo_root)
@@ -248,9 +244,9 @@ def _init(
     protostar_toml_protostar_version: str,
     init_project: ProjectInitializer,
     libs_path: Optional[str],
-    cairo1: Optional[bool] = False,
+    cairo_version: CairoVersion = CairoVersion.cairo0,
 ):
-    init_project(cairo1=cairo1)
+    init_project(cairo_version=cairo_version)
     chdir(project_name)
     if protostar_toml_protostar_version or libs_path:
         protostar_toml_content = Path("protostar.toml").read_text(encoding="utf-8")
