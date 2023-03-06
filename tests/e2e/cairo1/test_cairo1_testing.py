@@ -8,8 +8,8 @@ def test_testing(protostar: ProtostarFixture, copy_fixture: CopyFixture):
 
     result = protostar(["test-cairo1", "tests"])
 
-    assert "Collected 2 suites, and 4 test cases" in result
-    assert "4 passed" in result
+    assert "Collected 3 suites, and 6 test cases" in result
+    assert "6 passed" in result
 
 
 def test_no_tests_found(protostar: ProtostarFixture):
