@@ -54,6 +54,7 @@ from protostar.upgrader import (
     LatestVersionRemoteChecker,
     UpgradeManager,
 )
+from protostar.cairo import CairoVersion
 
 
 @dataclass
@@ -155,6 +156,13 @@ def build_di_container(
             requester=input_requester,
             new_project_creator=new_project_creator,
             adapted_project_creator=adapted_project_creator,
+            cairo_version=CairoVersion.cairo0,
+        ),
+        InitCommand(
+            requester=input_requester,
+            new_project_creator=new_project_creator,
+            adapted_project_creator=adapted_project_creator,
+            cairo_version=CairoVersion.cairo1,
         ),
         BuildCommand(
             project_compiler=project_compiler,
