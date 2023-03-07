@@ -9,7 +9,7 @@ from typing import Any, List, Optional
 from protostar.argument_parser import CLIApp
 from protostar.cli import ProtostarArgument, ProtostarCommand
 from protostar.commands import MigrateConfigurationFileCommand
-from protostar.compiler import ProjectCairoPathBuilder
+from protostar.compiler import LinkedLibrariesBuilder
 from protostar.configuration_file import (
     CommandNamesProviderProtocol,
     ConfigurationFile,
@@ -38,7 +38,7 @@ class ProtostarCLI(CLIApp, CommandNamesProviderProtocol):
     def __init__(
         self,
         log_color_provider: LogColorProvider,
-        project_cairo_path_builder: ProjectCairoPathBuilder,
+        project_cairo_path_builder: LinkedLibrariesBuilder,
         latest_version_checker: LatestVersionChecker,
         version_manager: VersionManager,
         commands: List[ProtostarCommand],

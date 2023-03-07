@@ -215,7 +215,16 @@ Log information about already formatted files as well.
 ```shell
 $ protostar init
 ```
-Create a Protostar project.
+Create a Protostar project with cairo0 template.
+#### `name STRING`
+Name of the directory a new project will be placed in.Ignored when `--existing` is passed.
+#### `--existing`
+Adapt current directory to a Protostar project.
+### `init-cairo1`
+```shell
+$ protostar init-cairo1
+```
+Create a Protostar project with cairo1 template.
 #### `name STRING`
 Name of the directory a new project will be placed in.Ignored when `--existing` is passed.
 #### `--existing`
@@ -398,6 +407,29 @@ Print slowest tests at the end.
 Use Cairo compiler for test collection.
 #### `--seed INT`
 Set a seed to use for all fuzz tests.
+### `test-cairo1`
+```shell
+$ protostar test-cairo1
+```
+Executes cairo1 tests.
+#### `target STRING[]=['.']`
+A glob or globs to a directory or a test suite, for example:
+- `tests/**/*_main*::*_balance` — find test cases, which names ends with `_balance` in test suites with the `_main` in filenames in the `tests` directory,
+- `::test_increase_balance` — find `test_increase_balance` test_cases in any test suite within the project.
+#### `-x` `--exit-first`
+Exit immediately on first broken or failed test.
+#### `-i` `--ignore STRING[]`
+A glob or globs to a directory or a test suite, which should be ignored.
+#### `--json`
+Print machine-readable output in [NDJSON](https://github.com/ndjson/ndjson-spec) format.
+#### `-lf` `--last-failed`
+Only re-run failed and broken test cases.
+#### `--linked-libraries PATH[]`
+Libraries to include in compilation
+#### `--no-progress-bar`
+Disable progress bar.
+#### `--report-slowest-tests INT`
+Print slowest tests at the end.
 ### `update`
 ```shell
 $ protostar update cairo-contracts

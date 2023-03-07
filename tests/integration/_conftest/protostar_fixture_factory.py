@@ -35,6 +35,7 @@ from protostar.self.protostar_compatibility_with_project_checker import (
     parse_protostar_version,
 )
 from protostar.self.protostar_directory import ProtostarDirectory
+from protostar.cairo import CairoVersion
 
 from .protostar_fixture import ProtostarFixture
 from .transaction_registry import TransactionRegistry
@@ -98,6 +99,7 @@ def create_protostar_fixture(
         input_requester,
         new_project_creator=new_project_creator,
         adapted_project_creator=mocker.MagicMock(),
+        cairo_version=CairoVersion.cairo0,
     )
 
     messenger_factory = MessengerFactory(
