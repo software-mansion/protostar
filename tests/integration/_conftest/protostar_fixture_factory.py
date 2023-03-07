@@ -113,7 +113,10 @@ def create_protostar_fixture(
         messenger_factory=messenger_factory,
     )
 
-    cairo1_build_command = Cairo1BuildCommand(project_compiler=project_compiler)
+    cairo1_build_command = Cairo1BuildCommand(
+        configuration_file=project_compiler.configuration_file,
+        project_root_path=project_root_path,
+    )
 
     transaction_registry = TransactionRegistry()
 

@@ -4,19 +4,19 @@ from typing import List, Optional, Any
 
 from protostar.cli import ProtostarArgument, ProtostarCommand
 from protostar.cli.common_arguments import COMPILED_CONTRACTS_DIR_ARG
-from protostar.compiler import (
-    ProjectCompiler,
-)
+from protostar.configuration_file.configuration_file import ConfigurationFile
 import protostar.cairo.cairo_bindings as cairo1
 
 
 class Cairo1BuildCommand(ProtostarCommand):
     def __init__(
         self,
-        project_compiler: ProjectCompiler,
+        configuration_file: ConfigurationFile,
+        project_root_path: Path,
     ):
         super().__init__()
-        self._project_compiler = project_compiler
+        self._configuration_file = configuration_file
+        self._project_root_path = project_root_path
 
     @property
     def example(self) -> Optional[str]:
@@ -60,7 +60,7 @@ class Cairo1BuildCommand(ProtostarCommand):
         output_dir: Path,
         relative_cairo_path: Optional[List[Path]] = None,
     ) -> None:
-        configuration_file = self._project_compiler.configuration_file
+        configuration_file = self._configuration_file
         cairo_path = relative_cairo_path or []
         for contract_name in configuration_file.get_contract_names():
             contract_paths = configuration_file.get_contract_source_paths(contract_name)
@@ -69,11 +69,10 @@ class Cairo1BuildCommand(ProtostarCommand):
                 f"Multiple files found for contract {contract_name}, "
                 f"only one file per contract is supported in cairo1!"
             )
+            if not output_dir.is_absolute():
+                output_dir = self._project_root_path / output_dir
             cairo1.compile_starknet_contract_from_path(
                 input_path=contract_paths[0],
                 cairo_path=cairo_path,
-                output_path=self._project_compiler.get_compilation_output_dir(
-                    output_dir
-                )
-                / (contract_name + ".json"),
+                output_path=output_dir / (contract_name + ".json"),
             )
