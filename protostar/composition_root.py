@@ -14,6 +14,7 @@ from protostar.cli import (
 from protostar.cli.lib_path_resolver import LibPathResolver
 from protostar.commands import (
     BuildCommand,
+    Cairo1BuildCommand,
     CalculateAccountAddressCommand,
     CallCommand,
     DeclareCommand,
@@ -167,6 +168,10 @@ def build_di_container(
         BuildCommand(
             project_compiler=project_compiler,
             messenger_factory=messenger_factory,
+        ),
+        Cairo1BuildCommand(
+            configuration_file=project_compiler.configuration_file,
+            project_root_path=project_root_path,
         ),
         InstallCommand(
             log_color_provider=log_color_provider,

@@ -43,7 +43,7 @@ class ProjectCompiler:
     ):
         self._project_root_path = project_root_path
         self._project_cairo_path_builder = project_cairo_path_builder
-        self._configuration_file = configuration_file
+        self.configuration_file = configuration_file
         self._default_config = default_config or ProjectCompilerConfig(
             relative_cairo_path=[]
         )
@@ -52,7 +52,7 @@ class ProjectCompiler:
         self, output_dir: Path, config: Optional[ProjectCompilerConfig] = None
     ) -> dict[str, int]:
         class_hashes = {}
-        for contract_name in self._configuration_file.get_contract_names():
+        for contract_name in self.configuration_file.get_contract_names():
             contract = self.compile_contract_from_contract_name(contract_name, config)
             class_hash = compute_class_hash(contract_class=contract)
             class_hashes[contract_name] = class_hash
@@ -83,7 +83,7 @@ class ProjectCompiler:
         self, contract_name: str, config: Optional[ProjectCompilerConfig] = None
     ) -> ContractClass:
         try:
-            contract_paths = self._configuration_file.get_contract_source_paths(
+            contract_paths = self.configuration_file.get_contract_source_paths(
                 contract_name
             )
             assert contract_paths, f"No contract paths found for {contract_name}!"

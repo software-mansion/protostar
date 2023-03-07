@@ -6,17 +6,23 @@ from dataclasses import dataclass
 import cairo_python_bindings
 
 
+def ensure_output_path(output_path: Optional[Path]):
+    if output_path:
+        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+
+
 @dataclass
 class TestCollectorOutput:
     sierra_output: Optional[str]
     test_names: list[str]
 
 
-def compile_starknet_contract(
+def compile_starknet_contract_from_path(
     input_path: Path,
     output_path: Optional[Path] = None,
     cairo_path: Optional[list[Path]] = None,
 ) -> Optional[str]:
+    ensure_output_path(output_path=output_path)
     return cairo_python_bindings.compile_starknet_contract_from_path(  # pyright: ignore
         str(input_path),
         str(output_path) if output_path else None,
@@ -29,6 +35,7 @@ def collect_tests(
     output_path: Optional[Path] = None,
     cairo_path: Optional[list[Path]] = None,
 ) -> TestCollectorOutput:
+    ensure_output_path(output_path=output_path)
     output = cairo_python_bindings.collect_tests(  # pyright: ignore
         str(input_path),
         str(output_path) if output_path else None,
@@ -40,6 +47,7 @@ def collect_tests(
 def compile_protostar_sierra_to_casm_from_path(
     named_tests: list[str], input_path: Path, output_path: Optional[Path] = None
 ) -> Optional[dict]:
+    ensure_output_path(output_path=output_path)
     compiled_str = cairo_python_bindings.compile_protostar_sierra_to_casm_from_path(  # pyright: ignore
         named_tests, str(input_path), str(output_path) if output_path else None
     )
@@ -49,6 +57,7 @@ def compile_protostar_sierra_to_casm_from_path(
 def compile_protostar_sierra_to_casm(
     named_tests: list[str], input_data: str, output_path: Optional[Path] = None
 ) -> Optional[dict]:
+    ensure_output_path(output_path=output_path)
     compiled_str = (
         cairo_python_bindings.compile_protostar_sierra_to_casm(  # pyright: ignore
             named_tests, input_data, str(output_path) if output_path else None
