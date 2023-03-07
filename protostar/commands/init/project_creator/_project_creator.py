@@ -26,10 +26,10 @@ class ProjectCreator(ABC):
         template_path = self.script_root / "templates" / cairo_version.value
         try:
             shutil.copytree(template_path, project_root_path)
-        except FileExistsError:
+        except FileExistsError as ex_file_exists:
             raise ProtostarException(
                 f"Folder or file named {project_root_path.name} already exists. Choose different project name."
-            )
+            ) from ex_file_exists
 
     def save_protostar_toml(
         self, project_root_path: Path, cairo_version: CairoVersion
