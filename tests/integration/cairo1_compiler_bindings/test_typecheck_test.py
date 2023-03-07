@@ -31,8 +31,18 @@ def test_typecheck_with_return_values(datadir: Path):
 
 
 def test_typecheck_with_no_panic(datadir: Path):
-    # TODO this should raise an error!!
-    # with pytest.raises(RuntimeError, match=r"..."):
-    test_collector_output = cairo1.collect_tests(datadir / "test_with_no_panic.cairo")
-    assert test_collector_output.sierra_output
-    assert test_collector_output.test_names
+    with pytest.raises(RuntimeError, match=r"must be panicable but it's not"):
+        test_collector_output = cairo1.collect_tests(
+            datadir / "test_with_no_panic.cairo"
+        )
+        assert test_collector_output.sierra_output
+        assert test_collector_output.test_names
+
+
+def test_typecheck_without_panic(datadir: Path):
+    with pytest.raises(RuntimeError, match=r"must be panicable but it's not"):
+        test_collector_output = cairo1.collect_tests(
+            datadir / "test_without_panic.cairo"
+        )
+        assert test_collector_output.sierra_output
+        assert test_collector_output.test_names
