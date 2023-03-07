@@ -31,7 +31,7 @@ from protostar.io.output import Messenger
 from .messages import TestCollectorResultMessage
 from .test_command_cache import TestCommandCache
 from ...cairo_testing.cairo1_test_collector import Cairo1TestCollector
-from ...cairo_testing.cairo1_test_runner_adapter import Cairo1TestRunnerAdapter
+from ...cairo_testing.cairo1_test_runner import Cairo1TestRunner
 
 
 class TestCommand(ProtostarCommand):
@@ -270,7 +270,7 @@ A glob or globs to a directory or a test suite, for example:
                 write=messenger,
             )
             if use_cairo1_test_runner:
-                worker = Cairo1TestRunnerAdapter.worker
+                worker = Cairo1TestRunner.worker
             else:
                 worker = TestRunner.worker
 
