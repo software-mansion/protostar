@@ -8,6 +8,7 @@ from protostar.cairo.cairo1_test_suite_parser import (
     ProtostarCasm,
 )
 from protostar.cairo.cairo_function_runner_facade import CairoRunnerFacade
+from protostar.starknet.data_transformer import CairoData
 
 
 def get_mock_for_lib_func(
@@ -93,22 +94,66 @@ def test_invoke(datadir: Path):
         "test_invoke_no_args": [],
     }
 
-    def args_validator(
+    def _args_validator(
         memory: MemoryDict, test_case_name: str, *args: Any, **kwargs: Any
     ):
-        expected_calldata = expected_calldatas[test_case_name.split("::")[-1]]
         assert not args
         contract_address = memory.data[kwargs["contract_address"][0]]
         assert contract_address == 123
-        actual_calldata = []
-        calldata_start = memory.data[kwargs["calldata_start"][0]]
-        calldata_end = memory.data[kwargs["calldata_end"][0]]
-        iterator = calldata_start
-        while iterator != calldata_end:
-            actual_calldata.append(memory.data[iterator])
-            iterator = iterator + 1
-        assert actual_calldata == expected_calldata
+        validate_calldata_arg(
+            start_name="calldata_start",
+            end_name="calldata_end",
+            memory=memory,
+            expected_calldata=expected_calldatas[test_case_name.split("::")[-1]],
+            *args,
+            **kwargs,
+        )
 
     check_library_function(
-        "invoke", datadir / "invoke_test.cairo", args_validator=args_validator
+        "invoke", datadir / "invoke_test.cairo", args_validator=_args_validator
     )
+
+
+def test_mock_call(datadir: Path):
+    expected_calldatas = {
+        "test_mock_call": [121, 122, 123, 124],
+        "test_mock_call_no_args": [],
+    }
+
+    def _args_validator(
+        memory: MemoryDict, test_case_name: str, *args: Any, **kwargs: Any
+    ):
+        assert not args
+        contract_address = memory.data[kwargs["contract_address"][0]]
+        assert contract_address == 123
+        validate_calldata_arg(
+            start_name="response_start",
+            end_name="response_end",
+            memory=memory,
+            expected_calldata=expected_calldatas[test_case_name.split("::")[-1]],
+            *args,
+            **kwargs,
+        )
+
+    check_library_function(
+        "mock_call", datadir / "mock_call_test.cairo", args_validator=_args_validator
+    )
+
+
+def validate_calldata_arg(
+    start_name: str,
+    end_name: str,
+    memory: MemoryDict,
+    expected_calldata: CairoData,
+    *args: Any,
+    **kwargs: Any,
+):
+    assert not args
+    actual_calldata = []
+    calldata_start = memory.data[kwargs[start_name][0]]
+    calldata_end = memory.data[kwargs[end_name][0]]
+    iterator = calldata_start
+    while iterator != calldata_end:
+        actual_calldata.append(memory.data[iterator])
+        iterator = iterator + 1
+    assert actual_calldata == expected_calldata
