@@ -226,11 +226,11 @@ class ProtostarFixture:
         args = self._prepare_build_args()
         return asyncio.run(self._build_command.run(args))
 
-    async def cairo1build(self):
+    async def cairo1_build(self):
         args = self._prepare_build_args()
         return await self._cairo1_build_command.run(args)
 
-    def cairo1build_sync(self):
+    def cairo1_build_sync(self):
         args = self._prepare_build_args()
         return asyncio.run(self._cairo1_build_command.run(args))
 
