@@ -1,4 +1,7 @@
+use src::main::fib;
+
 #[test]
 fn test_fib() {
-    assert(test_fib(0, 1, 49) == 7778742049)
+    let x = fib(0, 1, 3);
+    assert(x == 2, 'fib(0, 1, 3)');
 }
