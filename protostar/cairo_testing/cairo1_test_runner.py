@@ -3,11 +3,12 @@ import traceback
 from contextlib import contextmanager
 from logging import getLogger
 from pathlib import Path
-from typing import List, Optional, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING, List
 
 from starkware.cairo.lang.compiler.program import Program
 
-from protostar.cairo.cairo_compiler import CairoCompiler, CairoCompilerConfig
+from protostar.cairo import CairoCompiler, CairoCompilerConfig
+from protostar.cairo.cairo1_test_suite_parser import ProtostarCasm
 from protostar.cairo_testing.execution_environments.cairo_setup_execution_environment import (
     CairoSetupExecutionEnvironment,
 )
@@ -17,13 +18,11 @@ from protostar.cairo_testing.execution_environments.cairo_setup_case_execution_e
 )
 from protostar.compiler import (
     ProjectCompiler,
+    ProjectCairoPathBuilder,
     ProjectCompilerConfig,
 )
-from protostar.compiler.project_cairo_path_builder import ProjectCairoPathBuilder
+from protostar.configuration_file import ConfigurationFileFactory
 from protostar.starknet import ReportedException
-from protostar.configuration_file.configuration_file_factory import (
-    ConfigurationFileFactory,
-)
 from protostar.protostar_exception import ProtostarException
 from protostar.testing import (
     UnexpectedBrokenTestSuiteResult,
@@ -38,13 +37,20 @@ from protostar.cairo_testing.execution_environments.cairo_test_execution_environ
     CairoTestExecutionEnvironment,
 )
 from protostar.cairo_testing.cairo_test_execution_state import CairoTestExecutionState
-from protostar.testing.test_case_runners.standard_test_case_runner import (
-    StandardTestCaseRunner,
+from protostar.testing.test_case_runners.cairo1_test_case_runner import (
+    Cairo1TestCaseRunner,
 )
 from protostar.testing.test_config import TestConfig
 from protostar.testing.test_environment_exceptions import RevertableException
-from protostar.testing.test_suite import TestSuite, TestCase
+from protostar.testing.test_suite import (
+    TestSuite,
+    TestCase,
+    Cairo1TestSuite,
+    TestCaseWithOffsets,
+)
 from protostar.testing.testing_seed import Seed
+import protostar.cairo.cairo_bindings as cairo1
+
 
 if TYPE_CHECKING:
     from protostar.testing.test_runner import TestRunner
@@ -52,8 +58,7 @@ if TYPE_CHECKING:
 logger = getLogger()
 
 
-# pylint: disable=too-many-instance-attributes
-class CairoTestRunner:
+class Cairo1TestRunner:
     def __init__(
         self,
         project_root_path: Path,
@@ -172,10 +177,11 @@ class CairoTestRunner:
         testing_seed: Seed,
         max_steps: Optional[int],
     ):
-        with self.suite_exception_handling(test_suite):
-            preprocessed = self.cairo_compiler.preprocess(test_suite.test_path)
-            compiled_program = self.cairo_compiler.compile_preprocessed(preprocessed)
+        assert isinstance(
+            test_suite, Cairo1TestSuite
+        ), "Cairo1 test runner cannot run non-cairo1 suites!"
 
+        with self.suite_exception_handling(test_suite):
             test_config = TestConfig(
                 seed=testing_seed,
                 profiling=self.profiling,
@@ -183,15 +189,23 @@ class CairoTestRunner:
                 gas_estimation_enabled=self._gas_estimation_enabled,
             )
             test_execution_state = await self._build_execution_state(test_config)
-            await self._run_suite_setup(
-                test_suite=test_suite,
-                test_execution_state=test_execution_state,
-                program=compiled_program,
+
+            casm_json = cairo1.compile_protostar_sierra_to_casm(
+                named_tests=[
+                    test_case.test_fn_name for test_case in test_suite.test_cases
+                ],
+                input_data=test_suite.sierra_output,
             )
+
+            assert casm_json, f"No CASM was emitted for {test_suite.test_path}"
+
+            protostar_casm = ProtostarCasm.from_json(casm_json)
+
+            test_suite.add_offsets_to_cases(offset_map=protostar_casm.offset_map)
 
             await self._invoke_test_cases(
                 test_suite=test_suite,
-                program=compiled_program,
+                program=protostar_casm.program,
                 test_execution_state=test_execution_state,
             )
 
@@ -239,13 +253,16 @@ class CairoTestRunner:
         program: Program,
     ) -> TestResult:
         state: CairoTestExecutionState = initial_state.fork()
-
-        if test_case.setup_fn_name:
-            setup_case_result = await self._run_setup_case(
-                test_case=test_case, state=state, program=program
-            )
-            if isinstance(setup_case_result, BrokenSetupCaseResult):
-                return setup_case_result.into_broken_test_case_result()
+        assert isinstance(
+            test_case, TestCaseWithOffsets
+        ), "Cairo 1 runner only supports test cases with offsets!"
+        # TODO #1537: Plug in setups
+        # if test_case.setup_fn_name:
+        #     setup_case_result = await self._run_setup_case(
+        #         test_case=test_case, state=state, program=program
+        #     )
+        #     if isinstance(setup_case_result, BrokenSetupCaseResult):
+        #         return setup_case_result.into_broken_test_case_result()
 
         # TODO #1283, #1282: Plug in other test modes (fuzzing, parametrized)
         # state.determine_test_mode(test_case)
@@ -254,7 +271,7 @@ class CairoTestRunner:
             state=state,
             program=program,
         )
-        return await StandardTestCaseRunner(
+        return await Cairo1TestCaseRunner(
             function_executor=test_execution_environment,
             test_case=test_case,
             output_recorder=state.output_recorder,
