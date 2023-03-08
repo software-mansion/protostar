@@ -50,7 +50,6 @@ class RunTestRunnerFixture(Protocol):
         cairo_path: Optional[List[Path]] = None,
         test_cases: Optional[List[str]] = None,
         ignored_test_cases: Optional[List[str]] = None,
-        use_cairo_test_runner: bool = False,
     ) -> TestingSummary:
         ...
 
@@ -75,7 +74,6 @@ def run_test_runner_fixture(
         cairo_path: Optional[List[Path]] = None,
         test_cases: Optional[List[str]] = None,
         ignored_test_cases: Optional[List[str]] = None,
-        use_cairo_test_runner: bool = False,
     ) -> TestingSummary:
         protostar_directory_mock = session_mocker.MagicMock()
         protostar_directory_mock.protostar_test_only_cairo_packages_path = Path()
@@ -125,7 +123,6 @@ def run_test_runner_fixture(
             profiling=profiling,
             disable_hint_validation=disable_hint_validation,
             cairo_path=cairo_path or [],
-            use_cairo_test_runner=use_cairo_test_runner,
             messenger=messenger_factory.human(),
         )
 
