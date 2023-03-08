@@ -6,7 +6,7 @@ from contextlib import contextmanager
 
 import cairo_python_bindings
 
-from protostar.protostar_exception import ProtostarException
+from .cairo_exceptions import CairoBindingException
 
 
 def ensure_output_path(output_path: Optional[Path]):
@@ -78,6 +78,6 @@ def handle_bindings_errors(binding_name: str):
     try:
         yield
     except RuntimeError as ex:
-        raise ProtostarException(
+        raise CairoBindingException(
             message=f"An error occurred in binding {binding_name}: {str(ex)}"
         ) from ex

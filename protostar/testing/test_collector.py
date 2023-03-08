@@ -12,7 +12,7 @@ from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
     PreprocessorError,
 )
 
-from protostar.protostar_exception import ProtostarException
+from protostar.cairo.cairo_exceptions import CairoBindingException
 
 from .test_results import BrokenTestSuiteResult
 from .test_suite import TestCase, TestSuite
@@ -258,7 +258,7 @@ class TestCollector:
                         test_suite_info,
                     )
                 )
-            except (PreprocessorError, LocationError, ProtostarException) as err:
+            except (PreprocessorError, LocationError, CairoBindingException) as err:
                 broken_test_suites.append(
                     BrokenTestSuiteResult(
                         file_path=test_suite_info.path,
