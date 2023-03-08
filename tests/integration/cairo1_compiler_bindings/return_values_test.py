@@ -19,11 +19,25 @@ def test_return_value(datadir: Path):
     cairo_runner_facade = CairoRunnerFacade(program=protostar_casm.program)
 
     expected_outcome = {
-        "test::test::test_ok": False,
-        "test::test::test_panic": True,
+        "test::test::test_ok": {
+            "did_panic": False,
+            "panic_data": [],
+        },
+        "test::test::test_panic_single_value": {
+            "did_panic": True,
+            "panic_data": [21],
+        },
+        "test::test::test_panic_multiple_values": {
+            "did_panic": True,
+            "panic_data": [101, 102, 103],
+        },
     }
     actual_outcome = {}
     for test_case_name, offset in protostar_casm.offset_map.items():
         cairo_runner_facade.run_from_offset(offset=offset)
-        actual_outcome[test_case_name] = cairo_runner_facade.did_panic()
+        cairo_runner_facade.did_panic()
+        actual_outcome[test_case_name] = {
+            "did_panic": cairo_runner_facade.did_panic(),
+            "panic_data": cairo_runner_facade.get_panic_data(),
+        }
     assert actual_outcome == expected_outcome
