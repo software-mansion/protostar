@@ -18,7 +18,7 @@ from protostar.starknet.pass_managers import (
     TestCollectorPassManagerFactory,
 )
 from protostar.starknet import StarknetCompiler
-from protostar.cairo import CairoCompiler, CairoCompilerConfig
+from protostar.cairo import CairoCompilerConfig
 from protostar.testing import (
     TestCollector,
     TestingSummary,
@@ -26,13 +26,12 @@ from protostar.testing import (
     TestScheduler,
     determine_testing_seed,
 )
-from protostar.cairo_testing.cairo_test_runner import CairoTestRunner
 from protostar.io.output import Messenger
 
 from .messages import TestCollectorResultMessage
 from .test_command_cache import TestCommandCache
 from ...cairo_testing.cairo1_test_collector import Cairo1TestCollector
-from ...cairo_testing.cairo1_test_runner_adapter import Cairo1TestRunnerAdapter
+from ...cairo_testing.cairo1_test_runner import Cairo1TestRunner
 
 
 class TestCommand(ProtostarCommand):
@@ -189,7 +188,6 @@ A glob or globs to a directory or a test suite, for example:
         self,
         targets: List[str],
         messenger: Messenger,
-        use_cairo_test_runner: bool = False,
         use_cairo1_test_runner: bool = False,
         ignored_targets: Optional[List[str]] = None,
         cairo_path: Optional[List[Path]] = None,
@@ -235,11 +233,6 @@ A glob or globs to a directory or a test suite, for example:
             )
             if use_cairo1_test_runner:
                 test_collector = Cairo1TestCollector(compiler_config.include_paths)
-            elif use_cairo_test_runner:
-                cairo_compiler = CairoCompiler(compiler_config)
-                test_collector = TestCollector(
-                    get_suite_function_names=cairo_compiler.get_function_names,
-                )
             else:
                 starknet_compiler = StarknetCompiler(
                     config=compiler_config,
@@ -277,10 +270,8 @@ A glob or globs to a directory or a test suite, for example:
                 project_root_path=self._project_root_path,
                 write=messenger,
             )
-            if use_cairo_test_runner:
-                worker = CairoTestRunner.worker
-            elif use_cairo1_test_runner:
-                worker = Cairo1TestRunnerAdapter.worker
+            if use_cairo1_test_runner:
+                worker = Cairo1TestRunner.worker
             else:
                 worker = TestRunner.worker
 
