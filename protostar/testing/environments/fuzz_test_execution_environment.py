@@ -1,5 +1,5 @@
 import dataclasses
-from asyncio import to_thread
+from asyncio import to_thread, new_event_loop, set_event_loop
 from dataclasses import dataclass
 from typing import Any, Callable, Dict, List
 
@@ -89,18 +89,24 @@ class FuzzTestExecutionEnvironment(ContractBasedTestExecutionEnvironment):
         #   running in a separate thread executor, we must set the ``reporter`` each first time
         #   we invoke Hypothesis code in new thread.
 
-        def test_thread():
+        async def test_thread():
             with with_reporter(protostar_reporter):
-                self.build_and_run_test(
+                await self.build_and_run_test(
                     function_name=function_identifier,
                     database=database,
                     execution_resources=execution_resources,
                     runs_counter=runs_counter,
                 )
 
+        def wrapped_test_thread():
+            loop = new_event_loop()
+            set_event_loop(loop)
+            loop.run_until_complete(test_thread())
+            loop.close()
+
         try:
             with self.state.output_recorder.redirect("test"):
-                await to_thread(test_thread)
+                await to_thread(wrapped_test_thread)
         except HypothesisFailureSmugglingError as escape_err:
             escape_err.error.execution_info["fuzz_runs"] = runs_counter.count
             escape_err.error.metadata.append(
@@ -150,7 +156,7 @@ class FuzzTestExecutionEnvironment(ContractBasedTestExecutionEnvironment):
         func = given(**self.given_strategies)(func)
         return func
 
-    def build_and_run_test(
+    async def build_and_run_test(
         self,
         function_name: str,
         database: ExampleDatabase,
@@ -198,10 +204,10 @@ class FuzzTestExecutionEnvironment(ContractBasedTestExecutionEnvironment):
             if self.given_strategies:
                 # NOTE: The ``test`` function does not expect any arguments at this point,
                 #   because the @given decorator provides all of them behind the scenes.
-                test()
+                await test()
             elif self.state.config.fuzz_examples:
                 for ex in reversed(self.state.config.fuzz_examples):
-                    test(**ex)
+                    await test(**ex)
 
         except InvalidArgument as ex:
             # This exception is sometimes raised by Hypothesis during runtime when user messes up
