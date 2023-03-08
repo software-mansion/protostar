@@ -1,5 +1,5 @@
 ---
-sidebar_label: Cairo 1 Testing
+sidebar_label: Testing
 ---
 
 # Running tests with Cairo 1
