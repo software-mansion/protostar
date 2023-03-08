@@ -9,6 +9,7 @@ from protostar.cairo import HintLocalsDict
 from protostar.cairo.cairo_function_executor import Offset, OffsetOrName
 from protostar.cairo.cairo_function_runner_facade import CairoRunnerFacade
 from protostar.testing.test_environment_exceptions import RevertableException
+from protostar.starknet import SimpleReportedException
 
 
 class CairoInjectableFunctionRunner:
@@ -45,6 +46,10 @@ class CairoInjectableFunctionRunner:
             self._cairo_runner_facade.run_from_offset(
                 offset=offset, hint_locals=self._hint_locals, *args, **kwargs
             )
+            if self._cairo_runner_facade.did_panic():
+                raise SimpleReportedException(
+                    f"Test failed with data: {self._cairo_runner_facade.get_panic_data()}"
+                )
 
     def run_cairo_function_by_name(
         self,
