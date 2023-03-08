@@ -1,5 +1,6 @@
 #[test]
 fn passing_test_using_foo(){
-   external_lib_foo::foo::foo();
+    assert(1 == 1, 'simple check');
+    external_lib_foo::foo::foo();
 }
 
