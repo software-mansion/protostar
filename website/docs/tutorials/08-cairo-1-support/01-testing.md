@@ -9,7 +9,7 @@ This functionality is in alpha stage, expect rapid iteration
 :::
 
 
-# Writing your first test
+## Writing your first test
 
 To make a test function, you need to mark the function with a decorator `#[test]`
 
@@ -44,7 +44,7 @@ fn test_panic_multiple_values() {
 }
 ```
 
-# Running the tests
+## Running the tests
 
 To run cairo 1 tests, there is a special command called `test-cairo1`.
 It is a sister-command to `test` command, it will collect all the tests in the given directory/module, run them, and print out a summary.
@@ -55,19 +55,19 @@ Tests are ran on Cairo VM, so no Starknet syscalls are available from the test c
 There is no support currently for starknet contracts at the moment, it's a work in progress.
 :::
 
-# Caveats
-## 1. Test collecting
+## Caveats
+### 1. Test collecting
 `test-cairo1` will collect all tests ending with `.cairo`, since there's no distinction between cairo 0 and cairo 1 files in terms of extension right now.
 
 That means that you will either have to specify a regex to match your test names (see [command reference](../cli-reference.md#test-cairo1)), or keep them in a separate directory to avoid syntax errors.
 
 A `test_` file prefix or `_test` postfix is required as well, to mark the files as test suites.
 
-## 2. Test state
+### 2. Test state
 
 `__setup__` and `<test_name>_setup` from previous version are not supported for now.
 
-## 3. Test function type
+### 3. Test function type
 
 A test function must not return any values, and be panickable for correct test result assessment
 
