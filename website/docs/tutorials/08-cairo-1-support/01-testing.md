@@ -87,4 +87,4 @@ fn test_foo() {
 ```
 
 
-If you fail to comply to those rules, the test function will not pass the type check, and test collecting will fail.
+If you fail to comply with those rules, the test function will not pass the type check, and test collecting will fail.
