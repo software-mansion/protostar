@@ -177,18 +177,14 @@ async def test_cairo_1_failing(
     )
     test_path_str = str(datadir / "test_cairo1_failing.cairo")
 
-    targets = {
-        "test_ok": True,
-        "test_panic_single_value": False,
-        "test_panic_multiple_values": False,
-    }
-    for test_target, success in targets.items():
-        testing_summary = await protostar.run_test_runner(
-            f"{test_path_str}::{test_target}",
-            cairo1_test_runner=True,
-        )
-        assert_cairo_test_cases(
-            testing_summary,
-            expected_passed_test_cases_names=[test_target] if success else [],
-            expected_failed_test_cases_names=[test_target] if not success else [],
-        )
+    testing_summary = await protostar.run_test_runner(
+        f"{test_path_str}", cairo1_test_runner=True
+    )
+    assert_cairo_test_cases(
+        testing_summary,
+        expected_passed_test_cases_names=["test_ok"],
+        expected_failed_test_cases_names=[
+            "test_panic_single_value",
+            "test_panic_multiple_values",
+        ],
+    )
