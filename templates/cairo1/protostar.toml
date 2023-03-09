@@ -1,3 +1,7 @@
-["protostar.project"]
+[project]
+protostar-version = "0.0.0"
+lib-path = "lib"
+linked-libraries = ["src"]
 
-["protostar.contracts"]
+[contracts]
+

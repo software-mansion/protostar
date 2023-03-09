@@ -58,4 +58,6 @@ class NewProjectCreator(ProjectCreator):
         output_dir_path = self._output_dir_path
         project_root_path = output_dir_path / user_input.project_dirname
         self.copy_template(cairo_version, project_root_path)
-        self.save_protostar_toml(project_root_path=project_root_path)
+        self.save_protostar_toml(
+            project_root_path=project_root_path, cairo_version=cairo_version
+        )

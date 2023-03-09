@@ -1,5 +1,7 @@
+use src::main::fib;
+
 #[test]
-#[available_gas(10000)]
-fn test_get_available_gas_with_gas_supply() {
-    assert(testing::get_available_gas() > 1000_u128, 'too much gas used')
+fn test_fib() {
+    let x = fib(0, 1, 13);
+    assert(x == 233, 'fib(0, 1, 13) == 233');
 }
