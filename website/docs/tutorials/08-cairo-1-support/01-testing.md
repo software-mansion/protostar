@@ -79,12 +79,18 @@ fn foo() -> felt {
     1
 }
 
+// Valid
 #[test]
-fn test_foo() {
-    foo();
-    ; // foo returns a value, so this would make the test invalid 
+fn valid_test() {
+    assert(1 == 1); // Assertion makes function panickable
+    foo(); // Last statement does not return a value now from the test function
+}
+
+// Invalid (not panickable and also last statement returns a value from the test function)
+#[test]
+fn invalid_test() {
+    foo()
 }
 ```
-
 
 If you fail to comply with those rules, the test function will not pass the type check, and test collecting will fail.
