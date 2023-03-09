@@ -71,7 +71,7 @@ A `test_` file prefix or `_test` postfix is required as well, to mark the files 
 
 A test function must not return any values, be panickable, and not have any arguments for correct test result assessment
 
-In case last statement in function returns a value, you can add a line with a `;` in order to avoid returning any values from the test function.
+In case the last statement in the function returns a value, you can add a line with a `;` in order to avoid returning any values from the test function.
 
 Example:
 ```
