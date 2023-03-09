@@ -51,6 +51,8 @@ It is a sister-command to `test` command, it will collect all the tests in the g
 
 Tests are ran on Cairo VM, so no Starknet syscalls are available from the test code.
 
+See [command reference](../../cli-reference.md#test-cairo1) for more details on usage.
+
 :::info
 There is no support currently for starknet contracts at the moment, it's a work in progress.
 :::
@@ -59,7 +61,7 @@ There is no support currently for starknet contracts at the moment, it's a work 
 ### 1. Test collecting
 `test-cairo1` will collect all tests ending with `.cairo`, since there's no distinction between cairo 0 and cairo 1 files in terms of extension right now.
 
-That means that you will either have to specify a regex to match your test names (see [command reference](../cli-reference.md#test-cairo1)), or keep them in a separate directory to avoid syntax errors.
+That means that you will either have to specify a regex to match your test names (see [command reference](../../cli-reference.md#test-cairo1)), or keep them in a separate directory to avoid syntax errors.
 
 A `test_` file prefix or `_test` postfix is required as well, to mark the files as test suites.
 
