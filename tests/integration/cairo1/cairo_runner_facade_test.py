@@ -35,7 +35,6 @@ def test_return_value(datadir: Path):
     actual_outcome = {}
     for test_case_name, offset in protostar_casm.offset_map.items():
         cairo_runner_facade.run_from_offset(offset=offset)
-        cairo_runner_facade.did_panic()
         actual_outcome[test_case_name] = {
             "did_panic": cairo_runner_facade.did_panic(),
             "panic_data": cairo_runner_facade.get_panic_data(),
