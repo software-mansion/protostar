@@ -10,6 +10,7 @@ from pytest_mock import MockerFixture
 from starkware.starknet.public.abi import AbiType
 from typing_extensions import Protocol
 
+from protostar.cairo import CairoVersion
 from protostar.commands.test.test_command import TestCommand
 from protostar.compiler.project_cairo_path_builder import ProjectCairoPathBuilder
 from protostar.io.log_color_provider import LogColorProvider
@@ -50,7 +51,6 @@ class RunTestRunnerFixture(Protocol):
         cairo_path: Optional[List[Path]] = None,
         test_cases: Optional[List[str]] = None,
         ignored_test_cases: Optional[List[str]] = None,
-        use_cairo_test_runner: bool = False,
     ) -> TestingSummary:
         ...
 
@@ -75,7 +75,6 @@ def run_test_runner_fixture(
         cairo_path: Optional[List[Path]] = None,
         test_cases: Optional[List[str]] = None,
         ignored_test_cases: Optional[List[str]] = None,
-        use_cairo_test_runner: bool = False,
     ) -> TestingSummary:
         protostar_directory_mock = session_mocker.MagicMock()
         protostar_directory_mock.protostar_test_only_cairo_packages_path = Path()
@@ -125,7 +124,6 @@ def run_test_runner_fixture(
             profiling=profiling,
             disable_hint_validation=disable_hint_validation,
             cairo_path=cairo_path or [],
-            use_cairo_test_runner=use_cairo_test_runner,
             messenger=messenger_factory.human(),
         )
 
@@ -133,7 +131,9 @@ def run_test_runner_fixture(
 
 
 class CreateProtostarProjectFixture(Protocol):
-    def __call__(self) -> ContextManager[ProtostarFixture]:
+    def __call__(
+        self, cairo_version: CairoVersion = CairoVersion.cairo0
+    ) -> ContextManager[ProtostarFixture]:
         ...
 
 
@@ -143,13 +143,14 @@ def create_protostar_project_fixture(
     tmp_path_factory: TempPathFactory,
 ) -> CreateProtostarProjectFixture:
     @contextmanager
-    def create_protostar_project():
+    def create_protostar_project(cairo_version: CairoVersion = CairoVersion.cairo0):
         tmp_path = tmp_path_factory.mktemp("project_name")
         project_root_path = tmp_path
         cwd = Path().resolve()
         protostar = create_protostar_fixture(
             mocker=session_mocker,
             project_root_path=tmp_path,
+            cairo_version=cairo_version,
         )
         project_name = "project_name"
         protostar.init_sync(project_name)
@@ -160,6 +161,7 @@ def create_protostar_project_fixture(
         yield create_protostar_fixture(
             mocker=session_mocker,
             project_root_path=project_root_path,
+            cairo_version=cairo_version,
         )
         os.chdir(cwd)
 

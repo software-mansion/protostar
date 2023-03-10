@@ -20,7 +20,7 @@ After reading these guides, you will know how to:
 - [Compile project](05-compiling.md)
 - [Add, update, and remove dependencies](06-dependencies-management.md)
 - [Test contracts using cheatcodes](07-testing/README.md)
-- [Interact with StarkNet (call, invoke, deploy contracts)](08-interacting-with-starknet/README.md)
+- [Interact with StarkNet (call, invoke, deploy contracts)](09-interacting-with-starknet/README.md)
 
 ## Reference
 Protostar is designed to be easily discoverable from the terminal.

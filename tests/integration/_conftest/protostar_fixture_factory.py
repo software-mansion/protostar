@@ -9,6 +9,7 @@ from protostar.argument_parser import ArgumentParserFacade, CLIApp
 from protostar.cli import map_protostar_type_name_to_parser, MessengerFactory
 from protostar.commands import (
     BuildCommand,
+    Cairo1BuildCommand,
     CalculateAccountAddressCommand,
     CallCommand,
     DeclareCommand,
@@ -54,6 +55,7 @@ REPOSITORY_ROOT = Path(__file__).parent.parent.parent.parent.resolve()
 def create_protostar_fixture(
     mocker: MockerFixture,
     project_root_path: Path,
+    cairo_version: CairoVersion,
 ):
     version_manager = mocker.MagicMock()
     version_manager.protostar_version = mocker.MagicMock()
@@ -99,7 +101,7 @@ def create_protostar_fixture(
         input_requester,
         new_project_creator=new_project_creator,
         adapted_project_creator=mocker.MagicMock(),
-        cairo_version=CairoVersion.cairo0,
+        cairo_version=cairo_version,
     )
 
     messenger_factory = MessengerFactory(
@@ -110,6 +112,11 @@ def create_protostar_fixture(
     build_command = BuildCommand(
         project_compiler=project_compiler,
         messenger_factory=messenger_factory,
+    )
+
+    cairo1_build_command = Cairo1BuildCommand(
+        configuration_file=project_compiler.configuration_file,
+        project_root_path=project_root_path,
     )
 
     transaction_registry = TransactionRegistry()
@@ -183,6 +190,7 @@ def create_protostar_fixture(
         init_command=init_command,
         call_command=call_command,
         build_command=build_command,
+        cairo1_build_command=cairo1_build_command,
         format_command=format_command,
         declare_command=declare_command,
         deploy_command=deploy_command,

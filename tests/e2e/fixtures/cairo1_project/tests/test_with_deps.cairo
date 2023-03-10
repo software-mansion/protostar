@@ -5,5 +5,5 @@ use external_lib_bar::bar::bar;
 fn test_assert_true() {
     foo();
     bar();
-    let x = 1;
+    assert(1 == 1, 'simple check');
 }

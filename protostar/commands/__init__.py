@@ -1,4 +1,5 @@
 from .build_command import BuildCommand
+from .cairo1_commands.cairo1_build_command import Cairo1BuildCommand
 from .calculate_account_address_command import CalculateAccountAddressCommand
 from .call import CallCommand
 from .declare_command import DeclareCommand

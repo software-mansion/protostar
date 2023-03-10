@@ -11,6 +11,7 @@ from protostar.cli import MessengerFactory
 from protostar.cli.signable_command_util import PRIVATE_KEY_ENV_VAR_NAME
 from protostar.commands import (
     BuildCommand,
+    Cairo1BuildCommand,
     CalculateAccountAddressCommand,
     CallCommand,
     DeclareCommand,
@@ -47,15 +48,16 @@ from .transaction_registry import TransactionRegistry
 
 ContractMap = Dict[str, List[str]]
 
+
 # pylint: disable=too-many-instance-attributes
-
-
+# pylint: disable=too-many-public-methods
 class ProtostarFixture:
     def __init__(
         self,
         project_root_path: Path,
         init_command: InitCommand,
         build_command: BuildCommand,
+        cairo1_build_command: Cairo1BuildCommand,
         format_command: FormatCommand,
         declare_command: DeclareCommand,
         deploy_command: DeployCommand,
@@ -73,6 +75,7 @@ class ProtostarFixture:
         self._project_root_path = project_root_path
         self._init_command = init_command
         self._build_command = build_command
+        self._cairo1_build_command = cairo1_build_command
         self._format_command = format_command
         self._declare_command = declare_command
         self._deploy_command = deploy_command
@@ -222,6 +225,14 @@ class ProtostarFixture:
     def build_sync(self):
         args = self._prepare_build_args()
         return asyncio.run(self._build_command.run(args))
+
+    async def cairo1_build(self):
+        args = self._prepare_build_args()
+        return await self._cairo1_build_command.run(args)
+
+    def cairo1_build_sync(self):
+        args = self._prepare_build_args()
+        return asyncio.run(self._cairo1_build_command.run(args))
 
     def _prepare_build_args(self):
         args = Namespace()
@@ -398,7 +409,6 @@ class ProtostarFixture:
     async def run_test_runner(
         self,
         target: Union[str, Path],
-        cairo_test_runner: bool = False,
         cairo1_test_runner: bool = False,
         cairo_path: Optional[List[Path]] = None,
     ) -> TestingSummary:
@@ -421,7 +431,6 @@ class ProtostarFixture:
         return await self._test_command.test(
             targets=targets,
             messenger=messenger_factory.human(),
-            use_cairo_test_runner=cairo_test_runner,
             use_cairo1_test_runner=cairo1_test_runner,
             cairo_path=cairo_path,
         )

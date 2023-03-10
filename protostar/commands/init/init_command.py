@@ -82,7 +82,7 @@ class InitCommand(ProtostarCommand):
                 )
 
         if should_adapt_existing_project:
-            self._adapted_project_creator.run()
+            self._adapted_project_creator.run(self._cairo_version)
         else:
             self._new_project_creator.run(self._cairo_version, project_name)
 
