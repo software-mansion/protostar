@@ -75,10 +75,8 @@ func setup_check_exact_example() {
 
 @external
 func test_check_exact_example{syscall_ptr: felt*, range_check_ptr}(a: felt, b: felt) {
-    %{
-        assert ids.a == 11
-        assert ids.b == 17
-    %}
+    assert a = 11;
+    assert b = 17;
     return ();
 }
 
