@@ -125,3 +125,15 @@ def test_last_failed(protostar: ProtostarFixture, copy_fixture: CopyFixture):
 
     assert "2 failed" in result
     assert "2 total" in result
+
+
+def test_report_slowest(protostar: ProtostarFixture, copy_fixture: CopyFixture):
+    copy_fixture("cairo1_project", "./cairo1_project")
+    copy_fixture("cairo1/failing_test.cairo", "./cairo1_project/tests")
+    os.chdir("./cairo1_project")
+
+    result = protostar(
+        ["--no-color", "test-cairo1", "./tests", "--report-slowest-tests", "10"],
+        ignore_exit_code=True,
+    )
+    assert "Slowest test cases" in result
