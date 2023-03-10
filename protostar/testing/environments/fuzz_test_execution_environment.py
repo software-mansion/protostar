@@ -1,6 +1,5 @@
 import asyncio
 import dataclasses
-from asyncio import to_thread
 from dataclasses import dataclass
 from typing import Any, Callable, Dict, List
 
@@ -100,7 +99,7 @@ class FuzzTestExecutionEnvironment(ContractBasedTestExecutionEnvironment):
 
         try:
             with self.state.output_recorder.redirect("test"):
-                await to_thread(test_thread)
+                await asyncio.to_thread(test_thread)
         except HypothesisFailureSmugglingError as escape_err:
             escape_err.error.execution_info["fuzz_runs"] = runs_counter.count
             escape_err.error.metadata.append(
