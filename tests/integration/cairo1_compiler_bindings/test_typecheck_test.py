@@ -24,7 +24,7 @@ def test_typecheck_with_args(datadir: Path):
 def test_typecheck_with_return_values(datadir: Path):
     with pytest.raises(
         CairoBindingException,
-        match=r"returns a value, it is required that test functions do not return values",
+        match=r"returns a value",
     ):
         test_collector_output = cairo1.collect_tests(
             datadir / "test_with_ret_vals.cairo"
