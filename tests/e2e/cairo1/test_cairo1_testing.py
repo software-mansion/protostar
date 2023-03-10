@@ -1,17 +1,17 @@
 import os
-from pathlib import Path
 
 from tests.e2e.conftest import CopyFixture, ProtostarFixture
 
 
 def test_testing(protostar: ProtostarFixture, copy_fixture: CopyFixture):
     copy_fixture("cairo1_project", "./cairo1_project")
+    copy_fixture("cairo1/test_a.cairo", "./cairo1_project/tests/test_a.cairo")
     os.chdir("./cairo1_project")
 
     result = protostar(["test-cairo1", "tests"])
 
-    assert "Collected 3 suites, and 6 test cases" in result
-    assert "6 passed" in result
+    assert "Collected 1 suite, and 3 test cases" in result
+    assert "3 passed" in result
 
 
 def test_no_tests_found(protostar: ProtostarFixture):
@@ -22,10 +22,9 @@ def test_no_tests_found(protostar: ProtostarFixture):
 
 def test_failing_tests(protostar: ProtostarFixture, copy_fixture: CopyFixture):
     copy_fixture("cairo1_project", "./cairo1_project")
-    template_test_files = Path("cairo1_project/tests").glob("**/*")
-    for template_test_file in template_test_files:
-        template_test_file.unlink()
-    copy_fixture("cairo1/failing_test.cairo", "./cairo1_project/tests")
+    copy_fixture(
+        "cairo1/failing_test.cairo", "./cairo1_project/tests/failing_test.cairo"
+    )
     os.chdir("./cairo1_project")
 
     result = protostar(["--no-color", "test-cairo1", "tests"], ignore_exit_code=True)
@@ -47,6 +46,7 @@ def test_failing_tests(protostar: ProtostarFixture, copy_fixture: CopyFixture):
 
 def test_targeted_collecting(protostar: ProtostarFixture, copy_fixture: CopyFixture):
     copy_fixture("cairo1_project", "./cairo1_project")
+    copy_fixture("cairo1/test_a.cairo", "./cairo1_project/tests/test_a.cairo")
     os.chdir("./cairo1_project")
 
     result = protostar(["test-cairo1", "::test_B"])
@@ -57,6 +57,7 @@ def test_targeted_collecting(protostar: ProtostarFixture, copy_fixture: CopyFixt
 
 def test_glob_collecting(protostar: ProtostarFixture, copy_fixture: CopyFixture):
     copy_fixture("cairo1_project", "./cairo1_project")
+    copy_fixture("cairo1/nested", "./cairo1_project/tests/nested")
     os.chdir("./cairo1_project")
 
     result = protostar(["test-cairo1", "./tests/**/*nested*::nested*"])
@@ -68,6 +69,9 @@ def test_glob_collecting(protostar: ProtostarFixture, copy_fixture: CopyFixture)
 
 def test_ignoring_dir(protostar: ProtostarFixture, copy_fixture: CopyFixture):
     copy_fixture("cairo1_project", "./cairo1_project")
+    copy_fixture("cairo1/test_a.cairo", "./cairo1_project/tests/test_a.cairo")
+    copy_fixture("cairo1/nested", "./cairo1_project/tests/nested")
+
     os.chdir("./cairo1_project")
 
     result = protostar(["test-cairo1", "./tests", "--ignore", "**/nested"])
@@ -84,3 +88,15 @@ def test_ignoring_cases(protostar: ProtostarFixture, copy_fixture: CopyFixture):
 
     assert "nested_1" not in result
     assert "nested_2" not in result
+
+
+def test_exit_first(protostar: ProtostarFixture, copy_fixture: CopyFixture):
+    copy_fixture("cairo1_project", "./cairo1_project")
+    copy_fixture("cairo1/failing_test.cairo", "./cairo1_project/tests")
+    os.chdir("./cairo1_project")
+
+    result = protostar(
+        ["--no-color", "test-cairo1", "--exit-first", "./tests"], ignore_exit_code=True
+    )
+    # The test suite contains 2 failing tests, so it should fail only one of them when using exit-first
+    assert "1 failed" in result
