@@ -100,3 +100,28 @@ def test_exit_first(protostar: ProtostarFixture, copy_fixture: CopyFixture):
     )
     # The test suite contains 2 failing tests, so it should fail only one of them when using exit-first
     assert "1 failed" in result
+
+
+def test_last_failed(protostar: ProtostarFixture, copy_fixture: CopyFixture):
+    copy_fixture("cairo1_project", "./cairo1_project")
+    copy_fixture("cairo1/failing_test.cairo", "./cairo1_project/tests")
+    os.chdir("./cairo1_project")
+
+    result = protostar(["--no-color", "test-cairo1", "./tests"], ignore_exit_code=True)
+    # Suite consisting of 1 passing, and 2 failing
+    assert "2 failed" in result
+    assert "1 passed" in result
+    assert "3 total" in result
+
+    result = protostar(
+        ["--no-color", "test-cairo1", "--last-failed"], ignore_exit_code=True
+    )
+
+    # Only ran 2 failed ones
+    assert "Running previously failed tests" in result
+    assert "Collected 1 suite, and 2 test cases" in result
+    assert "test_panic_multiple_values" in result
+    assert "test_panic_single_value" in result
+
+    assert "2 failed" in result
+    assert "2 total" in result
