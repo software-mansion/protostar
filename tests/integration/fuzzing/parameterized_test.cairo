@@ -93,9 +93,7 @@ func setup_negative_example() {
 
 @external
 func test_negative_example{syscall_ptr: felt*, range_check_ptr}(a: felt) {
-    %{
-        assert ids.a == 12
-    %}
+    assert a = 12;
     return ();
 }
 
