@@ -10,14 +10,14 @@ To create a new Protostar project with cairo1 support, you will need to run the 
 After running the command, the following structure will be generated:
 
 ```
-./your-project-name
-|-- protostar.toml
-|-- src
-|   |-- cairo_project.toml
-|   |-- lib.cairo
-|   `-- main.cairo
-`-- tests
-    `-- test_main.cairo
+your-project-name/
+├── src/
+│   └── main.cairo
+│   └── lib.cairo
+│   └── cairo_project.toml
+├── tests/
+│   └── test_main.cairo
+└── protostar.toml
 ```
 
 This template contains:
