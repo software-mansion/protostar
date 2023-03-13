@@ -1,5 +1,7 @@
 import os
 
+from pathlib import Path
+
 from tests.e2e.conftest import CopyFixture, ProtostarFixture
 
 
@@ -138,3 +140,32 @@ def test_report_slowest(protostar: ProtostarFixture, copy_fixture: CopyFixture):
         ignore_exit_code=True,
     )
     assert "Slowest test cases" in result
+
+
+def test_dependencies(protostar: ProtostarFixture, copy_fixture: CopyFixture):
+    copy_fixture("cairo1_project", "./cairo1_project")
+    copy_fixture(
+        "cairo1/test_with_deps.cairo", "./cairo1_project/tests/test_with_deps.cairo"
+    )
+    os.chdir("./cairo1_project")
+
+    result = protostar(["--no-color", "test-cairo1", "tests"])
+
+    assert result
+
+
+def test_dependencies_fail(protostar: ProtostarFixture, copy_fixture: CopyFixture):
+    copy_fixture("cairo1_project", "./cairo1_project")
+    copy_fixture(
+        "cairo1/test_with_deps.cairo", "./cairo1_project/tests/test_with_deps.cairo"
+    )
+    os.chdir("./cairo1_project")
+
+    toml_file = Path("protostar.toml")
+    toml_file.write_text(
+        toml_file.read_text().replace(', "libraries/external_lib_foo"', "")
+    )
+    result = protostar(["--no-color", "test-cairo1", "tests"], expect_exit_code=1)
+
+    assert "for a detailed information, please go through the logs above" in result
+    assert "Detailed error information" in result
