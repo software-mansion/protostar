@@ -5,12 +5,16 @@ sidebar_label: Project initialization
 # Project initialization
 
 ## Creating a project
-To create a new Protostar project with cairo1 support, you will need to run the `protostar init-cairo1` command followed by the name of your project.
+To create a new Protostar project with cairo1 support, you will need to run the `protostar init-cairo1` command followed by the name of your project. For example:
+
+```shell
+protostar init-cairo1 my-project
+```
 
 After running the command, the following structure will be generated:
 
 ```
-your-project-name/
+my-project/
 ├── src/
 │   └── main.cairo
 │   └── lib.cairo
