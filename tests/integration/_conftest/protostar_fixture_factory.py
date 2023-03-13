@@ -9,12 +9,13 @@ from protostar.argument_parser import ArgumentParserFacade, CLIApp
 from protostar.cli import map_protostar_type_name_to_parser, MessengerFactory
 from protostar.commands import (
     BuildCommand,
-    Cairo1BuildCommand,
+    BuildCairo1Command,
     CalculateAccountAddressCommand,
     CallCommand,
     DeclareCommand,
     FormatCommand,
     InitCommand,
+    InitCairo1Command,
     InvokeCommand,
     MulticallCommand,
 )
@@ -36,8 +37,6 @@ from protostar.self.protostar_compatibility_with_project_checker import (
     parse_protostar_version,
 )
 from protostar.self.protostar_directory import ProtostarDirectory
-from protostar.cairo import CairoVersion
-
 from .protostar_fixture import ProtostarFixture
 from .transaction_registry import TransactionRegistry
 from .spying_gateway_facade_factory import SpyingGatewayFacadeFactory
@@ -55,7 +54,6 @@ REPOSITORY_ROOT = Path(__file__).parent.parent.parent.parent.resolve()
 def create_protostar_fixture(
     mocker: MockerFixture,
     project_root_path: Path,
-    cairo_version: CairoVersion,
 ):
     version_manager = mocker.MagicMock()
     version_manager.protostar_version = mocker.MagicMock()
@@ -101,7 +99,10 @@ def create_protostar_fixture(
         input_requester,
         new_project_creator=new_project_creator,
         adapted_project_creator=mocker.MagicMock(),
-        cairo_version=cairo_version,
+    )
+
+    init_cairo1_command = InitCairo1Command(
+        new_project_creator=new_project_creator,
     )
 
     messenger_factory = MessengerFactory(
@@ -114,7 +115,7 @@ def create_protostar_fixture(
         messenger_factory=messenger_factory,
     )
 
-    cairo1_build_command = Cairo1BuildCommand(
+    build_cairo1_command = BuildCairo1Command(
         configuration_file=project_compiler.configuration_file,
         project_root_path=project_root_path,
     )
@@ -188,9 +189,10 @@ def create_protostar_fixture(
     protostar_fixture = ProtostarFixture(
         project_root_path=project_root_path,
         init_command=init_command,
+        init_cairo1_command=init_cairo1_command,
         call_command=call_command,
         build_command=build_command,
-        cairo1_build_command=cairo1_build_command,
+        build_cairo1_command=build_cairo1_command,
         format_command=format_command,
         declare_command=declare_command,
         deploy_command=deploy_command,
