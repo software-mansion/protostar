@@ -38,6 +38,7 @@ def collect_tests(
     input_path: Path,
     output_path: Optional[Path] = None,
     cairo_path: Optional[list[Path]] = None,
+    builtins: Optional[list[str]] = None,
 ) -> TestCollectorOutput:
     ensure_output_path(output_path=output_path)
     with handle_bindings_errors("collect_tests"):
@@ -45,6 +46,7 @@ def collect_tests(
             str(input_path),
             str(output_path) if output_path else None,
             [str(path) for path in cairo_path] if cairo_path else None,
+            builtins if builtins else [],
         )
         return TestCollectorOutput(sierra_output=output[0], test_names=output[1])
 

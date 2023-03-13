@@ -1,6 +1,6 @@
 # pylint: disable="protected-access"
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Optional
 
 from starkware.cairo.lang.compiler.program import Program
 from starkware.starkware_utils.marshmallow_dataclass_fields import IntAsHex
@@ -37,19 +37,18 @@ class ProtostarCasm:
     offset_map: dict[TestName, Offset]
 
     @classmethod
-    def from_json(cls, casm_json: dict):
+    def from_json(cls, casm_json: dict, builtins: Optional[list[str]] = None):
         prime: int = IntAsHex()._deserialize(casm_json["prime"], None, None)  # pylint
         data: list[int] = [
             IntAsHex()._deserialize(v, None, None) for v in casm_json["bytecode"]
         ]
         instruction_pc_to_hint = build_instruction_pc_to_hint(casm_json)
-        builtins = []
 
         program = Program(
             prime=prime,
             data=data,
             hints=instruction_pc_to_hint,
-            builtins=builtins,
+            builtins=builtins if builtins else [],
             main_scope=None,
             identifiers=None,
             reference_manager=None,
