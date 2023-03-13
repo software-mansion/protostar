@@ -31,7 +31,7 @@ This template contains:
 - `protostar.toml` containing information about the project
 
 ## The protostar.toml
-Apart from the usual things you find in `protostar.toml`, there is `linked-libarires` entry which is used to find cairo 1 modules in tests and building.
+Apart from the usual things you can find in `protostar.toml`, there is a `linked-libarires` entry which is used to find cairo 1 modules in tests and building.
 This makes it possible for you to include other modules from your dependencies if they are correct cairo 1 modules (with their own module definition and `cairo_project.toml`).
 
 ```
