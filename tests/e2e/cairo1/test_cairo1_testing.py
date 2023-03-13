@@ -122,6 +122,7 @@ def test_last_failed(protostar: ProtostarFixture, copy_fixture: CopyFixture):
     assert "Collected 1 suite, and 2 test cases" in result
     assert "test_panic_multiple_values" in result
     assert "test_panic_single_value" in result
+    assert "test_ok" not in result
 
     assert "2 failed" in result
     assert "2 total" in result
