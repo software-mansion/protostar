@@ -150,10 +150,13 @@ def create_protostar_project_fixture(
         protostar = create_protostar_fixture(
             mocker=session_mocker,
             project_root_path=tmp_path,
-            cairo_version=cairo_version,
         )
+
         project_name = "project_name"
-        protostar.init_sync(project_name)
+        if cairo_version == CairoVersion.cairo0:
+            protostar.init_sync(project_name)
+        else:
+            protostar.init_cairo1_sync(project_name)
 
         project_root_path = project_root_path / project_name
         os.chdir(project_root_path)
@@ -161,7 +164,6 @@ def create_protostar_project_fixture(
         yield create_protostar_fixture(
             mocker=session_mocker,
             project_root_path=project_root_path,
-            cairo_version=cairo_version,
         )
         os.chdir(cwd)
 

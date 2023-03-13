@@ -11,12 +11,13 @@ from protostar.cli import MessengerFactory
 from protostar.cli.signable_command_util import PRIVATE_KEY_ENV_VAR_NAME
 from protostar.commands import (
     BuildCommand,
-    Cairo1BuildCommand,
+    BuildCairo1Command,
     CalculateAccountAddressCommand,
     CallCommand,
     DeclareCommand,
     FormatCommand,
     InitCommand,
+    InitCairo1Command,
     InvokeCommand,
     MulticallCommand,
 )
@@ -56,8 +57,9 @@ class ProtostarFixture:
         self,
         project_root_path: Path,
         init_command: InitCommand,
+        init_cairo1_command: InitCairo1Command,
         build_command: BuildCommand,
-        cairo1_build_command: Cairo1BuildCommand,
+        build_cairo1_command: BuildCairo1Command,
         format_command: FormatCommand,
         declare_command: DeclareCommand,
         deploy_command: DeployCommand,
@@ -74,8 +76,9 @@ class ProtostarFixture:
     ) -> None:
         self._project_root_path = project_root_path
         self._init_command = init_command
+        self._init_cairo1_command = init_cairo1_command
         self._build_command = build_command
-        self._cairo1_build_command = cairo1_build_command
+        self._build_cairo1_command = build_cairo1_command
         self._format_command = format_command
         self._declare_command = declare_command
         self._deploy_command = deploy_command
@@ -218,6 +221,12 @@ class ProtostarFixture:
         result = asyncio.run(self._init_command.run(args))
         return result
 
+    def init_cairo1_sync(self, project_name: str):
+        args = Namespace()
+        args.name = project_name
+        result = asyncio.run(self._init_cairo1_command.run(args))
+        return result
+
     async def build(self):
         args = self._prepare_build_args()
         return await self._build_command.run(args)
@@ -226,13 +235,13 @@ class ProtostarFixture:
         args = self._prepare_build_args()
         return asyncio.run(self._build_command.run(args))
 
-    async def cairo1_build(self):
+    async def build_cairo1(self):
         args = self._prepare_build_args()
-        return await self._cairo1_build_command.run(args)
+        return await self._build_cairo1_command.run(args)
 
-    def cairo1_build_sync(self):
+    def build_cairo1_sync(self):
         args = self._prepare_build_args()
-        return asyncio.run(self._cairo1_build_command.run(args))
+        return asyncio.run(self._build_cairo1_command.run(args))
 
     def _prepare_build_args(self):
         args = Namespace()
