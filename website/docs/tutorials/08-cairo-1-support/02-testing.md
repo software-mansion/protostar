@@ -51,6 +51,8 @@ It is a sibling command to the `test` command, it will collect all the tests in 
 
 Tests are run on Cairo VM, so no Starknet syscalls are available from the test code.
 
+See [command reference](../../cli-reference.md#test-cairo1) for more details on usage.
+
 :::info
 There is no support currently for starknet contracts at the moment, it's a work in progress.
 :::
