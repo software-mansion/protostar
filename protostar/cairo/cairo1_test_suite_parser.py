@@ -37,7 +37,7 @@ class ProtostarCasm:
     offset_map: dict[TestName, Offset]
 
     @classmethod
-    def from_json(cls, casm_json: dict, builtins: Optional[list[str]] = None):
+    def from_json(cls, casm_json: dict):
         prime: int = IntAsHex()._deserialize(casm_json["prime"], None, None)  # pylint
         data: list[int] = [
             IntAsHex()._deserialize(v, None, None) for v in casm_json["bytecode"]
@@ -48,7 +48,7 @@ class ProtostarCasm:
             prime=prime,
             data=data,
             hints=instruction_pc_to_hint,
-            builtins=builtins if builtins else [],
+            builtins=["pedersen", "range_check", "bitwise", "ec_op"],
             main_scope=None,
             identifiers=None,
             reference_manager=None,
