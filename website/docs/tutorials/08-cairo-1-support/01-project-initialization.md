@@ -51,7 +51,7 @@ The default `cairo_project.toml` file contains only the definition of the `src` 
 src = "."
 ```
 
-The `src` crate is then imported in our tests in following manner:
+The `src` crate is then imported in our tests in the following manner:
 ```
 use src::main::fib;
 ```
