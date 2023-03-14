@@ -235,9 +235,7 @@ $ protostar init-cairo1
 ```
 Create a Protostar project with cairo1 template.
 #### `name STRING`
-Name of the directory a new project will be placed in.Ignored when `--existing` is passed.
-#### `--existing`
-Adapt current directory to a Protostar project.
+Name of the directory a new project will be placed in.
 ### `install`
 ```shell
 $ protostar install https://github.com/OpenZeppelin/cairo-contracts
