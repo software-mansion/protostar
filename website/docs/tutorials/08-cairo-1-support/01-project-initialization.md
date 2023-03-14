@@ -34,6 +34,10 @@ This template contains:
     - Single test file with one test for function defined in `main.cairo`
 - `protostar.toml` containing information about the project
 
+:::warning
+This template will be changed in future versions, but the old one will still be usable with newer protostar versions
+:::
+
 ## Cairo 1 modules
 
 In order to understand how to create Cairo 1.0 modules, we need to talk about `cairo_project.toml` and `lib.cairo` purpose.
@@ -51,6 +55,10 @@ The `src` crate is then imported in our tests in following manner:
 ```
 use src::main::fib;
 ```
+
+:::warning
+If you edit crate name in `cairo_project.toml`, make sure to reflect the changes in `linked-libraries` entry in `protostar.toml` as well
+:::
 
 #### 2. `lib.cairo`
 It is the root of the module tree of the package. here you can define functions, declare used modules, etc.
