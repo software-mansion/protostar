@@ -40,12 +40,12 @@ This template will be changed in future versions, but the old one will still be 
 
 ## Cairo 1 modules
 
-In order to understand how to create Cairo 1.0 modules, we need to talk about `cairo_project.toml` and `lib.cairo` purpose.
+In order to understand how to create Cairo 1.0 modules, we need to talk about the purpose of `cairo_project.toml` and `lib.cairo`.
 ### Project defaults
 #### 1. `cairo_project.toml`
-It is needed for definition of crate roots, so the places where `lib.cairo` files are located
+It is needed for the definition of crate roots, which are the places where `lib.cairo` files are located.
 
-Content of the default `cairo_project.toml` contains only definition of `src` crate 
+The default `cairo_project.toml` file contains only the definition of the `src` crate 
 ```toml
 [crate_roots]
 src = "."
@@ -61,22 +61,22 @@ If you edit crate name in `cairo_project.toml`, make sure to reflect the changes
 :::
 
 #### 2. `lib.cairo`
-It is the root of the module tree of the package. here you can define functions, declare used modules, etc.
+It is the root of the module tree of the package. Here you can define functions, declare used modules, etc.
 
-The default one has only `main` module declaration:
+The default one has only the `main` module declaration:
 ```
 mod main;
 ```
 ### Creating and using a new module
 
-Suppose we wanted to create a module called `mod1` inside the `src` crate, and use it in tests.
+Suppose we wanted to create a module called `mod1` inside the `src` crate and use it in tests.
 
-Here are the steps we need to do:
+Here are the steps we need to take:
 
-1. Create `mod1` directory in `src` crate
+1. Create a `mod1` directory in the `src` crate
 2. Create `mod1.cairo` alongside this directory. 
 3. Create your source file inside of `mod1` (i.e. `functions.cairo` or any suitable name). Define your code here.
-4. Declare the source file/files in `mod1.cairo`. The file contents should look like this (assuming you have `functions.cairo` from previous step):
+4. Declare the source file/files in `mod1.cairo`. The file contents should look like this (assuming you have `functions.cairo` from the previous step):
 ```
 mod functions;
 ```
