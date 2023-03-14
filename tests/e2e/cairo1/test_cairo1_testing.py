@@ -151,7 +151,9 @@ def test_dependencies(protostar: ProtostarFixture, copy_fixture: CopyFixture):
 
     result = protostar(["--no-color", "test-cairo1", "tests"])
 
-    assert result
+    assert "Collected 1 suite, and 1 test case" in result
+    assert "test_assert_true" in result
+    assert "1 passed, 1 total" in result
 
 
 def test_dependencies_fail(protostar: ProtostarFixture, copy_fixture: CopyFixture):
