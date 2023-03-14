@@ -6,6 +6,7 @@ from starkware.cairo.lang.compiler.program import Program
 from starkware.starkware_utils.marshmallow_dataclass_fields import IntAsHex
 
 from protostar.cairo.cairo_function_executor import Offset
+from protostar.cairo.cairo_function_runner_facade import RUNNER_BUILTINS
 
 
 @dataclass(frozen=True)
@@ -43,13 +44,12 @@ class ProtostarCasm:
             IntAsHex()._deserialize(v, None, None) for v in casm_json["bytecode"]
         ]
         instruction_pc_to_hint = build_instruction_pc_to_hint(casm_json)
-        builtins = []
 
         program = Program(
             prime=prime,
             data=data,
             hints=instruction_pc_to_hint,
-            builtins=builtins,
+            builtins=RUNNER_BUILTINS,
             main_scope=None,
             identifiers=None,
             reference_manager=None,
