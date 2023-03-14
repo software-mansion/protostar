@@ -23,7 +23,7 @@ def get_mock_for_lib_func(
         return_value = type(
             "return_value", (object,), {"err_code": err_code, "ok": ok}
         )()
-    if lib_func_name == "deploy":
+    elif lib_func_name == "deploy":
         ok = type("ok", (object,), {"deployed_contract_address": 0})()
         return_value = type(
             "return_value", (object,), {"err_code": err_code, "ok": ok}
