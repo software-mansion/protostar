@@ -1,19 +1,29 @@
 from argparse import Namespace
 from pathlib import Path
-from typing import Optional
-
-from protostar.commands.test import TestCommand
+from typing import List, Optional
 
 from protostar.cli import ProtostarArgument, ProtostarCommand, MessengerFactory
+from protostar.cli.activity_indicator import ActivityIndicator
+from protostar.commands.test.messages.testing_summary_message import (
+    TestingSummaryResultMessage,
+)
+from protostar.commands.test.testing_live_logger import TestingLiveLogger
 from protostar.compiler import LinkedLibrariesBuilder
 from protostar.io.log_color_provider import LogColorProvider
 from protostar.self.cache_io import CacheIO
 from protostar.self.protostar_directory import ProtostarDirectory
+from protostar.cairo import CairoCompilerConfig
 from protostar.testing import (
     TestingSummary,
+    TestScheduler,
+    determine_testing_seed,
 )
+from protostar.io.output import Messenger
 
-from protostar.commands.test import TestCommandCache
+from ..test.test_command_cache import TestCommandCache
+from ..test.messages import TestCollectorResultMessage
+from ...cairo_testing.cairo1_test_collector import Cairo1TestCollector
+from ...cairo_testing.cairo1_test_runner import Cairo1TestRunner
 
 
 class TestCairo1Command(ProtostarCommand):
@@ -108,32 +118,95 @@ A glob or globs to a directory or a test suite, for example:
             args.json = None
         messenger = self._messenger_factory.from_args(args)
         cache = TestCommandCache(CacheIO(self._project_root_path))
-        test_command = TestCommand(
-            project_root_path=self._project_root_path,
-            protostar_directory=self._protostar_directory,
-            project_cairo_path_builder=self._project_cairo_path_builder,
-            log_color_provider=self._log_color_provider,
-            cwd=self._cwd,
-            active_profile_name=self._active_profile_name,
-            messenger_factory=self._messenger_factory,
-        )
-        summary = await test_command.test(
+
+        summary = await self.test(
             targets=cache.obtain_targets(args.target, args.last_failed),
             ignored_targets=args.ignore,
             cairo_path=args.linked_libraries,
-            disable_hint_validation=False,
-            profiling=False,
             no_progress_bar=args.no_progress_bar,
-            safe_collecting=False,
             exit_first=args.exit_first,
-            seed=None,
-            max_steps=None,
             slowest_tests_to_report_count=args.report_slowest_tests,
-            gas_estimation_enabled=False,
             messenger=messenger,
-            use_cairo1_test_runner=True,
         )
         cache.write_failed_tests_to_cache(summary)
 
         summary.assert_all_passed()
         return summary
+
+    async def test(
+        self,
+        targets: List[str],
+        messenger: Messenger,
+        ignored_targets: Optional[List[str]] = None,
+        cairo_path: Optional[List[Path]] = None,
+        no_progress_bar: bool = False,
+        exit_first: bool = False,
+        slowest_tests_to_report_count: int = 0,
+    ) -> TestingSummary:
+        include_paths = [
+            str(path)
+            for path in self._project_cairo_path_builder.build_project_cairo_path_list(
+                cairo_path or []
+            )
+        ]
+        include_paths.append(
+            str(self._protostar_directory.protostar_cairo1_corelib_path)
+        )
+
+        testing_seed = determine_testing_seed(seed=None)
+
+        with ActivityIndicator(
+            self._log_color_provider.colorize("GRAY", "Collecting tests")
+        ):
+            compiler_config = CairoCompilerConfig(
+                disable_hint_validation=True,
+                include_paths=include_paths,
+            )
+            test_collector = Cairo1TestCollector(compiler_config.include_paths)
+            test_collector_result = test_collector.collect(
+                targets=targets,
+                ignored_targets=ignored_targets,
+                default_test_suite_glob=str(self._project_root_path),
+            )
+
+        messenger(TestCollectorResultMessage(test_collector_result))
+
+        testing_summary = TestingSummary(
+            initial_test_results=test_collector_result.broken_test_suites,  # type: ignore
+            testing_seed=testing_seed,
+            test_collector_result=test_collector_result,
+        )
+
+        if test_collector_result.test_cases_count > 0:
+            live_logger = TestingLiveLogger(
+                testing_summary=testing_summary,
+                no_progress_bar=no_progress_bar,
+                exit_first=exit_first,
+                slowest_tests_to_report_count=slowest_tests_to_report_count,
+                project_root_path=self._project_root_path,
+                write=messenger,
+            )
+            worker = Cairo1TestRunner.worker
+
+            TestScheduler(live_logger=live_logger, worker=worker).run(
+                include_paths=include_paths,
+                test_collector_result=test_collector_result,
+                disable_hint_validation=False,
+                profiling=False,
+                exit_first=exit_first,
+                testing_seed=testing_seed,
+                max_steps=None,
+                project_root_path=self._project_root_path,
+                active_profile_name=self._active_profile_name,
+                cwd=self._cwd,
+                gas_estimation_enabled=False,
+                on_exit_first=lambda: messenger(
+                    TestingSummaryResultMessage(
+                        test_collector_result=test_collector_result,
+                        testing_summary=testing_summary,
+                        slowest_tests_to_report_count=slowest_tests_to_report_count,
+                    )
+                ),
+            )
+
+        return testing_summary
