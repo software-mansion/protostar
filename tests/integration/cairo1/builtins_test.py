@@ -20,7 +20,4 @@ def test_return_value(datadir: Path):
 
     for name, offset in protostar_casm.offset_map.items():
         cairo_runner_facade.run_from_offset(offset=offset)
-        if name.endswith("_panic"):
-            assert cairo_runner_facade.did_panic()
-        else:
-            assert not cairo_runner_facade.did_panic()
+        assert name.endswith("_panic") == cairo_runner_facade.did_panic()
