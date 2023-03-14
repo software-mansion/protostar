@@ -1,8 +1,14 @@
 from contextlib import contextmanager
-from typing import Optional, Any, Generator
+from typing import Optional, Any, Generator, Union
 
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.cairo.lang.compiler.program import Program
+from starkware.cairo.lang.vm.utils import RunResources
+from starkware.cairo.lang.vm.relocatable import MaybeRelocatable
+from starkware.cairo.lang.vm.security import verify_secure_runner
+
+
+RUNNER_BUILTINS = ["pedersen", "range_check", "bitwise", "ec_op"]
 
 
 class CairoRunnerFacade:
@@ -27,7 +33,8 @@ class CairoRunnerFacade:
         **kwargs: Any,
     ):
         with self.new_runner() as function_runner:
-            function_runner.run_from_entrypoint(
+            self.run_as_main(
+                function_runner,
                 *args,
                 entrypoint=offset,
                 hint_locals=hint_locals or {},
@@ -41,6 +48,61 @@ class CairoRunnerFacade:
                 verify_secure=False,
                 **kwargs,
             )
+
+    # pylint: disable=unused-argument
+    @staticmethod
+    def run_as_main(
+        function_runner: CairoFunctionRunner,
+        entrypoint: Union[str, int],
+        *args,  # type: ignore
+        typed_args: Optional[bool] = False,
+        hint_locals: Optional[dict[str, Any]] = None,
+        static_locals: Optional[dict[str, Any]] = None,
+        run_resources: Optional[RunResources] = None,
+        verify_secure: Optional[bool] = None,
+        apply_modulo_to_args: Optional[bool] = None,
+    ):
+        """
+        Runs the program from the given entrypoint.
+
+        Additional params:
+        typed_args - If true, the arguments are given as Cairo typed NamedTuple generated
+          with CairoStructFactory.
+        verify_secure - Run verify_secure_runner to do extra verifications.
+        apply_modulo_to_args - Apply modulo operation on integer arguments.
+        """
+        if hint_locals is None:
+            hint_locals = {}
+
+        if verify_secure is None:
+            verify_secure = True
+
+        if apply_modulo_to_args is None:
+            apply_modulo_to_args = True
+
+        stack: list[MaybeRelocatable] = []
+        for builtin_name in function_runner.program.builtins:
+            builtin_runner = function_runner.builtin_runners.get(
+                f"{builtin_name}_builtin"
+            )
+            if builtin_runner is None:
+                assert function_runner.allow_missing_builtins, "Missing builtin."
+                stack += [0]
+            else:
+                stack += builtin_runner.initial_stack()
+        end = function_runner.initialize_function_entrypoint(
+            entrypoint=entrypoint, args=stack
+        )
+
+        function_runner.initialize_vm(
+            hint_locals=hint_locals, static_locals=static_locals
+        )
+
+        function_runner.run_until_pc(addr=end, run_resources=run_resources)
+        function_runner.end_run()
+
+        if verify_secure:
+            verify_secure_runner(runner=function_runner, verify_builtins=False)
 
     def run_by_function_name(
         self,
