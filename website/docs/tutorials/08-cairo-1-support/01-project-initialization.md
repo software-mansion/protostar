@@ -36,7 +36,7 @@ This template contains:
 
 ## Cairo 1 modules
 
-In order to understand how to create cairo1 modules, we need to talk about `cairo_project.toml` and `lib.cairo` purpose.
+In order to understand how to create Cairo 1.0 modules, we need to talk about `cairo_project.toml` and `lib.cairo` purpose.
 ### Project defaults
 #### 1. `cairo_project.toml`
 It is needed for definition of crate roots, so the places where `lib.cairo` files are located
