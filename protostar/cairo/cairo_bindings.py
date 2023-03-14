@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from contextlib import contextmanager
 
 import cairo_python_bindings
+from protostar.cairo.cairo_function_runner_facade import RUNNER_BUILTINS
 
 from .cairo_exceptions import CairoBindingException
 
@@ -45,7 +46,7 @@ def collect_tests(
             str(input_path),
             str(output_path) if output_path else None,
             [str(path) for path in cairo_path] if cairo_path else None,
-            ["pedersen", "range_check", "bitwise", "ec_op"],
+            RUNNER_BUILTINS,
         )
         return TestCollectorOutput(sierra_output=output[0], test_names=output[1])
 

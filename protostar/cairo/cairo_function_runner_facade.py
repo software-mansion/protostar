@@ -8,6 +8,9 @@ from starkware.cairo.lang.vm.relocatable import MaybeRelocatable
 from starkware.cairo.lang.vm.security import verify_secure_runner
 
 
+RUNNER_BUILTINS = ["pedersen", "range_check", "bitwise", "ec_op"]
+
+
 class CairoRunnerFacade:
     def __init__(self, program: Program):
         self._program: Program = program
@@ -46,11 +49,12 @@ class CairoRunnerFacade:
                 **kwargs,
             )
 
+    # pylint: disable=unused-argument
     @staticmethod
     def run_as_main(
         function_runner: CairoFunctionRunner,
         entrypoint: Union[str, int],
-        *args, #type: ignore
+        *args,  # type: ignore
         typed_args: Optional[bool] = False,
         hint_locals: Optional[dict[str, Any]] = None,
         static_locals: Optional[dict[str, Any]] = None,
@@ -76,25 +80,23 @@ class CairoRunnerFacade:
         if apply_modulo_to_args is None:
             apply_modulo_to_args = True
 
-        if typed_args:
-            assert len(args) == 1, "len(args) must be 1 when using typed args."
-            real_args = function_runner.segments.gen_typed_args(args=args[0])
-        else:
-            real_args = [
-                function_runner.gen_arg(arg=x, apply_modulo_to_args=apply_modulo_to_args) for x in args
-            ]
-
         stack: list[MaybeRelocatable] = []
         for builtin_name in function_runner.program.builtins:
-            builtin_runner = function_runner.builtin_runners.get(f"{builtin_name}_builtin")
+            builtin_runner = function_runner.builtin_runners.get(
+                f"{builtin_name}_builtin"
+            )
             if builtin_runner is None:
                 assert function_runner.allow_missing_builtins, "Missing builtin."
                 stack += [0]
             else:
                 stack += builtin_runner.initial_stack()
-        end = function_runner.initialize_function_entrypoint(entrypoint=entrypoint, args=stack)
+        end = function_runner.initialize_function_entrypoint(
+            entrypoint=entrypoint, args=stack
+        )
 
-        function_runner.initialize_vm(hint_locals=hint_locals, static_locals=static_locals)
+        function_runner.initialize_vm(
+            hint_locals=hint_locals, static_locals=static_locals
+        )
 
         function_runner.run_until_pc(addr=end, run_resources=run_resources)
         function_runner.end_run()

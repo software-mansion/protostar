@@ -1,11 +1,12 @@
 # pylint: disable="protected-access"
 from dataclasses import dataclass
-from typing import Any, Optional
+from typing import Any
 
 from starkware.cairo.lang.compiler.program import Program
 from starkware.starkware_utils.marshmallow_dataclass_fields import IntAsHex
 
 from protostar.cairo.cairo_function_executor import Offset
+from protostar.cairo.cairo_function_runner_facade import RUNNER_BUILTINS
 
 
 @dataclass(frozen=True)
@@ -48,7 +49,7 @@ class ProtostarCasm:
             prime=prime,
             data=data,
             hints=instruction_pc_to_hint,
-            builtins=["pedersen", "range_check", "bitwise", "ec_op"],
+            builtins=RUNNER_BUILTINS,
             main_scope=None,
             identifiers=None,
             reference_manager=None,
