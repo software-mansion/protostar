@@ -171,3 +171,12 @@ def test_dependencies_fail(protostar: ProtostarFixture, copy_fixture: CopyFixtur
 
     assert "for a detailed information, please go through the logs above" in result
     assert "Detailed error information" in result
+
+
+def test_modules(protostar: ProtostarFixture, copy_fixture: CopyFixture):
+    copy_fixture("cairo_0_1_mixed", "./cairo_project")
+    os.chdir("./cairo_project")
+
+    result = protostar(["--no-color", "test-cairo1", "tests"])
+
+    assert result
