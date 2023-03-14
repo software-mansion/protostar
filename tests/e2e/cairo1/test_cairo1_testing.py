@@ -179,4 +179,6 @@ def test_modules(protostar: ProtostarFixture, copy_fixture: CopyFixture):
 
     result = protostar(["--no-color", "test-cairo1", "tests"])
 
-    assert result
+    assert "Collected 1 suite, and 1 test case" in result
+    assert "tests/test_main.cairo test_modules" in result
+    assert "1 passed, 1 total" in result
