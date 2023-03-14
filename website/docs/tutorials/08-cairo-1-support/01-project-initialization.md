@@ -34,6 +34,59 @@ This template contains:
     - Single test file with one test for function defined in `main.cairo`
 - `protostar.toml` containing information about the project
 
+## Cairo 1 modules
+
+In order to understand how to create cairo1 modules, we need to talk about `cairo_project.toml` and `lib.cairo` purpose.
+### Project defaults
+#### 1. `cairo_project.toml`
+It is needed for definition of crate roots, so the places where `lib.cairo` files are located
+
+Content of the default `cairo_project.toml` contains only definition of `src` crate 
+```toml
+[crate_roots]
+src = "."
+```
+
+The `src` crate is then imported in our tests in following manner:
+```
+use src::main::fib;
+```
+
+#### 2. `lib.cairo`
+It is the root of the module tree of the package. here you can define functions, declare used modules, etc.
+
+The default one has only `main` module declaration:
+```
+mod main;
+```
+### Creating and using a new module
+
+Suppose we wanted to create a module called `mod1` inside the `src` crate, and use it in tests.
+
+Here are the steps we need to do:
+
+1. Create `mod1` directory in `src` crate
+2. Create `mod1.cairo` alongside this directory. 
+3. Create your source file inside of `mod1` (i.e. `functions.cairo` or any suitable name). Define your code here.
+4. Declare the source file/files in `mod1.cairo`. The file contents should look like this (assuming you have `functions.cairo` from previous step):
+```
+mod functions;
+```
+5. Declare the module in the root of the module tree - `lib.cairo`. After adding, the file contents should look like this:
+```
+mod main;
+mod mod1;
+```
+6. You can import the symbols from `functions.cairo` in tests. For example, in `test_main.cairo`:
+```
+use src::mod1::functions::three;
+
+#[test]
+fn test_numbers() {
+    assert(3 == three(), 'three() == 3');
+}
+```
+
 ## The protostar.toml
 Apart from the usual things you can find in `protostar.toml`, there is a `linked-libarires` entry which is used to find cairo 1 modules in tests and building.
 This makes it possible for you to include other modules from your dependencies if they are correct cairo 1 modules (with their own module definition and `cairo_project.toml`).
