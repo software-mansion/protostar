@@ -7,7 +7,7 @@ license = "MIT"
 name = "protostar"
 readme = "README.md"
 repository = "https://github.com/software-mansion/protostar"
-version = "0.9.1"
+version = "0.9.2"
 
 [tool.poetry.dependencies]
 argparse = "^1.4.0"
@@ -36,12 +36,12 @@ pexpect = "^4.8.0"
 poethepoet = "^0.18.1"
 pyinstaller = "^5.8"
 pylint = "^2.15.10"
-pyright = "^1.1.296"
+pyright = "^1.1.298"
 pytest = "^7.2.2"
 pytest-datadir = "^1.4.1"
 pytest-mock = "^3.10.0"
 pytest-timeout = "^2.1.0"
-pytest-xdist = "^3.2.0"
+pytest-xdist = "^3.2.1"
 re-assert = "^1.1.0"
 snakeviz = "^2.1.1"
 starknet-devnet = "^0.4.5"
@@ -66,16 +66,12 @@ deploy = "python ./scripts/deploy.py"
 deploy_prerelease = "python ./scripts/deploy_prerelease.py"
 devnet = "starknet-devnet --seed 0"
 format = "black ."
-
 format_check = "./scripts/run_format_check.sh"
 lint = "./scripts/run_lint.sh"
-
 format_check_selected = "black --check"
 lint_selected = "pylint"
-
 install_cairo_bindings = "./scripts/install_cairo_bindings.sh"
 bump_cairo_bindings = "./scripts/bump_cairo_bindings.sh"
-
 local_static_check = [
     "format",
     "lint",

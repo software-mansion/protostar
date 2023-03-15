@@ -19,27 +19,23 @@ class InitCommand(ProtostarCommand):
         requester: InputRequester,
         new_project_creator: NewProjectCreator,
         adapted_project_creator: AdaptedProjectCreator,
-        cairo_version: CairoVersion,
     ) -> None:
         super().__init__()
         self._adapted_project_creator = adapted_project_creator
         self._new_project_creator = new_project_creator
         self._requester = requester
-        self._cairo_version = cairo_version
 
     @property
     def name(self) -> str:
-        return "init" + (
-            "-cairo1" if self._cairo_version == CairoVersion.cairo1 else ""
-        )
+        return "init"
 
     @property
     def description(self) -> str:
-        return f"Create a Protostar project with {self._cairo_version.value} template."
+        return "Create a Protostar project with cairo0 template."
 
     @property
     def example(self) -> Optional[str]:
-        return "$ protostar " + self.name
+        return "$ protostar init"
 
     @property
     def arguments(self):
@@ -82,9 +78,9 @@ class InitCommand(ProtostarCommand):
                 )
 
         if should_adapt_existing_project:
-            self._adapted_project_creator.run(self._cairo_version)
+            self._adapted_project_creator.run()
         else:
-            self._new_project_creator.run(self._cairo_version, project_name)
+            self._new_project_creator.run(CairoVersion.cairo0, project_name)
 
     @staticmethod
     def _can_be_protostar_project() -> bool:

@@ -15,6 +15,13 @@ def test_contract_to_casm(datadir: Path):
     assert result
 
 
+def test_contract_with_builtins_to_casm(datadir: Path):
+    result = cairo1.compile_starknet_contract_from_path(
+        datadir / "starknet_contract_with_builtins.cairo",
+    )
+    assert result
+
+
 def test_cairo_path_for_starknet_contract(datadir: Path, shared_datadir: Path):
     casm_contents = cairo1.compile_starknet_contract_from_path(
         input_path=datadir / "starknet_project" / "basic_starknet_contract.cairo",

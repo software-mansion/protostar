@@ -2,8 +2,6 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
-from protostar.commands.cairo1_commands import TestCairo1Command
-
 from protostar.argument_parser import ArgumentParserFacade
 from protostar.cli import (
     ProtostarCommand,
@@ -14,7 +12,7 @@ from protostar.cli import (
 from protostar.cli.lib_path_resolver import LibPathResolver
 from protostar.commands import (
     BuildCommand,
-    Cairo1BuildCommand,
+    BuildCairo1Command,
     CalculateAccountAddressCommand,
     CallCommand,
     DeclareCommand,
@@ -22,11 +20,13 @@ from protostar.commands import (
     DeployCommand,
     FormatCommand,
     InitCommand,
+    InitCairo1Command,
     InstallCommand,
     InvokeCommand,
     MigrateConfigurationFileCommand,
     RemoveCommand,
     TestCommand,
+    TestCairo1Command,
     UpdateCommand,
     UpgradeCommand,
     MulticallCommand,
@@ -55,7 +55,6 @@ from protostar.upgrader import (
     LatestVersionRemoteChecker,
     UpgradeManager,
 )
-from protostar.cairo import CairoVersion
 
 
 @dataclass
@@ -157,19 +156,15 @@ def build_di_container(
             requester=input_requester,
             new_project_creator=new_project_creator,
             adapted_project_creator=adapted_project_creator,
-            cairo_version=CairoVersion.cairo0,
         ),
-        InitCommand(
-            requester=input_requester,
+        InitCairo1Command(
             new_project_creator=new_project_creator,
-            adapted_project_creator=adapted_project_creator,
-            cairo_version=CairoVersion.cairo1,
         ),
         BuildCommand(
             project_compiler=project_compiler,
             messenger_factory=messenger_factory,
         ),
-        Cairo1BuildCommand(
+        BuildCairo1Command(
             configuration_file=project_compiler.configuration_file,
             project_root_path=project_root_path,
         ),

@@ -8,7 +8,7 @@ from protostar.configuration_file.configuration_file import ConfigurationFile
 import protostar.cairo.cairo_bindings as cairo1
 
 
-class Cairo1BuildCommand(ProtostarCommand):
+class BuildCairo1Command(ProtostarCommand):
     def __init__(
         self,
         configuration_file: ConfigurationFile,
