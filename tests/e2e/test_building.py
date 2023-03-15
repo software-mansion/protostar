@@ -239,11 +239,11 @@ def test_build_with_contract_names(
         protostar(["build", "--contract-name", contract])
         build_path = Path("build")
         assert build_path.exists()
-        built_files = list(build_path.glob("*"))
-        assert built_files == [
+        built_files = set(build_path.glob("*"))
+        assert built_files == {
             Path("build") / (contract + ".json"),
             Path("build") / (contract + "_abi.json"),
-        ]
+        }
         for built_file in built_files:
             built_file.unlink()
 
@@ -256,8 +256,8 @@ def test_build_with_contract_names(
     protostar(["build"])
     build_path = Path("build")
     assert build_path.exists()
-    built_files = list(build_path.glob("*"))
-    assert set(built_files) == set(
+    built_files = set(build_path.glob("*"))
+    assert built_files == set(
         [Path("build") / (contract + ".json") for contract in contracts]
         + [Path("build") / (contract + "_abi.json") for contract in contracts]
     )
