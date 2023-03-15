@@ -2,10 +2,8 @@ from typing import List, cast, Optional, Any
 
 from starkware.cairo.lang.compiler.preprocessor.flow import ReferenceManager
 from starkware.cairo.lang.compiler.program import CairoHint
-from starkware.cairo.lang.vm.memory_segments import MemorySegmentManager
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
-from starkware.python.utils import to_bytes
-from starkware.starknet.business_logic.execution.objects import CallType
+from starkware.starknet.business_logic.execution.objects import CallType, CallResult
 from starkware.starknet.business_logic.state.state import StateSyncifier
 from starkware.starknet.business_logic.state.state_api import SyncState
 from starkware.starknet.business_logic.state.state_api_objects import BlockInfo
@@ -81,7 +79,7 @@ class CheatableSysCallHandler(DeprecatedBlSyscallHandler):
         self,
         syscall_ptr: RelocatableValue,
         syscall_name: str,
-    ) -> List[int]:
+    ) -> CallResult:
         # Parse request and prepare the call.
         request = self._read_and_validate_syscall_request(
             syscall_name=syscall_name, syscall_ptr=syscall_ptr
@@ -101,9 +99,10 @@ class CheatableSysCallHandler(DeprecatedBlSyscallHandler):
                     request.function_selector
                     in self.cheatable_state.mocked_calls_map[code_address]
                 ):
-                    return self.cheatable_state.mocked_calls_map[code_address][
+                    retdata = self.cheatable_state.mocked_calls_map[code_address][
                         request.function_selector
                     ]
+                    return CallResult(retdata=retdata, failure_flag=0, gas_consumed=0)
             # endregion
 
             contract_address = code_address
@@ -123,13 +122,13 @@ class CheatableSysCallHandler(DeprecatedBlSyscallHandler):
             entry_point_type = EntryPointType.L1_HANDLER
             call_type = CallType.DELEGATE
         elif syscall_name == "library_call":
-            class_hash = to_bytes(cast(int, request.class_hash))
+            class_hash = cast(int, request.class_hash)
             contract_address = self.contract_address
             caller_address = self.caller_address
             entry_point_type = EntryPointType.EXTERNAL
             call_type = CallType.DELEGATE
         elif syscall_name == "library_call_l1_handler":
-            class_hash = to_bytes(cast(int, request.class_hash))
+            class_hash = cast(int, request.class_hash)
             contract_address = self.contract_address
             caller_address = self.caller_address
             entry_point_type = EntryPointType.L1_HANDLER
