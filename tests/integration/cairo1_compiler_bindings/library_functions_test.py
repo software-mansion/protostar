@@ -82,6 +82,10 @@ def test_start_prank(datadir: Path):
     check_library_function("start_prank", datadir / "start_prank_test.cairo")
 
 
+def test_stop_prank(datadir: Path):
+    check_library_function("stop_prank", datadir / "stop_prank_test.cairo")
+
+
 def test_warp(datadir: Path):
     check_library_function("warp", datadir / "warp_test.cairo")
 
