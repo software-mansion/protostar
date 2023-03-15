@@ -1,4 +1,3 @@
-use src::main::fib;
 use src::mod1_cairo1::mod1_code::mod1f1;
 use src::mod1_cairo1::mod1_code::mod1f2;
 use src::mod2_cairo1::mod2_code::mod2f1;

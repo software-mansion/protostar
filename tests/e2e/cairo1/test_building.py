@@ -30,7 +30,9 @@ def test_cairo1_build_with_contract_names(
 
     toml_file = Path("protostar.toml")
     toml_file.write_text(
-        toml_file.read_text().replace('basic_cairo0 = ["src/basic_cairo0.cairo"]', "")
+        toml_file.read_text()
+        .replace('basic_cairo0 = ["src/basic_cairo0.cairo"]', "")
+        .replace('basic2_cairo0 = ["src/basic2_cairo0.cairo"]', "")
     )
     protostar(["build-cairo1"])
     build_path = Path("build")
