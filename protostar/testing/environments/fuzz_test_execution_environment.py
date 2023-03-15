@@ -24,6 +24,7 @@ from protostar.testing.fuzzing.exceptions import FuzzingError, HypothesisRejectE
 from protostar.testing.fuzzing.fuzz_input_exception_metadata import (
     FuzzInputExceptionMetadata,
 )
+from protostar.testing.fuzzing.hypothesis.aio import wrap_in_sync
 from protostar.testing.fuzzing.hypothesis.reporter import (
     HYPOTHESIS_VERBOSITY,
     protostar_reporter,
@@ -170,7 +171,7 @@ class FuzzTestExecutionEnvironment(ContractBasedTestExecutionEnvironment):
             @seed(self.state.config.seed)
             @settings_instance
             @self.decorate_with_given
-            def test(**inputs: Any):
+            async def test(**inputs: Any):
                 self.fork_state_for_test()
                 self.set_cheatcodes_for_test()
 
@@ -178,10 +179,9 @@ class FuzzTestExecutionEnvironment(ContractBasedTestExecutionEnvironment):
                 with self.state.output_recorder.redirect(("test", run_no)):
                     with with_reporter(protostar_reporter):
                         try:
-                            this_run_resources = asyncio.run(
-                                self.execute_test_case(function_name, **inputs)
+                            this_run_resources = await self.execute_test_case(
+                                function_name, **inputs
                             )
-
                             if this_run_resources is not None:
                                 execution_resources.append(this_run_resources)
                         except HypothesisRejectException as reject_ex:
@@ -192,11 +192,15 @@ class FuzzTestExecutionEnvironment(ContractBasedTestExecutionEnvironment):
                                 inputs=inputs,
                             ) from reported_ex
 
+            if hasattr(test, "hypothesis"):  # this checks only if "given" cheatcode is used
+                test.hypothesis.inner_test = wrap_in_sync(test.hypothesis.inner_test)  # type: ignore
+
             if self.given_strategies:
                 # NOTE: The ``test`` function does not expect any arguments at this point,
                 #   because the @given decorator provides all of them behind the scenes.
                 test()
             elif self.state.config.fuzz_examples:
+                test = wrap_in_sync(test)
                 for ex in reversed(self.state.config.fuzz_examples):
                     test(**ex)
 
