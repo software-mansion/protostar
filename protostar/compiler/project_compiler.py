@@ -49,10 +49,15 @@ class ProjectCompiler:
         )
 
     def compile_project(
-        self, output_dir: Path, config: Optional[ProjectCompilerConfig] = None
+        self,
+        output_dir: Path,
+        config: Optional[ProjectCompilerConfig] = None,
+        target_contract_name: Optional[str] = None,
     ) -> dict[str, int]:
         class_hashes = {}
         for contract_name in self.configuration_file.get_contract_names():
+            if target_contract_name and contract_name != target_contract_name:
+                continue
             contract = self.compile_contract_from_contract_name(contract_name, config)
             class_hash = compute_class_hash(contract_class=contract)
             class_hashes[contract_name] = class_hash

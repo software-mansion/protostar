@@ -4,4 +4,7 @@ lib-path = "lib"
 linked-libraries = ["src"]
 
 [contracts]
-
+calculate_cairo1 = ["src/calculate_cairo1.cairo"]
+do_nothing_cairo1 = ["src/do_nothing_cairo1.cairo"]
+basic_cairo0 = ["src/basic_cairo0.cairo"]
+basic2_cairo0 = ["src/basic2_cairo0.cairo"]

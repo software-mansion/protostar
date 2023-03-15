@@ -1,11 +1,12 @@
 import json
+import os
 from os import listdir
 from pathlib import Path
 from textwrap import dedent
 
 import pytest
 
-from tests.e2e.conftest import MyPrivateLibsSetupFixture, ProtostarFixture
+from tests.e2e.conftest import MyPrivateLibsSetupFixture, ProtostarFixture, CopyFixture
 
 
 @pytest.mark.usefixtures("init")
@@ -226,3 +227,52 @@ def test_building_project_with_modified_protostar_toml(protostar: ProtostarFixtu
     build_dir = listdir("./build")
     assert "foo.json" in build_dir
     assert "bar.json" in build_dir
+
+
+def test_build_with_contract_names(
+    protostar: ProtostarFixture, copy_fixture: CopyFixture
+):
+    copy_fixture("cairo_0_1_mixed", "./cairo_project")
+    os.chdir("./cairo_project")
+    contracts = ["basic_cairo0", "basic2_cairo0"]
+    for contract in contracts:
+        protostar(["build", "--contract-name", contract])
+        build_path = Path("build")
+        assert build_path.exists()
+        built_files = list(build_path.glob("*"))
+        assert built_files == [
+            Path("build") / (contract + ".json"),
+            Path("build") / (contract + "_abi.json"),
+        ]
+        for built_file in built_files:
+            built_file.unlink()
+
+    toml_file = Path("protostar.toml")
+    toml_file.write_text(
+        toml_file.read_text()
+        .replace('calculate_cairo1 = ["src/calculate_cairo1.cairo"]', "")
+        .replace('do_nothing_cairo1 = ["src/do_nothing_cairo1.cairo"]', "")
+    )
+    protostar(["build"])
+    build_path = Path("build")
+    assert build_path.exists()
+    built_files = list(build_path.glob("*"))
+    assert set(built_files) == set(
+        [Path("build") / (contract + ".json") for contract in contracts]
+        + [Path("build") / (contract + "_abi.json") for contract in contracts]
+    )
+
+
+def test_build_cairo0_cairo1_mixed(
+    protostar: ProtostarFixture, copy_fixture: CopyFixture
+):
+    copy_fixture("cairo_0_1_mixed", "./cairo_project")
+    os.chdir("./cairo_project")
+    protostar(["build"], expect_exit_code=1)
+    protostar(["build-cairo1"], expect_exit_code=1)
+    cairo0_contracts = ["basic_cairo0", "basic2_cairo0"]
+    cairo1_contracts = ["calculate_cairo1", "do_nothing_cairo1"]
+    for contract in cairo0_contracts:
+        protostar(["build", "--contract-name", contract])
+    for contract in cairo1_contracts:
+        protostar(["build-cairo1", "--contract-name", contract])

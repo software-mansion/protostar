@@ -2,8 +2,12 @@ import logging
 from pathlib import Path
 from typing import List, Optional, Any
 
-from protostar.cli import ProtostarArgument, ProtostarCommand
-from protostar.cli.common_arguments import COMPILED_CONTRACTS_DIR_ARG
+from protostar.cli import ProtostarCommand
+from protostar.cli.common_arguments import (
+    COMPILED_CONTRACTS_DIR_ARG,
+    CAIRO_PATH,
+    CONTRACT_NAME,
+)
 from protostar.configuration_file.configuration_file import ConfigurationFile
 import protostar.cairo.cairo_bindings as cairo1
 
@@ -33,13 +37,9 @@ class BuildCairo1Command(ProtostarCommand):
     @property
     def arguments(self):
         return [
-            ProtostarArgument(
-                name="cairo-path",
-                description="Additional directories to look for sources.",
-                type="path",
-                value_parser="list",
-            ),
+            CAIRO_PATH,
             COMPILED_CONTRACTS_DIR_ARG,
+            CONTRACT_NAME,
         ]
 
     async def run(self, args: Any):
@@ -48,6 +48,7 @@ class BuildCairo1Command(ProtostarCommand):
             await self.build(
                 output_dir=args.compiled_contracts_dir,
                 relative_cairo_path=args.cairo_path,
+                target_contract_name=args.contract_name,
             )
         except BaseException as ex:
             logging.error("Build failed")
@@ -59,10 +60,13 @@ class BuildCairo1Command(ProtostarCommand):
         self,
         output_dir: Path,
         relative_cairo_path: Optional[List[Path]] = None,
+        target_contract_name: Optional[str] = None,
     ) -> None:
         configuration_file = self._configuration_file
         cairo_path = relative_cairo_path or []
         for contract_name in configuration_file.get_contract_names():
+            if target_contract_name and contract_name != target_contract_name:
+                continue
             contract_paths = configuration_file.get_contract_source_paths(contract_name)
             assert contract_paths, f"No contract paths found for {contract_name}!"
             assert len(contract_paths) == 1, (

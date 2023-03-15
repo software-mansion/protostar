@@ -3,7 +3,11 @@ from typing import List, Optional, Any
 from dataclasses import dataclass
 
 from protostar.cli import ProtostarArgument, ProtostarCommand, MessengerFactory
-from protostar.cli.common_arguments import COMPILED_CONTRACTS_DIR_ARG
+from protostar.cli.common_arguments import (
+    COMPILED_CONTRACTS_DIR_ARG,
+    CAIRO_PATH,
+    CONTRACT_NAME,
+)
 from protostar.compiler import (
     ProjectCompiler,
     ProjectCompilerConfig,
@@ -57,12 +61,8 @@ class BuildCommand(ProtostarCommand):
     def arguments(self):
         return [
             *MessengerFactory.OUTPUT_ARGUMENTS,
-            ProtostarArgument(
-                name="cairo-path",
-                description="Additional directories to look for sources.",
-                type="path",
-                value_parser="list",
-            ),
+            CAIRO_PATH,
+            CONTRACT_NAME,
             ProtostarArgument(
                 name="disable-hint-validation",
                 description="Disable validation of hints when building the contracts.",
@@ -78,6 +78,7 @@ class BuildCommand(ProtostarCommand):
             output_dir=args.compiled_contracts_dir,
             disable_hint_validation=args.disable_hint_validation,
             relative_cairo_path=args.cairo_path,
+            contract_name=args.contract_name,
         )
 
         write(SuccessfulBuildMessage(class_hashes=class_hashes))
@@ -87,6 +88,7 @@ class BuildCommand(ProtostarCommand):
         output_dir: Path,
         disable_hint_validation: bool = False,
         relative_cairo_path: Optional[List[Path]] = None,
+        contract_name: Optional[str] = None,
     ) -> dict[str, int]:
         class_hashes = self._project_compiler.compile_project(
             output_dir=output_dir,
@@ -94,5 +96,6 @@ class BuildCommand(ProtostarCommand):
                 hint_validation_disabled=disable_hint_validation,
                 relative_cairo_path=relative_cairo_path or [],
             ),
+            target_contract_name=contract_name,
         )
         return class_hashes

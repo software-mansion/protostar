@@ -153,3 +153,16 @@ TOKEN_ARG = ProtostarArgument(
     description="Used by whitelisted users for deploying contracts in Alpha MainNet.",
     type="str",
 )
+
+CAIRO_PATH = ProtostarArgument(
+    name="cairo-path",
+    description="Additional directories to look for sources.",
+    type="path",
+    value_parser="list",
+)
+
+CONTRACT_NAME = ProtostarArgument(
+    name="contract-name",
+    description="Specify a contract name that should be built.",
+    type="str",
+)
