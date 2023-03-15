@@ -192,7 +192,9 @@ class FuzzTestExecutionEnvironment(ContractBasedTestExecutionEnvironment):
                                 inputs=inputs,
                             ) from reported_ex
 
-            if hasattr(test, "hypothesis"):  # this checks only if "given" cheatcode is used
+            if hasattr(
+                test, "hypothesis"
+            ):  # this checks only if "given" cheatcode is used
                 test.hypothesis.inner_test = wrap_in_sync(test.hypothesis.inner_test)  # type: ignore
 
             if self.given_strategies:
