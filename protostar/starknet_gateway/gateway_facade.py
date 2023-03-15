@@ -238,7 +238,7 @@ class GatewayFacade(MulticallClientProtocol):
             response = await self._gateway_client.declare(declare_tx, token=token)
 
             if wait_for_acceptance:
-                _, code = await account.wait_for_tx(
+                _, code = await account.client.wait_for_tx(
                     response.transaction_hash, wait_for_accept=True
                 )
                 response.code = code.value

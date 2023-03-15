@@ -51,8 +51,8 @@ class DevnetAccountPreparator:
             compiled_contract=self._compiled_account_contract,
             max_fee=int(1e16),
         )
-        resp = await self._predeployed_account.declare(transaction=declare_tx)
-        await self._predeployed_account.wait_for_tx(resp.transaction_hash)
+        resp = await self._predeployed_account.client.declare(transaction=declare_tx)
+        await self._predeployed_account.client.wait_for_tx(resp.transaction_hash)
         return resp.class_hash
 
     async def _prefund(self, account_address: Address):
