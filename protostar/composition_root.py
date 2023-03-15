@@ -12,6 +12,7 @@ from protostar.cli import (
 from protostar.cli.lib_path_resolver import LibPathResolver
 from protostar.commands import (
     BuildCommand,
+    BuildCairo1Command,
     CalculateAccountAddressCommand,
     CallCommand,
     DeclareCommand,
@@ -19,11 +20,13 @@ from protostar.commands import (
     DeployCommand,
     FormatCommand,
     InitCommand,
+    InitCairo1Command,
     InstallCommand,
     InvokeCommand,
     MigrateConfigurationFileCommand,
     RemoveCommand,
     TestCommand,
+    TestCairo1Command,
     UpdateCommand,
     UpgradeCommand,
     MulticallCommand,
@@ -154,9 +157,16 @@ def build_di_container(
             new_project_creator=new_project_creator,
             adapted_project_creator=adapted_project_creator,
         ),
+        InitCairo1Command(
+            new_project_creator=new_project_creator,
+        ),
         BuildCommand(
             project_compiler=project_compiler,
             messenger_factory=messenger_factory,
+        ),
+        BuildCairo1Command(
+            configuration_file=project_compiler.configuration_file,
+            project_root_path=project_root_path,
         ),
         InstallCommand(
             log_color_provider=log_color_provider,
@@ -182,6 +192,14 @@ def build_di_container(
             project_root_path,
             protostar_directory,
             project_cairo_path_builder,
+            log_color_provider=log_color_provider,
+            active_profile_name=active_configuration_profile_name,
+            cwd=cwd,
+            messenger_factory=messenger_factory,
+        ),
+        TestCairo1Command(
+            project_root_path,
+            protostar_directory,
             log_color_provider=log_color_provider,
             active_profile_name=active_configuration_profile_name,
             cwd=cwd,

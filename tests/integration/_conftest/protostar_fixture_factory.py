@@ -9,11 +9,13 @@ from protostar.argument_parser import ArgumentParserFacade, CLIApp
 from protostar.cli import map_protostar_type_name_to_parser, MessengerFactory
 from protostar.commands import (
     BuildCommand,
+    BuildCairo1Command,
     CalculateAccountAddressCommand,
     CallCommand,
     DeclareCommand,
     FormatCommand,
     InitCommand,
+    InitCairo1Command,
     InvokeCommand,
     MulticallCommand,
 )
@@ -35,7 +37,6 @@ from protostar.self.protostar_compatibility_with_project_checker import (
     parse_protostar_version,
 )
 from protostar.self.protostar_directory import ProtostarDirectory
-
 from .protostar_fixture import ProtostarFixture
 from .transaction_registry import TransactionRegistry
 from .spying_gateway_facade_factory import SpyingGatewayFacadeFactory
@@ -45,6 +46,9 @@ from .spying_gateway_facade_factory import SpyingGatewayFacadeFactory
 # pylint: disable=unused-argument
 def fake_activity_indicator(message: str) -> Generator[None, None, None]:
     yield
+
+
+REPOSITORY_ROOT = Path(__file__).parent.parent.parent.parent.resolve()
 
 
 def create_protostar_fixture(
@@ -84,7 +88,7 @@ def create_protostar_fixture(
     )
 
     new_project_creator = NewProjectCreator(
-        script_root=Path(__file__).parent / ".." / ".." / "..",
+        script_root=REPOSITORY_ROOT,
         requester=input_requester,
         configuration_file_content_factory=configuration_file_content_factory,
         protostar_version=parse_protostar_version("0.0.0"),
@@ -97,6 +101,10 @@ def create_protostar_fixture(
         adapted_project_creator=mocker.MagicMock(),
     )
 
+    init_cairo1_command = InitCairo1Command(
+        new_project_creator=new_project_creator,
+    )
+
     messenger_factory = MessengerFactory(
         log_color_provider=log_color_provider,
         activity_indicator=fake_activity_indicator,
@@ -105,6 +113,11 @@ def create_protostar_fixture(
     build_command = BuildCommand(
         project_compiler=project_compiler,
         messenger_factory=messenger_factory,
+    )
+
+    build_cairo1_command = BuildCairo1Command(
+        configuration_file=project_compiler.configuration_file,
+        project_root_path=project_root_path,
     )
 
     transaction_registry = TransactionRegistry()
@@ -135,7 +148,7 @@ def create_protostar_fixture(
 
     test_command = TestCommand(
         project_root_path=project_root_path,
-        protostar_directory=ProtostarDirectory(project_root_path),
+        protostar_directory=ProtostarDirectory(REPOSITORY_ROOT),
         project_cairo_path_builder=ProjectCairoPathBuilder(
             project_root_path,
         ),
@@ -176,8 +189,10 @@ def create_protostar_fixture(
     protostar_fixture = ProtostarFixture(
         project_root_path=project_root_path,
         init_command=init_command,
+        init_cairo1_command=init_cairo1_command,
         call_command=call_command,
         build_command=build_command,
+        build_cairo1_command=build_cairo1_command,
         format_command=format_command,
         declare_command=declare_command,
         deploy_command=deploy_command,

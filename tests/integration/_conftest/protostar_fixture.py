@@ -11,11 +11,13 @@ from protostar.cli import MessengerFactory
 from protostar.cli.signable_command_util import PRIVATE_KEY_ENV_VAR_NAME
 from protostar.commands import (
     BuildCommand,
+    BuildCairo1Command,
     CalculateAccountAddressCommand,
     CallCommand,
     DeclareCommand,
     FormatCommand,
     InitCommand,
+    InitCairo1Command,
     InvokeCommand,
     MulticallCommand,
 )
@@ -47,15 +49,17 @@ from .transaction_registry import TransactionRegistry
 
 ContractMap = Dict[str, List[str]]
 
+
 # pylint: disable=too-many-instance-attributes
-
-
+# pylint: disable=too-many-public-methods
 class ProtostarFixture:
     def __init__(
         self,
         project_root_path: Path,
         init_command: InitCommand,
+        init_cairo1_command: InitCairo1Command,
         build_command: BuildCommand,
+        build_cairo1_command: BuildCairo1Command,
         format_command: FormatCommand,
         declare_command: DeclareCommand,
         deploy_command: DeployCommand,
@@ -72,7 +76,9 @@ class ProtostarFixture:
     ) -> None:
         self._project_root_path = project_root_path
         self._init_command = init_command
+        self._init_cairo1_command = init_cairo1_command
         self._build_command = build_command
+        self._build_cairo1_command = build_cairo1_command
         self._format_command = format_command
         self._declare_command = declare_command
         self._deploy_command = deploy_command
@@ -215,6 +221,12 @@ class ProtostarFixture:
         result = asyncio.run(self._init_command.run(args))
         return result
 
+    def init_cairo1_sync(self, project_name: str):
+        args = Namespace()
+        args.name = project_name
+        result = asyncio.run(self._init_cairo1_command.run(args))
+        return result
+
     async def build(self):
         args = self._prepare_build_args()
         return await self._build_command.run(args)
@@ -222,6 +234,14 @@ class ProtostarFixture:
     def build_sync(self):
         args = self._prepare_build_args()
         return asyncio.run(self._build_command.run(args))
+
+    async def build_cairo1(self):
+        args = self._prepare_build_args()
+        return await self._build_cairo1_command.run(args)
+
+    def build_cairo1_sync(self):
+        args = self._prepare_build_args()
+        return asyncio.run(self._build_cairo1_command.run(args))
 
     def _prepare_build_args(self):
         args = Namespace()
@@ -396,7 +416,10 @@ class ProtostarFixture:
         protostar_toml_path.write_text(file_content)
 
     async def run_test_runner(
-        self, target: Union[str, Path], cairo_test_runner: bool = False
+        self,
+        target: Union[str, Path],
+        cairo1_test_runner: bool = False,
+        cairo_path: Optional[List[Path]] = None,
     ) -> TestingSummary:
         """
         Runs test runner safely, without assertions on state of the summary and cache mechanism
@@ -417,7 +440,8 @@ class ProtostarFixture:
         return await self._test_command.test(
             targets=targets,
             messenger=messenger_factory.human(),
-            use_cairo_test_runner=cairo_test_runner,
+            use_cairo1_test_runner=cairo1_test_runner,
+            cairo_path=cairo_path,
         )
 
     def _parse(

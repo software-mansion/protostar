@@ -43,6 +43,7 @@ setattr(DeprecatedCompiledClass, "__deepcopy__", shallow_copy)
 # pylint: disable=C0413
 from protostar.commands import (
     BuildCommand,
+    BuildCairo1Command,
     InitCommand,
     InstallCommand,
     RemoveCommand,

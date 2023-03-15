@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import List, Tuple, Type, Union
+from typing import List, Type, Union
 
 from starkware.cairo.lang.compiler.constants import MAIN_SCOPE
 from starkware.cairo.lang.compiler.identifier_manager import IdentifierManager
@@ -37,30 +37,22 @@ class StarknetCompiler:
     class PreprocessorException(ProtostarException, PreprocessorError):
         pass
 
-    @staticmethod
-    def build_context(codes: List[Tuple[str, str]]) -> PassManagerContext:
-        return PassManagerContext(
-            start_codes=[],
-            codes=codes,
-            main_scope=MAIN_SCOPE,
-            identifiers=IdentifierManager(),
-        )
-
-    @staticmethod
-    def build_codes(*cairo_file_paths: Path) -> List[Tuple[str, str]]:
-        return [
-            (cairo_file_path.read_text("utf-8"), str(cairo_file_path))
-            for cairo_file_path in cairo_file_paths
-        ]
-
     def preprocess_contract(
         self, *cairo_file_paths: Path
     ) -> Union[
         StarknetPreprocessedProgram, TestCollectorPreprocessedProgram
     ]:  # TODO #1280: Cache result
         try:
-            codes = self.build_codes(*cairo_file_paths)
-            context = self.build_context(codes)
+            codes = [
+                (cairo_file_path.read_text("utf-8"), str(cairo_file_path))
+                for cairo_file_path in cairo_file_paths
+            ]
+            context = PassManagerContext(
+                start_codes=[],
+                codes=codes,
+                main_scope=MAIN_SCOPE,
+                identifiers=IdentifierManager(),
+            )
             self.pass_manager.run(context)
             assert isinstance(
                 context.preprocessed_program,
@@ -69,7 +61,7 @@ class StarknetCompiler:
             return context.preprocessed_program
         except FileNotFoundError as err:
             raise StarknetCompiler.FileNotFoundException(
-                message=(f"Couldn't find file '{err.filename}'")
+                message=f"Couldn't find file '{err.filename}'"
             ) from err
         except PreprocessorError as err:
             raise StarknetCompiler.PreprocessorException(str(err)) from err

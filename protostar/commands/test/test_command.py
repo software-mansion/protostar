@@ -1,3 +1,4 @@
+import os
 from argparse import Namespace
 from pathlib import Path
 from typing import List, Optional
@@ -8,7 +9,7 @@ from protostar.commands.test.messages.testing_summary_message import (
     TestingSummaryResultMessage,
 )
 from protostar.commands.test.testing_live_logger import TestingLiveLogger
-from protostar.compiler import ProjectCairoPathBuilder
+from protostar.compiler import LinkedLibrariesBuilder
 from protostar.io.log_color_provider import LogColorProvider
 from protostar.protostar_exception import ProtostarException
 from protostar.self.cache_io import CacheIO
@@ -18,7 +19,7 @@ from protostar.starknet.pass_managers import (
     TestCollectorPassManagerFactory,
 )
 from protostar.starknet import StarknetCompiler
-from protostar.cairo import CairoCompiler, CairoCompilerConfig
+from protostar.cairo import CairoCompilerConfig
 from protostar.testing import (
     TestCollector,
     TestingSummary,
@@ -26,11 +27,12 @@ from protostar.testing import (
     TestScheduler,
     determine_testing_seed,
 )
-from protostar.cairo_testing.cairo_test_runner import CairoTestRunner
 from protostar.io.output import Messenger
 
 from .messages import TestCollectorResultMessage
 from .test_command_cache import TestCommandCache
+from ...cairo_testing.cairo1_test_collector import Cairo1TestCollector
+from ...cairo_testing.cairo1_test_runner import Cairo1TestRunner
 
 
 class TestCommand(ProtostarCommand):
@@ -38,7 +40,7 @@ class TestCommand(ProtostarCommand):
         self,
         project_root_path: Path,
         protostar_directory: ProtostarDirectory,
-        project_cairo_path_builder: ProjectCairoPathBuilder,
+        project_cairo_path_builder: LinkedLibrariesBuilder,
         log_color_provider: LogColorProvider,
         cwd: Path,
         active_profile_name: Optional[str],
@@ -176,6 +178,7 @@ A glob or globs to a directory or a test suite, for example:
             slowest_tests_to_report_count=args.report_slowest_tests,
             gas_estimation_enabled=args.estimate_gas,
             messenger=messenger,
+            use_cairo1_test_runner=False,
         )
         cache.write_failed_tests_to_cache(summary)
 
@@ -186,7 +189,7 @@ A glob or globs to a directory or a test suite, for example:
         self,
         targets: List[str],
         messenger: Messenger,
-        use_cairo_test_runner: bool = False,
+        use_cairo1_test_runner: bool = False,
         ignored_targets: Optional[List[str]] = None,
         cairo_path: Optional[List[Path]] = None,
         disable_hint_validation: bool = False,
@@ -201,13 +204,23 @@ A glob or globs to a directory or a test suite, for example:
     ) -> TestingSummary:
         include_paths = [
             str(path)
-            for path in [
-                self._protostar_directory.protostar_test_only_cairo_packages_path,
-                *self._project_cairo_path_builder.build_project_cairo_path_list(
-                    cairo_path or []
-                ),
-            ]
+            for path in self._project_cairo_path_builder.build_project_cairo_path_list(
+                cairo_path or []
+            )
         ]
+        if use_cairo1_test_runner:
+            include_paths.append(
+                str(self._protostar_directory.protostar_cairo1_corelib_path)
+            )
+            # FIXME: this is a temporary fix for corelib detection, bindings need to consume this value explicitly
+            os.environ["CARGO_MANIFEST_DIR"] = str(
+                self._protostar_directory.protostar_cairo1_corelib_path.resolve()
+            )
+        else:
+            include_paths.append(
+                str(self._protostar_directory.protostar_test_only_cairo_packages_path)
+            )
+
         factory = (
             StarknetPassManagerFactory
             if safe_collecting
@@ -220,13 +233,11 @@ A glob or globs to a directory or a test suite, for example:
             self._log_color_provider.colorize("GRAY", "Collecting tests")
         ):
             compiler_config = CairoCompilerConfig(
-                disable_hint_validation=True, include_paths=include_paths
+                disable_hint_validation=True,
+                include_paths=include_paths,
             )
-            if use_cairo_test_runner:
-                cairo_compiler = CairoCompiler(compiler_config)
-                test_collector = TestCollector(
-                    get_suite_function_names=cairo_compiler.get_function_names,
-                )
+            if use_cairo1_test_runner:
+                test_collector = Cairo1TestCollector(compiler_config.include_paths)
             else:
                 starknet_compiler = StarknetCompiler(
                     config=compiler_config,
@@ -264,9 +275,10 @@ A glob or globs to a directory or a test suite, for example:
                 project_root_path=self._project_root_path,
                 write=messenger,
             )
-            worker = (
-                CairoTestRunner.worker if use_cairo_test_runner else TestRunner.worker
-            )
+            if use_cairo1_test_runner:
+                worker = Cairo1TestRunner.worker
+            else:
+                worker = TestRunner.worker
 
             TestScheduler(live_logger=live_logger, worker=worker).run(
                 include_paths=include_paths,

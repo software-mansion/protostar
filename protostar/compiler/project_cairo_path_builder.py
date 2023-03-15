@@ -1,7 +1,14 @@
 from pathlib import Path
 
 
-class ProjectCairoPathBuilder:
+class LinkedLibrariesBuilder:
+    def build_project_cairo_path_list(
+        self, relative_cairo_path_list: list[Path]
+    ) -> list[Path]:
+        return relative_cairo_path_list
+
+
+class ProjectCairoPathBuilder(LinkedLibrariesBuilder):
     def __init__(
         self,
         project_root_path: Path,
@@ -12,7 +19,4 @@ class ProjectCairoPathBuilder:
     def build_project_cairo_path_list(
         self, relative_cairo_path_list: list[Path]
     ) -> list[Path]:
-        return [
-            *relative_cairo_path_list,
-            self._project_root_path,
-        ]
+        return [*relative_cairo_path_list, self._project_root_path]

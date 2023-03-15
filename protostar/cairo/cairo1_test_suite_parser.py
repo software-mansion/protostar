@@ -1,11 +1,12 @@
 # pylint: disable="protected-access"
 from dataclasses import dataclass
-from pathlib import Path
 from typing import Any
-import json
 
 from starkware.cairo.lang.compiler.program import Program
 from starkware.starkware_utils.marshmallow_dataclass_fields import IntAsHex
+
+from protostar.cairo.cairo_function_executor import Offset
+from protostar.cairo.cairo_function_runner_facade import RUNNER_BUILTINS
 
 
 @dataclass(frozen=True)
@@ -15,56 +16,48 @@ class CairoHintCode:
     flow_tracking_data: Any
 
 
-@dataclass(frozen=True)
-class TestCase:
-    name: str
-    offset: int
-
-
-@dataclass(frozen=True)
-class TestSuite:
-    path: Path
-    test_cases: list[TestCase]
-    program: Program
-
-
 InstructionPc = int
 
 
 def build_instruction_pc_to_hint(
-    json_dict: Any,
+    casm_json: dict,
 ) -> dict[InstructionPc, list[CairoHintCode]]:
     hints: dict[InstructionPc, list[CairoHintCode]] = {}
-    for h in json_dict["hints"]:
-        codes = [CairoHintCode(str(e), [None], None) for e in h[1]]
-        hints[int(h[0])] = codes
+    for hint in casm_json["hints"]:
+        codes = [CairoHintCode(str(e), [None], None) for e in hint[1]]
+        hints[int(hint[0])] = codes
     return hints
 
 
-def parse_test_suite(path: Path, json_raw: str) -> TestSuite:
-    json_dict = json.loads(json_raw)
-    prime: int = IntAsHex()._deserialize(json_dict["prime"], None, None)  # pylint
-    data: list[int] = [
-        IntAsHex()._deserialize(v, None, None) for v in json_dict["bytecode"]
-    ]
-    instruction_pc_to_hint = build_instruction_pc_to_hint(json_dict)
-    builtins = []
+TestName = str
 
-    program = Program(
-        prime=prime,
-        data=data,
-        hints=instruction_pc_to_hint,
-        builtins=builtins,
-        main_scope=None,
-        identifiers=None,
-        reference_manager=None,
-        compiler_version="111v",
-        attributes=[],
-        debug_info=None,
-    )  # type: ignore
 
-    test_cases = [
-        TestCase(name=case["name"], offset=int(case["offset"]))
-        for case in json_dict["test_entry_points"]
-    ]
-    return TestSuite(path=path, test_cases=test_cases, program=program)
+@dataclass
+class ProtostarCasm:
+    program: Program
+    offset_map: dict[TestName, Offset]
+
+    @classmethod
+    def from_json(cls, casm_json: dict):
+        prime: int = IntAsHex()._deserialize(casm_json["prime"], None, None)  # pylint
+        data: list[int] = [
+            IntAsHex()._deserialize(v, None, None) for v in casm_json["bytecode"]
+        ]
+        instruction_pc_to_hint = build_instruction_pc_to_hint(casm_json)
+
+        program = Program(
+            prime=prime,
+            data=data,
+            hints=instruction_pc_to_hint,
+            builtins=RUNNER_BUILTINS,
+            main_scope=None,
+            identifiers=None,
+            reference_manager=None,
+            compiler_version="111v",
+            attributes=[],
+            debug_info=None,
+        )  # type: ignore
+        offset_map = {
+            case["name"]: int(case["offset"]) for case in casm_json["test_entry_points"]
+        }
+        return cls(program=program, offset_map=offset_map)

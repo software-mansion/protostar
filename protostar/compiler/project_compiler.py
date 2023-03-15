@@ -15,6 +15,7 @@ from starkware.starknet.services.api.contract_class.contract_class import (
 from starkware.starkware_utils.error_handling import StarkException
 
 from protostar.compiler.compiled_contract_writer import CompiledContractWriter
+from protostar.compiler.project_cairo_path_builder import LinkedLibrariesBuilder
 from protostar.configuration_file.configuration_file import ConfigurationFile
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet import (
@@ -23,7 +24,6 @@ from protostar.starknet import (
     StarknetCompilerConfig,
 )
 
-from .project_cairo_path_builder import ProjectCairoPathBuilder
 
 ContractName = str
 ContractSourcePath = Path
@@ -41,13 +41,13 @@ class ProjectCompiler:
     def __init__(
         self,
         project_root_path: Path,
-        project_cairo_path_builder: ProjectCairoPathBuilder,
+        project_cairo_path_builder: LinkedLibrariesBuilder,
         configuration_file: ConfigurationFile,
         default_config: Optional[ProjectCompilerConfig] = None,
     ):
         self._project_root_path = project_root_path
         self._project_cairo_path_builder = project_cairo_path_builder
-        self._configuration_file = configuration_file
+        self.configuration_file = configuration_file
         self._default_config = default_config or ProjectCompilerConfig(
             relative_cairo_path=[]
         )
@@ -56,7 +56,7 @@ class ProjectCompiler:
         self, output_dir: Path, config: Optional[ProjectCompilerConfig] = None
     ) -> dict[str, int]:
         class_hashes = {}
-        for contract_name in self._configuration_file.get_contract_names():
+        for contract_name in self.configuration_file.get_contract_names():
             contract = self.compile_contract_from_contract_name(contract_name, config)
             class_hash = compute_deprecated_class_hash(contract_class=contract)
             class_hashes[contract_name] = class_hash
@@ -87,7 +87,7 @@ class ProjectCompiler:
         self, contract_name: str, config: Optional[ProjectCompilerConfig] = None
     ) -> DeprecatedCompiledClass:
         try:
-            contract_paths = self._configuration_file.get_contract_source_paths(
+            contract_paths = self.configuration_file.get_contract_source_paths(
                 contract_name
             )
             assert contract_paths, f"No contract paths found for {contract_name}!"

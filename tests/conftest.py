@@ -8,6 +8,7 @@ from typing import ContextManager, List, Protocol, Union
 
 import pytest
 import requests
+
 # from starknet_py.net import AccountClient, KeyPair
 # from starknet_py.net.gateway_client import GatewayClient
 # from starknet_py.net.models import StarknetChainId
@@ -23,6 +24,7 @@ from tests._conftest.devnet.devnet_fixture import DevnetFixture
 from ._conftest.devnet import DevnetAccount as _DevnetAccount
 from ._conftest.devnet import DevnetAccountPreparator, FaucetContract
 
+PROJECT_ROOT = Path(__file__).parent.parent
 MAX_FEE = int(1e20)
 DevnetAccount = _DevnetAccount
 

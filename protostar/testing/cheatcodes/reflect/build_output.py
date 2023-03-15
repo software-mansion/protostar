@@ -37,7 +37,7 @@ def generate_value_tree(value: ReflectInputType) -> ReflectValueType:
 
         name: str
         member_definition: MemberDefinition
-        for name, member_definition in curr._struct_definition.members.items():
+        for name, member_definition in curr._struct_definition.members.items():  # type: ignore
             expr_type: CairoType = member_definition.cairo_type
             addr = curr._reference_value + member_definition.offset
 

@@ -10,6 +10,7 @@ from protostar.commands.init.project_creator.new_project_creator import (
     NewProjectCreator,
 )
 from protostar.io.input_requester import InputRequester
+from protostar.cairo import CairoVersion
 
 
 class InitCommand(ProtostarCommand):
@@ -30,7 +31,7 @@ class InitCommand(ProtostarCommand):
 
     @property
     def description(self) -> str:
-        return "Create a Protostar project."
+        return "Create a Protostar project with cairo0 template."
 
     @property
     def example(self) -> Optional[str]:
@@ -79,7 +80,7 @@ class InitCommand(ProtostarCommand):
         if should_adapt_existing_project:
             self._adapted_project_creator.run()
         else:
-            self._new_project_creator.run(project_name)
+            self._new_project_creator.run(CairoVersion.cairo0, project_name)
 
     @staticmethod
     def _can_be_protostar_project() -> bool:

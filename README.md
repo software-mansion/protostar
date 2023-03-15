@@ -78,13 +78,31 @@ curl -L https://raw.githubusercontent.com/software-mansion/protostar/master/inst
 1. Build Protostar: `poe build`
     - You can find the newly created binary at `dist/protostar/protostar`
 
+#### Bumping cairo bindings version
+To bump cairo bindings version to the latest commit on fork (master branch), run: 
+
+```shell
+poetry run poe bump_cairo_bindings
+```
+
+After this, you can pull & rebuild your local version of bindings by running:
+```shell
+poetry run poe install_cairo_bindings
+```
+
+##### Caveats:
+Remember to have your working tree clean, since it creates a commit on the current branch.
+
+The command will check if the tracking branch is master, so you don't commit/push to master by accident (would be rejected by branch protection).
+
+
 #### Submodules development 
 You can use submodules from a different branch than main. Run commands
 ```shell
 git submodule set-branch --branch <your-branch>
 poetry run poe install_cairo_bindings
 ```
-Remember to not push those changes to repository.
+Remember to not push those changes to the repository.
 
 #### Git hooks
 

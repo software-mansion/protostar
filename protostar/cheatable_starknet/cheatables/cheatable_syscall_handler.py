@@ -12,7 +12,10 @@ from starkware.starknet.business_logic.state.state_api_objects import BlockInfo
 from starkware.starknet.core.os.contract_address.contract_address import (
     calculate_contract_address_from_hash,
 )
-from starkware.starknet.core.os.syscall_handler import BusinessLogicSyscallHandler, DeprecatedBlSyscallHandler
+from starkware.starknet.core.os.syscall_handler import (
+    BusinessLogicSyscallHandler,
+    DeprecatedBlSyscallHandler,
+)
 from starkware.starknet.security.secure_hints import HintsWhitelist
 from starkware.starknet.services.api.contract_class.contract_class import EntryPointType
 
@@ -57,9 +60,7 @@ class CheatableSysCallHandler(DeprecatedBlSyscallHandler):
         self,
         syscall_ptr: RelocatableValue,
     ) -> int:
-        caller_address = super()._get_caller_address(
-            syscall_ptr=syscall_ptr
-        )
+        caller_address = super()._get_caller_address(syscall_ptr=syscall_ptr)
         pranked_address = self.cheatable_state.get_pranked_address(
             Address(self.contract_address)
         )
