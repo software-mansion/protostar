@@ -1,3 +1,4 @@
+import os
 from argparse import Namespace
 from pathlib import Path
 from typing import List, Optional
@@ -210,6 +211,10 @@ A glob or globs to a directory or a test suite, for example:
         if use_cairo1_test_runner:
             include_paths.append(
                 str(self._protostar_directory.protostar_cairo1_corelib_path)
+            )
+            # FIXME: this is a temporary fix for corelib detection, bindings need to consume this value explicitly
+            os.environ["CARGO_MANIFEST_DIR"] = str(
+                self._protostar_directory.protostar_cairo1_corelib_path.resolve()
             )
         else:
             include_paths.append(
