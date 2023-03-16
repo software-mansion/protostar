@@ -92,6 +92,8 @@ def test_cairo0_cairo1_build_mixed(
     cairo0_contracts = ["basic_cairo0", "basic2_cairo0"]
     cairo1_contracts = ["calculate_cairo1", "do_nothing_cairo1"]
     for contract in cairo0_contracts:
-        protostar(["build", "--contract-name", contract])
+        output = protostar(["build", "--contract-name", contract])
+        assert f'Class hash for contract "{ contract }": ' in output
     for contract in cairo1_contracts:
-        protostar(["build-cairo1", "--contract-name", contract])
+        output = protostar(["build-cairo1", "--contract-name", contract])
+        assert "Contracts built successfully" in output
