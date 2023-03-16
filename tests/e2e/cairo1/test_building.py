@@ -14,7 +14,7 @@ def test_cairo1_build(protostar: ProtostarFixture, copy_fixture: CopyFixture):
     assert compiled_path.read_text()
 
 
-def test_cairo1_build_with_contract_names(
+def test_cairo1_build_with_contract_names_separate_builds(
     protostar: ProtostarFixture, copy_fixture: CopyFixture
 ):
     copy_fixture("cairo_0_1_mixed", "./cairo_project")
@@ -28,6 +28,13 @@ def test_cairo1_build_with_contract_names(
         assert built_files == [Path("build") / (contract + ".json")]
         built_files[0].unlink()
 
+
+def test_cairo1_build_with_contract_names_build_together(
+    protostar: ProtostarFixture, copy_fixture: CopyFixture
+):
+    copy_fixture("cairo_0_1_mixed", "./cairo_project")
+    os.chdir("./cairo_project")
+    contracts = ["calculate_cairo1", "do_nothing_cairo1"]
     toml_file = Path("protostar.toml")
     toml_file.write_text(
         toml_file.read_text()

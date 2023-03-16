@@ -229,7 +229,7 @@ def test_building_project_with_modified_protostar_toml(protostar: ProtostarFixtu
     assert "bar.json" in build_dir
 
 
-def test_build_with_contract_names(
+def test_build_with_contract_names_separate_builds(
     protostar: ProtostarFixture, copy_fixture: CopyFixture
 ):
     copy_fixture("cairo_0_1_mixed", "./cairo_project")
@@ -247,6 +247,13 @@ def test_build_with_contract_names(
         for built_file in built_files:
             built_file.unlink()
 
+
+def test_build_with_contract_names_build_together(
+    protostar: ProtostarFixture, copy_fixture: CopyFixture
+):
+    copy_fixture("cairo_0_1_mixed", "./cairo_project")
+    os.chdir("./cairo_project")
+    contracts = ["basic_cairo0", "basic2_cairo0"]
     toml_file = Path("protostar.toml")
     toml_file.write_text(
         toml_file.read_text()
