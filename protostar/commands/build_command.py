@@ -74,17 +74,11 @@ class BuildCommand(ProtostarCommand):
     async def run(self, args: Any):
         write = self._messenger_factory.from_args(args)
 
-        contract_name = None
-        try:
-            contract_name = args.contract_name
-        except AttributeError:
-            pass
-
         class_hashes = await self.build(
             output_dir=args.compiled_contracts_dir,
             disable_hint_validation=args.disable_hint_validation,
             relative_cairo_path=args.cairo_path,
-            contract_name=contract_name,
+            contract_name=args.contract_name,
         )
 
         write(SuccessfulBuildMessage(class_hashes=class_hashes))
@@ -92,9 +86,9 @@ class BuildCommand(ProtostarCommand):
     async def build(
         self,
         output_dir: Path,
+        contract_name: str,
         disable_hint_validation: bool = False,
         relative_cairo_path: Optional[List[Path]] = None,
-        contract_name: Optional[str] = None,
     ) -> dict[str, int]:
         class_hashes = self._project_compiler.compile_project(
             output_dir=output_dir,
@@ -102,6 +96,6 @@ class BuildCommand(ProtostarCommand):
                 hint_validation_disabled=disable_hint_validation,
                 relative_cairo_path=relative_cairo_path or [],
             ),
-            target_contract_name=contract_name,
+            target_contract_name=contract_name or None,
         )
         return class_hashes

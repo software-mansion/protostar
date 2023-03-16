@@ -165,4 +165,5 @@ CONTRACT_NAME = ProtostarArgument(
     name="contract-name",
     description="Specify a contract name that should be built.",
     type="str",
+    default="",
 )

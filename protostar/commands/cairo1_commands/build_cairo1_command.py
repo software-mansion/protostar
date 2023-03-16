@@ -45,15 +45,10 @@ class BuildCairo1Command(ProtostarCommand):
     async def run(self, args: Any):
         logging.info("Building cairo1 contracts")
         try:
-            contract_name = None
-            try:
-                contract_name = args.contract_name
-            except AttributeError:
-                pass
             await self.build(
                 output_dir=args.compiled_contracts_dir,
                 relative_cairo_path=args.cairo_path,
-                target_contract_name=contract_name,
+                target_contract_name=args.contract_name,
             )
         except BaseException as ex:
             logging.error("Build failed")
@@ -65,7 +60,7 @@ class BuildCairo1Command(ProtostarCommand):
         self,
         output_dir: Path,
         relative_cairo_path: Optional[List[Path]] = None,
-        target_contract_name: Optional[str] = None,
+        target_contract_name: str = "",
     ) -> None:
         configuration_file = self._configuration_file
         cairo_path = relative_cairo_path or []
