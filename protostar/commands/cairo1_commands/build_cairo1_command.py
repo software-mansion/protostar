@@ -1,6 +1,6 @@
 import logging
 from pathlib import Path
-from typing import List, Optional, Any
+from typing import Optional, Any
 
 from protostar.cli import ProtostarCommand
 from protostar.cli.common_arguments import (
@@ -56,27 +56,42 @@ class BuildCairo1Command(ProtostarCommand):
 
         logging.info("Contracts built successfully")
 
+    async def _build_contract(
+        self, contract_name: str, output_dir: Path, cairo_path: list[Path]
+    ):
+        contract_paths = self._configuration_file.get_contract_source_paths(
+            contract_name
+        )
+        assert contract_paths, f"No contract paths found for {contract_name}!"
+        assert len(contract_paths) == 1, (
+            f"Multiple files found for contract {contract_name}, "
+            f"only one file per contract is supported in cairo1!"
+        )
+        cairo1.compile_starknet_contract_from_path(
+            input_path=contract_paths[0],
+            cairo_path=cairo_path,
+            output_path=output_dir / (contract_name + ".json"),
+        )
+
     async def build(
         self,
         output_dir: Path,
-        relative_cairo_path: Optional[List[Path]] = None,
+        relative_cairo_path: Optional[list[Path]] = None,
         target_contract_name: str = "",
     ) -> None:
-        configuration_file = self._configuration_file
         cairo_path = relative_cairo_path or []
-        for contract_name in configuration_file.get_contract_names():
-            if target_contract_name and contract_name != target_contract_name:
-                continue
-            contract_paths = configuration_file.get_contract_source_paths(contract_name)
-            assert contract_paths, f"No contract paths found for {contract_name}!"
-            assert len(contract_paths) == 1, (
-                f"Multiple files found for contract {contract_name}, "
-                f"only one file per contract is supported in cairo1!"
-            )
-            if not output_dir.is_absolute():
-                output_dir = self._project_root_path / output_dir
-            cairo1.compile_starknet_contract_from_path(
-                input_path=contract_paths[0],
+        if not output_dir.is_absolute():
+            output_dir = self._project_root_path / output_dir
+        if target_contract_name:
+            await self._build_contract(
+                contract_name=target_contract_name,
+                output_dir=output_dir,
                 cairo_path=cairo_path,
-                output_path=output_dir / (contract_name + ".json"),
+            )
+            return
+        for contract_name in self._configuration_file.get_contract_names():
+            await self._build_contract(
+                contract_name=contract_name,
+                output_dir=output_dir,
+                cairo_path=cairo_path,
             )
