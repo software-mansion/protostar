@@ -23,6 +23,11 @@ def get_mock_for_lib_func(
         return_value = type(
             "return_value", (object,), {"err_code": err_code, "ok": ok}
         )()
+    if lib_func_name == "declare_legacy":
+        ok = type("ok", (object,), {"class_hash": 0})()
+        return_value = type(
+            "return_value", (object,), {"err_code": err_code, "ok": ok}
+        )()
     elif lib_func_name == "deploy":
         ok = type("ok", (object,), {"deployed_contract_address": 0})()
         return_value = type(
@@ -81,6 +86,10 @@ def test_roll(datadir: Path):
 
 def test_declare(datadir: Path):
     check_library_function("declare", datadir / "declare_test.cairo")
+
+
+def test_declare_legacy(datadir: Path):
+    check_library_function("declare_legacy", datadir / "declare_legacy_test.cairo")
 
 
 def test_start_prank(datadir: Path):
