@@ -62,13 +62,13 @@ class BuildCommand(ProtostarCommand):
         return [
             *MessengerFactory.OUTPUT_ARGUMENTS,
             CAIRO_PATH,
-            CONTRACT_NAME,
             ProtostarArgument(
                 name="disable-hint-validation",
                 description="Disable validation of hints when building the contracts.",
                 type="bool",
             ),
             COMPILED_CONTRACTS_DIR_ARG,
+            CONTRACT_NAME,
         ]
 
     async def run(self, args: Any):
