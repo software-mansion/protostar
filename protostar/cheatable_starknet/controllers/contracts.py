@@ -8,6 +8,7 @@ from starkware.starknet.business_logic.execution.objects import Event as Starkne
 from starkware.starknet.business_logic.transaction.objects import InternalDeclare
 from starkware.starknet.definitions.constants import GasCost
 from starkware.starknet.public.abi import AbiType, CONSTRUCTOR_ENTRY_POINT_SELECTOR
+from starkware.starknet.services.api.contract_class.contract_class_utils import compile_contract_class
 from starkware.starknet.services.api.gateway.transaction import (
     DEFAULT_DECLARE_SENDER_ADDRESS,
 )
@@ -23,6 +24,7 @@ from starkware.starknet.definitions.general_config import StarknetGeneralConfig
 from starkware.starknet.services.api.contract_class.contract_class import (
     EntryPointType,
     DeprecatedCompiledClass,
+    ContractClass,
 )
 
 from protostar.cheatable_starknet.cheatables.cheatable_execute_entry_point import (
@@ -31,6 +33,7 @@ from protostar.cheatable_starknet.cheatables.cheatable_execute_entry_point impor
 from protostar.cheatable_starknet.cheatables.cheatable_cached_state import (
     CheatableCachedState,
 )
+
 from protostar.cheatable_starknet.controllers.expect_events_controller import Event
 from protostar.starknet.selector import Selector
 from protostar.starknet.address import Address
@@ -59,6 +62,12 @@ class ConstructorInvocationException(ContractsCheaterException):
 @dataclass(frozen=True)
 class DeclaredContract:
     class_hash: int
+
+
+@dataclass(frozen=True)
+class DeclaredSierraClass:
+    class_hash: int
+    abi: str
 
 
 @dataclass(frozen=True)
@@ -118,10 +127,48 @@ class ContractsController:
                 ) from dt_exc
         return calldata or []
 
+    async def declare_sierra_contract(
+        self, contract_class: ContractClass, compiled_class_hash: int
+    ) -> DeclaredSierraClass:
+        """
+        Declare a sierra contract.
+
+        @param contract_class: contract to be declared.
+        @param compiled_class_hash: compiled class hash of the contract.
+        @return: DeclaredSierraClass instance.
+        """
+        starknet_config = StarknetGeneralConfig()
+        tx = InternalDeclare.create(
+            contract_class=contract_class,
+            compiled_class_hash=compiled_class_hash,
+            chain_id=starknet_config.chain_id.value,
+            sender_address=DEFAULT_DECLARE_SENDER_ADDRESS,
+            max_fee=0,
+            version=0,
+            signature=[],
+            nonce=0,
+        )
+
+        with self.cheatable_state.copy_and_apply() as state_copy:
+            await tx.apply_state_updates(
+                state=state_copy, general_config=starknet_config
+            )
+
+        abi = contract_class.abi
+        # TODO figure out how it works
+        # self._add_event_abi_to_state(abi)
+
+        # TODO replace this with casm parsing
+        compiled_class = compile_contract_class(contract_class)
+        class_hash = tx.class_hash
+        await self.cheatable_state.set_contract_class(class_hash, compiled_class)
+
+        return DeclaredSierraClass(class_hash=class_hash, abi=abi)
+
     async def declare_cairo0_contract(
         self,
         contract_class: DeprecatedCompiledClass,
-    ):
+    ) -> DeclaredClass:
         starknet_config = StarknetGeneralConfig()
         tx = InternalDeclare.create_deprecated(
             contract_class=contract_class,
@@ -140,6 +187,7 @@ class ContractsController:
 
         abi = contract_class.abi
         assert abi is not None
+
         self._add_event_abi_to_state(abi)
         class_hash = tx.class_hash
         assert class_hash is not None
