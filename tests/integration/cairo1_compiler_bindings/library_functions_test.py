@@ -18,12 +18,7 @@ def get_mock_for_lib_func(
     test_case_name: str,
     args_validator: Optional[Callable] = None,
 ):
-    if lib_func_name == "declare":
-        ok = type("ok", (object,), {"class_hash": 0})()
-        return_value = type(
-            "return_value", (object,), {"err_code": err_code, "ok": ok}
-        )()
-    elif lib_func_name == "declare_legacy":
+    if lib_func_name in ["declare", "declare_legacy"]:
         ok = type("ok", (object,), {"class_hash": 0})()
         return_value = type(
             "return_value", (object,), {"err_code": err_code, "ok": ok}
