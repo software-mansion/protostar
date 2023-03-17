@@ -249,6 +249,7 @@ class ProtostarFixture:
         args.disable_hint_validation = False
         args.cairo_path = None
         args.json = False
+        args.contract_name = ""
         return args
 
     async def invoke(

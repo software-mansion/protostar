@@ -5,6 +5,7 @@ from typing import List, Optional
 
 from protostar.cli import ProtostarArgument, ProtostarCommand, MessengerFactory
 from protostar.cli.activity_indicator import ActivityIndicator
+from protostar.cli.common_arguments import CAIRO_PATH
 from protostar.commands.test.messages.testing_summary_message import (
     TestingSummaryResultMessage,
 )
@@ -92,12 +93,7 @@ A glob or globs to a directory or a test suite, for example:
                 value_parser="list",
                 type="str",
             ),
-            ProtostarArgument(
-                name="cairo-path",
-                value_parser="list",
-                description="Additional directories to look for sources.",
-                type="path",
-            ),
+            CAIRO_PATH,
             ProtostarArgument(
                 name="disable-hint-validation",
                 description=(
