@@ -3,7 +3,11 @@ from typing import List, Optional, Any
 from dataclasses import dataclass
 
 from protostar.cli import ProtostarArgument, ProtostarCommand, MessengerFactory
-from protostar.cli.common_arguments import COMPILED_CONTRACTS_DIR_ARG
+from protostar.cli.common_arguments import (
+    COMPILED_CONTRACTS_DIR_ARG,
+    CAIRO_PATH,
+    CONTRACT_NAME,
+)
 from protostar.compiler import (
     ProjectCompiler,
     ProjectCompilerConfig,
@@ -57,18 +61,14 @@ class BuildCommand(ProtostarCommand):
     def arguments(self):
         return [
             *MessengerFactory.OUTPUT_ARGUMENTS,
-            ProtostarArgument(
-                name="cairo-path",
-                description="Additional directories to look for sources.",
-                type="path",
-                value_parser="list",
-            ),
+            CAIRO_PATH,
             ProtostarArgument(
                 name="disable-hint-validation",
                 description="Disable validation of hints when building the contracts.",
                 type="bool",
             ),
             COMPILED_CONTRACTS_DIR_ARG,
+            CONTRACT_NAME,
         ]
 
     async def run(self, args: Any):
@@ -78,6 +78,7 @@ class BuildCommand(ProtostarCommand):
             output_dir=args.compiled_contracts_dir,
             disable_hint_validation=args.disable_hint_validation,
             relative_cairo_path=args.cairo_path,
+            contract_name=args.contract_name,
         )
 
         write(SuccessfulBuildMessage(class_hashes=class_hashes))
@@ -85,6 +86,7 @@ class BuildCommand(ProtostarCommand):
     async def build(
         self,
         output_dir: Path,
+        contract_name: str,
         disable_hint_validation: bool = False,
         relative_cairo_path: Optional[List[Path]] = None,
     ) -> dict[str, int]:
@@ -94,5 +96,6 @@ class BuildCommand(ProtostarCommand):
                 hint_validation_disabled=disable_hint_validation,
                 relative_cairo_path=relative_cairo_path or [],
             ),
+            target_contract_name=contract_name or None,
         )
         return class_hashes

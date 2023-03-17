@@ -48,16 +48,37 @@ class ProjectCompiler:
             relative_cairo_path=[]
         )
 
+    def _compile_contract(
+        self,
+        contract_name: str,
+        output_dir: Path,
+        config: Optional[ProjectCompilerConfig] = None,
+    ):
+        contract = self.compile_contract_from_contract_name(contract_name, config)
+        class_hash = compute_class_hash(contract_class=contract)
+        CompiledContractWriter(contract, contract_name).save(
+            output_dir=self.get_compilation_output_dir(output_dir)
+        )
+        return class_hash
+
     def compile_project(
-        self, output_dir: Path, config: Optional[ProjectCompilerConfig] = None
+        self,
+        output_dir: Path,
+        config: Optional[ProjectCompilerConfig] = None,
+        target_contract_name: Optional[str] = None,
     ) -> dict[str, int]:
         class_hashes = {}
+        if target_contract_name:
+            return {
+                target_contract_name: self._compile_contract(
+                    contract_name=target_contract_name,
+                    output_dir=output_dir,
+                    config=config,
+                )
+            }
         for contract_name in self.configuration_file.get_contract_names():
-            contract = self.compile_contract_from_contract_name(contract_name, config)
-            class_hash = compute_class_hash(contract_class=contract)
-            class_hashes[contract_name] = class_hash
-            CompiledContractWriter(contract, contract_name).save(
-                output_dir=self.get_compilation_output_dir(output_dir)
+            class_hashes[contract_name] = self._compile_contract(
+                contract_name=contract_name, output_dir=output_dir, config=config
             )
         return class_hashes
 

@@ -174,7 +174,7 @@ def test_dependencies_fail(protostar: ProtostarFixture, copy_fixture: CopyFixtur
 
 
 def test_modules(protostar: ProtostarFixture, copy_fixture: CopyFixture):
-    copy_fixture("cairo_0_1_mixed", "./cairo_project")
+    copy_fixture("cairo1_modules", "./cairo_project")
     os.chdir("./cairo_project")
 
     result = protostar(["--no-color", "test-cairo1", "tests"])
