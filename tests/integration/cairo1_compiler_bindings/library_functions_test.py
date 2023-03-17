@@ -28,6 +28,20 @@ def get_mock_for_lib_func(
         return_value = type(
             "return_value", (object,), {"err_code": err_code, "ok": ok}
         )()
+    elif lib_func_name == "prepare_tp":
+        prepared_contract = type(
+            "prepared_contract",
+            (object,),
+            {
+                "constructor_calldata": [],
+                "contract_address": 0,
+                "return_class_hash": 0,
+            },
+        )()
+        ok = type("ok", (object,), {"prepared_contract": prepared_contract})()
+        return_value = type(
+            "return_value", (object,), {"err_code": err_code, "ok": ok}
+        )()
     else:
         return_value = type("return_value", (object,), {"err_code": err_code})()
 
@@ -122,6 +136,33 @@ def test_invoke(datadir: Path):
 
     check_library_function(
         "invoke", datadir / "invoke_test.cairo", args_validator=_args_validator
+    )
+
+
+def test_prepare(datadir: Path):
+    expected_calldatas = {
+        "test_prepare": [101, 202, 303, 405, 508, 613, 721],
+        "test_prepare_tp": [3, 2, 1],
+        "test_prepare_no_args": [],
+    }
+
+    def _args_validator(
+        memory: MemoryDict, test_case_name: str, *args: Any, **kwargs: Any
+    ):
+        assert not args
+        class_hash = memory.data[kwargs["class_hash"][0]]
+        assert class_hash == 123
+        validate_calldata_arg(
+            start_name="calldata_start",
+            end_name="calldata_end",
+            memory=memory,
+            expected_calldata=expected_calldatas[test_case_name.split("::")[-1]],
+            *args,
+            **kwargs,
+        )
+
+    check_library_function(
+        "prepare_tp", datadir / "prepare_test.cairo", args_validator=_args_validator
     )
 
 
