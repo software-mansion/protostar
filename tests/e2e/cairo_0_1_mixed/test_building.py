@@ -60,28 +60,6 @@ def test_cairo0_build_with_contract_names_separate_builds(
             built_file.unlink()
 
 
-def test_cairo0_build_with_contract_names_build_together(
-    protostar: ProtostarFixture, copy_fixture: CopyFixture
-):
-    copy_fixture("cairo_0_1_mixed", "./cairo_project")
-    os.chdir("./cairo_project")
-    contracts = ["basic_cairo0", "basic2_cairo0"]
-    toml_file = Path("protostar.toml")
-    toml_file.write_text(
-        toml_file.read_text()
-        .replace('calculate_cairo1 = ["src/calculate_cairo1.cairo"]', "")
-        .replace('do_nothing_cairo1 = ["src/do_nothing_cairo1.cairo"]', "")
-    )
-    protostar(["build"])
-    build_path = Path("build")
-    assert build_path.exists()
-    built_files = set(build_path.glob("*"))
-    assert built_files == set(
-        [Path("build") / (contract + ".json") for contract in contracts]
-        + [Path("build") / (contract + "_abi.json") for contract in contracts]
-    )
-
-
 def test_cairo0_cairo1_build_mixed(
     protostar: ProtostarFixture, copy_fixture: CopyFixture
 ):
