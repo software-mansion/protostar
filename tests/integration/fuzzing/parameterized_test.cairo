@@ -82,7 +82,7 @@ func test_check_exact_example{syscall_ptr: felt*, range_check_ptr}(a: felt, b: f
 
 
 @external
-func setup_negative_example() {
+func setup_fail_example() {
     %{
         example(a=11)
     %}
@@ -90,7 +90,7 @@ func setup_negative_example() {
 }
 
 @external
-func test_negative_example{syscall_ptr: felt*, range_check_ptr}(a: felt) {
+func test_fail_example{syscall_ptr: felt*, range_check_ptr}(a: felt) {
     assert a = 12;
     return ();
 }
