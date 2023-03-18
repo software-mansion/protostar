@@ -144,7 +144,7 @@ async def test_parameterized_with_examples_tests(
             "test_no_data_broken",
         ],
         expected_failed_test_cases_names=[
-            "test_negative_example",
+            "test_fail_example",
         ],
     )
 
