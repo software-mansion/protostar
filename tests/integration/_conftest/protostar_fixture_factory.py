@@ -25,7 +25,11 @@ from protostar.commands.init.project_creator.new_project_creator import (
     NewProjectCreator,
 )
 from protostar.commands.test import TestCommand
-from protostar.compiler import ProjectCairoPathBuilder, ProjectCompiler
+from protostar.compiler import (
+    ProjectCairoPathBuilder,
+    LinkedLibrariesBuilder,
+    ProjectCompiler,
+)
 from protostar.configuration_file import (
     ConfigurationFileFactory,
     ConfigurationFileV2ContentFactory,
@@ -149,9 +153,7 @@ def create_protostar_fixture(
     test_command = TestCommand(
         project_root_path=project_root_path,
         protostar_directory=ProtostarDirectory(REPOSITORY_ROOT),
-        project_cairo_path_builder=ProjectCairoPathBuilder(
-            project_root_path,
-        ),
+        project_cairo_path_builder=LinkedLibrariesBuilder(),
         log_color_provider=log_color_provider,
         cwd=project_root_path,
         active_profile_name=None,
