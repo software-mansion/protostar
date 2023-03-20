@@ -2910,13 +2910,13 @@ Werkzeug = ">=2.0.3,<2.1.0"
 
 [[package]]
 name = "starknet-py"
-version = "0.14.0a0"
+version = "0.14.1a0"
 description = "A python SDK for StarkNet"
 category = "main"
 optional = false
 python-versions = ">=3.8,<3.10"
 files = [
-    {file = "starknet_py-0.14.0a0.tar.gz", hash = "sha256:8a1c1551e3de15471cc20f9fb6daa3b9c3e363526f223a7c3204647dc8018598"},
+    {file = "starknet_py-0.14.1a0.tar.gz", hash = "sha256:0a817b9755837e9269dbc848218b9f831b3d92a6544826edb3505b08a88da830"},
 ]
 
 [package.dependencies]
@@ -3368,4 +3368,4 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.9"
-content-hash = "26ddd29dc6cc9088522c5432fc5cfdda4f7ea3695596fb837884f022c7264103"
+content-hash = "def36cff03874f1e202681b5b43ad968d90986c55a1db075425f4b649f470254"
