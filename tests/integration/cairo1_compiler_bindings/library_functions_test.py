@@ -23,7 +23,7 @@ def get_mock_for_lib_func(
         return_value = type(
             "return_value", (object,), {"err_code": err_code, "ok": ok}
         )()
-    elif lib_func_name == "deploy":
+    elif lib_func_name == "deploy_tp":
         ok = type("ok", (object,), {"deployed_contract_address": 0})()
         return_value = type(
             "return_value", (object,), {"err_code": err_code, "ok": ok}
@@ -96,7 +96,7 @@ def test_warp(datadir: Path):
 
 
 def test_deploy(datadir: Path):
-    check_library_function("deploy", datadir / "deploy_test.cairo")
+    check_library_function("deploy_tp", datadir / "deploy_test.cairo")
 
 
 def test_invoke(datadir: Path):
