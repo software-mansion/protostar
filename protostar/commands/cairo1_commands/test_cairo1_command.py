@@ -3,7 +3,6 @@ from pathlib import Path
 from typing import List, Optional
 
 from protostar.cli import ProtostarArgument, ProtostarCommand, MessengerFactory
-from protostar.cli.activity_indicator import ActivityIndicator
 from protostar.commands.test.messages.testing_summary_message import (
     TestingSummaryResultMessage,
 )
@@ -148,26 +147,20 @@ A glob or globs to a directory or a test suite, for example:
             for path in self._project_cairo_path_builder.build_project_cairo_path_list(
                 cairo_path or []
             )
-        ]
-        include_paths.append(
-            str(self._protostar_directory.protostar_cairo1_corelib_path)
-        )
+        ] + [str(self._protostar_directory.protostar_cairo1_corelib_path)]
 
         testing_seed = determine_testing_seed(seed=None)
 
-        with ActivityIndicator(
-            self._log_color_provider.colorize("GRAY", "Collecting tests")
-        ):
-            compiler_config = CairoCompilerConfig(
-                disable_hint_validation=True,
-                include_paths=include_paths,
-            )
-            test_collector = Cairo1TestCollector(compiler_config.include_paths)
-            test_collector_result = test_collector.collect(
-                targets=targets,
-                ignored_targets=ignored_targets,
-                default_test_suite_glob=str(self._project_root_path),
-            )
+        compiler_config = CairoCompilerConfig(
+            disable_hint_validation=True,
+            include_paths=include_paths,
+        )
+        test_collector = Cairo1TestCollector(compiler_config.include_paths)
+        test_collector_result = test_collector.collect(
+            targets=targets,
+            ignored_targets=ignored_targets,
+            default_test_suite_glob=str(self._project_root_path),
+        )
 
         messenger(TestCollectorResultMessage(test_collector_result))
 
