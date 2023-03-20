@@ -14,7 +14,7 @@ from .callable_hint_local import CallableHintLocal
 class DeclareCheatcodeProtocol(Protocol):
     def __call__(
         self,
-        contract: str,
+        contract: CairoShortString,
         *args: Any,
     ) -> DeclaredContract:
         ...
