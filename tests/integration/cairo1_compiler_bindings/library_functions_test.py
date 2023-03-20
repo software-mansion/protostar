@@ -18,7 +18,7 @@ def get_mock_for_lib_func(
     test_case_name: str,
     args_validator: Optional[Callable] = None,
 ):
-    if lib_func_name in ["declare", "declare_legacy"]:
+    if lib_func_name in ["declare", "declare_cairo0"]:
         ok = type("ok", (object,), {"class_hash": 0})()
         return_value = type(
             "return_value", (object,), {"err_code": err_code, "ok": ok}
@@ -83,8 +83,8 @@ def test_declare(datadir: Path):
     check_library_function("declare", datadir / "declare_test.cairo")
 
 
-def test_declare_legacy(datadir: Path):
-    check_library_function("declare_legacy", datadir / "declare_legacy_test.cairo")
+def test_declare_cairo0(datadir: Path):
+    check_library_function("declare_cairo0", datadir / "declare_cairo0_test.cairo")
 
 
 def test_start_prank(datadir: Path):
