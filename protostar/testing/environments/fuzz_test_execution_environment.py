@@ -1,5 +1,5 @@
+import asyncio
 import dataclasses
-from asyncio import to_thread
 from dataclasses import dataclass
 from typing import Any, Callable, Dict, List
 
@@ -100,7 +100,7 @@ class FuzzTestExecutionEnvironment(ContractBasedTestExecutionEnvironment):
 
         try:
             with self.state.output_recorder.redirect("test"):
-                await to_thread(test_thread)
+                await asyncio.to_thread(test_thread)
         except HypothesisFailureSmugglingError as escape_err:
             escape_err.error.execution_info["fuzz_runs"] = runs_counter.count
             escape_err.error.metadata.append(
@@ -192,7 +192,9 @@ class FuzzTestExecutionEnvironment(ContractBasedTestExecutionEnvironment):
                                 inputs=inputs,
                             ) from reported_ex
 
-            if hasattr(test, "hypothesis"):
+            if hasattr(
+                test, "hypothesis"
+            ):  # this checks only if "given" cheatcode is used
                 test.hypothesis.inner_test = wrap_in_sync(test.hypothesis.inner_test)  # type: ignore
 
             if self.given_strategies:
@@ -200,6 +202,7 @@ class FuzzTestExecutionEnvironment(ContractBasedTestExecutionEnvironment):
                 #   because the @given decorator provides all of them behind the scenes.
                 test()
             elif self.state.config.fuzz_examples:
+                test = wrap_in_sync(test)
                 for ex in reversed(self.state.config.fuzz_examples):
                     test(**ex)
 

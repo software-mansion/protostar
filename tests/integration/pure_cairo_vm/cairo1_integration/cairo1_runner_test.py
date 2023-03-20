@@ -15,15 +15,7 @@ def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
         yield protostar
 
 
-async def test_cairo_1_runner(
-    protostar: ProtostarFixture, shared_datadir: Path, datadir: Path
-):
-    protostar.create_files(
-        {
-            "cairo_project.toml": shared_datadir / "cairo_project.toml",
-            "lib.cairo": shared_datadir / "lib.cairo",
-        }
-    )
+async def test_cairo_1_runner(protostar: ProtostarFixture, datadir: Path):
     testing_summary = await protostar.run_test_runner(
         datadir / "test_cairo1.cairo",
         cairo1_test_runner=True,
@@ -38,15 +30,8 @@ async def test_cairo_1_runner(
 
 
 async def test_cairo_1_runner_with_external_lib(
-    protostar: ProtostarFixture, shared_datadir: Path, datadir: Path
+    protostar: ProtostarFixture, datadir: Path
 ):
-    protostar.create_files(
-        {
-            "cairo_project.toml": shared_datadir / "cairo_project.toml",
-            "lib.cairo": shared_datadir / "lib.cairo",
-        }
-    )
-
     testing_summary = await protostar.run_test_runner(
         datadir / "test_cairo1_ext_lib.cairo",
         cairo1_test_runner=True,
@@ -61,16 +46,7 @@ async def test_cairo_1_runner_with_external_lib(
     )
 
 
-async def test_cairo_1_runner_empty_suite(
-    protostar: ProtostarFixture, shared_datadir: Path, datadir: Path
-):
-    protostar.create_files(
-        {
-            "cairo_project.toml": shared_datadir / "cairo_project.toml",
-            "lib.cairo": shared_datadir / "lib.cairo",
-        }
-    )
-
+async def test_cairo_1_runner_empty_suite(protostar: ProtostarFixture, datadir: Path):
     testing_summary = await protostar.run_test_runner(
         datadir / "test_cairo1_empty_suite.cairo",
         cairo1_test_runner=True,
@@ -79,15 +55,8 @@ async def test_cairo_1_runner_empty_suite(
 
 
 async def test_cairo_1_runner_multiple_suites(
-    protostar: ProtostarFixture, shared_datadir: Path, datadir: Path
+    protostar: ProtostarFixture, datadir: Path
 ):
-    protostar.create_files(
-        {
-            "cairo_project.toml": shared_datadir / "cairo_project.toml",
-            "lib.cairo": shared_datadir / "lib.cairo",
-        }
-    )
-
     testing_summary = await protostar.run_test_runner(
         datadir / "multiple_suites",
         cairo1_test_runner=True,
@@ -100,16 +69,7 @@ async def test_cairo_1_runner_multiple_suites(
     )
 
 
-async def test_cairo_1_runner_broken_suite(
-    protostar: ProtostarFixture, shared_datadir: Path, datadir: Path
-):
-    protostar.create_files(
-        {
-            "cairo_project.toml": shared_datadir / "cairo_project.toml",
-            "lib.cairo": shared_datadir / "lib.cairo",
-        }
-    )
-
+async def test_cairo_1_runner_broken_suite(protostar: ProtostarFixture, datadir: Path):
     testing_summary = await protostar.run_test_runner(
         datadir / "broken" / "test_cairo1_broken_suite.cairo",
         cairo1_test_runner=True,
@@ -118,15 +78,8 @@ async def test_cairo_1_runner_broken_suite(
 
 
 async def test_cairo_1_runner_skip_unmarked_test(
-    protostar: ProtostarFixture, shared_datadir: Path, datadir: Path
+    protostar: ProtostarFixture, datadir: Path
 ):
-    protostar.create_files(
-        {
-            "cairo_project.toml": shared_datadir / "cairo_project.toml",
-            "lib.cairo": shared_datadir / "lib.cairo",
-        }
-    )
-
     testing_summary = await protostar.run_test_runner(
         datadir / "test_cairo1_two_cases.cairo",
         cairo1_test_runner=True,
@@ -141,16 +94,7 @@ async def test_cairo_1_runner_skip_unmarked_test(
     )
 
 
-async def test_cairo_1_runner_single_case(
-    protostar: ProtostarFixture, shared_datadir: Path, datadir: Path
-):
-    protostar.create_files(
-        {
-            "cairo_project.toml": shared_datadir / "cairo_project.toml",
-            "lib.cairo": shared_datadir / "lib.cairo",
-        }
-    )
-
+async def test_cairo_1_runner_single_case(protostar: ProtostarFixture, datadir: Path):
     test_path_str = str(datadir / "test_cairo1_two_cases.cairo")
     testing_summary = await protostar.run_test_runner(
         f"{test_path_str}::second_test",
@@ -167,14 +111,7 @@ async def test_cairo_1_runner_single_case(
 async def test_cairo_1_failing(
     protostar: ProtostarFixture,
     datadir: Path,
-    shared_datadir: Path,
 ):
-    protostar.create_files(
-        {
-            "cairo_project.toml": shared_datadir / "cairo_project.toml",
-            "lib.cairo": shared_datadir / "lib.cairo",
-        }
-    )
     test_path_str = str(datadir / "test_cairo1_failing.cairo")
 
     testing_summary = await protostar.run_test_runner(
