@@ -1,5 +1,6 @@
 from typing import Optional, Any
 
+from protostar.cairo.short_string import CairoShortString
 from protostar.cheatable_starknet.callable_hint_locals.callable_hint_local import (
     CallableHintLocal,
 )
@@ -39,7 +40,7 @@ class DeployContractHintLocal(CallableHintLocal):
 
     def deploy_contract(
         self,
-        contract: str,
+        contract: CairoShortString,
         constructor_args: Optional[CairoOrPythonData] = None,
     ) -> DeployedContract:
         declared_contract = self._declare_cheatcode.declare_cairo0(contract)
