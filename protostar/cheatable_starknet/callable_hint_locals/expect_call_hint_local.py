@@ -11,11 +11,18 @@ from protostar.cheatable_starknet.callable_hint_locals.callable_hint_local impor
 )
 from protostar.starknet import RawAddress, Address
 from protostar.starknet.selector import Selector
+from protostar.testing import Hook
 
 
 class ExpectCallHintLocal(CallableHintLocal):
-    def __init__(self, controller: ExpectCallController):
+    def __init__(
+        self,
+        controller: ExpectCallController,
+        test_finish_hook: Hook,
+    ):
         self._controller = controller
+        self._test_finish_hook = test_finish_hook
+        self._test_finish_hook.on(self._controller.assert_no_expected_calls_left)
 
     @property
     def name(self) -> str:

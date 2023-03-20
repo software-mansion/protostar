@@ -82,7 +82,6 @@ class CairoSharedHintLocalFactory:
         )
 
         expect_call_controller = ExpectCallController(
-            test_finish_hook=self._test_finish_hook,
             cheatable_state=self._test_execution_state.cheatable_state,
         )
 
@@ -112,13 +111,16 @@ class CairoSharedHintLocalFactory:
             LoadHintLocal(storage_controller=storage_controller),
             ExpectEventsHintLocal(
                 controller=ExpectEventsController(
-                    test_finish_hook=self._test_finish_hook,
                     test_execution_state=self._test_execution_state,
                     cheatable_state=self._test_execution_state.cheatable_state,
                 ),
+                test_finish_hook=self._test_finish_hook,
             ),
             MockCallHintLocal(controller=contracts_controller),
-            ExpectCallHintLocal(controller=expect_call_controller),
+            ExpectCallHintLocal(
+                controller=expect_call_controller,
+                test_finish_hook=self._test_finish_hook,
+            ),
             AssertExpectCallHintLocal(controller=expect_call_controller),
         ]
 

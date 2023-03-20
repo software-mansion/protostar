@@ -11,6 +11,7 @@ from protostar.cheatable_starknet.controllers.expect_events_controller import (
 )
 from protostar.starknet import CairoData, Address
 from protostar.starknet.selector import Selector
+from protostar.testing import Hook
 
 
 class RawExpectedEvent(TypedDict):
@@ -20,8 +21,14 @@ class RawExpectedEvent(TypedDict):
 
 
 class ExpectEventsHintLocal(CallableHintLocal):
-    def __init__(self, controller: ExpectEventsController):
+    def __init__(
+        self,
+        controller: ExpectEventsController,
+        test_finish_hook: Hook,
+    ):
         self._controller = controller
+        self._test_finish_hook = test_finish_hook
+        self._test_finish_hook.on(self._controller.compare_expected_and_actual_results)
 
     @property
     def name(self) -> str:
