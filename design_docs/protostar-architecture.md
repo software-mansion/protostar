@@ -4,14 +4,14 @@ This document proposes the idea how to modularize Protostar. Goals of the modula
 - Allow to introduce better ownerships of the codebase parts
 - Make workflow asynchronous between smaller sub-teams operating on contracts between modules
 - Allow incremental rewrite to Rust
-- Remove compilation responsibility from Protostar codebase
+- Long term, remove compilation responsibility from Protostar codebase
 
 
 
 ## General overview
 First decomposition of Protostar will introduce 3 modules
 
-- Protostar Gateway
+- Protostar Shell
 - Protostar Starknet
 - Protostar Testing backend
 
@@ -19,8 +19,8 @@ Each of the modules would be a separate poetry package (open question?), to simp
 ![Diagram](img/diagram.png)
 
 ## Modules
-### Protostar Gateway
-This module will be a communication layer of Protostar with outer world, namely Scarb. Its responsibility will be to provide Scarb with a correct cairo compiler (or dependencies in the future) and to fetch configuration from Scarb config. This module will be routing commands as requests to other services. Output formatting will be responsibility of the Gateway
+### Protostar Shell
+This module will be a communication layer of Protostar with the outer world, namely Scarb. Its responsibility will be to provide Scarb with a correct cairo compiler (or dependencies in the future) and to fetch configuration from Scarb config. This module will be routing commands as requests to other services. Important note, Protostar shell should by dynamically built from provided (during build) commands list. This will allow as to easily split protostar into two separate binaries which may simplify the integrations process.
 
 
 ### Testing backend
@@ -33,12 +33,12 @@ Output: Stream of test results + summary as a final element
 Anything outside of this transaction will be encapsulated in the backend.
 
 
-### Starknet CLI
+### Protostar Starknet
 This is a facade over starknet.py SDK, we can migrate it to Rust very soon and use Starknet.rs instead if its capabilities are sufficient.
 
 
 ## Communication
-Communication layer between modules will be JSON, simillar to the current Protostar `--json` to make it language-independent. We can do communication either through FFI or calling as sub-processes, this is an open question.
+Each of the modules will be a separate binary (protostar shell will be two binaries each built with a different backend set of commands and target backend). Protostar shell will call the backend passing the arguments resolved from config. 
 
 ## Benefits
 - Modularity of backends based on contracts allows us to provide interchangeable backends for different purposes. For example we can support both sierra and casm backends simultaneously. Or we can support different Protostar-starknets, in python and rust depending on which sdk will update faster to new changes or at least maintain the python solution while rust version is being developed.
