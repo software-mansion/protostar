@@ -20,10 +20,10 @@ from protostar.testing import (
 )
 from protostar.io.output import Messenger
 
-from ..test.test_command_cache import TestCommandCache
-from ..test.messages import TestCollectorResultMessage
-from ...cairo_testing.cairo1_test_collector import Cairo1TestCollector
-from ...cairo_testing.cairo1_test_runner import Cairo1TestRunner
+from protostar.commands.test.test_command_cache import TestCommandCache
+from protostar.commands.test.messages import TestCollectorResultMessage
+from protostar.cairo_testing.cairo1_test_collector import Cairo1TestCollector
+from protostar.cairo_testing.cairo1_test_runner import Cairo1TestRunner
 
 
 class TestCairo1Command(ProtostarCommand):
