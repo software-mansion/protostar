@@ -11,7 +11,7 @@ version = "0.9.2"
 
 [tool.poetry.dependencies]
 argparse = "^1.4.0"
-cairo-lang = { url = "https://github.com/starkware-libs/cairo-lang/releases/download/v0.11.0-pre/cairo-lang-0.11.0a0.zip" }
+cairo-lang = "0.11.0a2"
 colorama = "^0.4.6"
 crypto-cpp-py = "^1.0.4"
 flatdict = "^4.0.1"
@@ -20,14 +20,14 @@ packaging = "^23.0"
 pytest-datadir = "^1.4.1"
 python = ">=3.9.14, <3.10"
 requests = "^2.28.2"
-starknet-py = { git = "https://github.com/software-mansion/starknet.py.git", branch="feat/remove-eth-deps"}
+starknet-py = { git = "https://github.com/software-mansion/starknet.py.git", branch="feat/update-cairo-package"}
 tomli = "<2.0.0"
 tomli-w = "^1.0.0"
 tqdm = "^4.65.0"
 typing-extensions = "^4.3.0"
 tomlkit = "^0.11.6"
 maturin = "^0.14.15"
-web3 = "5.31.4"
+web3 = "6.0.0b4"
 
 [tool.poetry.dev-dependencies]
 GitPython = "^3.1.31"
