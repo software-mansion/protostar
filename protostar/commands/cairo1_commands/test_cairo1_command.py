@@ -14,6 +14,7 @@ from protostar.testing import (
 )
 
 from protostar.commands.test import TestCommandCache
+from .fetch_from_scarb import maybe_fetch_linked_libraries
 
 
 class TestCairo1Command(ProtostarCommand):
@@ -117,10 +118,13 @@ A glob or globs to a directory or a test suite, for example:
             active_profile_name=self._active_profile_name,
             messenger_factory=self._messenger_factory,
         )
+
+        libraries = maybe_fetch_linked_libraries(self._project_root_path) or []
+
         summary = await test_command.test(
             targets=cache.obtain_targets(args.target, args.last_failed),
             ignored_targets=args.ignore,
-            cairo_path=args.linked_libraries,
+            cairo_path=args.linked_libraries + libraries,
             disable_hint_validation=False,
             profiling=False,
             no_progress_bar=args.no_progress_bar,

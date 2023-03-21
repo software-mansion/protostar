@@ -11,6 +11,8 @@ from protostar.cli.common_arguments import (
 from protostar.configuration_file.configuration_file import ConfigurationFile
 import protostar.cairo.cairo_bindings as cairo1
 
+from .fetch_from_scarb import maybe_fetch_linked_libraries
+
 
 class BuildCairo1Command(ProtostarCommand):
     def __init__(
@@ -79,7 +81,12 @@ class BuildCairo1Command(ProtostarCommand):
         relative_cairo_path: Optional[list[Path]] = None,
         target_contract_name: str = "",
     ) -> None:
+
         cairo_path = relative_cairo_path or []
+
+        libraries = maybe_fetch_linked_libraries(self._project_root_path)
+        cairo_path += libraries
+
         if not output_dir.is_absolute():
             output_dir = self._project_root_path / output_dir
         if target_contract_name:
