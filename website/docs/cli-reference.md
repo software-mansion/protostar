@@ -16,6 +16,8 @@ Compile contracts.
 Additional directories to look for sources.
 #### `--compiled-contracts-dir PATH=build`
 An output directory used to put the compiled contracts in.
+#### `--contract-name STRING`
+Specify a contract name that should be built.
 #### `--disable-hint-validation`
 Disable validation of hints when building the contracts.
 #### `--json`
@@ -29,6 +31,8 @@ Compile cairo1 contracts.
 Additional directories to look for sources.
 #### `--compiled-contracts-dir PATH=build`
 An output directory used to put the compiled contracts in.
+#### `--contract-name STRING`
+Specify a contract name that should be built.
 ### `cairo-migrate`
 Migrate project sources to Cairo 0.10.
 #### `targets STRING[]=['.']`

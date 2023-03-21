@@ -143,6 +143,9 @@ async def test_parameterized_with_examples_tests(
         expected_broken_test_cases_names=[
             "test_no_data_broken",
         ],
+        expected_failed_test_cases_names=[
+            "test_fail_example",
+        ],
     )
 
     assert len(testing_summary.passed) == 4
@@ -153,4 +156,4 @@ async def test_parameterized_with_examples_tests(
     ]
     passed_list.sort()
     # TestConfig().fuzz_max_examples is a default value for max examples
-    assert passed_list == [0, 0, 7, TestConfig().fuzz_max_examples]
+    assert passed_list == [1, 2, 7, TestConfig().fuzz_max_examples]

@@ -17,7 +17,7 @@ function install_dev() {
 
   pushd cairo
   pushd crates/cairo-lang-python-bindings
-  rustup override set nightly || return 1;
+  rustup override set nightly-2022-11-03 || return 1;
   maturin develop --release || return 1;
   popd # cairo
   popd # cairo/crates/cairo_python_bindings
@@ -28,7 +28,7 @@ function install_prod() {
 
   pushd cairo
   pushd crates/cairo-lang-python-bindings
-  rustup override set nightly || return 1;
+  rustup override set nightly-2022-11-03 || return 1;
   maturin build || return 1;
   popd # cairo
 
