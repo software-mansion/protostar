@@ -20,7 +20,7 @@ Each of the modules would be a separate poetry package (open question?), to simp
 
 ## Modules
 ### Protostar Shell
-This module will be a communication layer of Protostar with the outer world, namely Scarb. Its responsibility will be to provide Scarb with a correct cairo compiler (or dependencies in the future) and to fetch configuration from Scarb config. This module will be routing commands as requests to other services. Important note, Protostar shell should by dynamically built from provided (during build) commands list. This will allow as to easily split protostar into two separate binaries which may simplify the integrations process.
+This module will be a communication layer of Protostar with the outer world, namely Scarb. Its responsibility will be to provide Scarb with a correct cairo compiler (or dependencies in the future) and to fetch configuration from Scarb config. This module will be routing commands as requests to other services. Important note, Protostar shell should be dynamically built from provided (during build) commands list. This will allow us to easily split protostar into two separate binaries which may simplify the integrations process.
 
 
 ### Testing backend
