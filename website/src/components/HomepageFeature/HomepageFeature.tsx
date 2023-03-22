@@ -14,14 +14,14 @@ export function HomepageFeature({
   description,
   renderIcon,
 }: HomepageFeatureProps) {
-  const { isDarkTheme } = useColorMode();
+  const { colorMode } = useColorMode();
 
   return (
     <div className={styles.container}>
       <div
         className={clsx([
           styles.iconContainer,
-          { [styles["bg-primary"]]: !isDarkTheme },
+          { [styles["bg-primary"]]: colorMode == "light" },
         ])}
       >
         {renderIcon()}
