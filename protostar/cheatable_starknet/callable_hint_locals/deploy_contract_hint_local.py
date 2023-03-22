@@ -1,10 +1,11 @@
 from typing import Optional, Any
 
+from protostar.cairo.short_string import CairoShortString
 from protostar.cheatable_starknet.callable_hint_locals.callable_hint_local import (
     CallableHintLocal,
 )
-from protostar.cheatable_starknet.callable_hint_locals.declare_hint_local import (
-    DeclareHintLocal,
+from protostar.cheatable_starknet.callable_hint_locals.declare_cairo0_hint_local import (
+    DeclareCairo0HintLocal,
 )
 from protostar.cheatable_starknet.callable_hint_locals.deploy_hint_local import (
     DeployHintLocal,
@@ -19,7 +20,7 @@ from protostar.starknet.data_transformer import CairoOrPythonData
 class DeployContractHintLocal(CallableHintLocal):
     def __init__(
         self,
-        declare_cheatcode: DeclareHintLocal,
+        declare_cheatcode: DeclareCairo0HintLocal,
         prepare_cheatcode: PrepareHintLocal,
         deploy_cheatcode: DeployHintLocal,
         *args: Any,
@@ -32,17 +33,17 @@ class DeployContractHintLocal(CallableHintLocal):
 
     @property
     def name(self) -> str:
-        return "deploy_contract"
+        return "deploy_contract_cairo0"
 
     def _build(self):
         return self.deploy_contract
 
     def deploy_contract(
         self,
-        contract: str,
+        contract: CairoShortString,
         constructor_args: Optional[CairoOrPythonData] = None,
     ) -> DeployedContract:
-        declared_contract = self._declare_cheatcode.declare(contract)
+        declared_contract = self._declare_cheatcode.declare_cairo0(contract)
         prepared_contract = self._prepare_cheatcode.prepare(
             declared_contract, constructor_args
         )
