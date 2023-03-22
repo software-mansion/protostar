@@ -1,16 +1,17 @@
 import collections
 import copy
 from dataclasses import dataclass
-from typing import List, Optional, cast
+from typing import List, Optional, cast, Tuple
 
-from starkware.starknet.business_logic.execution.objects import CallType
+from starkware.starknet.business_logic.execution.objects import CallType, CallInfo, ExecutionResourcesManager
 from starkware.starknet.business_logic.execution.objects import Event as StarknetEvent
+from starkware.starknet.business_logic.state.state_api import SyncState
 from starkware.starknet.business_logic.transaction.objects import InternalDeclare
 from starkware.starknet.definitions.constants import GasCost
 from starkware.starknet.public.abi import AbiType, CONSTRUCTOR_ENTRY_POINT_SELECTOR
-from starkware.starknet.services.api.contract_class.contract_class_utils import compile_contract_class
 from starkware.starknet.services.api.gateway.transaction import (
     DEFAULT_DECLARE_SENDER_ADDRESS,
+    DeprecatedDeclare,
 )
 from starkware.starknet.testing.contract import DeclaredClass
 from starkware.starknet.testing.contract_utils import EventManager
@@ -24,7 +25,7 @@ from starkware.starknet.definitions.general_config import StarknetGeneralConfig
 from starkware.starknet.services.api.contract_class.contract_class import (
     EntryPointType,
     DeprecatedCompiledClass,
-    ContractClass,
+    ContractClass, CompiledClass,
 )
 
 from protostar.cheatable_starknet.cheatables.cheatable_execute_entry_point import (
@@ -148,13 +149,17 @@ class ContractsController:
         return calldata or []
 
     async def declare_sierra_contract(
-        self, contract_class: ContractClass, compiled_class_hash: int
+        self,
+        contract_class: ContractClass,
+        compiled_class: CompiledClass,
+        compiled_class_hash: int,
     ) -> DeclaredSierraClass:
         """
         Declare a sierra contract.
 
-        @param contract_class: contract to be declared.
-        @param compiled_class_hash: compiled class hash of the contract.
+        @param contract_class: sierra compiled contract to be declared
+        @param compiled_class_hash: compiled class hash of the casm compiled contract.
+        @param compiled_class: casm compiled contract to be declared
         @return: DeclaredSierraClass instance.
         """
         starknet_config = StarknetGeneralConfig()
@@ -164,7 +169,7 @@ class ContractsController:
             chain_id=starknet_config.chain_id.value,
             sender_address=DEFAULT_DECLARE_SENDER_ADDRESS,
             max_fee=0,
-            version=0,
+            version=2,
             signature=[],
             nonce=0,
         )
@@ -179,7 +184,7 @@ class ContractsController:
         # self._add_event_abi_to_state(abi)
 
         # TODO replace this with casm parsing
-        compiled_class = compile_contract_class(contract_class)
+        # compiled_class = compile_contract_class(contract_class)
         class_hash = tx.class_hash
         await self.cheatable_state.set_contract_class(class_hash, compiled_class)
 
