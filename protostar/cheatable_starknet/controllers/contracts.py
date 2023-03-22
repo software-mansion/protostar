@@ -83,6 +83,26 @@ class DeployedContract:
     contract_address: int
 
 
+class NonValidatedInternalDeclare(InternalDeclare):
+    # pylint: disable=too-many-ancestors
+
+    def to_external(self) -> DeprecatedDeclare:
+        # It is not implemented in the InternalDeclare itself as wll
+        raise NotImplementedError(
+            "Cannot convert internal declare transaction to external object."
+        )
+
+    def run_validate_entrypoint(
+        self,
+        remaining_gas: int,
+        state: SyncState,
+        resources_manager: ExecutionResourcesManager,
+        general_config: StarknetGeneralConfig,
+    ) -> Tuple[Optional[CallInfo], int]:
+        # This hack might interfere with other things
+        return None, remaining_gas
+
+
 class ContractsController:
     def __init__(self, cheatable_state: "CheatableCachedState"):
         self.cheatable_state = cheatable_state
@@ -138,7 +158,7 @@ class ContractsController:
         @return: DeclaredSierraClass instance.
         """
         starknet_config = StarknetGeneralConfig()
-        tx = InternalDeclare.create(
+        tx = NonValidatedInternalDeclare.create(
             contract_class=contract_class,
             compiled_class_hash=compiled_class_hash,
             chain_id=starknet_config.chain_id.value,
