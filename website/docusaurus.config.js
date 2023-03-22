@@ -12,7 +12,6 @@ const config = {
   baseUrl: "/protostar/",
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",
-  favicon: "img/favicon.ico",
   organizationName: "software-mansion",
   projectName: "protostar",
   trailingSlash: false,
@@ -34,6 +33,46 @@ const config = {
         },
       }),
     ],
+  ],
+
+  headTags: [
+    {
+      tagName: "link",
+      attributes: {
+        rel: "manifest",
+        content: "/protostar/manifest.json",
+      }
+    },
+    {
+      tagName: "link",
+      attributes: {
+        rel: "icon",
+        href: "/protostar/favicon.ico",
+        sizes: "any"
+      }
+    },
+    {
+      tagName: "link",
+      attributes: {
+        rel: "icon",
+        href: "/protostar/favicon.svg",
+        type: "image/svg+xml"
+      }
+    },
+    {
+      tagName: "link",
+      attributes: {
+        rel: "apple-touch-icon",
+        content: "/protostar/apple-touch-icon.png"
+      }
+    },
+    {
+      tagName: "meta",
+      attributes: {
+        name: "apple-mobile-web-app-title",
+        content: "Protostar"
+      }
+    }
   ],
 
   themeConfig:
