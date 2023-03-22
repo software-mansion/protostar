@@ -40,11 +40,10 @@ const config = {
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
       navbar: {
-        title: "Protostar",
         logo: {
           alt: "Protostar",
-          src: "img/protostar-logo--dark.png",
-          srcDark: "img/protostar-logo--light.png",
+          src: "img/protostar-wide--light.svg",
+          srcDark: "img/protostar-wide--dark.svg",
         },
         items: [
           {
