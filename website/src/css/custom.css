@@ -44,14 +44,3 @@
 .text-secondary {
   color: var(--color-secondary);
 }
-
-/* .navbar__title {
-  background-color: red;
-  background: url('/img/protostar-title--dark.svg');
-  background-repeat: no-repeat;
-  background-position: center;
-  color: transparent;
-  user-select: none;
-  padding: 0 0.5rem;
-  transform: translateY(1px);
-} */

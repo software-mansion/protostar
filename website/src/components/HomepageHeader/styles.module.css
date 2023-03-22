@@ -29,4 +29,6 @@
   justify-content: center;
   align-items: center;
   flex-direction: column;
+  max-width: 224px;
+  margin: 0 auto 24px auto;
 }
