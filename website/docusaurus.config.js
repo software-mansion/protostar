@@ -72,7 +72,49 @@ const config = {
         name: "apple-mobile-web-app-title",
         content: "Protostar"
       }
-    }
+    },
+    {
+      tagName: "meta",
+      attributes: {
+        property: "og:type",
+        content: "website"
+      }
+    },
+    {
+      tagName: "meta",
+      attributes: {
+        property: "og:image",
+        content: "https://docs.swmansion.com/protostar/og-image.png"
+      }
+    },
+    {
+      tagName: "meta",
+      attributes: {
+        property: "og:image:alt",
+        content: "StarkNet smart contract development toolchain."
+      }
+    },
+    {
+      tagName: "meta",
+      attributes: {
+        property: "og:image:type",
+        content: "image/png"
+      }
+    },
+    {
+      tagName: "meta",
+      attributes: {
+        property: "og:image:width",
+        content: "1280"
+      }
+    },
+    {
+      tagName: "meta",
+      attributes: {
+        property: "og:image:height",
+        content: "640"
+      }
+    },
   ],
 
   themeConfig:
