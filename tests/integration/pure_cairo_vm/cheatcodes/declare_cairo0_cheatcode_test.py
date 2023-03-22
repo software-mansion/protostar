@@ -18,7 +18,10 @@ def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
 
 async def test_declare_cairo0(protostar: ProtostarFixture, datadir: Path):
     protostar.create_contracts(
-        {"basic_contract_cairo0": datadir / "basic_contract.cairo"}
+        {
+            "basic_contract_cairo0": datadir / "basic_contract.cairo",
+            "broken_syntax_contract": datadir / "broken_syntax_contract.cairo",
+        },
     )
     testing_summary = await protostar.run_test_runner(
         datadir / "declare_cairo0_test.cairo",
@@ -28,5 +31,8 @@ async def test_declare_cairo0(protostar: ProtostarFixture, datadir: Path):
     assert_cairo_test_cases(
         testing_summary,
         expected_passed_test_cases_names=["test_declaring_contract"],
-        expected_failed_test_cases_names=["test_failing_to_declare_contract"],
+        expected_failed_test_cases_names=[
+            "test_failing_to_declare_contract",
+            "test_declaring_broken_contract",
+        ],
     )
