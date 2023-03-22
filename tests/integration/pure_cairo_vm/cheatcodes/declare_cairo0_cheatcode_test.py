@@ -28,5 +28,5 @@ async def test_declare_cairo0(protostar: ProtostarFixture, datadir: Path):
     assert_cairo_test_cases(
         testing_summary,
         expected_passed_test_cases_names=["test_declaring_contract"],
-        expected_failed_test_cases_names=["test_failing_to_declaring_contract"],
+        expected_failed_test_cases_names=["test_failing_to_declare_contract"],
     )
