@@ -20,8 +20,8 @@ from starkware.starknet.business_logic.execution.execute_entry_point import (
 from starkware.starknet.business_logic.execution.objects import (
     CallInfo,
     TransactionExecutionContext,
+    ExecutionResourcesManager,
 )
-from starkware.starknet.business_logic.fact_state.state import ExecutionResourcesManager
 from starkware.starknet.business_logic.state.state import StateSyncifier
 from starkware.starknet.business_logic.state.state_api import State, SyncState
 from starkware.starknet.business_logic.utils import (
@@ -194,6 +194,7 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
                 **hint_locals,
             },
             run_resources=tx_execution_context.run_resources,
+            allow_tmp_segments=False,
         )
 
         # Complete validations.

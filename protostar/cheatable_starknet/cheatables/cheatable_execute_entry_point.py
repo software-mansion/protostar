@@ -10,6 +10,7 @@ from starkware.starknet.business_logic.execution.objects import (
     CallType,
     CallInfo,
     TransactionExecutionContext,
+    ExecutionResourcesManager,
 )
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
@@ -25,7 +26,6 @@ from starkware.starknet.business_logic.execution.execute_entry_point import (
     ExecuteEntryPoint,
     EntryPointArgs,
 )
-from starkware.starknet.business_logic.fact_state.state import ExecutionResourcesManager
 from starkware.starknet.business_logic.state.state import StateSyncifier
 from starkware.starknet.business_logic.state.state_api import State, SyncState
 from starkware.starknet.business_logic.utils import (
@@ -159,6 +159,7 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
             entry_point_args=entry_point_args,
             hint_locals={"syscall_handler": syscall_handler},
             run_resources=tx_execution_context.run_resources,
+            allow_tmp_segments=False,
         )
 
         # Complete validations.

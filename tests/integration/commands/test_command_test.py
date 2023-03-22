@@ -17,7 +17,7 @@ async def test_gas_estimation(
 ):
     await protostar.test(targets=["::test_increase_balance"], estimate_gas=True)
 
-    assert "gas=4598" in capsys.readouterr().out
+    assert "gas=4852" in capsys.readouterr().out
 
 
 async def test_gas_estimation_for_empty_function(
@@ -27,4 +27,4 @@ async def test_gas_estimation_for_empty_function(
     protostar.create_files({"tests/test_main.cairo": EMPTY_TEST})
     await protostar.test(targets=["::test_nothing"], estimate_gas=True)
 
-    assert "gas=4306" in capsys.readouterr().out
+    assert "gas=4556" in capsys.readouterr().out

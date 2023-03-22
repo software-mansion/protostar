@@ -4,13 +4,13 @@ from starkware.cairo.lang.vm.crypto import pedersen_hash_func
 from starkware.starknet.business_logic.execution.objects import (
     TransactionExecutionInfo,
     CallInfo,
+    ExecutionResourcesManager,
 )
 from starkware.starknet.business_logic.fact_state.patricia_state import (
     PatriciaStateReader,
 )
 from starkware.starknet.business_logic.fact_state.state import (
     SharedState,
-    ExecutionResourcesManager,
 )
 from starkware.starknet.business_logic.state.state_api_objects import BlockInfo
 from starkware.starknet.definitions import constants

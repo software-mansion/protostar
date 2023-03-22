@@ -6,12 +6,11 @@ from starkware.cairo.lang.vm.relocatable import RelocatableValue
 from starkware.starknet.business_logic.execution.objects import (
     CallInfo,
     TransactionExecutionContext,
+    ExecutionResourcesManager,
 )
-from starkware.starknet.business_logic.fact_state.state import ExecutionResourcesManager
 from starkware.starknet.business_logic.state.state import StateSyncifier
 from starkware.starknet.business_logic.state.state_api import SyncState
 from starkware.starknet.core.os.syscall_handler import (
-    BusinessLogicSyscallHandler,
     DeprecatedBlSyscallHandler,
 )
 from starkware.starknet.definitions.general_config import StarknetGeneralConfig

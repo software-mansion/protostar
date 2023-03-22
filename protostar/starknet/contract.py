@@ -4,8 +4,10 @@ from typing import Optional, Tuple
 from starkware.starknet.testing.contract_utils import build_arguments
 from starkware.starknet.testing.objects import StarknetCallInfo
 from starkware.starknet.testing.contract import StarknetContractFunctionInvocation
-from starkware.starknet.business_logic.fact_state.state import ExecutionResourcesManager
-from starkware.starknet.business_logic.execution.objects import CallInfo
+from starkware.starknet.business_logic.execution.objects import (
+    CallInfo,
+    ExecutionResourcesManager,
+)
 from starkware.starknet.business_logic.transaction.fee import calculate_tx_fee
 from starkware.starknet.business_logic.utils import calculate_tx_resources
 from starkware.starknet.business_logic.state.state import (

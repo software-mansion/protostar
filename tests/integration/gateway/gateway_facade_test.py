@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import cast
 
 import pytest
-from starknet_py.net.client_models import Declare, TransactionStatus
+from starknet_py.net.client_models import TransactionStatus
 from starknet_py.net.gateway_client import GatewayClient
 
 from protostar.protostar_exception import ProtostarException
@@ -15,6 +15,7 @@ from protostar.starknet_gateway import (
     GatewayFacade,
     InputValidationException,
 )
+from starknet_py.net.models.transaction import Declare
 from tests._conftest.devnet import DevnetAccount, DevnetFixture
 from tests.conftest import MAX_FEE, SetPrivateKeyEnvVarFixture
 from tests.data.contracts import CONTRACT_WITH_CONSTRUCTOR, IDENTITY_CONTRACT

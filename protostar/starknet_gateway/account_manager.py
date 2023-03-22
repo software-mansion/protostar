@@ -65,7 +65,7 @@ class AccountManager(MulticallAccountManagerProtocol):
                 auto_estimate=unsigned_transaction.max_fee == "auto",
             )
             return SignedMulticallTransaction(
-                contract_address=Address(tx.contract_address),
+                contract_address=Address(tx.sender_address),
                 calldata=tx.calldata,
                 max_fee=tx.max_fee,
                 nonce=tx.nonce,
@@ -92,7 +92,7 @@ class AccountManager(MulticallAccountManagerProtocol):
                 auto_estimate=max_fee == "auto",
             )
             return PreparedInvokeTransaction(
-                account_address=Address(signed_tx.contract_address),
+                account_address=Address(self._account.address),
                 account_execute_calldata=signed_tx.calldata,
                 max_fee=signed_tx.max_fee,
                 nonce=signed_tx.nonce,

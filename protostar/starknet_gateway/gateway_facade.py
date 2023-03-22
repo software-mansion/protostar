@@ -272,7 +272,7 @@ class GatewayFacade(MulticallClientProtocol):
             result = await self._gateway_client.send_transaction(
                 transaction=Invoke(
                     version=1,
-                    contract_address=int(transaction.contract_address),  # type: ignore
+                    sender_address=int(transaction.contract_address),  # type: ignore
                     calldata=transaction.calldata,  # type: ignore
                     max_fee=transaction.max_fee,
                     nonce=transaction.nonce,
@@ -317,7 +317,7 @@ class GatewayFacade(MulticallClientProtocol):
             result = await self._gateway_client.send_transaction(
                 transaction=Invoke(
                     version=1,
-                    contract_address=contract_address,  # type: ignore
+                    sender_address=contract_address,  # type: ignore
                     calldata=calldata,  # type: ignore
                     max_fee=prepared_invoke_tx.max_fee,
                     nonce=prepared_invoke_tx.nonce,

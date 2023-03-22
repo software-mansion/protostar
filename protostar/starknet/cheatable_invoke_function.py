@@ -1,8 +1,10 @@
 from typing import Union, List, Optional, cast
 
 import marshmallow_dataclass
-from starkware.starknet.business_logic.execution.objects import CallInfo
-from starkware.starknet.business_logic.fact_state.state import ExecutionResourcesManager
+from starkware.starknet.business_logic.execution.objects import (
+    CallInfo,
+    ExecutionResourcesManager,
+)
 from starkware.starknet.business_logic.state.state_api import SyncState
 from starkware.starknet.business_logic.transaction.objects import InternalInvokeFunction
 from starkware.starknet.definitions.general_config import StarknetGeneralConfig
@@ -19,6 +21,7 @@ from protostar.starknet.cheatable_execute_entry_point import CheatableExecuteEnt
 class CheatableInternalInvokeFunction(InternalInvokeFunction):
     def run_execute_entrypoint(
         self,
+        remaining_gas: int,
         state: SyncState,
         resources_manager: ExecutionResourcesManager,
         general_config: StarknetGeneralConfig,
@@ -29,6 +32,7 @@ class CheatableInternalInvokeFunction(InternalInvokeFunction):
             entry_point_type=EntryPointType.EXTERNAL,
             calldata=self.calldata,
             caller_address=0,
+            initial_gas=remaining_gas,
         )
 
         return call.execute(
