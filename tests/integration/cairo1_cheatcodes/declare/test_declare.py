@@ -16,6 +16,7 @@ def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
 
 
 async def test_declare_hint(protostar: ProtostarFixture, shared_datadir: Path):
+    protostar.create_contracts({"minimal": shared_datadir / "minimal.cairo"})
     protostar.create_files(
         {
             "cairo_project.toml": shared_datadir / "cairo_project.toml",
