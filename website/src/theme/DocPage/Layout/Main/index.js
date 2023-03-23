@@ -6,7 +6,7 @@ import useDocusaurusContext from '@docusaurus/useDocusaurusContext'
 import { useLocation } from 'react-router-dom'
 
 export default function MainWrapper({ children, ...props }) {
-  const { isDarkTheme } = useColorMode()
+  const { colorMode } = useColorMode()
   const { siteConfig } = useDocusaurusContext()
   const location = useLocation()
 
@@ -25,7 +25,7 @@ export default function MainWrapper({ children, ...props }) {
             reactionsEnabled='0'
             emitMetadata='0'
             inputPosition='top'
-            theme={isDarkTheme ? 'dark' : 'light'}
+            theme={colorMode}
             lang={siteConfig.i18n.defaultLocale}
             loading='lazy'
             strict

@@ -19,21 +19,21 @@ export default function Home(): JSX.Element {
       <HomepageContent>
         <HomepageFeature
           renderIcon={() => (
-            <TestIcon className="text-secondary" width={64} height={64} />
+            <TestIcon className="fill-icons" width={64} height={64} />
           )}
           title="Test"
           description="Test runner and cheatcodes simplify testing"
         />
         <HomepageFeature
           renderIcon={() => (
-            <ToolsIcon className="text-secondary" width={64} height={64} />
+            <ToolsIcon className="fill-icons" width={64} height={64} />
           )}
           title="Compile"
           description="No need for setting up Cairo and StarkNet"
         />
         <HomepageFeature
           renderIcon={() => (
-            <PackageIcon className="text-secondary" width={64} height={64} />
+            <PackageIcon className="fill-icons" width={64} height={64} />
           )}
           title="Install"
           description="Add, update, and remove dependencies"
