@@ -1,5 +1,3 @@
-import { useColorMode } from "@docusaurus/theme-common";
-import clsx from "clsx";
 import React from "react";
 import styles from "./styles.module.css";
 
@@ -14,19 +12,14 @@ export function HomepageFeature({
   description,
   renderIcon,
 }: HomepageFeatureProps) {
-  const { colorMode } = useColorMode();
-
   return (
     <div className={styles.container}>
       <div
-        className={clsx([
-          styles.iconContainer,
-          { [styles["bg-primary"]]: colorMode == "light" },
-        ])}
+        className={styles.iconContainer}
       >
         {renderIcon()}
       </div>
-      <h1>{title}</h1>
+      <h1 className="text--primary">{title}</h1>
       <span>{description}</span>
     </div>
   );
