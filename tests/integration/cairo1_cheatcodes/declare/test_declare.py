@@ -34,4 +34,5 @@ async def test_declare_hint(protostar: ProtostarFixture, shared_datadir: Path):
         expected_passed_test_cases_names=[
             "test_declare",
         ],
+        expected_failed_test_cases_names=["test_declare_nonexistent"],
     )
