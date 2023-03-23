@@ -13,7 +13,7 @@ from protostar.cheatable_starknet.callable_hint_locals import (
     WarpHintLocal,
     DeployHintLocal,
     PrepareHintLocal,
-    DeclareHintLocal,
+    DeclareCairo0HintLocal,
     StopWarpHintLocal,
     StopRollHintLocal,
     SendMessageToL2HintLocal,
@@ -62,7 +62,7 @@ class CairoSharedHintLocalFactory:
         contracts_controller = ContractsController(cheatable_state=self.cheatable_state)
         storage_controller = StorageController(cheatable_state=self.cheatable_state)
 
-        declare_cheatcode = DeclareHintLocal(
+        declare_cairo0_cheatcode = DeclareCairo0HintLocal(
             project_compiler=self.project_compiler,
             contracts_controller=contracts_controller,
         )
@@ -87,10 +87,10 @@ class CairoSharedHintLocalFactory:
             StopPrankHintLocal(contracts_controller=contracts_controller),
             SendMessageToL2HintLocal(contracts_controller=contracts_controller),
             deploy_cheatcode,
-            declare_cheatcode,
+            declare_cairo0_cheatcode,
             prepare_cheatcode,
             DeployContractHintLocal(
-                declare_cheatcode=declare_cheatcode,
+                declare_cheatcode=declare_cairo0_cheatcode,
                 prepare_cheatcode=prepare_cheatcode,
                 deploy_cheatcode=deploy_cheatcode,
             ),

@@ -1,7 +1,6 @@
 import collections
 import copy
 from dataclasses import dataclass
-from pathlib import Path
 from typing import List, Optional, cast
 
 from starkware.starknet.business_logic.execution.objects import CallType
@@ -37,7 +36,6 @@ from protostar.cheatable_starknet.cheatables.cheatable_cached_state import (
 )
 from protostar.cheatable_starknet.controllers.expect_events_controller import Event
 from protostar.starknet.selector import Selector
-from protostar.starknet.types import ClassHashType
 from protostar.starknet.address import Address
 from protostar.starknet.data_transformer import (
     DataTransformerException,
@@ -119,7 +117,7 @@ class ContractsController:
                 ) from dt_exc
         return calldata or []
 
-    async def declare_contract(
+    async def declare_cairo0_contract(
         self,
         contract_class: DeprecatedCompiledClass,
     ):
@@ -153,13 +151,6 @@ class ContractsController:
         return DeclaredClass(
             class_hash=class_hash,
             abi=abi,
-        )
-
-    def bind_class_hash_to_contract_identifier(
-        self, class_hash: ClassHashType, contract_identifier: str
-    ):
-        self.cheatable_state.class_hash_to_contract_path_map[class_hash] = Path(
-            contract_identifier
         )
 
     def _add_event_abi_to_state(self, abi: AbiType):

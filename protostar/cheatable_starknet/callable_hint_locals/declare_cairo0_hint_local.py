@@ -6,6 +6,7 @@ from protostar.cheatable_starknet.controllers.contracts import (
     DeclaredContract,
 )
 from protostar.compiler import ProjectCompiler
+from protostar.cairo.short_string import CairoShortString, short_string_to_str
 
 from .callable_hint_local import CallableHintLocal
 
@@ -13,13 +14,13 @@ from .callable_hint_local import CallableHintLocal
 class DeclareCheatcodeProtocol(Protocol):
     def __call__(
         self,
-        contract: str,
+        contract: CairoShortString,
         *args: Any,
     ) -> DeclaredContract:
         ...
 
 
-class DeclareHintLocal(CallableHintLocal):
+class DeclareCairo0HintLocal(CallableHintLocal):
     def __init__(
         self,
         project_compiler: ProjectCompiler,
@@ -30,25 +31,23 @@ class DeclareHintLocal(CallableHintLocal):
 
     @property
     def name(self) -> str:
-        return "declare"
+        return "declare_cairo0"
 
     def _build(self) -> Any:
-        return self.declare
+        return self.declare_cairo0
 
-    def declare(self, contract: str) -> DeclaredContract:
+    def declare_cairo0(self, contract: CairoShortString) -> DeclaredContract:
+        contract_str = short_string_to_str(contract)
         compiled_contract = (
-            self._project_compiler.compile_contract_from_contract_identifier(contract)
+            self._project_compiler.compile_contract_from_contract_identifier(
+                contract_str
+            )
         )
         declared_class = asyncio.run(
-            self._contracts_controller.declare_contract(compiled_contract)
+            self._contracts_controller.declare_cairo0_contract(compiled_contract)
         )
 
         assert declared_class
         class_hash = declared_class.class_hash
-
-        self._contracts_controller.bind_class_hash_to_contract_identifier(
-            class_hash=class_hash,
-            contract_identifier=contract,
-        )
 
         return DeclaredContract(class_hash)

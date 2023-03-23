@@ -1,7 +1,6 @@
 # pylint: disable=duplicate-code
 # pylint: disable=protected-access
 
-from pathlib import Path
 from typing import Dict, Optional
 
 from starkware.starknet.business_logic.state.state import (
@@ -45,7 +44,6 @@ class CheatableCachedState(CachedState):
         self.emitted_events: list[Event] = []
         self.event_name_to_contract_abi_map: Dict[str, AbiType] = {}
         self.class_hash_to_contract_abi_map: Dict[ClassHashType, AbiType] = {}
-        self.class_hash_to_contract_path_map: Dict[ClassHashType, Path] = {}
         self.contract_address_to_class_hash_map: Dict[Address, ClassHashType] = {}
         self.expected_contract_calls: dict[Address, list[ExpectedCall]] = {}
 
@@ -110,9 +108,6 @@ class CheatableCachedState(CachedState):
         copied.class_hash_to_contract_abi_map = (
             self.class_hash_to_contract_abi_map.copy()
         )
-        copied.class_hash_to_contract_path_map = (
-            self.class_hash_to_contract_path_map.copy()
-        )
         copied.contract_address_to_class_hash_map = (
             self.contract_address_to_class_hash_map.copy()
         )
@@ -159,10 +154,6 @@ class CheatableCachedState(CachedState):
             **self.event_name_to_contract_abi_map,
         }
 
-        parent.class_hash_to_contract_path_map = {
-            **parent.class_hash_to_contract_path_map,
-            **self.class_hash_to_contract_path_map,
-        }
         parent.class_hash_to_contract_abi_map = {
             **parent.class_hash_to_contract_abi_map,
             **self.class_hash_to_contract_abi_map,
