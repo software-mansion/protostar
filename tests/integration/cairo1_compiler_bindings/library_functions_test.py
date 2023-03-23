@@ -151,20 +151,11 @@ def test_prepare(datadir: Path):
         "test_prepare_no_args": [],
     }
 
-    def _args_validator(
-        memory: MemoryDict, test_case_name: str, *args: Any, **kwargs: Any
-    ):
+    def _args_validator(test_case_name: str, *args: Any, **kwargs: Any):
         assert not args
-        class_hash = memory.data[kwargs["class_hash"][0]]
-        assert class_hash == 123
-        validate_calldata_arg(
-            start_name="calldata_start",
-            end_name="calldata_end",
-            memory=memory,
-            expected_calldata=expected_calldatas[test_case_name.split("::")[-1]],
-            *args,
-            **kwargs,
-        )
+        assert kwargs["class_hash"] == 123
+        expected_calldata = expected_calldatas[test_case_name.split("::")[-1]]
+        assert expected_calldata == kwargs["calldata"]
 
     check_library_function(
         "prepare_tp", datadir / "prepare_test.cairo", args_validator=_args_validator
