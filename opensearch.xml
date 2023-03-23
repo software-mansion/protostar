@@ -4,7 +4,6 @@
   <ShortName>Protostar</ShortName>
   <Description>Search Protostar</Description>
   <InputEncoding>UTF-8</InputEncoding>
-  <Image width="16" height="16" type="image/x-icon">https://docs.swmansion.com/protostar/img/favicon.ico</Image>
   <Url type="text/html" method="get" template="https://docs.swmansion.com/protostar/search?q={searchTerms}"/>
   <Url type="application/opensearchdescription+xml" rel="self" template="https://docs.swmansion.com/protostar/opensearch.xml" />
   <moz:SearchForm>https://docs.swmansion.com/protostar/</moz:SearchForm>
