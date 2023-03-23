@@ -183,8 +183,6 @@ class ContractsController:
         # TODO figure out how it works
         # self._add_event_abi_to_state(abi)
 
-        # TODO replace this with casm parsing
-        # compiled_class = compile_contract_class(contract_class)
         class_hash = tx.class_hash
         await self.cheatable_state.set_contract_class(class_hash, compiled_class)
 
