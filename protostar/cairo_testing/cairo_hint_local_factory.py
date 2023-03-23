@@ -65,6 +65,7 @@ class CairoSharedHintLocalFactory:
 
         declare_cheatcode = DeclareHintLocal(
             contracts_controller=contracts_controller,
+            project_compiler=self.project_compiler,
         )
         declare_cairo0_cheatcode = DeclareCairo0HintLocal(
             project_compiler=self.project_compiler,

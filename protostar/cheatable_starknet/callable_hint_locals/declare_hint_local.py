@@ -1,20 +1,11 @@
 import asyncio
-import json
-from pathlib import Path
 from typing import Callable
 
 from starkware.starknet.core.os.contract_class.compiled_class_hash import (
     compute_compiled_class_hash,
 )
-from starkware.starknet.services.api.contract_class.contract_class import (
-    ContractClass,
-    CompiledClass,
-)
 
-from protostar.cairo.cairo_bindings import (
-    compile_starknet_contract_to_casm_from_path,
-    compile_starknet_contract_to_sierra_from_path,
-)
+from protostar.cairo.short_string import short_string_to_str
 from protostar.cheatable_starknet.callable_hint_locals.callable_hint_local import (
     CallableHintLocal,
 )
@@ -23,11 +14,17 @@ from protostar.cheatable_starknet.controllers.contracts import (
     ContractsController,
     DeclaredSierraClass,
 )
+from protostar.compiler import ProjectCompiler
 
 
 class DeclareHintLocal(CallableHintLocal):
-    def __init__(self, contracts_controller: ContractsController):
+    def __init__(
+        self,
+        contracts_controller: ContractsController,
+        project_compiler: ProjectCompiler,
+    ):
         self._contracts_controller = contracts_controller
+        self._project_compiler = project_compiler
 
     @property
     def name(self) -> str:
@@ -36,22 +33,20 @@ class DeclareHintLocal(CallableHintLocal):
     def _build(self) -> Callable:
         return self.declare
 
-    def declare(self, contract: str) -> DeclaredContract:
-        # TODO add this
-        # compiled_contract_sierra =  ...
-        contract_class = make_contract_class("")
+    def declare(self, contract: int) -> DeclaredContract:
+        contract_identifier = short_string_to_str(contract)
 
-        compiled_contract_sierra = compile_starknet_contract_to_sierra_from_path(
-            input_path=Path(contract)
+        contract_class = (
+            self._project_compiler.compile_contract_to_sierra_from_contract_identifier(
+                contract_identifier
+            )
         )
-        assert compiled_contract_sierra is not None
-        contract_class = make_contract_class(compiled_contract_sierra)
 
-        compiled_contract_casm = compile_starknet_contract_to_casm_from_path(
-            input_path=Path(contract)
+        compiled_class = (
+            self._project_compiler.compile_contract_to_casm_from_contract_identifier(
+                contract_identifier
+            )
         )
-        assert compiled_contract_casm is not None
-        compiled_class = make_compiled_class(compiled_contract_casm)
         compiled_class_hash = compute_compiled_class_hash(compiled_class)
 
         declared_class: DeclaredSierraClass = asyncio.run(
@@ -62,25 +57,4 @@ class DeclareHintLocal(CallableHintLocal):
             )
         )
 
-        self._contracts_controller.bind_class_hash_to_contract_identifier(
-            class_hash=declared_class.class_hash,
-            contract_identifier=contract,
-        )
-
         return DeclaredContract(class_hash=declared_class.class_hash)
-
-
-def make_contract_class(sierra_contract: str) -> ContractClass:
-    loaded = json.loads(sierra_contract)
-    loaded.pop("sierra_program_debug_info", None)
-    loaded["abi"] = json.dumps(loaded["abi"])
-
-    return ContractClass.load(loaded)
-
-
-def make_compiled_class(casm_contract: str) -> CompiledClass:
-    compiled_class = json.loads(casm_contract)
-    compiled_class["pythonic_hints"] = compiled_class["hints"]
-    compiled_class["hints"] = []
-
-    return CompiledClass.load(compiled_class)
