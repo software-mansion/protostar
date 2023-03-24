@@ -13,14 +13,16 @@ from starkware.starknet.services.api.contract_class.contract_class import (
 )
 from starkware.starkware_utils.error_handling import StarkException
 
-from protostar.compiler import (
-    ProjectCompilerConfig,
-    SourceFileNotFoundException,
+from protostar.compiler.project_compiler_exceptions import (
     CompilationException,
+    SourceFileNotFoundException,
 )
 from protostar.compiler.compiled_contract_writer import CompiledContractWriter
 from protostar.compiler.project_cairo_path_builder import LinkedLibrariesBuilder
-from protostar.compiler.project_compiler_types import ContractIdentifier
+from protostar.compiler.project_compiler_types import (
+    ContractIdentifier,
+    ProjectCompilerConfig,
+)
 from protostar.configuration_file.configuration_file import ConfigurationFile
 from protostar.starknet import (
     StarknetPassManagerFactory,
