@@ -13,6 +13,7 @@ from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
 )
 
 from protostar.cairo.cairo_exceptions import CairoBindingException
+import protostar.cairo.cairo_bindings as cairo1
 
 from .test_results import BrokenTestSuiteResult
 from .test_suite import TestCase, TestSuite
@@ -105,6 +106,7 @@ class TestCollector:
         get_suite_function_names: FunctionNameGetter,
     ) -> None:
         self._get_suite_function_names = get_suite_function_names
+        self.cairo_tests_configs: list[cairo1.CairoTestConfig] = []
 
     supported_test_suite_filename_patterns = [
         re.compile(r"^test_.*\.cairo"),
@@ -285,10 +287,15 @@ class TestCollector:
             )
         )
 
+        cairo_tests_configs = []
+        if hasattr(self, "cairo_tests_configs"):
+            cairo_tests_configs = self.cairo_tests_configs
+
         return TestSuite(
             test_path=test_suite_info.path,
             test_cases=test_cases,
             setup_fn_name=setup_fn_name,
+            cairo_tests_configs=cairo_tests_configs,
         )
 
     def _collect_test_cases(

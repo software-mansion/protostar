@@ -3,6 +3,7 @@ from typing import List, Optional, Union
 from typing_extensions import Self
 
 from protostar.cairo.cairo_function_executor import Offset
+import protostar.cairo.cairo_bindings as cairo1
 
 
 class TestCase:
@@ -44,10 +45,12 @@ class TestSuite:
         test_path: Path,
         test_cases: TestCases,
         setup_fn_name: Optional[str] = None,
+        cairo_tests_configs: Optional[list[cairo1.CairoTestConfig]] = None,
     ):
         self.test_path = test_path
         self.test_cases = test_cases
         self.setup_fn_name = setup_fn_name
+        self.cairo_tests_configs = cairo_tests_configs if cairo_tests_configs else []
 
     def collect_test_case_names(self) -> List[str]:
         return [tc.test_fn_name for tc in self.test_cases]
@@ -60,10 +63,12 @@ class Cairo1TestSuite(TestSuite):
         test_cases: TestCases,
         sierra_output: str,
         setup_fn_name: Optional[str] = None,
+        cairo_tests_configs: Optional[list[cairo1.CairoTestConfig]] = None,
     ):
         super().__init__(test_path, [], setup_fn_name)
         self.test_cases = test_cases
         self.sierra_output = sierra_output
+        self.cairo_tests_configs = cairo_tests_configs
 
     @classmethod
     def from_test_suite(cls, test_suite: TestSuite, sierra_output: str) -> Self:
@@ -72,6 +77,7 @@ class Cairo1TestSuite(TestSuite):
             test_cases=test_suite.test_cases,
             setup_fn_name=test_suite.setup_fn_name,
             sierra_output=sierra_output,
+            cairo_tests_configs=test_suite.cairo_tests_configs,
         )
 
     def add_offsets_to_cases(self, offset_map: dict[str, Offset]):

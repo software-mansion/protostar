@@ -11,14 +11,16 @@ def test_compilator_and_parser(mocker: MockerFixture, datadir: Path):
     test_collector_output = cairo1.collect_tests(datadir / "roll_test.cairo")
 
     assert test_collector_output.sierra_output
-    assert test_collector_output.test_names == [
+    assert test_collector_output.named_tests == [
         "roll_test::roll_test::test_cheatcode_caller",
         "roll_test::roll_test::test_cheatcode_caller_twice",
         "roll_test::roll_test::test_cheatcode_caller_three",
     ]
 
     protostar_casm_json = cairo1.compile_protostar_sierra_to_casm(
-        test_collector_output.test_names, test_collector_output.sierra_output
+        named_tests=[name for name, _ in test_collector_output.named_tests],
+        input_data=test_collector_output.sierra_output,
+        cairo_tests_configs=[config for _, config in test_collector_output.named_tests],
     )
     assert protostar_casm_json
 
@@ -52,10 +54,11 @@ def test_cairo_path_for_tests(datadir: Path, shared_datadir: Path):
         ],
     )
     assert result.sierra_output
-    assert result.test_names == ["test_with_deps::test_with_deps::test_assert_true"]
+    assert result.named_tests == ["test_with_deps::test_with_deps::test_assert_true"]
 
     protostar_casm = cairo1.compile_protostar_sierra_to_casm(
-        result.test_names,
-        result.sierra_output,
+        named_tests=[name for name, _ in result.named_tests],
+        input_data=result.sierra_output,
+        cairo_tests_configs=[config for _, config in result.named_tests],
     )
     assert protostar_casm

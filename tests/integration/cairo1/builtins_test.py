@@ -11,8 +11,9 @@ def test_return_value(datadir: Path):
     test_collector_output = cairo1.collect_tests(input_path=datadir / "test.cairo")
     assert test_collector_output.sierra_output
     protostar_casm_json = cairo1.compile_protostar_sierra_to_casm(
-        named_tests=test_collector_output.test_names,
+        named_tests=[name for name, _ in test_collector_output.named_tests],
         input_data=test_collector_output.sierra_output,
+        cairo_tests_configs=[config for _, config in test_collector_output.named_tests],
     )
     assert protostar_casm_json
     protostar_casm = ProtostarCasm.from_json(protostar_casm_json)

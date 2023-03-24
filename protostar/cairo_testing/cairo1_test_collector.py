@@ -22,11 +22,12 @@ class Cairo1TestCollector(TestCollector):
         )
         self._cairo_path = cairo_path
         self._cairo_1_test_path_to_sierra_output: dict[Path, str] = {}
+        self.cairo_tests_configs: list[cairo1.CairoTestConfig] = []
 
     def collect_cairo1_tests_and_cache_outputs(
         self,
         file_path: Path,
-    ) -> List[str]:
+    ) -> list[str]:
         try:
             collector_output = cairo1.collect_tests(
                 file_path,
@@ -43,9 +44,12 @@ class Cairo1TestCollector(TestCollector):
         self._cairo_1_test_path_to_sierra_output[
             file_path
         ] = collector_output.sierra_output
+        self.cairo_tests_configs = [
+            config for _, config in collector_output.named_tests
+        ]
         return [
             namespaced_test_name.split("::")[-1]
-            for namespaced_test_name in collector_output.test_names
+            for namespaced_test_name, _ in collector_output.named_tests
         ]
 
     def _build_test_suite_from_test_suite_info(

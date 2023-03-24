@@ -195,6 +195,7 @@ class Cairo1TestRunner:
                     test_case.test_fn_name for test_case in test_suite.test_cases
                 ],
                 input_data=test_suite.sierra_output,
+                cairo_tests_configs=test_suite.cairo_tests_configs,
             )
 
             assert casm_json, f"No CASM was emitted for {test_suite.test_path}"
