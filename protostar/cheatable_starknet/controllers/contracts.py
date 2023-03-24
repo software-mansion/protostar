@@ -25,7 +25,8 @@ from starkware.starknet.definitions.general_config import StarknetGeneralConfig
 from starkware.starknet.services.api.contract_class.contract_class import (
     EntryPointType,
     DeprecatedCompiledClass,
-    ContractClass, CompiledClass,
+    ContractClass,
+    CompiledClass,
 )
 
 from protostar.cheatable_starknet.cheatables.cheatable_execute_entry_point import (
