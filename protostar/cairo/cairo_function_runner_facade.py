@@ -9,7 +9,7 @@ from starkware.cairo.lang.vm.security import verify_secure_runner
 
 
 RUNNER_BUILTINS = ["pedersen", "range_check", "bitwise", "ec_op"]
-RUNNER_BUILTINS_CAMEL_CASE = [
+RUNNER_BUILTINS_TITLE_CASE = [
     "".join(x.title() for x in builtin.split("_")[:]) for builtin in RUNNER_BUILTINS
 ]
 
