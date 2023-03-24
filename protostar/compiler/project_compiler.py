@@ -1,8 +1,7 @@
 import json
-from dataclasses import dataclass
 from enum import Enum, auto
 from pathlib import Path
-from typing import List, Optional, Union
+from typing import Optional, Union
 
 
 from starkware.starknet.services.api.contract_class.contract_class import (
@@ -16,7 +15,6 @@ from protostar.cairo.cairo_bindings import (
 )
 from protostar.cairo.cairo_exceptions import CairoBindingException
 from protostar.compiler.project_compiler_exceptions import (
-    SourceFileNotFoundException,
     CompilationException,
 )
 from protostar.compiler.project_cairo_path_builder import LinkedLibrariesBuilder
@@ -179,23 +177,3 @@ class ProjectCompiler:
         compiled_class["hints"] = []
 
         return CompiledClass.load(compiled_class)
-
-    @staticmethod
-    def _check_source_file_exists(source_path: Path) -> None:
-        if not source_path.exists():
-            raise SourceFileNotFoundException(source_path)
-
-    def _build_str_cairo_path_list(
-        self, user_relative_cairo_path: List[Path]
-    ) -> List[str]:
-        return [
-            str(path)
-            for path in self._project_cairo_path_builder.build_project_cairo_path_list(
-                user_relative_cairo_path
-            )
-        ]
-
-    def get_compilation_output_dir(self, output_dir: Path) -> Path:
-        if not output_dir.is_absolute():
-            output_dir = self._project_root_path / output_dir
-        return output_dir

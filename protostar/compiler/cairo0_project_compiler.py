@@ -15,7 +15,6 @@ from starkware.starkware_utils.error_handling import StarkException
 
 from protostar.compiler.project_compiler_exceptions import (
     CompilationException,
-    SourceFileNotFoundException,
 )
 from protostar.compiler.compiled_contract_writer import CompiledContractWriter
 from protostar.compiler.project_cairo_path_builder import LinkedLibrariesBuilder
@@ -128,11 +127,6 @@ class Cairo0ProjectCompiler:
         ).compile_contract(
             *contract_paths, add_debug_info=current_config.debugging_info_attached
         )
-
-    @staticmethod
-    def _check_source_file_exists(source_path: Path) -> None:
-        if not source_path.exists():
-            raise SourceFileNotFoundException(source_path)
 
     def _build_str_cairo_path_list(
         self, user_relative_cairo_path: List[Path]
