@@ -9,6 +9,7 @@ from starkware.starknet.testing.contract import StarknetContract
 from typing_extensions import Self
 
 from protostar.compiler import Cairo0ProjectCompiler
+from protostar.compiler.project_compiler import ProjectCompiler
 from protostar.starknet import Address
 from protostar.testing.starkware.test_execution_state import TestExecutionState
 from protostar.testing.test_config import TestConfig
@@ -32,9 +33,12 @@ class ContractBasedTestExecutionState(TestExecutionState):
         contract_path: Path,
         test_suite_definition: DeprecatedCompiledClass,
         test_config: TestConfig,
-        project_compiler: Cairo0ProjectCompiler,
+        cairo0_project_compiler: Cairo0ProjectCompiler,
+        project_compiler: ProjectCompiler,
     ) -> Self:
-        base = await TestExecutionState.from_test_config(test_config, project_compiler)
+        base = await TestExecutionState.from_test_config(
+            test_config, cairo0_project_compiler, project_compiler
+        )
         starknet = base.starknet
 
         contract = await starknet.deploy(contract_class=test_suite_definition)
@@ -56,6 +60,7 @@ class ContractBasedTestExecutionState(TestExecutionState):
             output_recorder=base.output_recorder,
             context=base.context,
             config=base.config,
+            cairo0_project_compiler=base.cairo0_project_compiler,
             project_compiler=base.project_compiler,
         )
 
