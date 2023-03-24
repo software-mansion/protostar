@@ -125,3 +125,29 @@ async def test_cairo_1_failing(
             "test_panic_multiple_values",
         ],
     )
+
+
+async def test_cairo_1_runner_with_cairo_tests_configs(
+    protostar: ProtostarFixture, datadir: Path
+):
+    testing_summary = await protostar.run_test_runner(
+        datadir / "test_cairo1_cairo_configs.cairo",
+        cairo1_test_runner=True,
+    )
+
+    test_suites = testing_summary.test_collector_result.test_suites
+    assert len(test_suites) == 1
+    test_suite = test_suites[0]
+    cairo_tests_configs = test_suite.cairo_tests_configs
+    assert set(cairo_tests_configs) == {
+        (1000001, True, False),
+        (None, False, False),
+    }
+
+    assert_cairo_test_cases(
+        testing_summary,
+        expected_passed_test_cases_names=[
+            "test_with_available_gas",
+            "test_with_should_panic",
+        ],
+    )
