@@ -12,7 +12,7 @@ from starkware.starkware_utils.error_handling import StarkException
 
 from protostar.compiler import (
     ProjectCairoPathBuilder,
-    ProjectCompiler,
+    Cairo0ProjectCompiler,
     ProjectCompilerConfig,
 )
 from protostar.configuration_file.configuration_file_factory import (
@@ -71,7 +71,7 @@ class TestRunner:
         configuration_file = ConfigurationFileFactory(
             cwd=cwd, active_profile_name=active_profile_name
         ).create()
-        self.project_compiler = ProjectCompiler(
+        self.project_compiler = Cairo0ProjectCompiler(
             project_root_path=project_root_path,
             project_cairo_path_builder=ProjectCairoPathBuilder(
                 project_root_path=project_root_path,

@@ -17,7 +17,7 @@ from starkware.storage.storage import FactFetchingContext
 from typing_extensions import Self
 
 from protostar.cheatable_starknet.controllers.expect_events_controller import Event
-from protostar.compiler import ProjectCompiler
+from protostar.compiler import Cairo0ProjectCompiler
 from protostar.cheatable_starknet.cheatables.cheatable_cached_state import (
     CheatableCachedState,
 )
@@ -34,7 +34,7 @@ class CairoTestExecutionState:
     output_recorder: OutputRecorder
     context: TestContext
     config: TestConfig
-    project_compiler: ProjectCompiler
+    project_compiler: Cairo0ProjectCompiler
     expected_events_list: list[list[Event]] = field(default_factory=list)
 
     @property
@@ -54,7 +54,7 @@ class CairoTestExecutionState:
 
     @classmethod
     async def from_test_config(
-        cls, test_config: TestConfig, project_compiler: ProjectCompiler
+        cls, test_config: TestConfig, project_compiler: Cairo0ProjectCompiler
     ):
         general_config = StarknetGeneralConfig()
         ffc = FactFetchingContext(storage=DictStorage(), hash_func=pedersen_hash_func)

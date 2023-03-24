@@ -50,7 +50,7 @@ class OutputType(Enum):
     CASM = auto()
 
 
-class ProjectCompiler:
+class Cairo0ProjectCompiler:
     def __init__(
         self,
         project_root_path: Path,

@@ -14,14 +14,14 @@ from protostar.cheatable_starknet.controllers.contracts import (
     ContractsController,
     DeclaredSierraClass,
 )
-from protostar.compiler import ProjectCompiler
+from protostar.compiler import Cairo0ProjectCompiler
 
 
 class DeclareHintLocal(CallableHintLocal):
     def __init__(
         self,
         contracts_controller: ContractsController,
-        project_compiler: ProjectCompiler,
+        project_compiler: Cairo0ProjectCompiler,
     ):
         self._contracts_controller = contracts_controller
         self._project_compiler = project_compiler

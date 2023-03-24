@@ -17,7 +17,7 @@ from protostar.cairo_testing.execution_environments.cairo_setup_case_execution_e
     CairoSetupCaseExecutionEnvironment,
 )
 from protostar.compiler import (
-    ProjectCompiler,
+    Cairo0ProjectCompiler,
     ProjectCairoPathBuilder,
     ProjectCompilerConfig,
 )
@@ -84,7 +84,7 @@ class Cairo1TestRunner:
             debugging_info_attached=profiling,
         )
         self.project_cairo_path_builder = ProjectCairoPathBuilder(project_root_path)
-        self.project_compiler = ProjectCompiler(
+        self.project_compiler = Cairo0ProjectCompiler(
             project_root_path=project_root_path,
             configuration_file=configuration_file,
             default_config=project_compiler_config,

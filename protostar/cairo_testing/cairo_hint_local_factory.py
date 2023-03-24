@@ -39,7 +39,7 @@ from protostar.cheatable_starknet.controllers import (
 from protostar.cheatable_starknet.controllers.expect_events_controller import (
     ExpectEventsController,
 )
-from protostar.compiler import ProjectCompiler
+from protostar.compiler import Cairo0ProjectCompiler
 from protostar.testing import Hook
 
 
@@ -47,7 +47,7 @@ class CairoSharedHintLocalFactory:
     def __init__(
         self,
         cheatable_state: CheatableCachedState,
-        project_compiler: ProjectCompiler,
+        project_compiler: Cairo0ProjectCompiler,
         test_finish_hook: Hook,
         test_execution_state: CairoTestExecutionState,
     ):
