@@ -108,6 +108,11 @@ class NonValidatedInternalDeclare(InternalDeclare):
         general_config: StarknetGeneralConfig,
     ) -> Tuple[Optional[CallInfo], int]:
         # This hack might interfere with other things
+        #
+        # By default InternalDeclare has a quite complicated run_validate_entrypoint method
+        # that among other things verifies if the sender_address of the Declare transaction is of a deployed contract.
+        # There's no account in protostar internals so this validation will always fail. This hack completely removes
+        # any form of validation.
         return None, remaining_gas
 
 
