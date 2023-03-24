@@ -167,3 +167,10 @@ CONTRACT_NAME = ProtostarArgument(
     type="str",
     default="",
 )
+
+LINKED_LIBRARIES = ProtostarArgument(
+    name="linked-libraries",
+    value_parser="list",
+    description="Libraries to include in compilation",
+    type="path",
+)

@@ -3,6 +3,9 @@ from pathlib import Path
 from typing import List, Optional
 
 from protostar.cli import ProtostarArgument, ProtostarCommand, MessengerFactory
+from protostar.cli.common_arguments import (
+    LINKED_LIBRARIES,
+)
 from protostar.commands.test.messages.testing_summary_message import (
     TestingSummaryResultMessage,
 )
@@ -81,12 +84,7 @@ A glob or globs to a directory or a test suite, for example:
                 value_parser="list",
                 type="str",
             ),
-            ProtostarArgument(
-                name="linked-libraries",
-                value_parser="list",
-                description="Libraries to include in compilation",
-                type="path",
-            ),
+            LINKED_LIBRARIES,
             ProtostarArgument(
                 name="no-progress-bar",
                 type="bool",
