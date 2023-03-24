@@ -106,6 +106,7 @@ class ContractNameNotFoundException(ProtostarException):
         super().__init__(
             f"Couldn't find `{contract_name}` in `{expected_declaration_location}`"
         )
+        self.contract_name = contract_name
 
 
 class ConfigurationFileMigratorProtocol(Protocol):
