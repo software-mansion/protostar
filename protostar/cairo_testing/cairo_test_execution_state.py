@@ -30,6 +30,7 @@ from protostar.testing.test_output_recorder import OutputRecorder
 
 @dataclass
 class CairoTestExecutionState:
+    # pylint: disable=too-many-instance-attributes
     starknet: Starknet
     stopwatch: Stopwatch
     output_recorder: OutputRecorder
