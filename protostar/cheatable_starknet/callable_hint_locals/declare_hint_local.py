@@ -1,5 +1,10 @@
 import asyncio
-from typing import Callable
+from typing import Callable, Tuple
+
+from starkware.starknet.services.api.contract_class.contract_class import (
+    ContractClass,
+    CompiledClass,
+)
 
 from protostar.cairo.short_string import short_string_to_str
 from protostar.cheatable_starknet.callable_hint_locals.callable_hint_local import (
@@ -12,6 +17,7 @@ from protostar.cheatable_starknet.controllers.contracts import (
 )
 from protostar.compiler import CompilationException
 from protostar.compiler.project_compiler import ProjectCompiler
+from protostar.compiler.project_compiler_types import ContractIdentifier
 from protostar.configuration_file.configuration_file import (
     ContractNameNotFoundException,
 )
@@ -36,12 +42,8 @@ class DeclareHintLocal(CallableHintLocal):
             contract_identifier = short_string_to_str(contract)
 
             try:
-                contract_class = self._project_compiler.compile_contract_to_sierra_from_contract_identifier(
-                    contract_identifier
-                )
-
-                compiled_class = self._project_compiler.compile_contract_to_casm_from_contract_identifier(
-                    contract_identifier
+                compiled_class, contract_class = _compile_contract(
+                    contract_identifier=contract_identifier,
                 )
             except CompilationException as ex:
                 raise CheatcodeException(
@@ -60,5 +62,16 @@ class DeclareHintLocal(CallableHintLocal):
             )
 
             return DeclaredContract(class_hash=declared_class.class_hash)
+
+        def _compile_contract(
+            contract_identifier: ContractIdentifier,
+        ) -> Tuple[CompiledClass, ContractClass]:
+            contract_class = self._project_compiler.compile_contract_to_sierra_from_contract_identifier(
+                contract_identifier
+            )
+            compiled_class = self._project_compiler.compile_contract_to_casm_from_contract_identifier(
+                contract_identifier
+            )
+            return compiled_class, contract_class
 
         return declare
