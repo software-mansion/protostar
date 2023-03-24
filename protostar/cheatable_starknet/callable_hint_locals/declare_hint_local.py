@@ -36,36 +36,36 @@ class DeclareHintLocal(CallableHintLocal):
         return "declare"
 
     def _build(self) -> Callable:
-        return self.declare
+        def declare(contract: int) -> DeclaredContract:
+            contract_identifier = short_string_to_str(contract)
 
-    def declare(self, contract: int) -> DeclaredContract:
-        contract_identifier = short_string_to_str(contract)
+            try:
+                contract_class = self._project_compiler.compile_contract_to_sierra_from_contract_identifier(
+                    contract_identifier
+                )
 
-        try:
-            contract_class = self._project_compiler.compile_contract_to_sierra_from_contract_identifier(
-                contract_identifier
+                compiled_class = self._project_compiler.compile_contract_to_casm_from_contract_identifier(
+                    contract_identifier
+                )
+            except CompilationException as ex:
+                raise CheatcodeException(
+                    self, f"Compilation of {contract_identifier} failed"
+                ) from ex
+            except ContractNameNotFoundException as ex:
+                raise CheatcodeException(
+                    self, f"No contract found for the name f{ex.contract_name}"
+                ) from ex
+
+            compiled_class_hash = compute_compiled_class_hash(compiled_class)
+
+            declared_class: DeclaredSierraClass = asyncio.run(
+                self._contracts_controller.declare_sierra_contract(
+                    contract_class=contract_class,
+                    compiled_class=compiled_class,
+                    compiled_class_hash=compiled_class_hash,
+                )
             )
 
-            compiled_class = self._project_compiler.compile_contract_to_casm_from_contract_identifier(
-                contract_identifier
-            )
-        except CompilationException as ex:
-            raise CheatcodeException(
-                self, f"Compilation of {contract_identifier} failed"
-            ) from ex
-        except ContractNameNotFoundException as ex:
-            raise CheatcodeException(
-                self, f"No contract found for the name f{ex.contract_name}"
-            ) from ex
+            return DeclaredContract(class_hash=declared_class.class_hash)
 
-        compiled_class_hash = compute_compiled_class_hash(compiled_class)
-
-        declared_class: DeclaredSierraClass = asyncio.run(
-            self._contracts_controller.declare_sierra_contract(
-                contract_class=contract_class,
-                compiled_class=compiled_class,
-                compiled_class_hash=compiled_class_hash,
-            )
-        )
-
-        return DeclaredContract(class_hash=declared_class.class_hash)
+        return declare
