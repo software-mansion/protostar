@@ -12,6 +12,10 @@ from starkware.starknet.business_logic.state.state import (
     StateSyncifier,
     CompiledClassCache,
 )
+from starkware.starknet.services.api.contract_class.contract_class import (
+    DeprecatedCompiledClass,
+)
+
 from typing_extensions import Self
 
 from protostar.starknet.cheaters import BlockInfoCheater, Cheaters
@@ -19,9 +23,6 @@ from protostar.starknet.types import ClassHashType, SelectorType
 from protostar.starknet.data_transformer import CairoOrPythonData
 
 from protostar.starknet.address import Address
-from starkware.starknet.services.api.contract_class.contract_class import (
-    DeprecatedCompiledClass,
-)
 
 
 # pylint: disable=too-many-instance-attributes

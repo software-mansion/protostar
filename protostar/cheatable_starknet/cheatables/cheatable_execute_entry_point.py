@@ -1,9 +1,9 @@
 # FIXME: Probably code of execute entry point was changed. THIS FILE NEEDS TO BE UPDATED
-# pylint: disable=duplicate-code
+# pylint: disable=duplicate-code,protected-access
 import logging
 import re
 from dataclasses import dataclass
-from typing import Optional, Tuple, cast, Any
+from typing import Optional, cast
 from copy import deepcopy
 
 from starkware.starknet.business_logic.execution.objects import (
@@ -14,13 +14,6 @@ from starkware.starknet.business_logic.execution.objects import (
 )
 from starkware.cairo.common.cairo_function_runner import CairoFunctionRunner
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
-from starkware.cairo.lang.vm.security import SecurityError
-from starkware.cairo.lang.vm.utils import ResourcesError
-from starkware.cairo.lang.vm.vm_exceptions import (
-    HintException,
-    VmException,
-    VmExceptionBase,
-)
 from starkware.python.utils import to_bytes
 from starkware.starknet.business_logic.execution.execute_entry_point import (
     ExecuteEntryPoint,
@@ -29,12 +22,9 @@ from starkware.starknet.business_logic.execution.execute_entry_point import (
 from starkware.starknet.business_logic.state.state import StateSyncifier
 from starkware.starknet.business_logic.state.state_api import State, SyncState
 from starkware.starknet.business_logic.utils import (
-    validate_contract_deployed,
     get_call_result_for_version0_class,
 )
 from starkware.starknet.core.os import os_utils
-from starkware.starknet.core.os.syscall_handler import BusinessLogicSyscallHandler
-from starkware.starknet.core.os.syscall_utils import HandlerException
 from starkware.starknet.definitions.error_codes import StarknetErrorCode
 from starkware.starknet.definitions.general_config import (
     StarknetGeneralConfig,
@@ -204,8 +194,8 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
         self,
         state: SyncState,
         resources_manager: ExecutionResourcesManager,
-        general_config: StarknetGeneralConfig,
         tx_execution_context: TransactionExecutionContext,
+        general_config: StarknetGeneralConfig,
         support_reverted: bool = False,
     ):
         try:

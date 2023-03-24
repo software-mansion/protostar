@@ -2,6 +2,7 @@
 # pylint: disable=protected-access
 
 from typing import Dict, Optional
+from typing_extensions import Self
 
 from starkware.starknet.business_logic.state.state import (
     CachedState,
@@ -10,7 +11,9 @@ from starkware.starknet.business_logic.state.state import (
 from starkware.starknet.public.abi import AbiType
 from starkware.starknet.business_logic.state.state_api_objects import BlockInfo
 from starkware.starknet.business_logic.state.state_api import StateReader
-from typing_extensions import Self
+from starkware.starknet.services.api.contract_class.contract_class import (
+    DeprecatedCompiledClass,
+)
 
 from protostar.cheatable_starknet.controllers.expect_events_controller import Event
 from protostar.starknet.address import Address
@@ -19,9 +22,6 @@ from protostar.starknet.selector import Selector
 from protostar.starknet.types import ClassHashType
 from protostar.starknet.data_transformer import CairoData
 from protostar.cheatable_starknet.controllers.expect_call_controller import ExpectedCall
-from starkware.starknet.services.api.contract_class.contract_class import (
-    DeprecatedCompiledClass,
-)
 
 
 # pylint: disable=too-many-instance-attributes

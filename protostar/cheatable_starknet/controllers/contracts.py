@@ -5,11 +5,7 @@ from typing import List, Optional, cast
 
 from starkware.starknet.business_logic.execution.objects import CallType
 from starkware.starknet.business_logic.execution.objects import Event as StarknetEvent
-from starkware.python.utils import to_bytes, from_bytes
 from starkware.starknet.business_logic.transaction.objects import InternalDeclare
-from starkware.starknet.core.os.contract_class.deprecated_class_hash import (
-    compute_deprecated_class_hash,
-)
 from starkware.starknet.public.abi import AbiType, CONSTRUCTOR_ENTRY_POINT_SELECTOR
 from starkware.starknet.services.api.gateway.transaction import (
     DEFAULT_DECLARE_SENDER_ADDRESS,

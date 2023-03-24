@@ -4,6 +4,7 @@ from typing import cast
 import pytest
 from starknet_py.net.client_models import TransactionStatus
 from starknet_py.net.gateway_client import GatewayClient
+from starknet_py.net.models.transaction import Declare
 
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet.contract_abi import ContractAbi
@@ -15,7 +16,6 @@ from protostar.starknet_gateway import (
     GatewayFacade,
     InputValidationException,
 )
-from starknet_py.net.models.transaction import Declare
 from tests._conftest.devnet import DevnetAccount, DevnetFixture
 from tests.conftest import MAX_FEE, SetPrivateKeyEnvVarFixture
 from tests.data.contracts import CONTRACT_WITH_CONSTRUCTOR, IDENTITY_CONTRACT

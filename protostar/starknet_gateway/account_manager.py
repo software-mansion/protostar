@@ -16,7 +16,6 @@ from protostar.starknet_gateway.multicall import (
 )
 
 from .type import Fee
-from .account_tx_version_detector import AccountTxVersionDetector
 from .gateway_facade import GatewayFacade
 
 

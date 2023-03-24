@@ -1,4 +1,4 @@
-from typing import List, cast, Optional, Any
+from typing import cast, Optional, Any
 
 from starkware.cairo.lang.compiler.preprocessor.flow import ReferenceManager
 from starkware.cairo.lang.compiler.program import CairoHint

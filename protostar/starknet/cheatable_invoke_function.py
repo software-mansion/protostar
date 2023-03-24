@@ -74,7 +74,7 @@ async def create_cheatable_invoke_function(
     return cast(
         CheatableInternalInvokeFunction,
         CheatableInternalInvokeFunction.create(
-            contract_address=contract_address,
+            sender_address=contract_address,
             entry_point_selector=selector,
             calldata=calldata,
             max_fee=max_fee,

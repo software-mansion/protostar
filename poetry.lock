@@ -177,14 +177,14 @@ tests = ["mypy (>=0.800)", "pytest", "pytest-asyncio"]
 
 [[package]]
 name = "astroid"
-version = "2.15.0"
+version = "2.13.5"
 description = "An abstract syntax tree for Python with inference support."
 category = "dev"
 optional = false
 python-versions = ">=3.7.2"
 files = [
-    {file = "astroid-2.15.0-py3-none-any.whl", hash = "sha256:e3e4d0ffc2d15d954065579689c36aac57a339a4679a679579af6401db4d3fdb"},
-    {file = "astroid-2.15.0.tar.gz", hash = "sha256:525f126d5dc1b8b0b6ee398b33159105615d92dc4a17f2cd064125d57f6186fa"},
+    {file = "astroid-2.13.5-py3-none-any.whl", hash = "sha256:6891f444625b6edb2ac798829b689e95297e100ddf89dbed5a8c610e34901501"},
+    {file = "astroid-2.13.5.tar.gz", hash = "sha256:df164d5ac811b9f44105a72b8f9d5edfb7b5b2d7e979b04ea377a77b3229114a"},
 ]
 
 [package.dependencies]
@@ -2220,18 +2220,18 @@ files = [
 
 [[package]]
 name = "pylint"
-version = "2.17.0"
+version = "2.15.10"
 description = "python code static checker"
 category = "dev"
 optional = false
 python-versions = ">=3.7.2"
 files = [
-    {file = "pylint-2.17.0-py3-none-any.whl", hash = "sha256:e097d8325f8c88e14ad12844e3fe2d963d3de871ea9a8f8ad25ab1c109889ddc"},
-    {file = "pylint-2.17.0.tar.gz", hash = "sha256:1460829b6397cb5eb0cdb0b4fc4b556348e515cdca32115f74a1eb7c20b896b4"},
+    {file = "pylint-2.15.10-py3-none-any.whl", hash = "sha256:9df0d07e8948a1c3ffa3b6e2d7e6e63d9fb457c5da5b961ed63106594780cc7e"},
+    {file = "pylint-2.15.10.tar.gz", hash = "sha256:b3dc5ef7d33858f297ac0d06cc73862f01e4f2e74025ec3eff347ce0bc60baf5"},
 ]
 
 [package.dependencies]
-astroid = ">=2.15.0,<=2.17.0-dev0"
+astroid = ">=2.12.13,<=2.14.0-dev0"
 colorama = {version = ">=0.4.5", markers = "sys_platform == \"win32\""}
 dill = {version = ">=0.2", markers = "python_version < \"3.11\""}
 isort = ">=4.2.5,<6"
@@ -3440,4 +3440,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9.14, <3.10"
-content-hash = "197f6a965b201d804325e7b04cf1f7d19c18321d9b3a2452effc15eef1d7ac33"
+content-hash = "e8ebcb0d9d7b745ecd7f871f92d271507c9b5f3e5b5edce89313b1087d3d1335"

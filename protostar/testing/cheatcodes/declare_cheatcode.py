@@ -3,7 +3,6 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Protocol
 
-from starkware.python.utils import from_bytes
 from starkware.starknet.business_logic.transaction.objects import InternalDeclare
 from starkware.starknet.public.abi import AbiType
 from starkware.starknet.services.api.gateway.transaction import (
