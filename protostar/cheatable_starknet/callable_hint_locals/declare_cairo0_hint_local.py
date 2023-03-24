@@ -1,20 +1,17 @@
 import asyncio
 from typing import Any, Protocol
 
-from starkware.cairo.lang.compiler.parser_transformer import ParserError
-
 from protostar.cheatable_starknet.controllers.contracts import (
     ContractsController,
     DeclaredContract,
 )
 from protostar.compiler import ProjectCompiler
 from protostar.cairo.short_string import CairoShortString, short_string_to_str
-from protostar.configuration_file.configuration_file import (
-    ContractNameNotFoundException,
-)
+from protostar.configuration_file.configuration_file import ContractNameNotFoundException
 from protostar.starknet.cheatable_starknet_exceptions import CheatcodeException
 from .callable_hint_local import CallableHintLocal
 
+from starkware.cairo.lang.compiler.parser_transformer import ParserError
 
 class DeclareCheatcodeProtocol(Protocol):
     def __call__(
@@ -50,9 +47,9 @@ class DeclareCairo0HintLocal(CallableHintLocal):
                 )
             )
         except ContractNameNotFoundException as err:
-            raise CheatcodeException(self, err.message) from err
+            raise CheatcodeException(self, err.message)
         except ParserError as err:
-            raise CheatcodeException(self, err.message) from err
+            raise CheatcodeException(self, err.message)
 
         declared_class = asyncio.run(
             self._contracts_controller.declare_cairo0_contract(compiled_contract)
