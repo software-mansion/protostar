@@ -51,7 +51,7 @@ class DeclareHintLocal(CallableHintLocal):
             )
         except CompilationException as ex:
             raise CheatcodeException(
-                self, f"Compilation of f{contract_identifier} failed"
+                self, f"Compilation of {contract_identifier} failed"
             ) from ex
         except ContractNameNotFoundException as ex:
             raise CheatcodeException(
