@@ -8,6 +8,9 @@ from starkware.starknet.business_logic.execution.objects import Event as Starkne
 from starkware.starknet.business_logic.state.state_api import SyncState
 from starkware.starknet.business_logic.transaction.objects import InternalDeclare
 from starkware.starknet.definitions.constants import GasCost
+from starkware.starknet.core.os.contract_class.compiled_class_hash import (
+    compute_compiled_class_hash,
+)
 from starkware.starknet.public.abi import AbiType, CONSTRUCTOR_ENTRY_POINT_SELECTOR
 from starkware.starknet.services.api.gateway.transaction import (
     DEFAULT_DECLARE_SENDER_ADDRESS,
@@ -168,7 +171,6 @@ class ContractsController:
         self,
         contract_class: ContractClass,
         compiled_class: CompiledClass,
-        compiled_class_hash: int,
     ) -> DeclaredSierraClass:
         """
         Declare a sierra contract.
@@ -178,6 +180,8 @@ class ContractsController:
         @param compiled_class: casm compiled contract to be declared
         @return: DeclaredSierraClass instance.
         """
+        compiled_class_hash = compute_compiled_class_hash(compiled_class)
+
         starknet_config = StarknetGeneralConfig()
         tx = NonValidatedInternalDeclare.create(
             contract_class=contract_class,

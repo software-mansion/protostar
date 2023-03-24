@@ -1,10 +1,6 @@
 import asyncio
 from typing import Callable
 
-from starkware.starknet.core.os.contract_class.compiled_class_hash import (
-    compute_compiled_class_hash,
-)
-
 from protostar.cairo.short_string import short_string_to_str
 from protostar.cheatable_starknet.callable_hint_locals.callable_hint_local import (
     CallableHintLocal,
@@ -56,13 +52,10 @@ class DeclareHintLocal(CallableHintLocal):
                     self, f"No contract found for the name f{ex.contract_name}"
                 ) from ex
 
-            compiled_class_hash = compute_compiled_class_hash(compiled_class)
-
             declared_class: DeclaredSierraClass = asyncio.run(
                 self._contracts_controller.declare_sierra_contract(
                     contract_class=contract_class,
                     compiled_class=compiled_class,
-                    compiled_class_hash=compiled_class_hash,
                 )
             )
 
