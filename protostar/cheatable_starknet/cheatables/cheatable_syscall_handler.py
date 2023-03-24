@@ -65,7 +65,9 @@ class CheatableSysCallHandler(DeprecatedBlSyscallHandler):
         )
         return int(pranked_address) if pranked_address is not None else caller_address
 
-    def _call_contract(self, syscall_ptr: RelocatableValue, syscall_name: str) -> CallResult:
+    def _call_contract(
+        self, syscall_ptr: RelocatableValue, syscall_name: str
+    ) -> CallResult:
         # Parse request and prepare the call.
         request = self._read_and_validate_syscall_request(
             syscall_name=syscall_name, syscall_ptr=syscall_ptr
@@ -82,12 +84,14 @@ class CheatableSysCallHandler(DeprecatedBlSyscallHandler):
             contract_address = code_address
             # region Modified Starknet code.
             if (
-                    mocked_response := self.cheatable_state.get_mocked_response(
-                        target_address=Address(contract_address),
-                        entrypoint=function_selector,
-                    )
+                mocked_response := self.cheatable_state.get_mocked_response(
+                    target_address=Address(contract_address),
+                    entrypoint=function_selector,
+                )
             ) is not None:
-                return CallResult(retdata=mocked_response, gas_consumed=0, failure_flag=0)
+                return CallResult(
+                    retdata=mocked_response, gas_consumed=0, failure_flag=0
+                )
             # endregion
 
             caller_address = self.contract_address
@@ -179,7 +183,9 @@ class CheatableSysCallHandler(DeprecatedBlSyscallHandler):
         # endregion
 
         # Instantiate the contract.
-        self.sync_state.deploy_contract(contract_address=contract_address, class_hash=class_hash)
+        self.sync_state.deploy_contract(
+            contract_address=contract_address, class_hash=class_hash
+        )
 
         self.execute_constructor_entry_point(
             contract_address=contract_address,
