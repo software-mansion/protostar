@@ -154,7 +154,7 @@ class ProjectCompiler:
                 input_path=contract_path
             )
         except CairoBindingException as ex:
-            raise CompilationException from ex
+            raise CompilationException(contract_name=contract_path.name, err=ex) from ex
         assert compiled is not None
 
         loaded = json.loads(compiled)
@@ -170,7 +170,7 @@ class ProjectCompiler:
                 input_path=contract_path
             )
         except CairoBindingException as ex:
-            raise CompilationException from ex
+            raise CompilationException(contract_name=contract_path.name, err=ex) from ex
 
         assert compiled is not None
 
