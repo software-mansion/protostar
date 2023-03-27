@@ -1,56 +1,35 @@
 from argparse import Namespace
-from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.signer import BaseSigner
 
-from protostar.cli import ProtostarArgument, ProtostarCommand, MessengerFactory
+from protostar.cli import (
+    ProtostarCommand,
+    MessengerFactory,
+    NetworkCommandUtil,
+    ProtostarArgument,
+    get_signer,
+)
 from protostar.cli.common_arguments import (
     ACCOUNT_ADDRESS_ARG,
     PRIVATE_KEY_PATH_ARG,
     SIGNER_CLASS_ARG,
     BLOCK_EXPLORER_ARG,
+    TOKEN_ARG,
     MAX_FEE_ARG,
     WAIT_FOR_ACCEPTANCE_ARG,
-    TOKEN_ARG,
 )
-from protostar.cli.network_command_util import NetworkCommandUtil
-from protostar.cli.signable_command_util import get_signer
-from protostar.io import StructuredMessage, LogColorProvider
+from protostar.commands.declare.declare_messages import SuccessfulDeclareMessage
+
 from protostar.starknet import Address
 from protostar.starknet_gateway import (
-    Fee,
-    GatewayFacadeFactory,
     SuccessfulDeclareResponse,
+    GatewayFacadeFactory,
     create_block_explorer,
+    Fee,
 )
-
-
-@dataclass
-class SuccessfulDeclareMessage(StructuredMessage):
-    response: SuccessfulDeclareResponse
-    class_url: Optional[str]
-    tx_url: Optional[str]
-
-    def format_human(self, fmt: LogColorProvider) -> str:
-        lines: list[str] = []
-        lines.append("Declare transaction was sent.")
-        lines.append(f"Class hash: 0x{self.response.class_hash:064x}")
-        if self.class_url:
-            lines.append(self.class_url)
-            lines.append("")
-        lines.append(f"Transaction hash: 0x{self.response.transaction_hash:064x}")
-        if self.tx_url:
-            lines.append(self.tx_url)
-        return "\n".join(lines)
-
-    def format_dict(self) -> dict:
-        return {
-            "class_hash": f"0x{self.response.class_hash:064x}",
-            "transaction_hash": f"0x{self.response.transaction_hash:064x}",
-        }
 
 
 class DeclareCommand(ProtostarCommand):

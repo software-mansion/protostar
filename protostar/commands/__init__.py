@@ -2,7 +2,7 @@ from .build_command import BuildCommand
 from .cairo1_commands import BuildCairo1Command
 from .calculate_account_address_command import CalculateAccountAddressCommand
 from .call import CallCommand
-from .declare_command import DeclareCommand
+from .declare import DeclareCommand
 from .deploy_account_command import DeployAccountCommand
 from .deploy_command import DeployCommand
 from .format_command import FormatCommand
