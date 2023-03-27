@@ -8,13 +8,15 @@
 }
 
 .iconContainer {
-  background-color: var(--ifm-color-emphasis-200);
+  background-color: #E0F2FA;
   display: inline-flex;
   padding: 1.5rem;
   border-radius: 50%;
   margin-bottom: 1rem;
+  border: 6px solid var(--brand-blue);
 }
 
-.bg-primary {
-  background-color: var(--ifm-color-primary);
+[data-theme="dark"] .iconContainer {
+  background-color: #86CCE8;
+  border-color: white;
 }

@@ -12,7 +12,6 @@ const config = {
   baseUrl: "/protostar/",
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",
-  favicon: "img/favicon.ico",
   organizationName: "software-mansion",
   projectName: "protostar",
   trailingSlash: false,
@@ -36,15 +35,96 @@ const config = {
     ],
   ],
 
+  headTags: [
+    {
+      tagName: "link",
+      attributes: {
+        rel: "manifest",
+        content: "/protostar/manifest.json",
+      }
+    },
+    {
+      tagName: "link",
+      attributes: {
+        rel: "icon",
+        href: "/protostar/favicon.ico",
+        sizes: "any"
+      }
+    },
+    {
+      tagName: "link",
+      attributes: {
+        rel: "icon",
+        href: "/protostar/favicon.svg",
+        type: "image/svg+xml"
+      }
+    },
+    {
+      tagName: "link",
+      attributes: {
+        rel: "apple-touch-icon",
+        content: "/protostar/apple-touch-icon.png"
+      }
+    },
+    {
+      tagName: "meta",
+      attributes: {
+        name: "apple-mobile-web-app-title",
+        content: "Protostar"
+      }
+    },
+    {
+      tagName: "meta",
+      attributes: {
+        property: "og:type",
+        content: "website"
+      }
+    },
+    {
+      tagName: "meta",
+      attributes: {
+        property: "og:image",
+        content: "https://docs.swmansion.com/protostar/og-image.png"
+      }
+    },
+    {
+      tagName: "meta",
+      attributes: {
+        property: "og:image:alt",
+        content: "StarkNet smart contract development toolchain."
+      }
+    },
+    {
+      tagName: "meta",
+      attributes: {
+        property: "og:image:type",
+        content: "image/png"
+      }
+    },
+    {
+      tagName: "meta",
+      attributes: {
+        property: "og:image:width",
+        content: "1280"
+      }
+    },
+    {
+      tagName: "meta",
+      attributes: {
+        property: "og:image:height",
+        content: "640"
+      }
+    },
+  ],
+
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
       navbar: {
-        title: "Protostar",
         logo: {
           alt: "Protostar",
-          src: "img/protostar-logo--dark.png",
-          srcDark: "img/protostar-logo--light.png",
+          src: "img/protostar-wide--light.svg",
+          srcDark: "img/protostar-wide--dark.svg",
         },
         items: [
           {

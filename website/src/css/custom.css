@@ -5,29 +5,33 @@
  */
 
 /* You can override the default Infima variables here. */
+/* https://docusaurus.io/docs/styling-layout#styling-your-site-with-infima*/
 
 :root {
-  --ifm-color-primary: hsl(240, 40%, 35%);
-  --ifm-color-primary-dark: hsl(240, 46%, 32%);
-  --ifm-color-primary-darker: hsl(240, 46%, 30%);
-  --ifm-color-primary-darkest: hsl(240, 46%, 25%);
-  --ifm-color-primary-light: hsl(240, 46%, 39%);
-  --ifm-color-primary-lighter: hsl(240, 46%, 40%);
-  --ifm-color-primary-lightest: hsl(240, 46%, 46%);
+  --sea-blue: #2ba5d6;
+  --brand-blue: #001A72;
+
+  --ifm-color-primary: var(--brand-blue);
+  --ifm-color-primary-dark: #001767;
+  --ifm-color-primary-darker: #001661;
+  --ifm-color-primary-darkest: #001250;
+  --ifm-color-primary-light: #001d7d;
+  --ifm-color-primary-lighter: #001e83;
+  --ifm-color-primary-lightest: #002294;
   --ifm-code-font-size: 95%;
-  --color-secondary: hsl(38, 85%, 53%);
+
+  --color-secondary: var(--sea-blue);
 }
 
 /* For readability concerns, you should choose a lighter palette in dark mode. */
 [data-theme="dark"] {
-  --ifm-color-primary: hsl(230, 45%, 75%);
-  --ifm-color-primary-dark: hsl(230, 45%, 61%);
-  --ifm-color-primary-darker: hsl(230, 45%, 58%);
-  --ifm-color-primary-darkest: hsl(230, 45%, 52%);
-  --ifm-color-primary-light: hsl(230, 45%, 70%);
-  --ifm-color-primary-lighter: hsl(230, 45%, 72%);
-  --ifm-color-primary-lightest: hsl(230, 45%, 79%);
-  --color-secondary: hsl(38, 85%, 53%);
+  --ifm-color-primary: #87cce8;
+  --ifm-color-primary-dark: #68bfe2;
+  --ifm-color-primary-darker: #59b8df;
+  --ifm-color-primary-darkest: #2ba5d6;
+  --ifm-color-primary-light: #a6d9ee;
+  --ifm-color-primary-lighter: #b5e0f1;
+  --ifm-color-primary-lightest: #e3f3fa;
 }
 
 .docusaurus-highlight-code-line {
@@ -41,17 +45,10 @@
   background-color: rgba(0, 0, 0, 0.3);
 }
 
-.text-secondary {
-  color: var(--color-secondary);
+.fill-icons {
+  color: var(--brand-blue);
 }
 
-/* .navbar__title {
-  background-color: red;
-  background: url('/img/protostar-title--dark.svg');
-  background-repeat: no-repeat;
-  background-position: center;
-  color: transparent;
-  user-select: none;
-  padding: 0 0.5rem;
-  transform: translateY(1px);
-} */
+[data-theme="dark"] .fill-icons  {
+  color: var(--brand-blue);
+}

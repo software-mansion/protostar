@@ -1,6 +1,6 @@
 <div align="center">
-  <img src="./readme/protostar-logo--dark.svg#gh-light-mode-only" width=200 alt="protostar-logo" />
-  <img src="./readme/protostar-logo--light.svg#gh-dark-mode-only" width=200 alt="protostar-logo" />
+  <img src="./readme/protostar-logo--light.svg#gh-light-mode-only" width=300 alt="protostar-logo" />
+  <img src="./readme/protostar-logo--dark.svg#gh-dark-mode-only" width=300 alt="protostar-logo" />
 
   <h4>StarkNet smart contract development toolchain</h4>
 
