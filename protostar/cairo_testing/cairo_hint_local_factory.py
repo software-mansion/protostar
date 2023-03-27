@@ -7,12 +7,12 @@ from protostar.cheatable_starknet.callable_hint_locals import (
     StoreHintLocal,
     InvokeHintLocal,
     CallHintLocal,
-    DeployContractHintLocal,
+    DeployContractCairo0HintLocal,
     PrankHintLocal,
     RollHintLocal,
     WarpHintLocal,
-    DeployHintLocal,
-    PrepareHintLocal,
+    DeployCairo0HintLocal,
+    PrepareCairo0HintLocal,
     DeclareCairo0HintLocal,
     StopWarpHintLocal,
     StopRollHintLocal,
@@ -66,10 +66,10 @@ class CairoSharedHintLocalFactory:
             project_compiler=self.project_compiler,
             contracts_controller=contracts_controller,
         )
-        prepare_cheatcode = PrepareHintLocal(
+        prepare_cairo0_cheatcode = PrepareCairo0HintLocal(
             contracts_controller=contracts_controller,
         )
-        deploy_cheatcode = DeployHintLocal(
+        deploy_cairo0_cheatcode = DeployCairo0HintLocal(
             contracts_controller=contracts_controller,
         )
 
@@ -86,13 +86,13 @@ class CairoSharedHintLocalFactory:
             PrankHintLocal(contracts_controller=contracts_controller),
             StopPrankHintLocal(contracts_controller=contracts_controller),
             SendMessageToL2HintLocal(contracts_controller=contracts_controller),
-            deploy_cheatcode,
+            deploy_cairo0_cheatcode,
             declare_cairo0_cheatcode,
-            prepare_cheatcode,
-            DeployContractHintLocal(
+            prepare_cairo0_cheatcode,
+            DeployContractCairo0HintLocal(
                 declare_cheatcode=declare_cairo0_cheatcode,
-                prepare_cheatcode=prepare_cheatcode,
-                deploy_cheatcode=deploy_cheatcode,
+                prepare_cheatcode=prepare_cairo0_cheatcode,
+                deploy_cheatcode=deploy_cairo0_cheatcode,
             ),
             CallHintLocal(
                 contracts_controller=contracts_controller,

@@ -161,7 +161,9 @@ class ContractsController:
         for event_name in event_manager._selector_to_name.values():
             self.cheatable_state.event_name_to_contract_abi_map[event_name] = abi
 
-    async def deploy_prepared(self, prepared: PreparedContract) -> DeployedContract:
+    async def deploy_cairo0_prepared(
+        self, prepared: PreparedContract
+    ) -> DeployedContract:
         await self.cheatable_state.deploy_contract(
             contract_address=int(prepared.contract_address),
             class_hash=to_bytes(prepared.class_hash),
@@ -238,7 +240,7 @@ class ContractsController:
             ]
         )
 
-    async def prepare(
+    async def prepare_cairo0(
         self,
         declared: DeclaredContract,
         constructor_calldata: CairoOrPythonData,

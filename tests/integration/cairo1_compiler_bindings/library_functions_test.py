@@ -20,12 +20,12 @@ def get_mock_for_lib_func(
         return_value = type(
             "return_value", (object,), {"err_code": err_code, "ok": ok}
         )()
-    elif lib_func_name == "deploy_tp":
+    elif lib_func_name in ["deploy_tp", "deploy_tp_cairo0"]:
         ok = type("ok", (object,), {"deployed_contract_address": 0})()
         return_value = type(
             "return_value", (object,), {"err_code": err_code, "ok": ok}
         )()
-    elif lib_func_name == "prepare_tp":
+    elif lib_func_name in ["prepare_tp", "prepare_tp_cairo0"]:
         prepared_contract = type(
             "prepared_contract",
             (object,),
@@ -127,6 +127,26 @@ def test_deploy(datadir: Path):
     )
 
 
+def test_deploy_cairo0(datadir: Path):
+    expected_calldatas = {
+        "test_deploy_cairo0": [1, 2],
+        "test_deploy_cairo0_no_args": [],
+        "test_deploy_tp_cairo0": [5, 4, 2],
+    }
+
+    def _args_validator(test_case_name: str, *args: Any, **kwargs: Any):
+        assert not args
+        assert kwargs["contract_address"] == 123 and kwargs["class_hash"] == 234
+        expected_calldata = expected_calldatas[test_case_name.split("::")[-1]]
+        assert expected_calldata == kwargs["constructor_calldata"]
+
+    check_library_function(
+        "deploy_tp_cairo0",
+        datadir / "deploy_cairo0_test.cairo",
+        args_validator=_args_validator,
+    )
+
+
 def test_invoke(datadir: Path):
     expected_calldatas = {
         "test_invoke": [101, 202, 303, 405, 508, 613, 721],
@@ -159,6 +179,26 @@ def test_prepare(datadir: Path):
 
     check_library_function(
         "prepare_tp", datadir / "prepare_test.cairo", args_validator=_args_validator
+    )
+
+
+def test_prepare_cairo0(datadir: Path):
+    expected_calldatas = {
+        "test_prepare_cairo0": [101, 202, 303, 405, 508, 613, 721],
+        "test_prepare_tp_cairo0": [3, 2, 1],
+        "test_prepare_cairo0_no_args": [],
+    }
+
+    def _args_validator(test_case_name: str, *args: Any, **kwargs: Any):
+        assert not args
+        assert kwargs["class_hash"] == 123
+        expected_calldata = expected_calldatas[test_case_name.split("::")[-1]]
+        assert expected_calldata == kwargs["calldata"]
+
+    check_library_function(
+        "prepare_tp_cairo0",
+        datadir / "prepare_cairo0_test.cairo",
+        args_validator=_args_validator,
     )
 
 
