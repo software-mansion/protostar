@@ -147,7 +147,6 @@ class ContractsController:
             contract_class = await self.cheatable_state.get_contract_class(class_hash)
 
             if isinstance(contract_class, CompiledClass):
-                # TODO add handling
                 raise OperationNotSupportedForCairo1Exception(
                     "Cairo1 contracts do not support data transformation."
                 )
@@ -200,8 +199,6 @@ class ContractsController:
             )
 
         abi = contract_class.abi
-        # TODO figure out how it works
-        # self._add_event_abi_to_state(abi)
 
         class_hash = tx.class_hash
         await self.cheatable_state.set_contract_class(class_hash, compiled_class)
