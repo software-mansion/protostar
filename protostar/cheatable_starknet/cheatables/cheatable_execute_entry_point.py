@@ -68,7 +68,7 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
         entry_point_selector: Selector,
         entry_point_type: EntryPointType = EntryPointType.EXTERNAL,
         call_type: CallType = CallType.CALL,
-        class_hash: Optional[bytes] = None,
+        class_hash: Optional[int] = None,
         caller_address: Optional[Address] = None,
     ):
         return cls.create_for_testing(

@@ -18,8 +18,6 @@ from starkware.starknet.business_logic.state.state import (
 from starkware.starknet.definitions.transaction_type import TransactionType
 from starkware.starknet.definitions.general_config import StarknetGeneralConfig
 
-from protostar.starknet.cheatable_state import CheatableStarknetState
-
 from .cheatable_state import CheatableStarknetState
 
 
@@ -51,7 +49,7 @@ async def execute_on_state(
         )
         result = invocation.retdata_tuple(*args)
 
-    main_call_raw_events = call_info.events
+    main_call_raw_events = call_info.get_sorted_events()
 
     return (
         StarknetCallInfo.from_internal(

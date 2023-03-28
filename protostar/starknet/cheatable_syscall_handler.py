@@ -89,7 +89,7 @@ class CheatableSysCallHandler(DeprecatedBlSyscallHandler):
         )
 
         code_address: Optional[int] = None
-        class_hash: Optional[bytes] = None
+        class_hash: Optional[int] = None
         if syscall_name == "call_contract":
             code_address = cast(int, request.contract_address)
 

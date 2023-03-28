@@ -99,6 +99,10 @@ class ContractsController:
     ) -> CairoData:
         if isinstance(calldata, collections.Mapping):
             contract_class = await self.cheatable_state.get_contract_class(class_hash)
+            assert isinstance(
+                contract_class, DeprecatedCompiledClass
+            ), "New contract classes don't support data transformation yet"
+
             assert contract_class.abi, f"No abi found for the contract at {class_hash}"
 
             transformer = from_python_transformer(
@@ -134,15 +138,13 @@ class ContractsController:
             )
 
         abi = contract_class.abi
+        assert abi is not None
         self._add_event_abi_to_state(abi)
         class_hash = tx.class_hash
         assert class_hash is not None
         await self.cheatable_state.set_contract_class(class_hash, contract_class)
 
-        if contract_class.abi:
-            self.cheatable_state.class_hash_to_contract_abi_map[
-                class_hash
-            ] = contract_class.abi
+        self.cheatable_state.class_hash_to_contract_abi_map[class_hash] = abi
 
         return DeclaredClass(
             class_hash=class_hash,

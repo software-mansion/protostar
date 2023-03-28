@@ -1,4 +1,4 @@
-from typing import Union, List, Optional, cast
+from typing import Union, List, Optional, cast, Tuple
 
 import marshmallow_dataclass
 from starkware.starknet.business_logic.execution.objects import (
@@ -25,9 +25,9 @@ class CheatableInternalInvokeFunction(InternalInvokeFunction):
         state: SyncState,
         resources_manager: ExecutionResourcesManager,
         general_config: StarknetGeneralConfig,
-    ) -> CallInfo:
+    ) -> Tuple[CallInfo, int]:
         call = CheatableExecuteEntryPoint.create(
-            contract_address=self.contract_address,
+            contract_address=self.sender_address,
             entry_point_selector=self.entry_point_selector,
             entry_point_type=EntryPointType.EXTERNAL,
             calldata=self.calldata,
@@ -35,7 +35,7 @@ class CheatableInternalInvokeFunction(InternalInvokeFunction):
             initial_gas=remaining_gas,
         )
 
-        return call.execute(
+        call_info = call.execute(
             state=state,
             resources_manager=resources_manager,
             general_config=general_config,
@@ -43,6 +43,9 @@ class CheatableInternalInvokeFunction(InternalInvokeFunction):
                 n_steps=general_config.invoke_tx_max_n_steps
             ),
         )
+        remaining_gas -= call_info.gas_consumed
+
+        return call_info, remaining_gas
 
 
 async def create_cheatable_invoke_function(

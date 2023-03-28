@@ -12,7 +12,7 @@ from starkware.starknet.public.abi import AbiType
 from starkware.starknet.business_logic.state.state_api_objects import BlockInfo
 from starkware.starknet.business_logic.state.state_api import StateReader
 from starkware.starknet.services.api.contract_class.contract_class import (
-    DeprecatedCompiledClass,
+    CompiledClassBase,
 )
 
 from protostar.cheatable_starknet.controllers.expect_events_controller import Event
@@ -81,11 +81,11 @@ class CheatableCachedState(CachedState):
         return BlockInfoController(self).get_for_contract(Address(contract_address))
 
     async def set_contract_class(
-        self, class_hash: int, contract_class: DeprecatedCompiledClass
+        self, class_hash: int, contract_class: CompiledClassBase
     ):
         self.contract_classes[class_hash] = contract_class
 
-    async def get_contract_class(self, class_hash: int) -> DeprecatedCompiledClass:
+    async def get_contract_class(self, class_hash: int) -> CompiledClassBase:
         return await self.get_compiled_class(class_hash)
 
     def _copy(self):

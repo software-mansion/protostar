@@ -2,7 +2,9 @@ import dataclasses
 from dataclasses import dataclass
 from pathlib import Path
 
-from starknet_py.net.client_models import ContractClass
+from starkware.starknet.services.api.contract_class.contract_class import (
+    DeprecatedCompiledClass,
+)
 from starkware.starknet.testing.contract import StarknetContract
 from typing_extensions import Self
 
@@ -28,7 +30,7 @@ class ContractBasedTestExecutionState(TestExecutionState):
     async def from_test_suite_definition(
         cls,
         contract_path: Path,
-        test_suite_definition: ContractClass,
+        test_suite_definition: DeprecatedCompiledClass,
         test_config: TestConfig,
         project_compiler: ProjectCompiler,
     ) -> Self:

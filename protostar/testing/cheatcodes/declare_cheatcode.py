@@ -87,6 +87,7 @@ class DeclareCheatcode(Cheatcode):
                 state=state_copy, general_config=self.general_config
             )
 
+        assert contract_class.abi is not None
         self._add_event_abi_to_state(contract_class.abi)
         class_hash = tx.class_hash
         assert class_hash is not None

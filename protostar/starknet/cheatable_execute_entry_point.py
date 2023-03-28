@@ -13,7 +13,7 @@ from starkware.cairo.lang.vm.memory_segments import FIRST_MEMORY_ADDR as PROGRAM
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
 from starkware.cairo.lang.vm.trace_entry import TraceEntry
 
-from starkware.python.utils import from_bytes, to_bytes
+from starkware.python.utils import to_bytes
 from starkware.starknet.business_logic.execution.execute_entry_point import (
     ExecuteEntryPoint,
     EntryPointArgs,
@@ -37,7 +37,7 @@ from starkware.starknet.definitions.general_config import (
 from starkware.starknet.public import abi as starknet_abi
 from starkware.starknet.services.api.contract_class.contract_class import (
     DeprecatedCompiledClass,
-    ContractEntryPoint,
+    CompiledClassBase,
 )
 from starkware.starkware_utils.error_handling import (
     wrap_with_stark_exception,
@@ -70,7 +70,7 @@ FAULTY_CLASS_HASH = to_bytes(
 @dataclass(frozen=True)
 class ContractProfile:
     contract_callstack: list[ContractFilename]
-    entry_point: ContractEntryPoint
+    # entry_point: ContractEntryPoint
     profile: RuntimeProfile
 
 
@@ -181,9 +181,10 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
         )
         entry_point_offset = entry_point.offset
 
-        # region
+        # region Modified Starknet code
         if self.profiling:
             self.append_contract_callstack(state, class_hash)
+        # endregion
 
         # Run.
         self._run(
@@ -208,13 +209,13 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
         # Update resources usage (for the bouncer and fee calculation).
         resources_manager.cairo_usage += runner.get_execution_resources()
 
+        # region Modified Starknet code
         if self.profiling:
-            self.append_runtime_profile(
-                runner, state.get_compiled_class(class_hash), entry_point
-            )
+            self.append_runtime_profile(runner, state.get_compiled_class(class_hash))
             self.pop_contract_callstack()
             if not CheatableExecuteEntryPoint.contract_callstack:
                 merge_and_save(CheatableExecuteEntryPoint.samples)
+        # endregion
 
         # Build and return the call info.
         return self._build_call_info(
@@ -227,12 +228,12 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
             class_hash=class_hash,
         )
 
-    def append_contract_callstack(self, state: SyncState, class_hash: bytes):
+    def append_contract_callstack(self, state: SyncState, class_hash: int):
         if not CheatableExecuteEntryPoint.contract_callstack:
             CheatableExecuteEntryPoint.contract_callstack.append("TEST_CONTRACT")
         else:
             path = extract_cheatable_state(state).class_hash_to_contract_path_map[
-                from_bytes(class_hash)
+                class_hash
             ]
             CheatableExecuteEntryPoint.contract_callstack.append(str(path))
 
@@ -242,9 +243,9 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
     def append_runtime_profile(
         self,
         runner: CairoFunctionRunner,
-        contract_class: DeprecatedCompiledClass,
-        entry_point: ContractEntryPoint,
+        contract_class: CompiledClassBase,
     ):
+        assert isinstance(contract_class, DeprecatedCompiledClass)
         runner.relocate()
         profile = get_profile(
             program=contract_class.program,
@@ -255,7 +256,7 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
         )
         current_callstack = CheatableExecuteEntryPoint.contract_callstack.copy()
         CheatableExecuteEntryPoint.samples.append(
-            ContractProfile(current_callstack, entry_point, profile)
+            ContractProfile(current_callstack, profile)
         )
 
     async def execute_for_testing(

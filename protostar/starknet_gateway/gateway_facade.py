@@ -93,7 +93,7 @@ class GatewayFacade(MulticallClientProtocol):
 
         if not contract_abi:
             abi_entries = (await self._gateway_client.get_class_by_hash(class_hash)).abi
-            if abi_entries:
+            if abi_entries and isinstance(abi_entries, list):
                 contract_abi = ContractAbi.from_abi_entries(abi_entries)
         if not contract_abi:
             raise ProtostarException(

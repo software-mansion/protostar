@@ -14,6 +14,7 @@ from starkware.starknet.business_logic.state.state import (
 )
 from starkware.starknet.services.api.contract_class.contract_class import (
     DeprecatedCompiledClass,
+    CompiledClassBase,
 )
 
 from typing_extensions import Self
@@ -145,7 +146,7 @@ class CheatableCachedState(CachedState):
     ):
         self.contract_classes[class_hash] = contract_class
 
-    async def get_contract_class(self, class_hash: int) -> DeprecatedCompiledClass:
+    async def get_contract_class(self, class_hash: int) -> CompiledClassBase:
         return await self.get_compiled_class(class_hash)
 
     def get_abi_from_contract_address(self, contract_address: int) -> AbiType:
