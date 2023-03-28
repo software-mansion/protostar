@@ -17,7 +17,7 @@ class DeployCairo0HintLocal(CallableHintLocal):
 
     @property
     def name(self) -> str:
-        return "deploy_cairo0"
+        return "deploy_tp_cairo0"
 
     def _build(self) -> Callable[[Any], Any]:
         return self.deploy_cairo0_prepared

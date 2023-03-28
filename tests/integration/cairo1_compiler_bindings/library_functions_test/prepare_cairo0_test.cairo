@@ -10,8 +10,8 @@ fn test_prepare_cairo0() {
    arr.append(508);
    arr.append(613);
    arr.append(721);
-   match prepare_tp_cairo0(123, arr) {
-      Result::Ok(_) => (),
+   match prepare_cairo0(123, arr) {
+      Result::Ok(x) => drop(x),
       Result::Err(x) => {
          let mut data = array_new::<felt>();
          array_append::<felt>(ref data, x);
@@ -39,8 +39,8 @@ fn test_prepare_tp_cairo0() {
 #[test]
 fn test_prepare_cairo0_no_args() {
    let mut arr = ArrayTrait::new();
-   match prepare_tp_cairo0(123, arr) {
-      Result::Ok(_) => (),
+   match prepare_cairo0(123, arr) {
+      Result::Ok(x) => drop(x),
       Result::Err(x) => {
          let mut data = array_new::<felt>();
          array_append::<felt>(ref data, x);

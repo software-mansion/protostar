@@ -22,7 +22,7 @@ class PrepareCairo0HintLocal(CallableHintLocal):
 
     @property
     def name(self) -> str:
-        return "prepare_cairo0"
+        return "prepare_tp_cairo0"
 
     def _build(self) -> Callable[[Any], Any]:
         return self.prepare_cairo0

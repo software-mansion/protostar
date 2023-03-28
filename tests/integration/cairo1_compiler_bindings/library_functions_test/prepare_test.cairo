@@ -10,8 +10,8 @@ fn test_prepare() {
    arr.append(508);
    arr.append(613);
    arr.append(721);
-   match prepare_tp(123, arr) {
-      Result::Ok(_) => (),
+   match prepare(123, arr) {
+      Result::Ok(x) => drop(x),
       Result::Err(x) => {
          let mut data = array_new::<felt>();
          array_append::<felt>(ref data, x);
@@ -39,8 +39,8 @@ fn test_prepare_tp() {
 #[test]
 fn test_prepare_no_args() {
    let mut arr = ArrayTrait::new();
-   match prepare_tp(123, arr) {
-      Result::Ok(_) => (),
+   match prepare(123, arr) {
+      Result::Ok(x) => drop(x),
       Result::Err(x) => {
          let mut data = array_new::<felt>();
          array_append::<felt>(ref data, x);
