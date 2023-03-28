@@ -1,4 +1,3 @@
-# FIXME: Probably code of execute entry point was changed. THIS FILE NEEDS TO BE UPDATED
 # pylint: disable=duplicate-code,protected-access
 import logging
 import re
