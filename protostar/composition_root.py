@@ -30,6 +30,7 @@ from protostar.commands import (
     UpdateCommand,
     UpgradeCommand,
     MulticallCommand,
+    DeclareCairo1Command,
 )
 from protostar.commands.cairo_migrate_command import CairoMigrateCommand
 from protostar.commands.init.project_creator import (
@@ -210,6 +211,10 @@ def build_di_container(
             messenger_factory=messenger_factory,
         ),
         DeclareCommand(
+            gateway_facade_factory=gateway_facade_factory,
+            messenger_factory=messenger_factory,
+        ),
+        DeclareCairo1Command(
             gateway_facade_factory=gateway_facade_factory,
             messenger_factory=messenger_factory,
         ),
