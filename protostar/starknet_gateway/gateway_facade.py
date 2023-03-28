@@ -211,6 +211,7 @@ class GatewayFacade(MulticallClientProtocol):
         max_fee: Fee,
         wait_for_acceptance: bool = False,
         token: Optional[str] = None,
+        compiled_class_hash: Optional[int] = None,
     ):
         compiled_contract = self._load_compiled_contract(
             self._project_root_path / compiled_contract_path
@@ -220,11 +221,19 @@ class GatewayFacade(MulticallClientProtocol):
         )
 
         try:
-            declare_tx = await account.sign_declare_transaction(
-                compiled_contract=compiled_contract,
-                max_fee=max_fee if isinstance(max_fee, int) else None,
-                auto_estimate=max_fee == "auto",
-            )
+            if compiled_class_hash is not None:
+                declare_tx = await account.sign_declare_v2_transaction(
+                    compiled_contract=compiled_contract,
+                    compiled_class_hash=compiled_class_hash,
+                    max_fee=max_fee if isinstance(max_fee, int) else None,
+                    auto_estimate=max_fee == "auto",
+                )
+            else:
+                declare_tx = await account.sign_declare_transaction(
+                    compiled_contract=compiled_contract,
+                    max_fee=max_fee if isinstance(max_fee, int) else None,
+                    auto_estimate=max_fee == "auto",
+                )
         except ClientError as ex:
             account_address_found_in_message = hex(int(account_address)) in ex.message
             message = (
