@@ -44,7 +44,6 @@ from protostar.cheatable_starknet.cheatables.cheatable_cached_state import (
 )
 
 from protostar.cheatable_starknet.controllers.expect_events_controller import Event
-from protostar.protostar_exception import ProtostarException
 from protostar.starknet.selector import Selector
 from protostar.starknet.address import Address
 from protostar.starknet.data_transformer import (
@@ -67,11 +66,6 @@ class ConstructorInputTransformationException(ContractsCheaterException):
 
 class ConstructorInvocationException(ContractsCheaterException):
     pass
-
-
-class OperationNotSupportedForCairo1Exception(ProtostarException):
-    def __init__(self, message: str = "Operation not supported for Cairo1 contracts."):
-        super().__init__(message=message)
 
 
 @dataclass(frozen=True)
@@ -150,10 +144,9 @@ class ContractsController:
         if isinstance(calldata, collections.Mapping):
             contract_class = await self.cheatable_state.get_contract_class(class_hash)
 
-            if isinstance(contract_class, CompiledClass):
-                raise OperationNotSupportedForCairo1Exception(
-                    "Cairo1 contracts do not support data transformation."
-                )
+            assert isinstance(
+                contract_class, DeprecatedCompiledClass
+            ), "New contract classes don't support data transformation yet"
 
             assert isinstance(contract_class, DeprecatedCompiledClass)
             assert contract_class.abi, f"No abi found for the contract at {class_hash}"
