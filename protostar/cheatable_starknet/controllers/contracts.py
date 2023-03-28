@@ -174,7 +174,6 @@ class ContractsController:
         Declare a sierra contract.
 
         @param contract_class: sierra compiled contract to be declared
-        @param compiled_class_hash: compiled class hash of the casm compiled contract.
         @param compiled_class: casm compiled contract to be declared
         @return: DeclaredSierraClass instance.
         """
