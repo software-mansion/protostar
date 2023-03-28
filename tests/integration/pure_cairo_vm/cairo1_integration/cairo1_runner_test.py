@@ -15,6 +15,7 @@ def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
         yield protostar
 
 
+# RUN THIS
 async def test_cairo_1_runner(protostar: ProtostarFixture, datadir: Path):
     testing_summary = await protostar.run_test_runner(
         datadir / "test_cairo1.cairo",
