@@ -84,6 +84,15 @@ class CairoSharedHintLocalFactory:
         expect_call_controller = ExpectCallController(
             cheatable_state=self._test_execution_state.cheatable_state,
         )
+        expect_events_controller = ExpectEventsController(
+            test_execution_state=self._test_execution_state,
+            cheatable_state=self._test_execution_state.cheatable_state,
+        )
+
+        self._test_finish_hook.on(expect_call_controller.assert_no_expected_calls_left)
+        self._test_finish_hook.on(
+            expect_events_controller.compare_expected_and_actual_results
+        )
 
         return [
             WarpHintLocal(block_info_controller=block_info_controller),
@@ -109,18 +118,9 @@ class CairoSharedHintLocalFactory:
             InvokeHintLocal(contracts_controller=contracts_controller),
             StoreHintLocal(storage_controller=storage_controller),
             LoadHintLocal(storage_controller=storage_controller),
-            ExpectEventsHintLocal(
-                controller=ExpectEventsController(
-                    test_execution_state=self._test_execution_state,
-                    cheatable_state=self._test_execution_state.cheatable_state,
-                ),
-                test_finish_hook=self._test_finish_hook,
-            ),
+            ExpectEventsHintLocal(controller=expect_events_controller),
             MockCallHintLocal(controller=contracts_controller),
-            ExpectCallHintLocal(
-                controller=expect_call_controller,
-                test_finish_hook=self._test_finish_hook,
-            ),
+            ExpectCallHintLocal(controller=expect_call_controller),
             AssertExpectCallHintLocal(controller=expect_call_controller),
         ]
 
