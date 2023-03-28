@@ -93,7 +93,11 @@ def compile_protostar_sierra_to_casm(
 def handle_bindings_errors(binding_name: str):
     try:
         yield
+    except RuntimeError as ex:
+        raise CairoBindingException(
+            message=f"A runtime error occurred in binding {binding_name}: {str(ex)}"
+        ) from ex
     except BaseException as ex:
         raise CairoBindingException(
-            message=f"An error occurred in binding {binding_name}: {str(ex)}"
+            message=f"A unexpected type of error occurred in binding {binding_name}: {str(ex)}"
         ) from ex
