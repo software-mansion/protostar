@@ -3,7 +3,11 @@ import copy
 from dataclasses import dataclass
 from typing import List, Optional, cast, Tuple
 
-from starkware.starknet.business_logic.execution.objects import CallType, CallInfo, ExecutionResourcesManager
+from starkware.starknet.business_logic.execution.objects import (
+    CallType,
+    CallInfo,
+    ExecutionResourcesManager,
+)
 from starkware.starknet.business_logic.execution.objects import Event as StarknetEvent
 from starkware.starknet.business_logic.state.state_api import SyncState
 from starkware.starknet.business_logic.transaction.objects import InternalDeclare
