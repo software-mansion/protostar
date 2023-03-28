@@ -130,9 +130,6 @@ jobs:
       - name: Build
         run: |
           poetry run poe build
-      - name: Debug disk space
-        run: |
-          df -h
       - name: E2E tests
         run: |
           poetry run poe test_e2e
