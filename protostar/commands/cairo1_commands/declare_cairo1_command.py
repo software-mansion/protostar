@@ -72,8 +72,7 @@ class DeclareCairo1Command(ProtostarCommand):
             ProtostarArgument(
                 name="compiled-class-hash",
                 description="A compiled_class_hash of the contract.",
-                type="str",
-                is_positional=True,
+                type="class_hash",
                 is_required=True,
             ),
             TOKEN_ARG,
