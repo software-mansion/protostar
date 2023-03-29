@@ -230,9 +230,9 @@ def test_declaring_cairo1_contract(
     set_private_key_env_var: SetPrivateKeyEnvVarFixture,
     devnet_account: DevnetAccount,
 ):
-    contract_path = datadir / "minimal_contract_compiled.json"
-    compiled_class_hash = (
-        0x56B935FA8AF97EC603A96A3E1870CA193DA4CF08B8DA3F12E023E67A82B5A7E
+    copy_file(
+        src=str(datadir / "hello_starknet.cairo"),
+        dst="./src/main.cairo",
     )
 
     with set_private_key_env_var(devnet_account.private_key):
@@ -240,9 +240,7 @@ def test_declaring_cairo1_contract(
             [
                 "--no-color",
                 "declare-cairo1",
-                str(contract_path),
-                "--compiled-class-hash",
-                str(compiled_class_hash),
+                "main",
                 "--gateway-url",
                 devnet_gateway_url,
                 "--account-address",
