@@ -123,6 +123,52 @@ Custom signer class module path.
 Used by whitelisted users for deploying contracts in Alpha MainNet.
 #### `--wait-for-acceptance`
 Waits for transaction to be accepted on chain.
+### `declare-cairo1`
+Sends a declare transaction to Starknet.
+#### `contract PATH`
+Required.
+
+Path to compiled contract.
+#### `--account-address ADDRESS`
+Required.
+
+Account address in hex (prefixed with '0x') or decimal representation.
+#### `--block-explorer BLOCK_EXPLORER`
+Generated links will point to that block explorer. Available values:
+- starkscan
+- viewblock
+- voyager
+#### `--chain-id INT`
+The chain id. It is required unless `--network` is provided.
+#### `--compiled-class-hash CLASS_HASH`
+Required.
+
+A compiled_class_hash of the contract.
+#### `--gateway-url STRING`
+The URL of a StarkNet gateway. It is required unless `--network` is provided.
+#### `--json`
+Print machine-readable output in [NDJSON](https://github.com/ndjson/ndjson-spec) format.
+#### `--max-fee FEE`
+Required.
+
+The maximum fee that the sender is willing to pay for the transaction. Provide "auto" to auto estimate the fee.
+#### `-n` `--network STRING`
+The name of the StarkNet network.
+It is required unless `--gateway-url` is provided.
+
+Supported StarkNet networks:
+- `testnet`
+- `mainnet`
+- `testnet2`
+#### `--private-key-path PATH`
+Path to the file, which stores your private key for the account in hex (prefixed with '0x') or decimal representation.
+Can be used instead of PROTOSTAR_ACCOUNT_PRIVATE_KEY env variable.
+#### `--signer-class STRING`
+Custom signer class module path.
+#### `--token STRING`
+Used by whitelisted users for deploying contracts in Alpha MainNet.
+#### `--wait-for-acceptance`
+Waits for transaction to be accepted on chain.
 ### `deploy`
 ```shell
 protostar deploy 0x4221deadbeef123 --network testnet
