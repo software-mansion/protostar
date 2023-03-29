@@ -125,10 +125,10 @@ Used by whitelisted users for deploying contracts in Alpha MainNet.
 Waits for transaction to be accepted on chain.
 ### `declare-cairo1`
 Sends a declare transaction to Starknet.
-#### `contract PATH`
+#### `contract STRING`
 Required.
 
-Path to compiled contract.
+Name of the contract defined in the protostar.toml
 #### `--account-address ADDRESS`
 Required.
 
@@ -140,10 +140,6 @@ Generated links will point to that block explorer. Available values:
 - voyager
 #### `--chain-id INT`
 The chain id. It is required unless `--network` is provided.
-#### `--compiled-class-hash CLASS_HASH`
-Required.
-
-A compiled_class_hash of the contract.
 #### `--gateway-url STRING`
 The URL of a StarkNet gateway. It is required unless `--network` is provided.
 #### `--json`

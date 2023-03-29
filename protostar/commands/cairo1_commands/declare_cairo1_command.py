@@ -66,7 +66,7 @@ class DeclareCairo1Command(ProtostarCommand):
             BLOCK_EXPLORER_ARG,
             ProtostarArgument(
                 name="contract",
-                description="Name of the contract declared in protostar.toml",
+                description="Name of the contract defined in the protostar.toml",
                 type="str",
                 is_positional=True,
                 is_required=True,
