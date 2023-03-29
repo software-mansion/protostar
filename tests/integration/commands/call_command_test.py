@@ -300,7 +300,7 @@ async def test_calling_through_proxy(
         shutil.copy(
             protostar.project_root_path / "build" / "main_abi.json", contract_abi_path
         )
-        # This is a workaround for the bug with protostar.toml not being updated in commands after contract creation
+        # TODO (1689): Workaround for the bug with config not being updated in commands after contract creation
         protostar.create_files(
             {"src/main.cairo": Path(__file__).parent / "proxy.cairo"}
         )
