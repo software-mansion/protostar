@@ -51,11 +51,10 @@ def read_scarb_metadata(scarb_toml_path: Path) -> Dict:
     try:
         return json.loads(result)
     except json.JSONDecodeError as ex:
-        raise ScarbMetadataFetchException("Failed to decode metadata json.")
+        raise ScarbMetadataFetchException("Failed to decode metadata json.") from ex
 
 
 def maybe_fetch_linked_libraries(project_root_path: Path) -> Optional[List[str]]:
-
     if not has_scarb_toml(project_root_path):
         logging.info(
             "Scarb.toml not found, using only packages provided by the argument."
@@ -84,6 +83,6 @@ def maybe_fetch_linked_libraries(project_root_path: Path) -> Optional[List[str]]
             paths.append(package["source_path"])
 
     except (IndexError, KeyError) as ex:
-        raise ScarbMetadataFetchException("Error parsing metadata:\n" + str(ex))
+        raise ScarbMetadataFetchException("Error parsing metadata:\n" + str(ex)) from ex
 
     return paths

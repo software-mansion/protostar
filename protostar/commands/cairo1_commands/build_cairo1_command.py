@@ -81,7 +81,6 @@ class BuildCairo1Command(ProtostarCommand):
         relative_cairo_path: Optional[list[Path]] = None,
         target_contract_name: str = "",
     ) -> None:
-
         cairo_path = relative_cairo_path or []
 
         libraries = maybe_fetch_linked_libraries(self._project_root_path)
