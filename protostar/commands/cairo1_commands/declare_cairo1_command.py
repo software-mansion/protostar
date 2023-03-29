@@ -1,5 +1,4 @@
 from argparse import Namespace
-from pathlib import Path
 from typing import Optional, Any
 
 from starknet_py.net.gateway_client import GatewayClient
@@ -23,6 +22,7 @@ from protostar.cli.common_arguments import (
 )
 
 from protostar.commands.declare.declare_messages import SuccessfulDeclareMessage
+from protostar.compiler import ProjectCompiler
 from protostar.starknet import Address
 from protostar.starknet_gateway import (
     SuccessfulDeclareResponse,
@@ -35,11 +35,13 @@ from protostar.starknet_gateway import (
 class DeclareCairo1Command(ProtostarCommand):
     def __init__(
         self,
+        project_compiler: ProjectCompiler,
         gateway_facade_factory: GatewayFacadeFactory,
         messenger_factory: MessengerFactory,
     ):
         self._gateway_facade_factory = gateway_facade_factory
         self._messenger_factory = messenger_factory
+        self._project_compiler = project_compiler
 
     @property
     def name(self) -> str:
@@ -64,15 +66,9 @@ class DeclareCairo1Command(ProtostarCommand):
             BLOCK_EXPLORER_ARG,
             ProtostarArgument(
                 name="contract",
-                description="Path to compiled contract.",
-                type="path",
+                description="Name of the contract declared in protostar.toml",
+                type="str",
                 is_positional=True,
-                is_required=True,
-            ),
-            ProtostarArgument(
-                name="compiled-class-hash",
-                description="A compiled_class_hash of the contract.",
-                type="class_hash",
                 is_required=True,
             ),
             TOKEN_ARG,
@@ -83,7 +79,7 @@ class DeclareCairo1Command(ProtostarCommand):
     async def run(self, args: Namespace) -> Any:
         write = self._messenger_factory.from_args(args)
 
-        assert isinstance(args.contract, Path)
+        assert isinstance(args.contract, str)
         assert args.gateway_url is None or isinstance(args.gateway_url, str)
         assert args.network is None or isinstance(args.network, str)
         assert args.token is None or isinstance(args.token, str)
@@ -99,9 +95,21 @@ class DeclareCairo1Command(ProtostarCommand):
             network=network_config.network_name,
         )
 
+        contract_name = args.contract
+        contract_sierra = (
+            self._project_compiler.compile_contract_to_sierra_from_contract_name(
+                contract_name
+            )
+        )
+        contract_casm = (
+            self._project_compiler.compile_contract_to_casm_from_contract_name(
+                contract_name
+            )
+        )
+
         response = await self.declare(
-            compiled_contract_path=args.contract,
-            compiled_class_hash=args.compiled_class_hash,
+            compiled_contract_sierra=contract_sierra,
+            compiled_contract_casm=contract_casm,
             signer=signer,
             account_address=args.account_address,
             gateway_client=gateway_client,
@@ -124,8 +132,8 @@ class DeclareCairo1Command(ProtostarCommand):
 
     async def declare(
         self,
-        compiled_contract_path: Path,
-        compiled_class_hash: int,
+        compiled_contract_sierra: str,
+        compiled_contract_casm: str,
         max_fee: Fee,
         signer: BaseSigner,
         gateway_client: GatewayClient,
@@ -134,9 +142,9 @@ class DeclareCairo1Command(ProtostarCommand):
         wait_for_acceptance: bool = False,
     ) -> SuccessfulDeclareResponse:
         gateway_facade = self._gateway_facade_factory.create(gateway_client)
-        return await gateway_facade.declare(
-            compiled_contract_path=compiled_contract_path,
-            compiled_class_hash=compiled_class_hash,
+        return await gateway_facade.declare_cairo1(
+            compiled_contract_sierra=compiled_contract_sierra,
+            compiled_contract_casm=compiled_contract_casm,
             signer=signer,
             account_address=account_address,
             wait_for_acceptance=wait_for_acceptance,

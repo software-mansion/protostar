@@ -37,7 +37,11 @@ from protostar.commands.init.project_creator import (
     AdaptedProjectCreator,
     NewProjectCreator,
 )
-from protostar.compiler import ProjectCairoPathBuilder, Cairo0ProjectCompiler
+from protostar.compiler import (
+    ProjectCairoPathBuilder,
+    Cairo0ProjectCompiler,
+    ProjectCompiler,
+)
 from protostar.configuration_file import (
     ConfigurationFileFactory,
     ConfigurationFileV1,
@@ -97,9 +101,14 @@ def build_di_container(
         project_root_path=project_root_path,
     )
 
-    project_compiler = Cairo0ProjectCompiler(
+    cairo0_project_compiler = Cairo0ProjectCompiler(
         project_root_path=project_root_path,
         project_cairo_path_builder=project_cairo_path_builder,
+        configuration_file=configuration_file,
+    )
+
+    project_compiler = ProjectCompiler(
+        project_root_path=project_root_path,
         configuration_file=configuration_file,
     )
 
@@ -162,11 +171,11 @@ def build_di_container(
             new_project_creator=new_project_creator,
         ),
         BuildCommand(
-            project_compiler=project_compiler,
+            project_compiler=cairo0_project_compiler,
             messenger_factory=messenger_factory,
         ),
         BuildCairo1Command(
-            configuration_file=project_compiler.configuration_file,
+            configuration_file=cairo0_project_compiler.configuration_file,
             project_root_path=project_root_path,
         ),
         InstallCommand(
@@ -215,6 +224,7 @@ def build_di_container(
             messenger_factory=messenger_factory,
         ),
         DeclareCairo1Command(
+            project_compiler=project_compiler,
             gateway_facade_factory=gateway_facade_factory,
             messenger_factory=messenger_factory,
         ),
