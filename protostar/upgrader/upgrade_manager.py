@@ -115,6 +115,7 @@ class UpgradeManager:
                 protostar_dir_path=protostar_dir_path,
                 tarball_path=tarball_path,
             )
+        return False
 
     def _handle_error(
         self,
