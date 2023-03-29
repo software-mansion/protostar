@@ -70,7 +70,6 @@ FAULTY_CLASS_HASH = to_bytes(
 @dataclass(frozen=True)
 class ContractProfile:
     contract_callstack: list[ContractFilename]
-    # entry_point: ContractEntryPoint
     profile: RuntimeProfile
 
 
