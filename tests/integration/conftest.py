@@ -136,7 +136,7 @@ class CreateProtostarProjectFixture(Protocol):
         ...
 
 
-@pytest.fixture(name="create_protostar_project", scope="module")
+@pytest.fixture(name="create_protostar_project")
 def create_protostar_project_fixture(
     session_mocker: MockerFixture,
     tmp_path_factory: ProtostarTmpPathFactory,
@@ -172,7 +172,7 @@ def create_protostar_project_fixture(
 GetAbiFromContractFixture = Callable[[str], AbiType]
 
 
-@pytest.fixture(name="get_abi_from_contract", scope="module")
+@pytest.fixture(name="get_abi_from_contract")
 def get_abi_from_contract_fixture(
     create_protostar_project: CreateProtostarProjectFixture,
 ) -> GetAbiFromContractFixture:

@@ -187,7 +187,7 @@ def devnet_fixture(
 ProtostarTmpPathFactory = Callable[[], Path]
 
 
-@pytest.fixture(name="tmp_path_factory", scope="function")
+@pytest.fixture(name="tmp_path_factory")
 def protostar_tmpdir_factory_fixture(
     tmp_path_factory: TempPathFactory,
 ) -> Generator[ProtostarTmpPathFactory, None, None]:
@@ -208,7 +208,7 @@ def protostar_tmpdir_factory_fixture(
         shutil.rmtree(directory)
 
 
-@pytest.fixture(name="tmp_path", scope="function")
+@pytest.fixture(name="tmp_path")
 def protostar_tmp_path_fixture(tmp_path_factory: ProtostarTmpPathFactory):
     return tmp_path_factory()
 
