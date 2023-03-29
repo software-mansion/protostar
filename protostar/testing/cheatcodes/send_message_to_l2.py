@@ -4,6 +4,7 @@ from starkware.starknet.business_logic.execution.execute_entry_point import (
     ExecuteEntryPoint,
 )
 from starkware.starknet.business_logic.execution.objects import CallType
+from starkware.starknet.definitions.constants import GasCost
 from starkware.starknet.public.abi import get_selector_from_name, AbiType
 from starkware.starknet.services.api.contract_class.contract_class import (
     EntryPointType,
@@ -87,6 +88,6 @@ class SendMessageToL2Cheatcode(Cheatcode):
                 entry_point_type=EntryPointType.L1_HANDLER,
                 call_type=CallType.DELEGATE,
                 class_hash=class_hash,
-                initial_gas=10**10,
+                initial_gas=GasCost.INITIAL.value,
             )
         )

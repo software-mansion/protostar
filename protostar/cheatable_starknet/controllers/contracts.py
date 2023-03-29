@@ -6,6 +6,7 @@ from typing import List, Optional, cast
 from starkware.starknet.business_logic.execution.objects import CallType
 from starkware.starknet.business_logic.execution.objects import Event as StarknetEvent
 from starkware.starknet.business_logic.transaction.objects import InternalDeclare
+from starkware.starknet.definitions.constants import GasCost
 from starkware.starknet.public.abi import AbiType, CONSTRUCTOR_ENTRY_POINT_SELECTOR
 from starkware.starknet.services.api.gateway.transaction import (
     DEFAULT_DECLARE_SENDER_ADDRESS,
@@ -210,7 +211,7 @@ class ContractsController:
                 entry_point_type=EntryPointType.CONSTRUCTOR,
                 call_type=CallType.DELEGATE,
                 class_hash=class_hash,
-                initial_gas=100000000000000000000000,
+                initial_gas=GasCost.INITIAL.value,
             ).execute_for_testing(
                 state=self.cheatable_state,
                 general_config=StarknetGeneralConfig(),

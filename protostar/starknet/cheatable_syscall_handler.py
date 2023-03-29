@@ -11,6 +11,7 @@ from starkware.starknet.core.os.contract_address.contract_address import (
     calculate_contract_address_from_hash,
 )
 from starkware.starknet.core.os.syscall_handler import DeprecatedBlSyscallHandler
+from starkware.starknet.definitions.constants import GasCost
 from starkware.starknet.security.secure_hints import HintsWhitelist
 from starkware.starknet.services.api.contract_class.contract_class import EntryPointType
 
@@ -153,7 +154,7 @@ class CheatableSysCallHandler(DeprecatedBlSyscallHandler):
             entry_point_type=entry_point_type,
             calldata=calldata,
             caller_address=caller_address,
-            initial_gas=10**10,
+            initial_gas=GasCost.INITIAL.value,
         )
 
         return self.execute_entry_point(call=call)

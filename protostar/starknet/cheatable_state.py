@@ -14,6 +14,7 @@ from starkware.starknet.business_logic.fact_state.state import (
 )
 from starkware.starknet.business_logic.state.state_api_objects import BlockInfo
 from starkware.starknet.definitions import constants
+from starkware.starknet.definitions.constants import GasCost
 from starkware.starknet.definitions.general_config import StarknetGeneralConfig
 from starkware.starknet.public.abi import get_selector_from_name
 from starkware.starknet.services.api.contract_class.contract_class import EntryPointType
@@ -87,7 +88,7 @@ class CheatableStarknetState(StarknetState):
             entry_point_type=EntryPointType.EXTERNAL,
             calldata=calldata,
             caller_address=caller_address,
-            initial_gas=10**10,
+            initial_gas=GasCost.INITIAL.value,
         )
         # endregion
 
