@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from contextlib import contextmanager
 
 import cairo_python_bindings
-from protostar.cairo.cairo_function_runner_facade import RUNNER_BUILTINS
+from protostar.cairo.cairo_function_runner_facade import RUNNER_BUILTINS_TITLE_CASE
 
 from .cairo_exceptions import CairoBindingException
 
@@ -21,14 +21,28 @@ class TestCollectorOutput:
     test_names: list[str]
 
 
-def compile_starknet_contract_from_path(
+def compile_starknet_contract_to_casm_from_path(
     input_path: Path,
     output_path: Optional[Path] = None,
     cairo_path: Optional[list[Path]] = None,
 ) -> Optional[str]:
     ensure_output_path(output_path=output_path)
-    with handle_bindings_errors("compile_starknet_contract_from_path"):
-        return cairo_python_bindings.compile_starknet_contract_from_path(  # pyright: ignore
+    with handle_bindings_errors("compile_starknet_contract_to_casm_from_path"):
+        return cairo_python_bindings.compile_starknet_contract_to_casm_from_path(  # pyright: ignore
+            str(input_path),
+            str(output_path) if output_path else None,
+            [str(path) for path in cairo_path] if cairo_path else None,
+        )
+
+
+def compile_starknet_contract_to_sierra_from_path(
+    input_path: Path,
+    output_path: Optional[Path] = None,
+    cairo_path: Optional[list[Path]] = None,
+) -> Optional[str]:
+    ensure_output_path(output_path=output_path)
+    with handle_bindings_errors("compile_starknet_contract_to_sierra_from_path"):
+        return cairo_python_bindings.compile_starknet_contract_to_sierra_from_path(  # pyright: ignore
             str(input_path),
             str(output_path) if output_path else None,
             [str(path) for path in cairo_path] if cairo_path else None,
@@ -46,7 +60,7 @@ def collect_tests(
             str(input_path),
             str(output_path) if output_path else None,
             [str(path) for path in cairo_path] if cairo_path else None,
-            RUNNER_BUILTINS,
+            RUNNER_BUILTINS_TITLE_CASE,
         )
         return TestCollectorOutput(sierra_output=output[0], test_names=output[1])
 

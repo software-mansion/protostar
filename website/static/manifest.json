@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json.schemastore.org/web-manifest-combined.json",
+  "name": "Protostar",
+  "short_name": "Protostar",
+  "background_color": "#fff",
+  "description": "StarkNet smart contract development toolchain.",
+  "dir": "auto",
+  "lang": "en",
+  "orientation": "any",
+  "start_url": "/protostar",
+  "theme_color": "#001a72",
+  "categories": ["books"],
+  "icons": [
+    {
+      "src": "/protostar/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "594x594",
+      "purpose": "any"
+    },
+    {
+      "src": "/protostar/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/protostar/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ]
+}

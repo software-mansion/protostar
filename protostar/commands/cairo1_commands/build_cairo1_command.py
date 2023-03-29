@@ -69,7 +69,7 @@ class BuildCairo1Command(ProtostarCommand):
             f"Multiple files found for contract {contract_name}, "
             f"only one file per contract is supported in cairo1!"
         )
-        cairo1.compile_starknet_contract_from_path(
+        cairo1.compile_starknet_contract_to_casm_from_path(
             input_path=contract_paths[0],
             cairo_path=cairo_path,
             output_path=output_dir / (contract_name + ".json"),
@@ -85,7 +85,7 @@ class BuildCairo1Command(ProtostarCommand):
         cairo_path = relative_cairo_path or []
 
         libraries = maybe_fetch_linked_libraries(self._project_root_path)
-        cairo_path += libraries
+        cairo_path += libraries or []
 
         if not output_dir.is_absolute():
             output_dir = self._project_root_path / output_dir
@@ -93,12 +93,12 @@ class BuildCairo1Command(ProtostarCommand):
             await self._build_contract(
                 contract_name=target_contract_name,
                 output_dir=output_dir,
-                cairo_path=cairo_path,
+                cairo_path=cairo_path,  # pyright: ignore
             )
             return
         for contract_name in self._configuration_file.get_contract_names():
             await self._build_contract(
                 contract_name=contract_name,
                 output_dir=output_dir,
-                cairo_path=cairo_path,
+                cairo_path=cairo_path,  # pyright: ignore
             )

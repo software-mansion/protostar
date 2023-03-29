@@ -1,12 +1,33 @@
 use array::ArrayTrait;
 
 #[test]
-fn test_deploy() {
+fn test_prepare() {
    let mut arr = ArrayTrait::new();
+   arr.append(101);
+   arr.append(202);
+   arr.append(303);
+   arr.append(405);
+   arr.append(508);
+   arr.append(613);
+   arr.append(721);
+   match prepare_tp(123, arr) {
+      Result::Ok(_) => (),
+      Result::Err(x) => {
+         let mut data = array_new::<felt>();
+         array_append::<felt>(ref data, x);
+         panic(data)
+      },
+   }
+}
+
+#[test]
+fn test_prepare_tp() {
+   let mut arr = ArrayTrait::new();
+   arr.append(3);
+   arr.append(2);
    arr.append(1);
-   arr.append(2);
-   match deploy(PreparedContract { contract_address: 123, class_hash: 234, constructor_calldata: arr }) {
-      Result::Ok(deployed_contract_address) => (),
+   match prepare_tp(123, arr) {
+      Result::Ok(_) => (),
       Result::Err(x) => {
          let mut data = array_new::<felt>();
          array_append::<felt>(ref data, x);
@@ -16,26 +37,10 @@ fn test_deploy() {
 }
 
 #[test]
-fn test_deploy_no_args() {
+fn test_prepare_no_args() {
    let mut arr = ArrayTrait::new();
-   match deploy(PreparedContract { contract_address: 123, class_hash: 234, constructor_calldata: arr }) {
-      Result::Ok(deployed_contract_address) => (),
-      Result::Err(x) => {
-         let mut data = array_new::<felt>();
-         array_append::<felt>(ref data, x);
-         panic(data)
-      },
-   }
-}
-
-#[test]
-fn test_deploy_tp() {
-   let mut arr = ArrayTrait::new();
-   arr.append(5);
-   arr.append(4);
-   arr.append(2);
-   match deploy_tp(123, 234, arr) {
-      Result::Ok(deployed_contract_address) => (),
+   match prepare_tp(123, arr) {
+      Result::Ok(_) => (),
       Result::Err(x) => {
          let mut data = array_new::<felt>();
          array_append::<felt>(ref data, x);

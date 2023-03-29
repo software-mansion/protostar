@@ -1,14 +1,11 @@
 from typing import Optional, Callable, Any
 from pathlib import Path
 
-from starkware.cairo.lang.vm.memory_dict import MemoryDict
-
 import protostar.cairo.cairo_bindings as cairo1
 from protostar.cairo.cairo1_test_suite_parser import (
     ProtostarCasm,
 )
 from protostar.cairo.cairo_function_runner_facade import CairoRunnerFacade
-from protostar.starknet.data_transformer import CairoData
 
 
 def get_mock_for_lib_func(
@@ -18,13 +15,27 @@ def get_mock_for_lib_func(
     test_case_name: str,
     args_validator: Optional[Callable] = None,
 ):
-    if lib_func_name == "declare":
+    if lib_func_name in ["declare", "declare_cairo0"]:
         ok = type("ok", (object,), {"class_hash": 0})()
         return_value = type(
             "return_value", (object,), {"err_code": err_code, "ok": ok}
         )()
-    elif lib_func_name == "deploy":
+    elif lib_func_name == "deploy_tp":
         ok = type("ok", (object,), {"deployed_contract_address": 0})()
+        return_value = type(
+            "return_value", (object,), {"err_code": err_code, "ok": ok}
+        )()
+    elif lib_func_name == "prepare_tp":
+        prepared_contract = type(
+            "prepared_contract",
+            (object,),
+            {
+                "constructor_calldata": [],
+                "contract_address": 0,
+                "return_class_hash": 0,
+            },
+        )()
+        ok = type("ok", (object,), {"prepared_contract": prepared_contract})()
         return_value = type(
             "return_value", (object,), {"err_code": err_code, "ok": ok}
         )()
@@ -35,7 +46,6 @@ def get_mock_for_lib_func(
         if args_validator:
             assert cairo_runner_facade.current_runner
             args_validator(
-                cairo_runner_facade.current_runner.memory,
                 test_case_name,
                 *args,
                 **kwargs,
@@ -83,6 +93,10 @@ def test_declare(datadir: Path):
     check_library_function("declare", datadir / "declare_test.cairo")
 
 
+def test_declare_cairo0(datadir: Path):
+    check_library_function("declare_cairo0", datadir / "declare_cairo0_test.cairo")
+
+
 def test_start_prank(datadir: Path):
     check_library_function("start_prank", datadir / "start_prank_test.cairo")
 
@@ -96,7 +110,21 @@ def test_warp(datadir: Path):
 
 
 def test_deploy(datadir: Path):
-    check_library_function("deploy", datadir / "deploy_test.cairo")
+    expected_calldatas = {
+        "test_deploy": [1, 2],
+        "test_deploy_no_args": [],
+        "test_deploy_tp": [5, 4, 2],
+    }
+
+    def _args_validator(test_case_name: str, *args: Any, **kwargs: Any):
+        assert not args
+        assert kwargs["contract_address"] == 123 and kwargs["class_hash"] == 234
+        expected_calldata = expected_calldatas[test_case_name.split("::")[-1]]
+        assert expected_calldata == kwargs["constructor_calldata"]
+
+    check_library_function(
+        "deploy_tp", datadir / "deploy_test.cairo", args_validator=_args_validator
+    )
 
 
 def test_invoke(datadir: Path):
@@ -105,23 +133,32 @@ def test_invoke(datadir: Path):
         "test_invoke_no_args": [],
     }
 
-    def _args_validator(
-        memory: MemoryDict, test_case_name: str, *args: Any, **kwargs: Any
-    ):
+    def _args_validator(test_case_name: str, *args: Any, **kwargs: Any):
         assert not args
-        contract_address = memory.data[kwargs["contract_address"][0]]
-        assert contract_address == 123
-        validate_calldata_arg(
-            start_name="calldata_start",
-            end_name="calldata_end",
-            memory=memory,
-            expected_calldata=expected_calldatas[test_case_name.split("::")[-1]],
-            *args,
-            **kwargs,
-        )
+        assert kwargs["contract_address"] == 123
+        expected_calldata = expected_calldatas[test_case_name.split("::")[-1]]
+        assert expected_calldata == kwargs["calldata"]
 
     check_library_function(
         "invoke", datadir / "invoke_test.cairo", args_validator=_args_validator
+    )
+
+
+def test_prepare(datadir: Path):
+    expected_calldatas = {
+        "test_prepare": [101, 202, 303, 405, 508, 613, 721],
+        "test_prepare_tp": [3, 2, 1],
+        "test_prepare_no_args": [],
+    }
+
+    def _args_validator(test_case_name: str, *args: Any, **kwargs: Any):
+        assert not args
+        assert kwargs["class_hash"] == 123
+        expected_calldata = expected_calldatas[test_case_name.split("::")[-1]]
+        assert expected_calldata == kwargs["calldata"]
+
+    check_library_function(
+        "prepare_tp", datadir / "prepare_test.cairo", args_validator=_args_validator
     )
 
 
@@ -131,40 +168,12 @@ def test_mock_call(datadir: Path):
         "test_mock_call_no_args": [],
     }
 
-    def _args_validator(
-        memory: MemoryDict, test_case_name: str, *args: Any, **kwargs: Any
-    ):
+    def _args_validator(test_case_name: str, *args: Any, **kwargs: Any):
         assert not args
-        contract_address = memory.data[kwargs["contract_address"][0]]
-        assert contract_address == 123
-        validate_calldata_arg(
-            start_name="response_start",
-            end_name="response_end",
-            memory=memory,
-            expected_calldata=expected_calldatas[test_case_name.split("::")[-1]],
-            *args,
-            **kwargs,
-        )
+        assert kwargs["contract_address"] == 123
+        expected_calldata = expected_calldatas[test_case_name.split("::")[-1]]
+        assert expected_calldata == kwargs["response"]
 
     check_library_function(
         "mock_call", datadir / "mock_call_test.cairo", args_validator=_args_validator
     )
-
-
-def validate_calldata_arg(
-    start_name: str,
-    end_name: str,
-    memory: MemoryDict,
-    expected_calldata: CairoData,
-    *args: Any,
-    **kwargs: Any,
-):
-    assert not args
-    actual_calldata = []
-    calldata_start = memory.data[kwargs[start_name][0]]
-    calldata_end = memory.data[kwargs[end_name][0]]
-    iterator = calldata_start
-    while iterator != calldata_end:
-        actual_calldata.append(memory.data[iterator])
-        iterator = iterator + 1
-    assert actual_calldata == expected_calldata
