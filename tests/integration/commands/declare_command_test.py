@@ -1,5 +1,6 @@
 from argparse import Namespace
 from pathlib import Path
+from typing import Any
 from unittest.mock import MagicMock
 
 import pytest
@@ -9,6 +10,7 @@ from starknet_py.net.models import StarknetChainId
 from protostar.cli import MessengerFactory
 from protostar.cli.signable_command_util import PRIVATE_KEY_ENV_VAR_NAME
 from protostar.commands import DeclareCairo1Command
+from protostar.compiler import ProjectCompiler
 from protostar.io import log_color_provider
 from protostar.starknet import Address
 from protostar.starknet_gateway import FeeExceededMaxFeeException, GatewayFacadeFactory
@@ -43,7 +45,24 @@ async def test_declaring_cairo1_contract(
     #     input_path=datadir / "balance.cairo",
     #     output_path=contract_path
     # )
-    contract_path = datadir / "minimal_contract_compiled.json"
+    sierra_contract = (datadir / "minimal_contract_compiled.json").read_text("utf-8")
+    casm_contract = (datadir / "minimal_contract_compiled.casm").read_text("utf-8")
+
+    class MockedProjectCompiler(ProjectCompiler):
+        def __init__(self):
+            super().__init__(MagicMock(), MagicMock())
+
+        def compile_contract_to_sierra_from_contract_name(
+            self, *args: Any, **kwargs: Any
+        ):
+            # pylint: disable=unused-argument
+            return sierra_contract
+
+        def compile_contract_to_casm_from_contract_name(
+            self, *args: Any, **kwargs: Any
+        ):
+            # pylint: disable=unused-argument
+            return casm_contract
 
     declare = DeclareCairo1Command(
         gateway_facade_factory=GatewayFacadeFactory(Path("")),
@@ -51,12 +70,13 @@ async def test_declaring_cairo1_contract(
             log_color_provider=log_color_provider,
             activity_indicator=MagicMock(),
         ),
+        project_compiler=MockedProjectCompiler(),
     )
 
     args = Namespace(
         chain_id=StarknetChainId.TESTNET,
         account_address=devnet_account.address,
-        contract=contract_path,
+        contract="minimal",
         compiled_class_hash=0x56B935FA8AF97EC603A96A3E1870CA193DA4CF08B8DA3F12E023E67A82B5A7E,
         gateway_url=devnet_gateway_url,
         max_fee=int(1e16),
