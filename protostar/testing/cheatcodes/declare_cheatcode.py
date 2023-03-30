@@ -3,14 +3,13 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Protocol
 
-from starkware.python.utils import from_bytes
 from starkware.starknet.business_logic.transaction.objects import InternalDeclare
 from starkware.starknet.public.abi import AbiType
 from starkware.starknet.services.api.gateway.transaction import (
     DEFAULT_DECLARE_SENDER_ADDRESS,
 )
 from starkware.starknet.testing.contract import DeclaredClass
-from starkware.starknet.testing.contract_utils import EventManager, get_abi
+from starkware.starknet.testing.contract_utils import EventManager
 
 from protostar.compiler import ProjectCompiler
 from protostar.starknet import Cheatcode, KeywordOnlyArgumentCheatcodeException
@@ -73,7 +72,7 @@ class DeclareCheatcode(Cheatcode):
             self._project_compiler.compile_contract_from_contract_identifier(contract)
         )
 
-        tx = InternalDeclare.create(
+        tx = InternalDeclare.create_deprecated(
             contract_class=contract_class,
             chain_id=self.general_config.chain_id.value,
             sender_address=DEFAULT_DECLARE_SENDER_ADDRESS,
@@ -88,15 +87,15 @@ class DeclareCheatcode(Cheatcode):
                 state=state_copy, general_config=self.general_config
             )
 
-        abi = get_abi(contract_class=contract_class)
-        self._add_event_abi_to_state(abi)
+        assert contract_class.abi is not None
+        self._add_event_abi_to_state(contract_class.abi)
         class_hash = tx.class_hash
         assert class_hash is not None
         await self.cheatable_state.set_contract_class(class_hash, contract_class)
 
         return DeclaredClass(
-            class_hash=from_bytes(class_hash),
-            abi=get_abi(contract_class=contract_class),
+            class_hash=class_hash,
+            abi=contract_class.abi,
         )
 
     def _add_event_abi_to_state(self, abi: AbiType):

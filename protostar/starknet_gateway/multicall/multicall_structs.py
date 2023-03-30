@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Optional, Union
+from typing import Union
 
 from protostar.starknet import Address, Selector
 from protostar.starknet_gateway.type import Fee
@@ -51,7 +51,7 @@ class SignedMulticallTransaction:
     contract_address: Address
     calldata: list[int]
     max_fee: int
-    nonce: Optional[int]
+    nonce: int
     signature: list[int]
 
 

@@ -4,8 +4,10 @@ from typing import Any, List, Optional
 from starkware.starknet.testing.objects import StarknetCallInfo
 from starkware.starkware_utils.error_handling import StarkException
 from starkware.starknet.testing.contract import StarknetContractFunctionInvocation
-from starkware.starknet.business_logic.fact_state.state import ExecutionResourcesManager
-from starkware.starknet.business_logic.execution.objects import CallInfo
+from starkware.starknet.business_logic.execution.objects import (
+    CallInfo,
+    ExecutionResourcesManager,
+)
 
 from protostar.starknet.abi import has_function_parameters
 from protostar.starknet.cheatcode import Cheatcode

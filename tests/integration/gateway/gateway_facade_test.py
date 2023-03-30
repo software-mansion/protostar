@@ -2,8 +2,9 @@ from pathlib import Path
 from typing import cast
 
 import pytest
-from starknet_py.net.client_models import Declare, TransactionStatus
+from starknet_py.net.client_models import TransactionStatus
 from starknet_py.net.gateway_client import GatewayClient
+from starknet_py.net.models.transaction import Declare
 
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet.contract_abi import ContractAbi

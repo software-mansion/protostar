@@ -29,7 +29,7 @@ from protostar.starknet_gateway import (
     AccountManager,
     DataTransformerPolicy,
     AbiResolver,
-    Account,
+    AccountConfig,
 )
 from protostar.starknet_gateway.block_explorer.block_explorer import BlockExplorer
 from protostar.starknet_gateway.invoke import InvokeUseCase, InvokeInput, InvokeOutput
@@ -119,7 +119,7 @@ class InvokeCommand(ProtostarCommand):
     ) -> InvokeOutput:
         gateway_facade = self._gateway_facade_factory.create(gateway_client)
         account_manager = AccountManager(
-            account=Account(
+            account_config=AccountConfig(
                 address=account_address,
                 signer=signer,
             ),
