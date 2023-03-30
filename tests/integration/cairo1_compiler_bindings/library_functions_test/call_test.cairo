@@ -17,8 +17,8 @@ fn test_call() {
         ()
       },
       Result::Err(x) => {
-         let mut data = array_new::<felt>();
-         array_append::<felt>(ref data, x);
+         let mut data = ArrayTrait::new();
+         data.append(x);
          panic(data)
       },
    }
@@ -33,8 +33,8 @@ fn test_call_no_args() {
         ()
       },
       Result::Err(x) => {
-         let mut data = array_new::<felt>();
-         array_append::<felt>(ref data, x);
+         let mut data = ArrayTrait::new();
+         data.append(x);
          panic(data)
       },
    }

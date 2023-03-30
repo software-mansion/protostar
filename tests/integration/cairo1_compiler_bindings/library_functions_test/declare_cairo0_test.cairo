@@ -1,3 +1,5 @@
+use array::ArrayTrait;
+
 #[test]
 fn test_declare_cairo0() {
    match declare_cairo0('test') {
@@ -6,8 +8,8 @@ fn test_declare_cairo0() {
         ()
       },
       Result::Err(x) => {
-         let mut data = array_new::<felt>();
-         array_append::<felt>(ref data, x);
+         let mut data = ArrayTrait::new();
+         data.append(x);
          panic(data)
       },
    }

@@ -5,14 +5,14 @@ fn foo(); }
 
 #[contract]
 mod TestContract {
-    struct Storage { my_storage_var: felt, }
+    struct Storage { my_storage_var: felt252, }
 
-    fn internal_func() -> felt {
+    fn internal_func() -> felt252 {
         1
     }
 
     #[external]
-    fn test(ref arg: felt, arg1: felt, arg2: felt) -> felt {
+    fn test(ref arg: felt252, arg1: felt252, arg2: felt252) -> felt252 {
         let x = my_storage_var::read();
         my_storage_var::write(x + 1);
         x + internal_func()

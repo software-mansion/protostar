@@ -13,8 +13,8 @@ fn test_invoke() {
    match invoke(123, 'test', arr) {
       Result::Ok(class_hash) => (),
       Result::Err(x) => {
-         let mut data = array_new::<felt>();
-         array_append::<felt>(ref data, x);
+         let mut data = ArrayTrait::new();
+         data.append(x);
          panic(data)
       },
    }
@@ -26,8 +26,8 @@ fn test_invoke_no_args() {
    match invoke(123, 'test', arr) {
       Result::Ok(class_hash) => (),
       Result::Err(x) => {
-         let mut data = array_new::<felt>();
-         array_append::<felt>(ref data, x);
+         let mut data = ArrayTrait::new();
+         data.append(x);
          panic(data)
       },
    }

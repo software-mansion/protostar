@@ -1,3 +1,5 @@
+use array::ArrayTrait;
+
 #[test]
 fn test_declare() {
    match declare('test') {
@@ -6,8 +8,8 @@ fn test_declare() {
         ()
       },
       Result::Err(x) => {
-         let mut data = array_new::<felt>();
-         array_append::<felt>(ref data, x);
+         let mut data = ArrayTrait::new();
+         data.append(x);
          panic(data)
       },
    }
