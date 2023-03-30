@@ -5,8 +5,8 @@ fn test_declaring_contract(){
         assert(class_hash != 0, 'class_hash != 0');
       },
       Result::Err(x) => {
-         let mut data = array_new::<felt>();
-         array_append::<felt>(ref data, x);
+         let mut data = array_new::<felt252>();
+         array_append::<felt252>(ref data, x);
          panic(data)
       },
    }
@@ -19,8 +19,8 @@ fn test_failing_to_declare_contract(){
         assert(class_hash != 0, 'class_hash != 0');
       },
       Result::Err(x) => {
-         let mut data = array_new::<felt>();
-         array_append::<felt>(ref data, x);
+         let mut data = array_new::<felt252>();
+         array_append::<felt252>(ref data, x);
          panic(data)
       },
    }
@@ -33,8 +33,8 @@ fn test_declaring_broken_contract(){
         assert(class_hash != 0, 'class_hash != 0');
       },
       Result::Err(x) => {
-         let mut data = array_new::<felt>();
-         array_append::<felt>(ref data, x);
+         let mut data = array_new::<felt252>();
+         array_append::<felt252>(ref data, x);
          panic(data)
       },
    }

@@ -11,8 +11,8 @@ fn test_call() {
    match call(123, 'test', arr) {
       Result::Ok(return_data) => (),
       Result::Err(x) => {
-         let mut data = array_new::<felt>();
-         array_append::<felt>(ref data, x);
+         let mut data = array_new::<felt252>();
+         array_append::<felt252>(ref data, x);
          panic(data)
       },
    }
@@ -24,8 +24,8 @@ fn test_call_no_args() {
    match call(123, 'test', arr) {
       Result::Ok(return_data) => (),
       Result::Err(x) => {
-         let mut data = array_new::<felt>();
-         array_append::<felt>(ref data, x);
+         let mut data = array_new::<felt252>();
+         array_append::<felt252>(ref data, x);
          panic(data)
       },
    }

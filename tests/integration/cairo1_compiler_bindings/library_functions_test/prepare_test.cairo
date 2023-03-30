@@ -13,8 +13,8 @@ fn test_prepare() {
    match prepare_tp(123, arr) {
       Result::Ok(_) => (),
       Result::Err(x) => {
-         let mut data = array_new::<felt>();
-         array_append::<felt>(ref data, x);
+         let mut data = array_new::<felt252>();
+         array_append::<felt252>(ref data, x);
          panic(data)
       },
    }
@@ -29,8 +29,8 @@ fn test_prepare_tp() {
    match prepare_tp(123, arr) {
       Result::Ok(_) => (),
       Result::Err(x) => {
-         let mut data = array_new::<felt>();
-         array_append::<felt>(ref data, x);
+         let mut data = array_new::<felt252>();
+         array_append::<felt252>(ref data, x);
          panic(data)
       },
    }
@@ -42,8 +42,8 @@ fn test_prepare_no_args() {
    match prepare_tp(123, arr) {
       Result::Ok(_) => (),
       Result::Err(x) => {
-         let mut data = array_new::<felt>();
-         array_append::<felt>(ref data, x);
+         let mut data = array_new::<felt252>();
+         array_append::<felt252>(ref data, x);
          panic(data)
       },
    }

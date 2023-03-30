@@ -7,16 +7,16 @@ fn test_ok() {
 
 #[test]
 fn test_panic_single_value() {
-    let mut data = array_new::<felt>();
-    array_append::<felt>(ref data, 21);
+    let mut data = array_new::<felt252>();
+    array_append::<felt252>(ref data, 21);
     panic(data)
 }
 
 #[test]
 fn test_panic_multiple_values() {
-    let mut data = array_new::<felt>();
-    array_append::<felt>(ref data, 101);
-    array_append::<felt>(ref data, 102);
-    array_append::<felt>(ref data, 103);
+    let mut data = array_new::<felt252>();
+    array_append::<felt252>(ref data, 101);
+    array_append::<felt252>(ref data, 102);
+    array_append::<felt252>(ref data, 103);
     panic(data)
 }

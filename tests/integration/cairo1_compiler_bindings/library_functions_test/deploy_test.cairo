@@ -8,8 +8,8 @@ fn test_deploy() {
    match deploy(PreparedContract { contract_address: 123, class_hash: 234, constructor_calldata: arr }) {
       Result::Ok(deployed_contract_address) => (),
       Result::Err(x) => {
-         let mut data = array_new::<felt>();
-         array_append::<felt>(ref data, x);
+         let mut data = array_new::<felt252>();
+         array_append::<felt252>(ref data, x);
          panic(data)
       },
    }
@@ -21,8 +21,8 @@ fn test_deploy_no_args() {
    match deploy(PreparedContract { contract_address: 123, class_hash: 234, constructor_calldata: arr }) {
       Result::Ok(deployed_contract_address) => (),
       Result::Err(x) => {
-         let mut data = array_new::<felt>();
-         array_append::<felt>(ref data, x);
+         let mut data = array_new::<felt252>();
+         array_append::<felt252>(ref data, x);
          panic(data)
       },
    }
@@ -37,8 +37,8 @@ fn test_deploy_tp() {
    match deploy_tp(123, 234, arr) {
       Result::Ok(deployed_contract_address) => (),
       Result::Err(x) => {
-         let mut data = array_new::<felt>();
-         array_append::<felt>(ref data, x);
+         let mut data = array_new::<felt252>();
+         array_append::<felt252>(ref data, x);
          panic(data)
       },
    }

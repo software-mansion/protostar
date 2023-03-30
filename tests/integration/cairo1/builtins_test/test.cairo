@@ -7,7 +7,7 @@ fn use_bitwise() {
     bitwise(1_u128, 1_u128);
 }
 
-fn use_pedersen() -> felt {
+fn use_pedersen() -> felt252 {
     assert(1 == 1, 'simple check');
     pedersen(1, 2)
 }
@@ -36,7 +36,7 @@ fn test_pedersen_panic() {
 
 #[test]
 fn test_range_check() {
-    drop(integer::u128s_from_felt(2));
+    drop(integer::u128s_from_felt252(2));
     assert(1 == 1, 'simple check');
 }
 
