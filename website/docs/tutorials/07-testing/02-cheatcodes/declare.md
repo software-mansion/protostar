@@ -1,10 +1,11 @@
 # `declare`
 
-```cairo
-fn declare(contract: felt) -> Result::<felt, felt> nopanic;
+```python
+def declare(contract: str) -> DeclaredContract:
+
+class DeclaredContract:
+    class_hash: int
 ```
+Declares contract given a path relative to a Protostar project root.
 
-Declares a contract given a contract name defined the [protostar.toml](../../04-configuration-file.md) configuration
-file.
-
-- `contract` name of the contract as cairo shortstring (e.g. `declare('mycontract')`).
+- `contract` — A path to the contract's main `.cairo` source file.
