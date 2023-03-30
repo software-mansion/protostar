@@ -2,9 +2,6 @@ from dataclasses import replace
 from typing import Dict, List, Tuple
 
 import pytest
-from starkware.starknet.business_logic.execution.execute_entry_point import (
-    ContractEntryPoint,
-)
 from protostar.profiler.contract_profiler import Function, RuntimeProfile, Instruction
 from protostar.profiler.transaction_profiler import (
     build_global_functions,
@@ -20,6 +17,7 @@ from protostar.starknet.cheatable_execute_entry_point import (
     ContractFilename,
 )
 
+
 profile = RuntimeProfile(
     [Function("f1", "d", 1), Function("f2", "d", 2)],
     [],
@@ -33,8 +31,8 @@ profile = RuntimeProfile(
     [
         (
             [
-                ContractProfile(["a", "b"], ContractEntryPoint(0, 0), replace(profile)),
-                ContractProfile(["c", "b"], ContractEntryPoint(0, 0), replace(profile)),
+                ContractProfile(["a", "b"], replace(profile)),
+                ContractProfile(["c", "b"], replace(profile)),
             ],
             {
                 "b.f1": replace(profile.functions[0], id="b.f1"),
@@ -44,8 +42,8 @@ profile = RuntimeProfile(
         ([], {}),
         (
             [
-                ContractProfile(["a", "b"], ContractEntryPoint(0, 0), replace(profile)),
-                ContractProfile(["a", "c"], ContractEntryPoint(0, 0), replace(profile)),
+                ContractProfile(["a", "b"], replace(profile)),
+                ContractProfile(["a", "c"], replace(profile)),
             ],
             {
                 "b.f1": replace(profile.functions[0], id="b.f1"),
@@ -63,7 +61,6 @@ def test_build_global_functions(
 
 
 funct = Function("z", "z", 0)
-ep = ContractEntryPoint(0, 0)
 
 
 @pytest.mark.parametrize(
@@ -73,7 +70,6 @@ ep = ContractEntryPoint(0, 0)
             [
                 ContractProfile(
                     contract_callstack=["a"],
-                    entry_point=ep,
                     profile=RuntimeProfile(
                         functions=[],
                         instructions=[
@@ -86,7 +82,6 @@ ep = ContractEntryPoint(0, 0)
                 ),
                 ContractProfile(
                     contract_callstack=["b"],
-                    entry_point=ep,
                     profile=RuntimeProfile(
                         functions=[],
                         instructions=[
@@ -99,7 +94,6 @@ ep = ContractEntryPoint(0, 0)
                 ),
                 ContractProfile(
                     ["c"],
-                    ep,
                     RuntimeProfile(
                         functions=[],
                         instructions=[
@@ -132,8 +126,6 @@ glob_func = {
     "b.C": Function("C", "z", 0),
 }
 
-ep = ContractEntryPoint(0, 0)
-
 
 @pytest.mark.parametrize(
     "samples,result",
@@ -142,7 +134,6 @@ ep = ContractEntryPoint(0, 0)
             [
                 ContractProfile(
                     contract_callstack=["a"],
-                    entry_point=ep,
                     profile=RuntimeProfile(
                         functions=[],
                         instructions=[Instruction(1000, 0, glob_func["a.A"], 0)],
@@ -152,7 +143,6 @@ ep = ContractEntryPoint(0, 0)
                 ),
                 ContractProfile(
                     contract_callstack=["b"],
-                    entry_point=ep,
                     profile=RuntimeProfile(
                         functions=[],
                         instructions=[
@@ -165,7 +155,6 @@ ep = ContractEntryPoint(0, 0)
                 ),
                 ContractProfile(
                     contract_callstack=["a"],
-                    entry_point=ep,
                     profile=RuntimeProfile(
                         functions=[],
                         instructions=[

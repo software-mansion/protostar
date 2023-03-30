@@ -8,36 +8,67 @@ from protostar.cairo.cairo1_test_suite_parser import (
 from protostar.cairo.cairo_function_runner_facade import CairoRunnerFacade
 
 
+def extract_test_case_name(full_test_case_name: str):
+    return full_test_case_name.split("::")[-1]
+
+
 def get_mock_for_lib_func(
     lib_func_name: str,
     err_code: int,
     cairo_runner_facade: CairoRunnerFacade,
     test_case_name: str,
     args_validator: Optional[Callable] = None,
+    return_values_provider: Optional[Callable] = None,
 ):
     if lib_func_name in ["declare", "declare_cairo0"]:
-        ok = type("ok", (object,), {"class_hash": 0})()
+        assert return_values_provider
+        ok = type(
+            "ok",
+            (object,),
+            {"class_hash": return_values_provider(test_case_name)["class_hash"]},
+        )()
         return_value = type(
             "return_value", (object,), {"err_code": err_code, "ok": ok}
         )()
     elif lib_func_name == "deploy_tp":
-        ok = type("ok", (object,), {"deployed_contract_address": 123})()
+        assert return_values_provider
+        ok = type(
+            "ok",
+            (object,),
+            {
+                "deployed_contract_address": return_values_provider(test_case_name)[
+                    "deployed_contract_address"
+                ]
+            },
+        )()
         return_value = type(
             "return_value", (object,), {"err_code": err_code, "ok": ok}
         )()
     elif lib_func_name == "call":
-        ok = type("ok", (object,), {"return_data": [1, 2, 3, 4]})()
+        assert return_values_provider
+        ok = type(
+            "ok",
+            (object,),
+            {"return_data": return_values_provider(test_case_name)["return_data"]},
+        )()
         return_value = type(
             "return_value", (object,), {"err_code": err_code, "ok": ok}
         )()
     elif lib_func_name == "prepare_tp":
+        assert return_values_provider
         prepared_contract = type(
             "prepared_contract",
             (object,),
             {
-                "constructor_calldata": [],
-                "contract_address": 0,
-                "return_class_hash": 0,
+                "constructor_calldata": return_values_provider(test_case_name)[
+                    "constructor_calldata"
+                ],
+                "contract_address": return_values_provider(test_case_name)[
+                    "contract_address"
+                ],
+                "return_class_hash": return_values_provider(test_case_name)[
+                    "return_class_hash"
+                ],
             },
         )()
         ok = type("ok", (object,), {"prepared_contract": prepared_contract})()
@@ -61,7 +92,10 @@ def get_mock_for_lib_func(
 
 
 def check_library_function(
-    lib_func_name: str, cairo_test_path: Path, args_validator: Optional[Callable] = None
+    lib_func_name: str,
+    cairo_test_path: Path,
+    args_validator: Optional[Callable] = None,
+    return_values_provider: Optional[Callable] = None,
 ):
     test_collector_output = cairo1.collect_tests(input_path=cairo_test_path)
     assert test_collector_output.sierra_output
@@ -83,6 +117,7 @@ def check_library_function(
                         cairo_runner_facade=cairo_runner_facade,
                         test_case_name=test_case_name,
                         args_validator=args_validator,
+                        return_values_provider=return_values_provider,
                     ),
                 },
             )
@@ -95,11 +130,29 @@ def test_roll(datadir: Path):
 
 
 def test_declare(datadir: Path):
-    check_library_function("declare", datadir / "declare_test.cairo")
+    return_values = {"test_declare": {"class_hash": 123}}
+
+    def _return_values_provider(test_case_name: str):
+        return return_values[extract_test_case_name(test_case_name)]
+
+    check_library_function(
+        "declare",
+        datadir / "declare_test.cairo",
+        return_values_provider=_return_values_provider,
+    )
 
 
 def test_declare_cairo0(datadir: Path):
-    check_library_function("declare_cairo0", datadir / "declare_cairo0_test.cairo")
+    return_values = {"test_declare_cairo0": {"class_hash": 123}}
+
+    def _return_values_provider(test_case_name: str):
+        return return_values[extract_test_case_name(test_case_name)]
+
+    check_library_function(
+        "declare_cairo0",
+        datadir / "declare_cairo0_test.cairo",
+        return_values_provider=_return_values_provider,
+    )
 
 
 def test_start_prank(datadir: Path):
@@ -120,6 +173,11 @@ def test_deploy(datadir: Path):
         "test_deploy_no_args": [],
         "test_deploy_tp": [5, 4, 2],
     }
+    return_values = {
+        "test_deploy": {"deployed_contract_address": 123},
+        "test_deploy_no_args": {"deployed_contract_address": 4443},
+        "test_deploy_tp": {"deployed_contract_address": 0},
+    }
 
     def _args_validator(test_case_name: str, *args: Any, **kwargs: Any):
         assert not args
@@ -127,8 +185,14 @@ def test_deploy(datadir: Path):
         expected_calldata = expected_calldatas[test_case_name.split("::")[-1]]
         assert expected_calldata == kwargs["constructor_calldata"]
 
+    def _return_values_provider(test_case_name: str):
+        return return_values[extract_test_case_name(test_case_name)]
+
     check_library_function(
-        "deploy_tp", datadir / "deploy_test.cairo", args_validator=_args_validator
+        "deploy_tp",
+        datadir / "deploy_test.cairo",
+        args_validator=_args_validator,
+        return_values_provider=_return_values_provider,
     )
 
 
@@ -141,7 +205,7 @@ def test_invoke(datadir: Path):
     def _args_validator(test_case_name: str, *args: Any, **kwargs: Any):
         assert not args
         assert kwargs["contract_address"] == 123
-        expected_calldata = expected_calldatas[test_case_name.split("::")[-1]]
+        expected_calldata = expected_calldatas[extract_test_case_name(test_case_name)]
         assert expected_calldata == kwargs["calldata"]
 
     check_library_function(
@@ -151,19 +215,42 @@ def test_invoke(datadir: Path):
 
 def test_prepare(datadir: Path):
     expected_calldatas = {
-        "test_prepare": [101, 202, 303, 405, 508, 613, 721],
+        "test_prepare": [101, 202, 613, 721],
         "test_prepare_tp": [3, 2, 1],
         "test_prepare_no_args": [],
+    }
+    return_values = {
+        "test_prepare": {
+            "constructor_calldata": [101, 202, 613, 721],
+            "contract_address": 111,
+            "return_class_hash": 222,
+        },
+        "test_prepare_tp": {
+            "constructor_calldata": [3, 2, 1],
+            "contract_address": 0,
+            "return_class_hash": 444,
+        },
+        "test_prepare_no_args": {
+            "constructor_calldata": [],
+            "contract_address": 999,
+            "return_class_hash": 345,
+        },
     }
 
     def _args_validator(test_case_name: str, *args: Any, **kwargs: Any):
         assert not args
         assert kwargs["class_hash"] == 123
-        expected_calldata = expected_calldatas[test_case_name.split("::")[-1]]
+        expected_calldata = expected_calldatas[extract_test_case_name(test_case_name)]
         assert expected_calldata == kwargs["calldata"]
 
+    def _return_values_provider(test_case_name: str):
+        return return_values[extract_test_case_name(test_case_name)]
+
     check_library_function(
-        "prepare_tp", datadir / "prepare_test.cairo", args_validator=_args_validator
+        "prepare_tp",
+        datadir / "prepare_test.cairo",
+        args_validator=_args_validator,
+        return_values_provider=_return_values_provider,
     )
 
 
@@ -176,7 +263,7 @@ def test_mock_call(datadir: Path):
     def _args_validator(test_case_name: str, *args: Any, **kwargs: Any):
         assert not args
         assert kwargs["contract_address"] == 123
-        expected_calldata = expected_calldatas[test_case_name.split("::")[-1]]
+        expected_calldata = expected_calldatas[extract_test_case_name(test_case_name)]
         assert expected_calldata == kwargs["response"]
 
     check_library_function(
@@ -189,13 +276,23 @@ def test_call(datadir: Path):
         "test_call": [101, 613, 721, 508, 405],
         "test_call_no_args": [],
     }
+    return_values = {
+        "test_call": {"return_data": [3, 2, 5]},
+        "test_call_no_args": {"return_data": []},
+    }
 
     def _args_validator(test_case_name: str, *args: Any, **kwargs: Any):
         assert not args
         assert kwargs["contract_address"] == 123
-        expected_calldata = expected_calldatas[test_case_name.split("::")[-1]]
+        expected_calldata = expected_calldatas[extract_test_case_name(test_case_name)]
         assert expected_calldata == kwargs["calldata"]
 
+    def _return_values_provider(test_case_name: str):
+        return return_values[extract_test_case_name(test_case_name)]
+
     check_library_function(
-        "call", datadir / "call_test.cairo", args_validator=_args_validator
+        "call",
+        datadir / "call_test.cairo",
+        args_validator=_args_validator,
+        return_values_provider=_return_values_provider,
     )

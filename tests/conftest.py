@@ -10,10 +10,10 @@ from typing import ContextManager, List, Protocol, Union, Callable, Generator
 import pytest
 import requests
 from _pytest.tmpdir import TempPathFactory
-from starknet_py.net import AccountClient, KeyPair
+from starknet_py.net.account.account import Account
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
-from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
+from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner, KeyPair
 
 from protostar.cli.signable_command_util import PRIVATE_KEY_ENV_VAR_NAME
 from protostar.starknet import Address
@@ -162,19 +162,18 @@ def devnet_fixture(
         private_key=int(devnet_account.private_key, base=0),
         public_key=int(devnet_account.public_key, base=0),
     )
-    predeployed_account_client = AccountClient(
+    predeployed_account_client = Account(
         address=int(devnet_account.address),
         client=gateway_client,
         key_pair=key_pair,
         chain=StarknetChainId.TESTNET,
-        supported_tx_version=1,
     )
     faucet_contract = FaucetContract(
         devnet_gateway_url=devnet_gateway_url,
     )
     account_preparator = DevnetAccountPreparator(
         compiled_account_contract=account_with_validate_deploy_compiled_contract,
-        predeployed_account_client=predeployed_account_client,
+        predeployed_account=predeployed_account_client,
         faucet_contract=faucet_contract,
     )
     return DevnetFixture(

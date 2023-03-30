@@ -3,7 +3,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from starkware.starknet.services.api.contract_class import ContractClass
+from starkware.starknet.services.api.contract_class.contract_class import (
+    DeprecatedCompiledClass,
+)
 
 
 @dataclass
@@ -13,7 +15,7 @@ class CompiledContractWriterSaveResult:
 
 
 class CompiledContractWriter:
-    def __init__(self, contract: ContractClass, contract_name: str) -> None:
+    def __init__(self, contract: DeprecatedCompiledClass, contract_name: str) -> None:
         self._contract = contract
         self._contract_name = contract_name
 

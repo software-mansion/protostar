@@ -1,13 +1,15 @@
-from typing import Union, List, Optional, cast
+from typing import Union, List, Optional, cast, Tuple
 
 import marshmallow_dataclass
-from starkware.starknet.business_logic.execution.objects import CallInfo
-from starkware.starknet.business_logic.fact_state.state import ExecutionResourcesManager
+from starkware.starknet.business_logic.execution.objects import (
+    CallInfo,
+    ExecutionResourcesManager,
+)
 from starkware.starknet.business_logic.state.state_api import SyncState
 from starkware.starknet.business_logic.transaction.objects import InternalInvokeFunction
 from starkware.starknet.definitions.general_config import StarknetGeneralConfig
 from starkware.starknet.public.abi import get_selector_from_name
-from starkware.starknet.services.api.contract_class import EntryPointType
+from starkware.starknet.services.api.contract_class.contract_class import EntryPointType
 from starkware.starknet.testing.state import CastableToAddress
 
 from protostar.starknet.cheatable_cached_state import CheatableCachedState
@@ -19,19 +21,21 @@ from protostar.starknet.cheatable_execute_entry_point import CheatableExecuteEnt
 class CheatableInternalInvokeFunction(InternalInvokeFunction):
     def run_execute_entrypoint(
         self,
+        remaining_gas: int,
         state: SyncState,
         resources_manager: ExecutionResourcesManager,
         general_config: StarknetGeneralConfig,
-    ) -> CallInfo:
+    ) -> Tuple[CallInfo, int]:
         call = CheatableExecuteEntryPoint.create(
-            contract_address=self.contract_address,
+            contract_address=self.sender_address,
             entry_point_selector=self.entry_point_selector,
             entry_point_type=EntryPointType.EXTERNAL,
             calldata=self.calldata,
             caller_address=0,
+            initial_gas=remaining_gas,
         )
 
-        return call.execute(
+        call_info = call.execute(
             state=state,
             resources_manager=resources_manager,
             general_config=general_config,
@@ -39,6 +43,9 @@ class CheatableInternalInvokeFunction(InternalInvokeFunction):
                 n_steps=general_config.invoke_tx_max_n_steps
             ),
         )
+        remaining_gas -= call_info.gas_consumed
+
+        return call_info, remaining_gas
 
 
 async def create_cheatable_invoke_function(
@@ -70,7 +77,7 @@ async def create_cheatable_invoke_function(
     return cast(
         CheatableInternalInvokeFunction,
         CheatableInternalInvokeFunction.create(
-            contract_address=contract_address,
+            sender_address=contract_address,
             entry_point_selector=selector,
             calldata=calldata,
             max_fee=max_fee,

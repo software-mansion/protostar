@@ -66,6 +66,7 @@ class CairoTestExecutionState:
             global_state_root=empty_shared_state.contract_states,
             ffc=ffc,
             contract_class_storage=ffc.storage,
+            contract_class_root=empty_shared_state.contract_classes,
         )
 
         return cls(

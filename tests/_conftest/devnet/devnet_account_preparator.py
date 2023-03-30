@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 
-from starknet_py.net import AccountClient, KeyPair
+from starknet_py.net.account.account import Account
 from starknet_py.net.models import StarknetChainId
-from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner
+from starknet_py.net.signer.stark_curve_signer import StarkCurveSigner, KeyPair
 
 from protostar.starknet import Address
 
@@ -19,11 +19,11 @@ class DevnetAccountPreparator:
     def __init__(
         self,
         compiled_account_contract: str,
-        predeployed_account_client: AccountClient,
+        predeployed_account: Account,
         faucet_contract: FaucetContract,
     ) -> None:
         self._compiled_account_contract = compiled_account_contract
-        self._predeployed_account_client = predeployed_account_client
+        self._predeployed_account = predeployed_account
         self._faucet_contract = faucet_contract
 
     async def prepare(self, salt: int, private_key: int) -> PreparedDevnetAccount:
@@ -47,12 +47,12 @@ class DevnetAccountPreparator:
         )
 
     async def _declare(self) -> int:
-        declare_tx = await self._predeployed_account_client.sign_declare_transaction(
+        declare_tx = await self._predeployed_account.sign_declare_transaction(
             compiled_contract=self._compiled_account_contract,
             max_fee=int(1e16),
         )
-        resp = await self._predeployed_account_client.declare(transaction=declare_tx)
-        await self._predeployed_account_client.wait_for_tx(resp.transaction_hash)
+        resp = await self._predeployed_account.client.declare(transaction=declare_tx)
+        await self._predeployed_account.client.wait_for_tx(resp.transaction_hash)
         return resp.class_hash
 
     async def _prefund(self, account_address: Address):

@@ -25,7 +25,7 @@ from protostar.starknet_gateway import (
     AccountManager,
     GatewayFacadeFactory,
     BlockExplorer,
-    Account,
+    AccountConfig,
     create_block_explorer,
 )
 from protostar.starknet_gateway.multicall import (
@@ -133,7 +133,7 @@ class MulticallCommand(ProtostarCommand):
             file=args.file,
             gateway_client=gateway_client,
             gateway_url=network_config.gateway_url,
-            account=Account(address=args.account_address, signer=signer),
+            account=AccountConfig(address=args.account_address, signer=signer),
             write=write,
             explorer=block_explorer,
             max_fee=args.max_fee,
@@ -143,7 +143,7 @@ class MulticallCommand(ProtostarCommand):
         self,
         file: Path,
         gateway_client: GatewayClient,
-        account: Account,
+        account: AccountConfig,
         gateway_url: str,
         write: Messenger,
         explorer: BlockExplorer,

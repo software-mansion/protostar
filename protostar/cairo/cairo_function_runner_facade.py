@@ -23,7 +23,7 @@ class CairoRunnerFacade:
     @contextmanager
     def new_runner(self) -> Generator[CairoFunctionRunner, None, None]:
         self._previous_runner = None
-        runner = CairoFunctionRunner(program=self._program, layout="all")
+        runner = CairoFunctionRunner(program=self._program, layout="starknet")
         self.current_runner = runner
         yield runner
         self._previous_runner = runner

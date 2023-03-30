@@ -4,19 +4,20 @@ from starkware.cairo.lang.vm.crypto import pedersen_hash_func
 from starkware.starknet.business_logic.execution.objects import (
     TransactionExecutionInfo,
     CallInfo,
+    ExecutionResourcesManager,
 )
 from starkware.starknet.business_logic.fact_state.patricia_state import (
     PatriciaStateReader,
 )
 from starkware.starknet.business_logic.fact_state.state import (
     SharedState,
-    ExecutionResourcesManager,
 )
 from starkware.starknet.business_logic.state.state_api_objects import BlockInfo
 from starkware.starknet.definitions import constants
+from starkware.starknet.definitions.constants import GasCost
 from starkware.starknet.definitions.general_config import StarknetGeneralConfig
 from starkware.starknet.public.abi import get_selector_from_name
-from starkware.starknet.services.api.contract_class import EntryPointType
+from starkware.starknet.services.api.contract_class.contract_class import EntryPointType
 from starkware.starknet.testing.state import StarknetState, CastableToAddress
 from starkware.storage.dict_storage import DictStorage
 from starkware.storage.storage import FactFetchingContext
@@ -87,6 +88,7 @@ class CheatableStarknetState(StarknetState):
             entry_point_type=EntryPointType.EXTERNAL,
             calldata=calldata,
             caller_address=caller_address,
+            initial_gas=GasCost.INITIAL.value,
         )
         # endregion
 
@@ -114,6 +116,7 @@ class CheatableStarknetState(StarknetState):
         )
         state_reader = PatriciaStateReader(
             global_state_root=empty_shared_state.contract_states,
+            contract_class_root=empty_shared_state.contract_classes,
             ffc=ffc,
             contract_class_storage=ffc.storage,
         )

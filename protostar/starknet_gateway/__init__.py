@@ -2,6 +2,7 @@ from protostar.starknet_gateway.gateway_response import (
     SuccessfulDeclareResponse,
     SuccessfulDeployResponse,
 )
+
 from protostar.starknet_gateway.network_config import NetworkConfig
 
 from .gateway_facade import (
@@ -19,6 +20,6 @@ from .block_explorer import (
     FakeBlockExplorer,
 )
 from .gateway_facade_factory import GatewayFacadeFactory
-from .account_manager import AccountManager, Account
+from .account_manager import AccountManager, AccountConfig
 from .abi_resolver import AbiResolver
 from .data_transformer_policy import DataTransformerPolicy
