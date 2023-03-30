@@ -4,8 +4,7 @@ Most of the time, testing smart contracts with assertions only is not enough. So
 state of the blockchain, as well as checking for reverts and events. For that reason, Protostar provides a set of
 cheatcodes.
 
-Cheatcodes are available as normal cairo functions. You don't have to import anything. When Protostar runs tests,
-it takes care of replacing this functions with code necessary to modify the state of the network.
+Cheatcodes are available as normal cairo functions. You don't have to import anything.
 
 ## Available cheatcodes
 
