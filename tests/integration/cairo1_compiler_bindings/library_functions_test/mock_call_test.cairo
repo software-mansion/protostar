@@ -10,8 +10,8 @@ fn test_mock_call() {
    match mock_call(123, 'test', arr) {
       Result::Ok(class_hash) => (),
       Result::Err(x) => {
-         let mut data = array_new::<felt252>();
-         array_append::<felt252>(ref data, x);
+         let mut data = ArrayTrait::new();
+         data.append(x);
          panic(data)
       },
    }
@@ -23,8 +23,8 @@ fn test_mock_call_no_args() {
    match mock_call(123, 'test', arr) {
       Result::Ok(class_hash) => (),
       Result::Err(x) => {
-         let mut data = array_new::<felt252>();
-         array_append::<felt252>(ref data, x);
+         let mut data = ArrayTrait::new();
+         data.append(x);
          panic(data)
       },
    }
