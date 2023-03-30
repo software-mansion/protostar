@@ -1,3 +1,5 @@
+use array::ArrayTrait;
+
 #[test]
 fn test_declaring_contract(){
     match declare_cairo0('basic_contract_cairo0') {
