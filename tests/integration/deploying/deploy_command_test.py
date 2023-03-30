@@ -9,7 +9,7 @@ from tests.integration._conftest import ProtostarFixture
 from protostar.starknet_gateway.gateway_facade import InputValidationException
 
 
-@pytest.fixture(name="protostar", scope="module")
+@pytest.fixture(name="protostar")
 def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
     with create_protostar_project() as protostar:
         protostar.create_files({"./src/main.cairo": CONTRACT_WITH_CONSTRUCTOR})

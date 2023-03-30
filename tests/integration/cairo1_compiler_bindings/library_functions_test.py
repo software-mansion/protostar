@@ -21,7 +21,12 @@ def get_mock_for_lib_func(
             "return_value", (object,), {"err_code": err_code, "ok": ok}
         )()
     elif lib_func_name == "deploy_tp":
-        ok = type("ok", (object,), {"deployed_contract_address": 0})()
+        ok = type("ok", (object,), {"deployed_contract_address": 123})()
+        return_value = type(
+            "return_value", (object,), {"err_code": err_code, "ok": ok}
+        )()
+    elif lib_func_name == "call":
+        ok = type("ok", (object,), {"return_data": [1, 2, 3, 4]})()
         return_value = type(
             "return_value", (object,), {"err_code": err_code, "ok": ok}
         )()
@@ -176,4 +181,21 @@ def test_mock_call(datadir: Path):
 
     check_library_function(
         "mock_call", datadir / "mock_call_test.cairo", args_validator=_args_validator
+    )
+
+
+def test_call(datadir: Path):
+    expected_calldatas = {
+        "test_call": [101, 613, 721, 508, 405],
+        "test_call_no_args": [],
+    }
+
+    def _args_validator(test_case_name: str, *args: Any, **kwargs: Any):
+        assert not args
+        assert kwargs["contract_address"] == 123
+        expected_calldata = expected_calldatas[test_case_name.split("::")[-1]]
+        assert expected_calldata == kwargs["calldata"]
+
+    check_library_function(
+        "call", datadir / "call_test.cairo", args_validator=_args_validator
     )
