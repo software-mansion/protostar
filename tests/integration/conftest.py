@@ -5,7 +5,6 @@ from pathlib import Path
 from typing import Callable, ContextManager, List, Optional, cast
 
 import pytest
-from pytest import TempPathFactory
 from pytest_mock import MockerFixture
 from starkware.starknet.public.abi import AbiType
 from typing_extensions import Protocol
@@ -16,7 +15,7 @@ from protostar.compiler.project_cairo_path_builder import ProjectCairoPathBuilde
 from protostar.io.log_color_provider import LogColorProvider
 from protostar.testing import TestingSummary
 from protostar.cli import MessengerFactory
-from tests.conftest import TESTS_ROOT_PATH, run_devnet
+from tests.conftest import TESTS_ROOT_PATH, run_devnet, ProtostarTmpPathFactory
 from tests.integration._conftest import ProtostarFixture, create_protostar_fixture
 from tests.integration._conftest import (
     assert_cairo_test_cases as _assert_cairo_test_cases,
@@ -137,14 +136,14 @@ class CreateProtostarProjectFixture(Protocol):
         ...
 
 
-@pytest.fixture(name="create_protostar_project", scope="module")
+@pytest.fixture(name="create_protostar_project")
 def create_protostar_project_fixture(
     session_mocker: MockerFixture,
-    tmp_path_factory: TempPathFactory,
+    tmp_path_factory: ProtostarTmpPathFactory,
 ) -> CreateProtostarProjectFixture:
     @contextmanager
     def create_protostar_project(cairo_version: CairoVersion = CairoVersion.cairo0):
-        tmp_path = tmp_path_factory.mktemp("project_name")
+        tmp_path = tmp_path_factory()
         project_root_path = tmp_path
         cwd = Path().resolve()
         protostar = create_protostar_fixture(
@@ -173,7 +172,7 @@ def create_protostar_project_fixture(
 GetAbiFromContractFixture = Callable[[str], AbiType]
 
 
-@pytest.fixture(name="get_abi_from_contract", scope="module")
+@pytest.fixture(name="get_abi_from_contract")
 def get_abi_from_contract_fixture(
     create_protostar_project: CreateProtostarProjectFixture,
 ) -> GetAbiFromContractFixture:
