@@ -1,14 +1,16 @@
 use array::ArrayTrait;
 
-fn fib(a: felt, b: felt, n: felt) -> felt {
-    match gas::get_gas() {
+
+fn fib(a: felt252, b: felt252, n: felt252) -> felt252 {
+    match gas::withdraw_gas() {
         Option::Some(_) => {},
         Option::None(_) => {
-            let mut data = array_new::<felt>();
-            array_append::<felt>(ref data, 'OOG');
+            let mut data = ArrayTrait::new();
+            data.append('Out of gas');
             panic(data);
-        },
+        }
     }
+
     match n {
         0 => a,
         _ => fib(b, a + b, n - 1),
@@ -16,6 +18,7 @@ fn fib(a: felt, b: felt, n: felt) -> felt {
 }
 
 #[test]
-fn test_ec_op() {
-    let f = fib(10, 10, 10);
+#[available_gas(100000)]
+fn fibonacci_test() {
+    assert(fib(0, 1, 10) == 55, 'invalid result');
 }
