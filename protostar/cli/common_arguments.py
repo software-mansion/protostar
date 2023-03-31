@@ -171,6 +171,6 @@ CONTRACT_NAME = ProtostarArgument(
 LINKED_LIBRARIES = ProtostarArgument(
     name="linked-libraries",
     value_parser="list",
-    description="Libraries to include in compilation",
+    description="Paths to cairo1 modules",
     type="path",
 )
