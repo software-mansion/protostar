@@ -1,6 +1,6 @@
 import dataclasses
 from pathlib import Path
-from typing import Optional, TypeVar, Union
+from typing import Optional, TypeVar, Union, NoReturn
 
 from starknet_py.hash.casm_class_hash import compute_casm_class_hash
 from starknet_py.net.account.account import Account
@@ -258,14 +258,7 @@ class GatewayFacade(MulticallClientProtocol):
                 auto_estimate=max_fee == "auto",
             )
         except ClientError as ex:
-            account_address_found_in_message = hex(int(account_address)) in ex.message
-            message = (
-                "No account associated with provided account address found. Contact your wallet provider."
-                if "StarknetErrorCode.UNINITIALIZED_CONTRACT" in ex.message
-                and account_address_found_in_message
-                else ex.message
-            )
-            raise ProtostarException(message) from ex
+            _handle_declare_error(account_address, ex)
 
         return await self._declare(
             declare_tx=declare_tx,
@@ -297,14 +290,7 @@ class GatewayFacade(MulticallClientProtocol):
                 auto_estimate=max_fee == "auto",
             )
         except ClientError as ex:
-            account_address_found_in_message = hex(int(account_address)) in ex.message
-            message = (
-                "No account associated with provided account address found. Contact your wallet provider."
-                if "StarknetErrorCode.UNINITIALIZED_CONTRACT" in ex.message
-                and account_address_found_in_message
-                else ex.message
-            )
-            raise ProtostarException(message) from ex
+            _handle_declare_error(account_address, ex)
 
         return await self._declare(
             declare_tx=declare_tx,
@@ -389,6 +375,17 @@ class GatewayFacade(MulticallClientProtocol):
 
     async def wait_for_acceptance(self, tx_hash: int):
         await self._gateway_client.wait_for_tx(tx_hash=tx_hash, wait_for_accept=True)
+
+
+def _handle_declare_error(account_address: Address, ex: ClientError) -> NoReturn:
+    account_address_found_in_message = hex(int(account_address)) in ex.message
+    message = (
+        "No account associated with provided account address found. Contact your wallet provider."
+        if "StarknetErrorCode.UNINITIALIZED_CONTRACT" in ex.message
+        and account_address_found_in_message
+        else ex.message
+    )
+    raise ProtostarException(message) from ex
 
 
 class InputValidationException(ProtostarException):
