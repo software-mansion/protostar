@@ -32,7 +32,7 @@ class CommonTestCheatcodeFactory(CheatcodeFactory):
     ) -> List[Cheatcode]:
         declare_cheatcode = DeclareCheatcode(
             syscall_dependencies,
-            self._state.project_compiler,
+            self._state.cairo0_project_compiler,
         )
         prepare_cheatcode = PrepareCheatcode(syscall_dependencies)
         deploy_cheatcode = DeployCheatcode(syscall_dependencies)

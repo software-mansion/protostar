@@ -9,7 +9,7 @@ from protostar.cli.common_arguments import (
     CONTRACT_NAME,
 )
 from protostar.compiler import (
-    ProjectCompiler,
+    Cairo0ProjectCompiler,
     ProjectCompilerConfig,
 )
 from protostar.io import StructuredMessage, LogColorProvider
@@ -38,7 +38,7 @@ class SuccessfulBuildMessage(StructuredMessage):
 class BuildCommand(ProtostarCommand):
     def __init__(
         self,
-        project_compiler: ProjectCompiler,
+        project_compiler: Cairo0ProjectCompiler,
         messenger_factory: MessengerFactory,
     ):
         super().__init__()

@@ -36,7 +36,7 @@ from protostar.commands.init.project_creator import (
     AdaptedProjectCreator,
     NewProjectCreator,
 )
-from protostar.compiler import ProjectCairoPathBuilder, ProjectCompiler
+from protostar.compiler import ProjectCairoPathBuilder, Cairo0ProjectCompiler
 from protostar.configuration_file import (
     ConfigurationFileFactory,
     ConfigurationFileV1,
@@ -96,7 +96,7 @@ def build_di_container(
         project_root_path=project_root_path,
     )
 
-    project_compiler = ProjectCompiler(
+    project_compiler = Cairo0ProjectCompiler(
         project_root_path=project_root_path,
         project_cairo_path_builder=project_cairo_path_builder,
         configuration_file=configuration_file,

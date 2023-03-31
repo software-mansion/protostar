@@ -11,7 +11,9 @@ from starkware.starknet.compiler.compile import assemble_starknet_contract
 from starkware.starknet.compiler.starknet_preprocessor import (
     StarknetPreprocessedProgram,
 )
-from starkware.starknet.services.api.contract_class import ContractClass
+from starkware.starknet.services.api.contract_class.contract_class import (
+    DeprecatedCompiledClass,
+)
 
 from protostar.protostar_exception import ProtostarException
 from protostar.cairo import PassManagerConfig, PassManagerFactory
@@ -68,7 +70,7 @@ class StarknetCompiler:
     def compile_preprocessed_contract(
         preprocessed: StarknetPreprocessedProgram,
         add_debug_info: bool = False,
-    ) -> ContractClass:
+    ) -> DeprecatedCompiledClass:
         try:
             return assemble_starknet_contract(
                 preprocessed_program=preprocessed,
@@ -94,7 +96,7 @@ class StarknetCompiler:
         self,
         *sources: Path,
         add_debug_info: bool = False,
-    ) -> ContractClass:  # TODO #1280: Cache result
+    ) -> DeprecatedCompiledClass:  # TODO #1280: Cache result
         preprocessed = self.preprocess_contract(*sources)
         assert isinstance(preprocessed, StarknetPreprocessedProgram)
         assembled = self.compile_preprocessed_contract(preprocessed, add_debug_info)

@@ -1,16 +1,22 @@
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from services.everest.business_logic.state_api import StateProxy
-from starkware.starknet.business_logic.state.state import (
-    ContractClassCache,
-)
 from starkware.starknet.public.abi import AbiType
 from starkware.starknet.business_logic.state.state_api_objects import BlockInfo
 from starkware.starknet.business_logic.state.state_api import StateReader
 
 from starkware.starknet.business_logic.fact_state.state import CarriedState
-from starkware.starknet.business_logic.state.state import CachedState, StateSyncifier
+from starkware.starknet.business_logic.state.state import (
+    CachedState,
+    StateSyncifier,
+    CompiledClassCache,
+)
+from starkware.starknet.services.api.contract_class.contract_class import (
+    DeprecatedCompiledClass,
+    CompiledClassBase,
+)
+
 from typing_extensions import Self
 
 from protostar.starknet.cheaters import BlockInfoCheater, Cheaters
@@ -26,7 +32,7 @@ class CheatableCachedState(CachedState):
         self,
         block_info: BlockInfo,
         state_reader: StateReader,
-        contract_class_cache: ContractClassCache,
+        contract_class_cache: Optional[CompiledClassCache] = None,
     ):
         super().__init__(
             block_info=block_info,
@@ -134,6 +140,14 @@ class CheatableCachedState(CachedState):
     ):
         for selector, name in local_event_selector_to_name_map.items():
             self.event_selector_to_name_map[selector] = name
+
+    async def set_contract_class(
+        self, class_hash: int, contract_class: DeprecatedCompiledClass
+    ):
+        self.contract_classes[class_hash] = contract_class
+
+    async def get_contract_class(self, class_hash: int) -> CompiledClassBase:
+        return await self.get_compiled_class(class_hash)
 
     def get_abi_from_contract_address(self, contract_address: int) -> AbiType:
         if contract_address not in self.contract_address_to_class_hash_map:

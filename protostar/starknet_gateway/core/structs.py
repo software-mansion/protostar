@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import Optional
 
 from protostar.starknet import Address, CairoData
 
@@ -11,5 +10,5 @@ class PreparedInvokeTransaction:
     account_address: Address
     account_execute_calldata: CairoData
     max_fee: Wei
-    nonce: Optional[int]
+    nonce: int
     signature: list[int]

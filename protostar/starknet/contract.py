@@ -1,10 +1,13 @@
 import asyncio
 from typing import Optional, Tuple
 
+from starkware.starknet.testing.contract_utils import build_arguments
 from starkware.starknet.testing.objects import StarknetCallInfo
 from starkware.starknet.testing.contract import StarknetContractFunctionInvocation
-from starkware.starknet.business_logic.fact_state.state import ExecutionResourcesManager
-from starkware.starknet.business_logic.execution.objects import CallInfo
+from starkware.starknet.business_logic.execution.objects import (
+    CallInfo,
+    ExecutionResourcesManager,
+)
 from starkware.starknet.business_logic.transaction.fee import calculate_tx_fee
 from starkware.starknet.business_logic.utils import calculate_tx_resources
 from starkware.starknet.business_logic.state.state import (
@@ -14,8 +17,6 @@ from starkware.starknet.business_logic.state.state import (
 )
 from starkware.starknet.definitions.transaction_type import TransactionType
 from starkware.starknet.definitions.general_config import StarknetGeneralConfig
-
-from protostar.starknet.cheatable_state import CheatableStarknetState
 
 from .cheatable_state import CheatableStarknetState
 
@@ -41,20 +42,22 @@ async def execute_on_state(
         # Return the result as a raw tuple.
         result = tuple(call_info.retdata)
     else:
-        args = invocation._build_arguments(  # pylint: disable=protected-access
+        args = build_arguments(  # pylint: disable=protected-access
             arg_values=call_info.retdata,
             arg_types=invocation.retdata_arg_types,
+            struct_manager=invocation.struct_manager,
         )
         result = invocation.retdata_tuple(*args)
 
-    main_call_raw_events = call_info.events
+    main_call_raw_events = call_info.get_sorted_events()
 
     return (
         StarknetCallInfo.from_internal(
             call_info=call_info,
             result=result,
-            main_call_events=invocation._build_events(  # pylint: disable=protected-access
-                raw_events=main_call_raw_events
+            main_call_events=invocation.event_manager.build_events(  # pylint: disable=protected-access
+                raw_events=main_call_raw_events,
+                struct_manager=invocation.struct_manager,
             ),
         ),
         call_info,

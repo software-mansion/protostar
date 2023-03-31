@@ -5,7 +5,11 @@ from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
 
 from protostar.starknet import Selector
-from protostar.starknet_gateway import Account, AccountManager, GatewayFacade
+from protostar.starknet_gateway import (
+    AccountManager,
+    GatewayFacade,
+    AccountConfig,
+)
 from protostar.starknet_gateway.multicall import (
     MulticallUseCase,
     DeployCall,
@@ -42,7 +46,7 @@ async def test_multicall_use_case_happy_case(
 ):
     account = devnet.get_predeployed_accounts()[0]
     account_manager = AccountManager(
-        account=Account(
+        account_config=AccountConfig(
             address=account.address,
             signer=account.signer,
         ),

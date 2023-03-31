@@ -2,13 +2,13 @@ import dataclasses
 from pathlib import Path
 from typing import Optional, TypeVar, Union
 
-from starknet_py.net import AccountClient
+from starknet_py.net.account.account import Account
 from starknet_py.net.client_errors import ClientError
 from starknet_py.net.gateway_client import GatewayClient
-from starknet_py.net.models import Transaction
+from starknet_py.net.models import Transaction, Invoke
 from starknet_py.net.signer import BaseSigner
 from starknet_py.net.udc_deployer.deployer import Deployer, ContractDeployment
-from starknet_py.net.client_models import InvokeFunction, Call
+from starknet_py.net.client_models import Call
 from starknet_py.transaction_exceptions import (
     TransactionFailedError,
     TransactionRejectedError,
@@ -93,7 +93,7 @@ class GatewayFacade(MulticallClientProtocol):
 
         if not contract_abi:
             abi_entries = (await self._gateway_client.get_class_by_hash(class_hash)).abi
-            if abi_entries:
+            if abi_entries and isinstance(abi_entries, list):
                 contract_abi = ContractAbi.from_abi_entries(abi_entries)
         if not contract_abi:
             raise ProtostarException(
@@ -138,12 +138,12 @@ class GatewayFacade(MulticallClientProtocol):
             salt=salt,
         )
 
-        account_client = await self._create_account_client(
+        account = await self._get_account(
             account_address=account_address,
             signer=signer,
         )
         try:
-            tx = await account_client.sign_invoke_transaction(
+            tx = await account.sign_invoke_transaction(
                 deployment.call,
                 max_fee=max_fee if isinstance(max_fee, int) else None,
                 auto_estimate=max_fee == "auto",
@@ -178,19 +178,19 @@ class GatewayFacade(MulticallClientProtocol):
     async def deploy_account(
         self, args: DeployAccountArgs
     ) -> SuccessfulDeployAccountResponse:
-        account_client = await self._create_account_client(
+        account = await self._get_account(
             account_address=args.account_address,
             signer=args.signer,
         )
 
-        tx = await account_client.sign_deploy_account_transaction(
+        tx = await account.sign_deploy_account_transaction(
             class_hash=args.account_class_hash,
             contract_address_salt=args.account_address_salt,
             constructor_calldata=args.account_constructor_input,
             max_fee=args.max_fee if isinstance(args.max_fee, int) else None,
             auto_estimate=args.max_fee == "auto",
         )
-        response = await account_client.deploy_account(tx)
+        response = await account.client.deploy_account(tx)
         return SuccessfulDeployAccountResponse(
             code=response.code or "",
             address=Address(response.address),
@@ -215,12 +215,12 @@ class GatewayFacade(MulticallClientProtocol):
         compiled_contract = self._load_compiled_contract(
             self._project_root_path / compiled_contract_path
         )
-        account_client = await self._create_account_client(
+        account = await self._get_account(
             account_address=account_address, signer=signer
         )
 
         try:
-            declare_tx = await account_client.sign_declare_transaction(
+            declare_tx = await account.sign_declare_transaction(
                 compiled_contract=compiled_contract,
                 max_fee=max_fee if isinstance(max_fee, int) else None,
                 auto_estimate=max_fee == "auto",
@@ -234,12 +234,11 @@ class GatewayFacade(MulticallClientProtocol):
                 else ex.message
             )
             raise ProtostarException(message) from ex
-
         try:
             response = await self._gateway_client.declare(declare_tx, token=token)
 
             if wait_for_acceptance:
-                _, code = await account_client.wait_for_tx(
+                _, code = await account.client.wait_for_tx(
                     response.transaction_hash, wait_for_accept=True
                 )
                 response.code = code.value
@@ -255,25 +254,15 @@ class GatewayFacade(MulticallClientProtocol):
             transaction_hash=response.transaction_hash,
         )
 
-    async def _create_account_client(
+    async def _get_account(
         self,
         account_address: Address,
         signer: BaseSigner,
-    ) -> AccountClient:
-        supported_by_account_tx_version = (
-            await self._account_tx_version_detector.detect(account_address)
-        )
-        if supported_by_account_tx_version == 0:
-            raise ProtostarException(
-                "Provided account doesn't support v1 transactions.\n"
-                "Please update your account."
-            )
-
-        return AccountClient(
+    ) -> Account:
+        return Account(
             address=int(account_address),
             client=self._gateway_client,
             signer=signer,
-            supported_tx_version=supported_by_account_tx_version,
         )
 
     async def send_multicall_transaction(
@@ -281,9 +270,9 @@ class GatewayFacade(MulticallClientProtocol):
     ) -> MulticallClientResponse:
         try:
             result = await self._gateway_client.send_transaction(
-                transaction=InvokeFunction(
+                transaction=Invoke(
                     version=1,
-                    contract_address=int(transaction.contract_address),  # type: ignore
+                    sender_address=int(transaction.contract_address),  # type: ignore
                     calldata=transaction.calldata,  # type: ignore
                     max_fee=transaction.max_fee,
                     nonce=transaction.nonce,
@@ -326,9 +315,9 @@ class GatewayFacade(MulticallClientProtocol):
             contract_address = int(prepared_invoke_tx.account_address)
             calldata = prepared_invoke_tx.account_execute_calldata
             result = await self._gateway_client.send_transaction(
-                transaction=InvokeFunction(
+                transaction=Invoke(
                     version=1,
-                    contract_address=contract_address,  # type: ignore
+                    sender_address=contract_address,  # type: ignore
                     calldata=calldata,  # type: ignore
                     max_fee=prepared_invoke_tx.max_fee,
                     nonce=prepared_invoke_tx.nonce,
