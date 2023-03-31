@@ -153,6 +153,7 @@ class ProjectCompiler:
             )
         except CairoBindingException as ex:
             raise CompilationException(contract_name=contract_path.name, err=ex) from ex
+
         assert compiled is not None
 
         loaded = json.loads(compiled)
@@ -171,9 +172,4 @@ class ProjectCompiler:
             raise CompilationException(contract_name=contract_path.name, err=ex) from ex
 
         assert compiled is not None
-
-        compiled_class = json.loads(compiled)
-        compiled_class["pythonic_hints"] = compiled_class["hints"]
-        compiled_class["hints"] = []
-
-        return CompiledClass.load(compiled_class)
+        return CompiledClass.loads(compiled)
