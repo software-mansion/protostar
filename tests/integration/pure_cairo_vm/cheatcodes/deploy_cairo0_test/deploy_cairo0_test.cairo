@@ -11,8 +11,8 @@ fn test_deploying_pipeline_with_path() {
     let class_hash = match declare_cairo0('basic_contract_cairo0') {
         Result::Ok(x)  => x,
         Result::Err(x) => {
-            let mut data = array_new::<felt>();
-            array_append::<felt>(ref data, x);
+            let mut data = ArrayTrait::new();
+            data.append(x);
             panic(data)
         },
     };
@@ -24,9 +24,9 @@ fn test_deploying_pipeline_with_path() {
     ) {
         Result::Ok(x) => drop(x),
         Result::Err(x) => {
-           let mut data = array_new::<felt>();
-           array_append::<felt>(ref data, x);
-           panic(data)
+            let mut data = ArrayTrait::new();
+            data.append(x);
+            panic(data)
       },
     };
 }

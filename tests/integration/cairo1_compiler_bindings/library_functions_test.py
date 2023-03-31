@@ -30,7 +30,7 @@ def get_mock_for_lib_func(
         return_value = type(
             "return_value", (object,), {"err_code": err_code, "ok": ok}
         )()
-    elif lib_func_name == ["deploy_tp", "deploy_tp_cairo0"]:
+    elif lib_func_name in ["deploy_tp", "deploy_tp_cairo0"]:
         assert return_values_provider
         ok = type(
             "ok",
@@ -54,7 +54,7 @@ def get_mock_for_lib_func(
         return_value = type(
             "return_value", (object,), {"err_code": err_code, "ok": ok}
         )()
-    elif lib_func_name == ["prepare_tp", "prepare_tp_cairo0"]:
+    elif lib_func_name in ["prepare_tp", "prepare_tp_cairo0"]:
         assert return_values_provider
         prepared_contract = type(
             "prepared_contract",
