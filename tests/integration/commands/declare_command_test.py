@@ -49,7 +49,7 @@ async def test_declaring_cairo1_contract(
         ):
             # pylint: disable=unused-argument
             compiled = cairo_bindings.compile_starknet_contract_to_sierra_from_path(
-                input_path=datadir / "minimal.cairo",
+                input_path=datadir / "balance.cairo",
             )
             assert compiled is not None
             return compiled
@@ -59,7 +59,7 @@ async def test_declaring_cairo1_contract(
         ):
             # pylint: disable=unused-argument
             compiled = cairo_bindings.compile_starknet_contract_to_casm_from_path(
-                input_path=datadir / "minimal.cairo",
+                input_path=datadir / "balance.cairo",
             )
             assert compiled is not None
             return compiled

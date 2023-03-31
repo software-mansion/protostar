@@ -231,7 +231,7 @@ def test_declaring_cairo1_contract(
     devnet_account: DevnetAccount,
 ):
     copy_file(
-        src=str(datadir / "minimal.cairo"),
+        src=str(datadir / "balance.cairo"),
         dst="./src/main.cairo",
     )
 
