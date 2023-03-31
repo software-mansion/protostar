@@ -11,7 +11,7 @@ ExpectedEvent = ExpectedEventData | ExpectedEventName
 
 def expect_events(*expected_events: ExpectedEvent) -> None: ...
 ```
-Compares expected events with events in the StarkNet state. You can use this cheatcode to test whether a contract emits specified events. Protostar compares events after a test case is completed. Therefore, you can use this cheatcode in any place within a test case.
+Compares expected events with events in the Starknet state. You can use this cheatcode to test whether a contract emits specified events. Protostar compares events after a test case is completed. Therefore, you can use this cheatcode in any place within a test case.
 
 ```cairo title="Protostar also checks the order of emitted events."
 %lang starknet

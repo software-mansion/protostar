@@ -2,7 +2,7 @@
 authors = [
     "tomasz.rejowski <tomasz.rejowski@swmansion.com>",
 ]
-description = "Toolchain for developing, testing and interacting with Cairo contracts for StarkNet"
+description = "Toolchain for developing, testing and interacting with Cairo contracts for Starknet"
 license = "MIT"
 name = "protostar"
 readme = "README.md"

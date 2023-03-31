@@ -68,7 +68,7 @@ class RevertableException(ReportedException):
 
 class StarknetRevertableException(RevertableException):
     """
-    The exception is an abstraction over errors raised by StarkNet.
+    The exception is an abstraction over errors raised by Starknet.
     """
 
     @staticmethod

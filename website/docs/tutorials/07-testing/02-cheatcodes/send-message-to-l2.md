@@ -24,5 +24,5 @@ You can leverage [data transformer](README.md#data-transformer) to pass payload 
 :::
 
 :::warning
-Do not provide `from_address` (needed for all L1 handlers in StarkNet) in the function's `payload` - this is passed automatically using `from_address` parameter. 
+Do not provide `from_address` (needed for all L1 handlers in Starknet) in the function's `payload` - this is passed automatically using `from_address` parameter. 
 :::
