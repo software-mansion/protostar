@@ -32,7 +32,7 @@ def read_scarb_metadata(scarb_toml_path: Path) -> Dict:
                 "--format-version",
                 "1",
             ],
-            check=False,  # dont throw exception on fail
+            check=False,  # don't throw exception on fail
             cwd=scarb_toml_path,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
@@ -54,7 +54,7 @@ def read_scarb_metadata(scarb_toml_path: Path) -> Dict:
         raise ScarbMetadataFetchException("Failed to decode metadata json.") from ex
 
 
-def maybe_fetch_linked_libraries(project_root_path: Path) -> Optional[List[str]]:
+def maybe_fetch_linked_libraries(project_root_path: Path) -> Optional[List[Path]]:
     if not has_scarb_toml(project_root_path):
         logging.info(
             "Scarb.toml not found, using only packages provided by the argument."
@@ -66,7 +66,7 @@ def maybe_fetch_linked_libraries(project_root_path: Path) -> Optional[List[str]]
     scarb_toml_path = project_root_path / "Scarb.toml"
     metadata = read_scarb_metadata(scarb_toml_path)
 
-    paths: List[str] = []
+    paths: List[Path] = []
 
     try:
         # is this reliable?

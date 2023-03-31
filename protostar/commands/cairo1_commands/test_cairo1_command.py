@@ -25,6 +25,7 @@ from protostar.commands.test.messages import TestCollectorResultMessage
 from protostar.cairo_testing.cairo1_test_collector import Cairo1TestCollector
 from protostar.cairo_testing.cairo1_test_runner import Cairo1TestRunner
 from .fetch_from_scarb import maybe_fetch_linked_libraries
+from ...protostar_exception import ProtostarException
 
 
 class TestCairo1Command(ProtostarCommand):
@@ -86,7 +87,7 @@ A glob or globs to a directory or a test suite, for example:
             ProtostarArgument(
                 name="linked-libraries",
                 value_parser="list",
-                description="Libraries to include in compilation",
+                description="Libraries to include in compilation",  # TODO: provide info about error with Scarb.toml
                 type="path",
             ),
             ProtostarArgument(
@@ -121,6 +122,12 @@ A glob or globs to a directory or a test suite, for example:
         cache = TestCommandCache(CacheIO(self._project_root_path))
 
         libraries = maybe_fetch_linked_libraries(self._project_root_path) or []
+
+        if libraries and args.linked_libraries:
+            raise ProtostarException(
+                "Provided linked-libraries argument while Scarb.toml was present. "
+                "Manage all of your dependencies using Scarb."
+            )
 
         summary = await self.test(
             targets=cache.obtain_targets(args.target, args.last_failed),
