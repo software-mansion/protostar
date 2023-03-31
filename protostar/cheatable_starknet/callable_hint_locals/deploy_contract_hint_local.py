@@ -45,6 +45,6 @@ class DeployContractHintLocal(CallableHintLocal):
     ) -> DeployedContract:
         declared_contract = self._declare_cheatcode.declare_cairo0(contract)
         prepared_contract = self._prepare_cheatcode.prepare(
-            declared_contract, constructor_args
+            declared_contract.class_hash, constructor_args
         )
         return self._deploy_cheatcode.deploy_prepared(prepared_contract)
