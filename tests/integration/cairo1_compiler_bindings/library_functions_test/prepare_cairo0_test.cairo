@@ -13,8 +13,8 @@ fn test_prepare_cairo0() {
    match prepare_cairo0(123, arr) {
       Result::Ok(x) => drop(x),
       Result::Err(x) => {
-         let mut data = array_new::<felt>();
-         array_append::<felt>(ref data, x);
+         let mut data = ArrayTrait::new();
+         data.append(x);
          panic(data)
       },
    }
@@ -29,8 +29,8 @@ fn test_prepare_tp_cairo0() {
    match prepare_tp_cairo0(123, arr) {
       Result::Ok(_) => (),
       Result::Err(x) => {
-         let mut data = array_new::<felt>();
-         array_append::<felt>(ref data, x);
+         let mut data = ArrayTrait::new();
+         data.append(x);
          panic(data)
       },
    }
@@ -42,8 +42,8 @@ fn test_prepare_cairo0_no_args() {
    match prepare_cairo0(123, arr) {
       Result::Ok(x) => drop(x),
       Result::Err(x) => {
-         let mut data = array_new::<felt>();
-         array_append::<felt>(ref data, x);
+         let mut data = ArrayTrait::new();
+         data.append(x);
          panic(data)
       },
    }

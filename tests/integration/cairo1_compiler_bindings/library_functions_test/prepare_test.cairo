@@ -7,10 +7,6 @@ fn test_prepare() {
    arr.append(202);
    arr.append(613);
    arr.append(721);
-<<<<<<< HEAD
-   match prepare(123, arr) {
-      Result::Ok(x) => drop(x),
-=======
    match prepare_tp(123, arr) {
       Result::Ok((constructor_calldata, contract_address, return_class_hash)) => {
         assert(constructor_calldata.len() == 4_u32, 'check constructor_calldata');
@@ -22,7 +18,6 @@ fn test_prepare() {
         assert(return_class_hash == 222, 'check return_class_hash');
         ()
       },
->>>>>>> master
       Result::Err(x) => {
          let mut data = ArrayTrait::new();
          data.append(x);
@@ -58,10 +53,6 @@ fn test_prepare_tp() {
 #[test]
 fn test_prepare_no_args() {
    let mut arr = ArrayTrait::new();
-<<<<<<< HEAD
-   match prepare(123, arr) {
-      Result::Ok(x) => drop(x),
-=======
    match prepare_tp(123, arr) {
       Result::Ok((constructor_calldata, contract_address, return_class_hash)) => {
         assert(constructor_calldata.len() == 0_u32, 'check constructor_calldata');
@@ -69,7 +60,6 @@ fn test_prepare_no_args() {
         assert(return_class_hash == 345, 'check return_class_hash');
         ()
       },
->>>>>>> master
       Result::Err(x) => {
          let mut data = ArrayTrait::new();
          data.append(x);
