@@ -1,3 +1,5 @@
+use array::ArrayTrait;
+
 #[test]
 fn test_declare() {
     match declare('minimal') {
