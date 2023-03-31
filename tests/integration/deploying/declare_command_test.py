@@ -13,7 +13,7 @@ from tests.integration.conftest import CreateProtostarProjectFixture
 from tests.integration._conftest import ProtostarFixture
 
 
-@pytest.fixture(name="protostar", scope="module")
+@pytest.fixture(name="protostar")
 def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
     with create_protostar_project() as protostar:
         protostar.create_files({"./src/main.cairo": CONTRACT_WITH_CONSTRUCTOR})

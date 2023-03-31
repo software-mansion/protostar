@@ -1,8 +1,10 @@
 from dataclasses import dataclass
 from typing import Any, Callable
 
-from starkware.python.utils import to_bytes
-from starkware.starknet.services.api.contract_class import EntryPointType
+from starkware.starknet.services.api.contract_class.contract_class import (
+    EntryPointType,
+    DeprecatedCompiledClass,
+)
 
 from protostar.starknet import Cheatcode, CheatcodeException
 from protostar.starknet.data_transformer import (
@@ -29,12 +31,10 @@ class DeployCheatcode(Cheatcode):
     def deploy_prepared(self, prepared: PreparedContract):
         self.state.deploy_contract(
             contract_address=int(prepared.contract_address),
-            class_hash=to_bytes(prepared.class_hash),
+            class_hash=prepared.class_hash,
         )
 
-        contract_class = self.state.get_contract_class(
-            class_hash=to_bytes(prepared.class_hash)
-        )
+        contract_class = self.state.get_compiled_class(prepared.class_hash)
 
         has_constructor = len(
             contract_class.entry_points_by_type[EntryPointType.CONSTRUCTOR]
@@ -52,13 +52,14 @@ class DeployCheatcode(Cheatcode):
     def invoke_constructor(self, prepared: PreparedContract):
         self.validate_constructor_args(prepared)
         self.execute_constructor_entry_point(
-            class_hash_bytes=to_bytes(prepared.class_hash),
+            class_hash=prepared.class_hash,
             constructor_calldata=prepared.constructor_calldata,
             contract_address=int(prepared.contract_address),
         )
 
     def validate_constructor_args(self, prepared: PreparedContract):
-        contract_class = self.state.get_contract_class(to_bytes(prepared.class_hash))
+        contract_class = self.state.get_compiled_class(prepared.class_hash)
+        assert isinstance(contract_class, DeprecatedCompiledClass)
 
         if not contract_class.abi:
             raise CheatcodeException(

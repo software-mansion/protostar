@@ -4,7 +4,8 @@ from dataclasses import dataclass
 
 from typing_extensions import Self
 
-from protostar.compiler import ProjectCompiler
+from protostar.compiler import Cairo0ProjectCompiler
+from protostar.compiler.project_compiler import ProjectCompiler
 from protostar.starknet.forkable_starknet import ForkableStarknet
 from protostar.testing.stopwatch import Stopwatch
 from protostar.testing.test_config import TestConfig
@@ -19,6 +20,7 @@ class TestExecutionState:
     output_recorder: OutputRecorder
     context: TestContext
     config: TestConfig
+    cairo0_project_compiler: Cairo0ProjectCompiler
     project_compiler: ProjectCompiler
 
     def fork(self) -> Self:
@@ -33,7 +35,10 @@ class TestExecutionState:
 
     @classmethod
     async def from_test_config(
-        cls, test_config: TestConfig, project_compiler: ProjectCompiler
+        cls,
+        test_config: TestConfig,
+        cairo0_project_compiler: Cairo0ProjectCompiler,
+        project_compiler: ProjectCompiler,
     ):
         return cls(
             starknet=await ForkableStarknet.empty(),
@@ -41,5 +46,6 @@ class TestExecutionState:
             output_recorder=OutputRecorder(),
             context=TestContext(),
             config=test_config,
+            cairo0_project_compiler=cairo0_project_compiler,
             project_compiler=project_compiler,
         )

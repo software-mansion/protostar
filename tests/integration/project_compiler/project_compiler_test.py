@@ -3,9 +3,10 @@ from pathlib import Path
 
 import pytest
 
-from protostar.compiler import CompilationException, ProjectCompiler
+from protostar.compiler import Cairo0ProjectCompiler
+from protostar.compiler.project_compiler_exceptions import CompilationException
+from protostar.compiler.project_compiler_types import ProjectCompilerConfig
 from protostar.compiler.project_cairo_path_builder import ProjectCairoPathBuilder
-from protostar.compiler.project_compiler import ProjectCompilerConfig
 from protostar.configuration_file import FakeConfigurationFile
 from protostar.starknet import StarknetCompiler
 
@@ -13,8 +14,8 @@ from protostar.starknet import StarknetCompiler
 def create_project_compiler(
     project_root_path: Path,
     configuration_file: FakeConfigurationFile,
-) -> ProjectCompiler:
-    return ProjectCompiler(
+) -> Cairo0ProjectCompiler:
+    return Cairo0ProjectCompiler(
         project_root_path,
         project_cairo_path_builder=ProjectCairoPathBuilder(
             project_root_path,

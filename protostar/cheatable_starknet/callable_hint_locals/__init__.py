@@ -1,4 +1,5 @@
 from .call_hint_local import CallHintLocal
+from .declare_hint_local import DeclareHintLocal
 from .declare_cairo0_hint_local import DeclareCairo0HintLocal
 from .deploy_cairo0_hint_local import DeployCairo0HintLocal
 from .deploy_contract_cairo0_hint_local import DeployContractCairo0HintLocal

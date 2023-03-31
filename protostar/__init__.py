@@ -3,7 +3,10 @@ from copy import copy
 from typing import Any
 
 from crypto_cpp_py.cpp_bindings import cpp_hash
-from starkware.starknet.services.api.contract_class import ContractClass
+from starkware.starknet.services.api.contract_class.contract_class import (
+    DeprecatedCompiledClass,
+    CompiledClass,
+)
 
 
 def patched_pedersen_hash(left: int, right: int) -> int:
@@ -35,7 +38,9 @@ def shallow_copy(self: Any, memo: Any):  # pylint: disable=unused-argument
     return copy(self)
 
 
-setattr(ContractClass, "__deepcopy__", shallow_copy)
+setattr(DeprecatedCompiledClass, "__deepcopy__", shallow_copy)
+setattr(CompiledClass, "__deepcopy__", shallow_copy)
+
 
 # Python complains about importing `Project`` if the import below is removed
 # pylint: disable=C0413

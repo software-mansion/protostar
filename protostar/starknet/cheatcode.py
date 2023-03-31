@@ -1,15 +1,18 @@
 from abc import abstractmethod
 from typing import TYPE_CHECKING, Any, Type
 
+from starkware.cairo.lang.vm.memory_segments import MemorySegmentManager
 from starkware.cairo.lang.vm.relocatable import RelocatableValue
 from starkware.starknet.business_logic.execution.objects import (
     CallInfo,
     TransactionExecutionContext,
+    ExecutionResourcesManager,
 )
-from starkware.starknet.business_logic.fact_state.state import ExecutionResourcesManager
 from starkware.starknet.business_logic.state.state import StateSyncifier
 from starkware.starknet.business_logic.state.state_api import SyncState
-from starkware.starknet.core.os.syscall_utils import BusinessLogicSysCallHandler
+from starkware.starknet.core.os.syscall_handler import (
+    DeprecatedBlSyscallHandler,
+)
 from starkware.starknet.definitions.general_config import StarknetGeneralConfig
 from typing_extensions import TypedDict
 
@@ -23,7 +26,7 @@ if TYPE_CHECKING:
     )
 
 
-class Cheatcode(BusinessLogicSysCallHandler, HintLocal):
+class Cheatcode(DeprecatedBlSyscallHandler, HintLocal):
     class SyscallDependencies(TypedDict):
         execute_entry_point_cls: Type["CheatableExecuteEntryPoint"]
         tx_execution_context: TransactionExecutionContext
@@ -34,6 +37,7 @@ class Cheatcode(BusinessLogicSysCallHandler, HintLocal):
         general_config: StarknetGeneralConfig
         initial_syscall_ptr: RelocatableValue
         shared_internal_calls: list[CallInfo]
+        segments: MemorySegmentManager
 
     def __init__(
         self,
@@ -48,6 +52,7 @@ class Cheatcode(BusinessLogicSysCallHandler, HintLocal):
             contract_address=syscall_dependencies["contract_address"],
             general_config=syscall_dependencies["general_config"],
             initial_syscall_ptr=syscall_dependencies["initial_syscall_ptr"],
+            segments=syscall_dependencies["segments"],
         )
         self.internal_calls = syscall_dependencies["shared_internal_calls"]
 

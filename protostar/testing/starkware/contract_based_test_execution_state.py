@@ -2,11 +2,14 @@ import dataclasses
 from dataclasses import dataclass
 from pathlib import Path
 
-from starknet_py.net.client_models import ContractClass
+from starkware.starknet.services.api.contract_class.contract_class import (
+    DeprecatedCompiledClass,
+)
 from starkware.starknet.testing.contract import StarknetContract
 from typing_extensions import Self
 
-from protostar.compiler import ProjectCompiler
+from protostar.compiler import Cairo0ProjectCompiler
+from protostar.compiler.project_compiler import ProjectCompiler
 from protostar.starknet import Address
 from protostar.testing.starkware.test_execution_state import TestExecutionState
 from protostar.testing.test_config import TestConfig
@@ -28,11 +31,14 @@ class ContractBasedTestExecutionState(TestExecutionState):
     async def from_test_suite_definition(
         cls,
         contract_path: Path,
-        test_suite_definition: ContractClass,
+        test_suite_definition: DeprecatedCompiledClass,
         test_config: TestConfig,
+        cairo0_project_compiler: Cairo0ProjectCompiler,
         project_compiler: ProjectCompiler,
     ) -> Self:
-        base = await TestExecutionState.from_test_config(test_config, project_compiler)
+        base = await TestExecutionState.from_test_config(
+            test_config, cairo0_project_compiler, project_compiler
+        )
         starknet = base.starknet
 
         contract = await starknet.deploy(contract_class=test_suite_definition)
@@ -54,6 +60,7 @@ class ContractBasedTestExecutionState(TestExecutionState):
             output_recorder=base.output_recorder,
             context=base.context,
             config=base.config,
+            cairo0_project_compiler=base.cairo0_project_compiler,
             project_compiler=base.project_compiler,
         )
 

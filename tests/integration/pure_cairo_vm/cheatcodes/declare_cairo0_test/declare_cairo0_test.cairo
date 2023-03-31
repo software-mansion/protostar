@@ -1,3 +1,5 @@
+use array::ArrayTrait;
+
 #[test]
 fn test_declaring_contract(){
     match declare_cairo0('basic_contract_cairo0') {
@@ -5,8 +7,8 @@ fn test_declaring_contract(){
         assert(class_hash != 0, 'class_hash != 0');
       },
       Result::Err(x) => {
-         let mut data = array_new::<felt>();
-         array_append::<felt>(ref data, x);
+         let mut data = ArrayTrait::new();
+         data.append(x);
          panic(data)
       },
    }
@@ -19,8 +21,8 @@ fn test_failing_to_declare_contract(){
         assert(class_hash != 0, 'class_hash != 0');
       },
       Result::Err(x) => {
-         let mut data = array_new::<felt>();
-         array_append::<felt>(ref data, x);
+         let mut data = ArrayTrait::new();
+         data.append(x);
          panic(data)
       },
    }
@@ -33,8 +35,8 @@ fn test_declaring_broken_contract(){
         assert(class_hash != 0, 'class_hash != 0');
       },
       Result::Err(x) => {
-         let mut data = array_new::<felt>();
-         array_append::<felt>(ref data, x);
+         let mut data = ArrayTrait::new();
+         data.append(x);
          panic(data)
       },
    }

@@ -1,11 +1,11 @@
 import json
+import shutil
 from pathlib import Path
 
 import pytest
-
 from protostar.protostar_exception import ProtostarException
 from tests._conftest.devnet.devnet_fixture import DevnetFixture
-from tests.conftest import TESTS_ROOT_PATH, DevnetAccount, SetPrivateKeyEnvVarFixture
+from tests.conftest import DevnetAccount, SetPrivateKeyEnvVarFixture
 from tests.data.contracts import UINT256_IDENTITY_CONTRACT
 from tests.integration.conftest import CreateProtostarProjectFixture
 from tests.integration._conftest import ProtostarFixture
@@ -286,6 +286,7 @@ async def test_calling_through_proxy(
     devnet: DevnetFixture,
     devnet_account: DevnetAccount,
     set_private_key_env_var: SetPrivateKeyEnvVarFixture,
+    tmp_path: Path,
 ):
     with set_private_key_env_var(devnet_account.private_key):
         declared = await protostar.declare(
@@ -293,24 +294,33 @@ async def test_calling_through_proxy(
             gateway_url=devnet.get_gateway_url(),
             max_fee="auto",
             account_address=devnet_account.address,
-        )
-        contract = await protostar.deploy(
-            class_hash=declared.class_hash,
-            account_address=devnet_account.address,
-            max_fee="auto",
-            gateway_url=devnet.get_gateway_url(),
             wait_for_acceptance=True,
         )
+        contract_abi_path = tmp_path / "abi.json"
+        shutil.copy(
+            protostar.project_root_path / "build" / "main_abi.json", contract_abi_path
+        )
+        # TODO (1689): Workaround for the bug with config not being updated in commands after contract creation
+        protostar.create_files(
+            {"src/main.cairo": Path(__file__).parent / "proxy.cairo"}
+        )
+        await protostar.build()
+
         declared_proxy = await protostar.declare(
-            contract=TESTS_ROOT_PATH / "data" / "oz_proxy_compiled_contract.json",
+            contract=protostar.project_root_path / "build" / "main.json",
             wait_for_acceptance=True,
             account_address=devnet_account.address,
             gateway_url=devnet.get_gateway_url(),
             max_fee="auto",
         )
+
         proxy = await protostar.deploy(
             class_hash=declared_proxy.class_hash,
-            inputs=[int(contract.address)],
+            inputs=[
+                int(declared.class_hash),
+                0,
+                0,
+            ],  # See @constructor signature at proxy.cairo
             account_address=devnet_account.address,
             max_fee="auto",
             gateway_url=devnet.get_gateway_url(),
@@ -322,6 +332,7 @@ async def test_calling_through_proxy(
             gateway_url=devnet.get_gateway_url(),
             function_name="add_multiple_values",
             inputs={"a": 1, "b": 2, "c": 3},
+            abi_path=contract_abi_path,
         )
 
     assert call_result.call_output.human_data is not None

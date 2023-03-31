@@ -2,15 +2,18 @@
 # pylint: disable=protected-access
 
 from typing import Dict, Optional
+from typing_extensions import Self
 
 from starkware.starknet.business_logic.state.state import (
-    ContractClassCache,
     CachedState,
+    CompiledClassCache,
 )
 from starkware.starknet.public.abi import AbiType
 from starkware.starknet.business_logic.state.state_api_objects import BlockInfo
 from starkware.starknet.business_logic.state.state_api import StateReader
-from typing_extensions import Self
+from starkware.starknet.services.api.contract_class.contract_class import (
+    CompiledClassBase,
+)
 
 from protostar.cheatable_starknet.controllers.expect_events_controller import Event
 from protostar.starknet.address import Address
@@ -27,7 +30,7 @@ class CheatableCachedState(CachedState):
         self,
         block_info: BlockInfo,
         state_reader: StateReader,
-        contract_class_cache: ContractClassCache,
+        contract_class_cache: CompiledClassCache,
     ):
         super().__init__(
             block_info=block_info,
@@ -76,6 +79,14 @@ class CheatableCachedState(CachedState):
 
     def get_block_info(self, contract_address: int) -> BlockInfo:
         return BlockInfoController(self).get_for_contract(Address(contract_address))
+
+    async def set_contract_class(
+        self, class_hash: int, contract_class: CompiledClassBase
+    ):
+        self.contract_classes[class_hash] = contract_class
+
+    async def get_contract_class(self, class_hash: int) -> CompiledClassBase:
+        return await self.get_compiled_class(class_hash)
 
     def _copy(self):
         copied = CheatableCachedState(

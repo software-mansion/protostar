@@ -5,12 +5,14 @@ from logging import getLogger
 from pathlib import Path
 from typing import List, Optional
 
-from starkware.starknet.services.api.contract_class import ContractClass
+from starkware.starknet.services.api.contract_class.contract_class import (
+    DeprecatedCompiledClass,
+)
 from starkware.starkware_utils.error_handling import StarkException
 
 from protostar.compiler import (
     ProjectCairoPathBuilder,
-    ProjectCompiler,
+    Cairo0ProjectCompiler,
     ProjectCompilerConfig,
 )
 from protostar.configuration_file.configuration_file_factory import (
@@ -38,6 +40,7 @@ from .test_results import (
 from .test_shared_tests_state import SharedTestsState
 from .test_suite import TestCase, TestSuite
 from .testing_seed import Seed
+from ..compiler.project_compiler import ProjectCompiler
 
 logger = getLogger()
 
@@ -69,6 +72,18 @@ class TestRunner:
         configuration_file = ConfigurationFileFactory(
             cwd=cwd, active_profile_name=active_profile_name
         ).create()
+        self.cairo0_project_compiler = Cairo0ProjectCompiler(
+            project_root_path=project_root_path,
+            project_cairo_path_builder=ProjectCairoPathBuilder(
+                project_root_path=project_root_path,
+            ),
+            configuration_file=configuration_file,
+            default_config=ProjectCompilerConfig(
+                relative_cairo_path=[Path(s_pth).resolve() for s_pth in include_paths],
+                hint_validation_disabled=disable_hint_validation_in_user_contracts,
+                debugging_info_attached=profiling,
+            ),
+        )
         self.project_compiler = ProjectCompiler(
             project_root_path=project_root_path,
             project_cairo_path_builder=ProjectCairoPathBuilder(
@@ -177,7 +192,7 @@ class TestRunner:
 
     async def _build_execution_state(
         self,
-        test_contract: ContractClass,
+        test_contract: DeprecatedCompiledClass,
         test_suite: TestSuite,
         test_config: TestConfig,
         contract_path: Path,
@@ -189,6 +204,7 @@ class TestRunner:
                     test_suite_definition=test_contract,
                     test_config=test_config,
                     contract_path=contract_path,
+                    cairo0_project_compiler=self.cairo0_project_compiler,
                     project_compiler=self.project_compiler,
                 )
             )
