@@ -66,14 +66,13 @@ def get_mock_for_lib_func(
                 "contract_address": return_values_provider(test_case_name)[
                     "contract_address"
                 ],
-                "return_class_hash": return_values_provider(test_case_name)[
+                "class_hash": return_values_provider(test_case_name)[
                     "return_class_hash"
                 ],
             },
         )()
-        ok = type("ok", (object,), {"prepared_contract": prepared_contract})()
         return_value = type(
-            "return_value", (object,), {"err_code": err_code, "ok": ok}
+            "return_value", (object,), {"err_code": err_code, "ok": prepared_contract}
         )()
     else:
         return_value = type("return_value", (object,), {"err_code": err_code})()
