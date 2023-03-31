@@ -3,12 +3,12 @@
 from starkware.cairo.common.cairo_builtins import HashBuiltin
 
 @storage_var
-func balance() -> (res: felt) {
+func balance() -> (res: felt252) {
 }
 
 @external
-func increase_balance{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
-    amount: felt
+func increase_balance{syscall_ptr: felt252*, pedersen_ptr: HashBuiltin*, range_check_ptr}(
+    amount: felt252
 ) {
     let (res) = balance.read();
     balance.write(res + amount);
@@ -16,7 +16,7 @@ func increase_balance{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_chec
 }
 
 @view
-func get_balance{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (res: felt) {
+func get_balance{syscall_ptr: felt252*, pedersen_ptr: HashBuiltin*, range_check_ptr}() -> (res: felt252) {
     let (res) = balance.read();
     return (res,);
 }

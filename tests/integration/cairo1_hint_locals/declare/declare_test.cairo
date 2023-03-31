@@ -5,8 +5,8 @@ fn test_declare() {
             assert(class_hash != 0, 'class_hash != 0');
         },
         Result::Err(x) => {
-            let mut data = array_new::<felt>();
-            array_append::<felt>(ref data, x);
+            let mut data = ArrayTrait::new();
+            data.append(x);
             panic(data)
         },
     }
@@ -16,13 +16,13 @@ fn test_declare() {
 fn test_declare_nonexistent() {
     match declare('abcdef') {
         Result::Ok(x) => {
-            let mut data = array_new::<felt>();
-            array_append::<felt>(ref data, x);
+            let mut data = ArrayTrait::new();
+            data.append(x);
             panic(data)
         },
         Result::Err(x) => {
-            let mut data = array_new::<felt>();
-            array_append::<felt>(ref data, x);
+            let mut data = ArrayTrait::new();
+            data.append(x);
             panic(data)
         },
     }
@@ -32,13 +32,13 @@ fn test_declare_nonexistent() {
 fn test_declare_broken() {
     match declare('broken') {
         Result::Ok(x) => {
-            let mut data = array_new::<felt>();
-            array_append::<felt>(ref data, x);
+            let mut data = ArrayTrait::new();
+            data.append(x);
             panic(data)
         },
         Result::Err(x) => {
-            let mut data = array_new::<felt>();
-            array_append::<felt>(ref data, x);
+            let mut data = ArrayTrait::new();
+            data.append(x);
             panic(data)
         },
     }
@@ -48,13 +48,13 @@ fn test_declare_broken() {
 fn test_declare_cairo0() {
     match declare('cairo0') {
         Result::Ok(x) => {
-            let mut data = array_new::<felt>();
-            array_append::<felt>(ref data, x);
+            let mut data = ArrayTrait::new();
+            data.append(x);
             panic(data)
         },
         Result::Err(x) => {
-            let mut data = array_new::<felt>();
-            array_append::<felt>(ref data, x);
+            let mut data = ArrayTrait::new();
+            data.append(x);
             panic(data)
         },
     }
