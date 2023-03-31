@@ -7,6 +7,7 @@ import pytest
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import StarknetChainId
 
+from protostar.cairo import cairo_bindings
 from protostar.cli import MessengerFactory
 from protostar.cli.signable_command_util import PRIVATE_KEY_ENV_VAR_NAME
 from protostar.commands import DeclareCairo1Command
@@ -39,15 +40,6 @@ async def test_declaring_cairo1_contract(
     set_private_key_env_var: SetPrivateKeyEnvVarFixture,
     datadir: Path,
 ):
-    # FIXME current compiler outputs don't work with declare
-    # contract_path = tmp_path / "balance.json"
-    # cairo_bindings.compile_starknet_contract_to_sierra_from_path(
-    #     input_path=datadir / "balance.cairo",
-    #     output_path=contract_path
-    # )
-    sierra_contract = (datadir / "minimal_contract_compiled.json").read_text("utf-8")
-    casm_contract = (datadir / "minimal_contract_compiled.casm").read_text("utf-8")
-
     class MockedProjectCompiler(ProjectCompiler):
         def __init__(self):
             super().__init__(MagicMock(), MagicMock())
@@ -56,13 +48,21 @@ async def test_declaring_cairo1_contract(
             self, *args: Any, **kwargs: Any
         ):
             # pylint: disable=unused-argument
-            return sierra_contract
+            compiled = cairo_bindings.compile_starknet_contract_to_sierra_from_path(
+                input_path=datadir / "minimal.cairo",
+            )
+            assert compiled is not None
+            return compiled
 
         def compile_contract_to_casm_from_contract_name(
             self, *args: Any, **kwargs: Any
         ):
             # pylint: disable=unused-argument
-            return casm_contract
+            compiled = cairo_bindings.compile_starknet_contract_to_casm_from_path(
+                input_path=datadir / "minimal.cairo",
+            )
+            assert compiled is not None
+            return compiled
 
     declare = DeclareCairo1Command(
         gateway_facade_factory=GatewayFacadeFactory(Path("")),
