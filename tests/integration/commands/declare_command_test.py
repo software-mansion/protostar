@@ -34,12 +34,8 @@ def compiled_contract_path_fixture() -> Path:
     return Path("./build/main.json")
 
 
-async def test_declaring_cairo1_contract(
-    devnet_gateway_url: str,
-    devnet_account: DevnetAccount,
-    set_private_key_env_var: SetPrivateKeyEnvVarFixture,
-    datadir: Path,
-):
+@pytest.fixture(name="mocked_project_compiler")
+def mocked_project_compiler_fixture(datadir: Path) -> ProjectCompiler:
     class MockedProjectCompiler(ProjectCompiler):
         def __init__(self):
             super().__init__(MagicMock(), MagicMock())
@@ -64,13 +60,22 @@ async def test_declaring_cairo1_contract(
             assert compiled is not None
             return compiled
 
+    return MockedProjectCompiler()
+
+
+async def test_declaring_cairo1_contract(
+    devnet_gateway_url: str,
+    devnet_account: DevnetAccount,
+    set_private_key_env_var: SetPrivateKeyEnvVarFixture,
+    mocked_project_compiler: ProjectCompiler,
+):
     declare = DeclareCairo1Command(
         gateway_facade_factory=GatewayFacadeFactory(Path("")),
         messenger_factory=MessengerFactory(
             log_color_provider=log_color_provider,
             activity_indicator=MagicMock(),
         ),
-        project_compiler=MockedProjectCompiler(),
+        project_compiler=mocked_project_compiler,
     )
 
     args = Namespace(
