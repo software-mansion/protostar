@@ -82,7 +82,6 @@ async def test_declaring_cairo1_contract(
         chain_id=StarknetChainId.TESTNET,
         account_address=devnet_account.address,
         contract="minimal",
-        compiled_class_hash=0x56B935FA8AF97EC603A96A3E1870CA193DA4CF08B8DA3F12E023E67A82B5A7E,
         gateway_url=devnet_gateway_url,
         max_fee=int(1e16),
         wait_for_acceptance=False,
