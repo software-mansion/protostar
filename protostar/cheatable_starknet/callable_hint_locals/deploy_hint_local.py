@@ -17,10 +17,25 @@ class DeployHintLocal(CallableHintLocal):
 
     @property
     def name(self) -> str:
-        return "deploy"
+        return "deploy_tp"
 
-    def _build(self) -> Callable[[Any], Any]:
-        return self.deploy_prepared
+    def _build(self) -> Callable[[list[int], int, int], Any]:
+        return self.deploy_prepared_tp
+
+    def deploy_prepared_tp(
+        self,
+        constructor_calldata: list[int],
+        contract_address: int,
+        class_hash: int,
+    ):
+        return self.deploy_prepared(
+            PreparedContract(
+                constructor_calldata=constructor_calldata,
+                contract_address=contract_address,
+                class_hash=class_hash,
+                salt=0,
+            )
+        )
 
     def deploy_prepared(
         self,
