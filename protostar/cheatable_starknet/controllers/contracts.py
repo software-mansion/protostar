@@ -1,15 +1,24 @@
 import collections
 import copy
 from dataclasses import dataclass
-from typing import List, Optional, cast
+from typing import List, Optional, cast, Tuple
 
-from starkware.starknet.business_logic.execution.objects import CallType
+from starkware.starknet.business_logic.execution.objects import (
+    CallType,
+    CallInfo,
+    ExecutionResourcesManager,
+)
 from starkware.starknet.business_logic.execution.objects import Event as StarknetEvent
+from starkware.starknet.business_logic.state.state_api import SyncState
 from starkware.starknet.business_logic.transaction.objects import InternalDeclare
 from starkware.starknet.definitions.constants import GasCost
+from starkware.starknet.core.os.contract_class.compiled_class_hash import (
+    compute_compiled_class_hash,
+)
 from starkware.starknet.public.abi import AbiType, CONSTRUCTOR_ENTRY_POINT_SELECTOR
 from starkware.starknet.services.api.gateway.transaction import (
     DEFAULT_DECLARE_SENDER_ADDRESS,
+    DeprecatedDeclare,
 )
 from starkware.starknet.testing.contract import DeclaredClass
 from starkware.starknet.testing.contract_utils import EventManager
@@ -23,6 +32,8 @@ from starkware.starknet.definitions.general_config import StarknetGeneralConfig
 from starkware.starknet.services.api.contract_class.contract_class import (
     EntryPointType,
     DeprecatedCompiledClass,
+    ContractClass,
+    CompiledClass,
 )
 
 from protostar.cheatable_starknet.cheatables.cheatable_execute_entry_point import (
@@ -31,6 +42,7 @@ from protostar.cheatable_starknet.cheatables.cheatable_execute_entry_point impor
 from protostar.cheatable_starknet.cheatables.cheatable_cached_state import (
     CheatableCachedState,
 )
+
 from protostar.cheatable_starknet.controllers.expect_events_controller import Event
 from protostar.starknet.selector import Selector
 from protostar.starknet.address import Address
@@ -62,6 +74,12 @@ class DeclaredContract:
 
 
 @dataclass(frozen=True)
+class DeclaredSierraClass:
+    class_hash: int
+    abi: str
+
+
+@dataclass(frozen=True)
 class PreparedContract:
     constructor_calldata: list[int]
     contract_address: int
@@ -72,6 +90,33 @@ class PreparedContract:
 @dataclass(frozen=True)
 class DeployedContract:
     contract_address: int
+
+
+class NonValidatedInternalDeclare(InternalDeclare):
+    # pylint: disable=too-many-ancestors
+
+    def to_external(self) -> DeprecatedDeclare:
+        # It is not implemented in the InternalDeclare itself as wll
+        raise NotImplementedError(
+            "Cannot convert internal declare transaction to external object."
+        )
+
+    def run_validate_entrypoint(
+        self,
+        remaining_gas: int,
+        state: SyncState,
+        resources_manager: ExecutionResourcesManager,
+        general_config: StarknetGeneralConfig,
+    ) -> Tuple[Optional[CallInfo], int]:
+        """
+        This hack might interfere with other things
+
+        By default, InternalDeclare has a quite complicated run_validate_entrypoint method
+        that among other things verifies if the sender_address of the Declare transaction is of a deployed contract.
+        There's no account in protostar internals so this validation will always fail. This hack completely removes
+        any form of validation.
+        """
+        return None, remaining_gas
 
 
 class ContractsController:
@@ -100,10 +145,12 @@ class ContractsController:
     ) -> CairoData:
         if isinstance(calldata, collections.Mapping):
             contract_class = await self.cheatable_state.get_contract_class(class_hash)
+
             assert isinstance(
                 contract_class, DeprecatedCompiledClass
             ), "New contract classes don't support data transformation yet"
 
+            assert isinstance(contract_class, DeprecatedCompiledClass)
             assert contract_class.abi, f"No abi found for the contract at {class_hash}"
 
             transformer = from_python_transformer(
@@ -118,10 +165,48 @@ class ContractsController:
                 ) from dt_exc
         return calldata or []
 
+    async def declare_sierra_contract(
+        self,
+        contract_class: ContractClass,
+        compiled_class: CompiledClass,
+    ) -> DeclaredSierraClass:
+        """
+        Declare a sierra contract.
+
+        @param contract_class: sierra compiled contract to be declared
+        @param compiled_class: casm compiled contract to be declared
+        @return: DeclaredSierraClass instance.
+        """
+        compiled_class_hash = compute_compiled_class_hash(compiled_class)
+
+        starknet_config = StarknetGeneralConfig()
+        tx = NonValidatedInternalDeclare.create(
+            contract_class=contract_class,
+            compiled_class_hash=compiled_class_hash,
+            chain_id=starknet_config.chain_id.value,
+            sender_address=DEFAULT_DECLARE_SENDER_ADDRESS,
+            max_fee=0,
+            version=2,
+            signature=[],
+            nonce=0,
+        )
+
+        with self.cheatable_state.copy_and_apply() as state_copy:
+            await tx.apply_state_updates(
+                state=state_copy, general_config=starknet_config
+            )
+
+        abi = contract_class.abi
+
+        class_hash = tx.class_hash
+        await self.cheatable_state.set_contract_class(class_hash, compiled_class)
+
+        return DeclaredSierraClass(class_hash=class_hash, abi=abi)
+
     async def declare_cairo0_contract(
         self,
         contract_class: DeprecatedCompiledClass,
-    ):
+    ) -> DeclaredClass:
         starknet_config = StarknetGeneralConfig()
         tx = InternalDeclare.create_deprecated(
             contract_class=contract_class,
@@ -140,6 +225,7 @@ class ContractsController:
 
         abi = contract_class.abi
         assert abi is not None
+
         self._add_event_abi_to_state(abi)
         class_hash = tx.class_hash
         assert class_hash is not None

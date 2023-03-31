@@ -17,10 +17,11 @@ from starkware.storage.storage import FactFetchingContext
 from typing_extensions import Self
 
 from protostar.cheatable_starknet.controllers.expect_events_controller import Event
-from protostar.compiler import ProjectCompiler
+from protostar.compiler import Cairo0ProjectCompiler
 from protostar.cheatable_starknet.cheatables.cheatable_cached_state import (
     CheatableCachedState,
 )
+from protostar.compiler.project_compiler import ProjectCompiler
 from protostar.testing.stopwatch import Stopwatch
 from protostar.testing.test_config import TestConfig
 from protostar.testing.test_context import TestContext
@@ -29,11 +30,13 @@ from protostar.testing.test_output_recorder import OutputRecorder
 
 @dataclass
 class CairoTestExecutionState:
+    # pylint: disable=too-many-instance-attributes
     starknet: Starknet
     stopwatch: Stopwatch
     output_recorder: OutputRecorder
     context: TestContext
     config: TestConfig
+    cairo0_project_compiler: Cairo0ProjectCompiler
     project_compiler: ProjectCompiler
     expected_events_list: list[list[Event]] = field(default_factory=list)
 
@@ -54,7 +57,10 @@ class CairoTestExecutionState:
 
     @classmethod
     async def from_test_config(
-        cls, test_config: TestConfig, project_compiler: ProjectCompiler
+        cls,
+        test_config: TestConfig,
+        cairo0_project_compiler: Cairo0ProjectCompiler,
+        project_compiler: ProjectCompiler,
     ):
         general_config = StarknetGeneralConfig()
         ffc = FactFetchingContext(storage=DictStorage(), hash_func=pedersen_hash_func)
@@ -86,5 +92,6 @@ class CairoTestExecutionState:
             output_recorder=OutputRecorder(),
             context=TestContext(),
             config=test_config,
+            cairo0_project_compiler=cairo0_project_compiler,
             project_compiler=project_compiler,
         )

@@ -28,7 +28,7 @@ from protostar.commands.test import TestCommand
 from protostar.compiler import (
     ProjectCairoPathBuilder,
     LinkedLibrariesBuilder,
-    ProjectCompiler,
+    Cairo0ProjectCompiler,
 )
 from protostar.configuration_file import (
     ConfigurationFileFactory,
@@ -70,7 +70,7 @@ def create_protostar_fixture(
         project_root_path=project_root_path,
     )
 
-    project_compiler = ProjectCompiler(
+    project_compiler = Cairo0ProjectCompiler(
         project_root_path=project_root_path,
         project_cairo_path_builder=project_cairo_path_builder,
         configuration_file=configuration_file,
