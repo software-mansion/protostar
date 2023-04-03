@@ -8,7 +8,7 @@ mod MinimalContractWithConstructor {
     fn constructor(
         name_: felt252
     ) {
-        name::write(name);
+        name::write(name_);
     }
 
     #[external]

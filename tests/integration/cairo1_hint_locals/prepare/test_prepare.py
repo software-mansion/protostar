@@ -19,6 +19,7 @@ async def test_prepare_hint_local(protostar: ProtostarFixture, shared_datadir: P
     protostar.create_contracts(
         {
             "minimal_no_args": shared_datadir / "minimal_no_args.cairo",
+            "minimal_with_args": shared_datadir / "minimal_with_args.cairo",
         }
     )
 
