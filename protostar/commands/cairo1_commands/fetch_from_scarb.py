@@ -46,7 +46,7 @@ def read_scarb_metadata(scarb_toml_path: Path) -> Dict:
         )
 
     # only the last line of the output contains metadata
-    result = result.stdout.decode("utf-8").strip().split("\n")[-1]
+    result = result.stdout.strip().split(b"\n")[-1]
 
     try:
         return json.loads(result)
@@ -69,20 +69,21 @@ def maybe_fetch_linked_libraries(project_root_path: Path) -> Optional[List[Path]
     paths: List[Path] = []
 
     try:
-        # is this reliable?
-        comp_unit_idx = 0
-        current_package_name = metadata["compilation_units"][comp_unit_idx]["package"]
+        # assume we have only one entry in workspace section
+        current_package_name = metadata["workspace"]["members"][0]
 
-        for package in metadata["compilation_units"][comp_unit_idx]["components_data"]:
-            if package["name"] == "core":
-                continue
-
-            if package["name"] == current_package_name:
-                continue
-
-            paths.append(package["source_path"])
+        for package in metadata["compilation_units"]:
+            if package["package"] == current_package_name and package["target"][
+                "kind"
+            ] in ["starknet-contract", "lib"]:
+                for component in package["components_data"]:
+                    if (
+                        component["name"] != "core"
+                        and component["package"] != current_package_name
+                    ):
+                        paths.append(Path(component["source_path"]).parent)
 
     except (IndexError, KeyError) as ex:
         raise ScarbMetadataFetchException("Error parsing metadata:\n" + str(ex)) from ex
 
-    return paths
+    return list(dict.fromkeys(paths))  # remove duplicates

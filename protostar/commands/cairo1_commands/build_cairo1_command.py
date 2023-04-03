@@ -92,12 +92,12 @@ class BuildCairo1Command(ProtostarCommand):
             await self._build_contract(
                 contract_name=target_contract_name,
                 output_dir=output_dir,
-                cairo_path=cairo_path,  # pyright: ignore
+                cairo_path=cairo_path,
             )
             return
         for contract_name in self._configuration_file.get_contract_names():
             await self._build_contract(
                 contract_name=contract_name,
                 output_dir=output_dir,
-                cairo_path=cairo_path,  # pyright: ignore
+                cairo_path=cairo_path,
             )
