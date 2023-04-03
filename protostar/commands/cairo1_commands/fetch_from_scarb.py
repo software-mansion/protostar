@@ -1,3 +1,4 @@
+# pyright: reportUnknownLambdaType=false
 from typing import Optional, Dict, List
 from pathlib import Path
 import os
@@ -51,7 +52,7 @@ def read_scarb_metadata(scarb_toml_path: Path) -> Dict:
     try:
         return json.loads(result)
     except json.JSONDecodeError as ex:
-        raise ScarbMetadataFetchException("Failed to decode metadata json.") from ex
+        raise ScarbMetadataFetchException("Failed to decode the metadata json.") from ex
 
 
 def maybe_fetch_linked_libraries(project_root_path: Path) -> Optional[List[Path]]:
@@ -66,24 +67,60 @@ def maybe_fetch_linked_libraries(project_root_path: Path) -> Optional[List[Path]
     scarb_toml_path = project_root_path / "Scarb.toml"
     metadata = read_scarb_metadata(scarb_toml_path)
 
-    paths: List[Path] = []
-
     try:
-        # assume we have only one entry in workspace section
+        # assuming we have only one entry in workspace section
         current_package_name = metadata["workspace"]["members"][0]
 
-        for package in metadata["compilation_units"]:
-            if package["package"] == current_package_name and package["target"][
-                "kind"
-            ] in ["starknet-contract", "lib"]:
-                for component in package["components_data"]:
-                    if (
-                        component["name"] != "core"
-                        and component["package"] != current_package_name
-                    ):
-                        paths.append(Path(component["source_path"]).parent)
+        matching_compilation_units = list(
+            filter(
+                lambda compilation_unit: compilation_unit["package"]
+                == current_package_name,
+                metadata["compilation_units"],
+            )
+        )
+
+        matching_contract_units = list(
+            filter(
+                lambda compilation_unit: compilation_unit["target"]["kind"]
+                == "starknet-contract",
+                matching_compilation_units,
+            )
+        )
+        matching_lib_units = list(
+            filter(
+                lambda compilation_unit: compilation_unit["target"]["kind"] == "lib",
+                matching_compilation_units,
+            )
+        )
+
+        #  lib is the default target
+        unit_with_dependencies = (
+            matching_contract_units[0]
+            if matching_contract_units
+            else matching_lib_units[0]
+        )
+
+        if len(matching_contract_units) > 1:
+            logging.warning(
+                "Scarb found multiple starknet-contract targets - using the target named %s.",
+                {unit_with_dependencies["target"]["name"]},
+            )
+
+        valuable_dependencies = filter(
+            lambda dependency: dependency["name"] != "core"
+            and dependency["package"] != current_package_name,
+            unit_with_dependencies["components_data"],
+        )
+
+        # using path.parent because component["source_path"] points to lib.cairo
+        paths: List[Path] = list(
+            map(
+                lambda component: Path(component["source_path"]).parent,
+                valuable_dependencies,
+            )
+        )
 
     except (IndexError, KeyError) as ex:
         raise ScarbMetadataFetchException("Error parsing metadata:\n" + str(ex)) from ex
 
-    return list(dict.fromkeys(paths))  # remove duplicates
+    return paths
