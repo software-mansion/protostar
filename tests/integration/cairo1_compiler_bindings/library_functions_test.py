@@ -66,9 +66,7 @@ def get_mock_for_lib_func(
                 "contract_address": return_values_provider(test_case_name)[
                     "contract_address"
                 ],
-                "class_hash": return_values_provider(test_case_name)[
-                    "return_class_hash"
-                ],
+                "class_hash": return_values_provider(test_case_name)["class_hash"],
             },
         )()
         return_value = type(
@@ -251,17 +249,17 @@ def test_prepare(datadir: Path):
         "test_prepare": {
             "constructor_calldata": [101, 202, 613, 721],
             "contract_address": 111,
-            "return_class_hash": 222,
+            "class_hash": 222,
         },
         "test_prepare_tp": {
             "constructor_calldata": [3, 2, 1],
             "contract_address": 0,
-            "return_class_hash": 444,
+            "class_hash": 444,
         },
         "test_prepare_no_args": {
             "constructor_calldata": [],
             "contract_address": 999,
-            "return_class_hash": 345,
+            "class_hash": 345,
         },
     }
 
