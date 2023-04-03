@@ -34,7 +34,7 @@ def read_scarb_metadata(scarb_toml_path: Path) -> Dict:
                 "1",
             ],
             check=False,  # don't throw exception on fail
-            cwd=scarb_toml_path,
+            cwd=scarb_toml_path.parent,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
         )
