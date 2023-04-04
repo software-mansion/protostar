@@ -34,4 +34,7 @@ async def test_deploy_hint_local(protostar: ProtostarFixture, shared_datadir: Pa
             "test_deploy",
             "test_deploy_with_ctor",
         ],
+        expected_failed_test_cases_names=[
+            "test_deploy_with_ctor_invalid_calldata",
+        ],
     )
