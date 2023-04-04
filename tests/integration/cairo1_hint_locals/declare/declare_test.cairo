@@ -1,63 +1,23 @@
 use array::ArrayTrait;
+use result::ResultTrait;
 
 #[test]
 fn test_declare() {
-    match declare('minimal') {
-        Result::Ok(class_hash) => {
-            assert(class_hash != 0, 'class_hash != 0');
-        },
-        Result::Err(x) => {
-            let mut data = ArrayTrait::new();
-            data.append(x);
-            panic(data)
-        },
-    }
+    let class_hash = declare('minimal').unwrap();
+    assert(class_hash != 0, 'class_hash != 0');
 }
 
 #[test]
 fn test_declare_nonexistent() {
-    match declare('abcdef') {
-        Result::Ok(x) => {
-            let mut data = ArrayTrait::new();
-            data.append(x);
-            panic(data)
-        },
-        Result::Err(x) => {
-            let mut data = ArrayTrait::new();
-            data.append(x);
-            panic(data)
-        },
-    }
+    declare('abcdef').unwrap();
 }
 
 #[test]
 fn test_declare_broken() {
-    match declare('broken') {
-        Result::Ok(x) => {
-            let mut data = ArrayTrait::new();
-            data.append(x);
-            panic(data)
-        },
-        Result::Err(x) => {
-            let mut data = ArrayTrait::new();
-            data.append(x);
-            panic(data)
-        },
-    }
+    declare('broken').unwrap();
 }
 
 #[test]
 fn test_declare_cairo0() {
-    match declare('cairo0') {
-        Result::Ok(x) => {
-            let mut data = ArrayTrait::new();
-            data.append(x);
-            panic(data)
-        },
-        Result::Err(x) => {
-            let mut data = ArrayTrait::new();
-            data.append(x);
-            panic(data)
-        },
-    }
+    declare('cairo0').unwrap();
 }
