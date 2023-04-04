@@ -15,12 +15,11 @@ def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
         yield protostar
 
 
-async def test_declare_hint_local(protostar: ProtostarFixture, shared_datadir: Path):
+async def test_deploy_hint_local(protostar: ProtostarFixture, shared_datadir: Path):
     protostar.create_contracts(
         {
             "minimal": shared_datadir / "minimal.cairo",
-            "broken": shared_datadir / "broken.cairo",
-            "cairo0": shared_datadir / "cairo0.cairo",
+            "with_ctor": shared_datadir / "with_ctor.cairo",
         }
     )
 
@@ -33,6 +32,6 @@ async def test_declare_hint_local(protostar: ProtostarFixture, shared_datadir: P
         testing_summary,
         expected_passed_test_cases_names=[
             "test_deploy",
+            "test_deploy_with_ctor",
         ],
-        expected_broken_test_cases_names=[],
     )
