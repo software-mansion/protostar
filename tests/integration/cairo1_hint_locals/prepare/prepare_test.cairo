@@ -1,5 +1,7 @@
 use array::ArrayTrait;
 use result::ResultTrait;
+use src::minimal_with_args::MinimalContractWithConstructor::Man;
+
 
 #[test]
 fn test_prepare_no_args() {
@@ -13,6 +15,7 @@ fn test_prepare_no_args() {
 #[test]
 fn test_prepare_with_args() {
     let class_hash = declare('minimal_with_args').unwrap();
+    let man = Man { hunger: 3, strength: 4 };
 
     let mut calldata = ArrayTrait::new();
     calldata.append('name');
