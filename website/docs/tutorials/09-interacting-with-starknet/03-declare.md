@@ -1,7 +1,7 @@
 # Declaring new contracts
 
 ## Overview
-StarkNet provides a distinction between contract class and instance. To deploy a new contract, you need to:
+Starknet provides a distinction between contract class and instance. To deploy a new contract, you need to:
 1. Declare a contract
 2. Use the deploy syscall with the `class_hash` from the declare transaction as an argument
    ```cairo

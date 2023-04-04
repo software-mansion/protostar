@@ -57,7 +57,7 @@ class InvokeCommand(ProtostarCommand):
 
     @property
     def description(self) -> str:
-        return "Sends an invoke transaction to the StarkNet sequencer."
+        return "Sends an invoke transaction to the Starknet sequencer."
 
     @property
     def example(self) -> Optional[str]:

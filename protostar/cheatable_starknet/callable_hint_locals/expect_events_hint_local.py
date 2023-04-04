@@ -20,7 +20,10 @@ class RawExpectedEvent(TypedDict):
 
 
 class ExpectEventsHintLocal(CallableHintLocal):
-    def __init__(self, controller: ExpectEventsController):
+    def __init__(
+        self,
+        controller: ExpectEventsController,
+    ):
         self._controller = controller
 
     @property

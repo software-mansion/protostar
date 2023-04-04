@@ -5,7 +5,7 @@ from typing import Optional, Any
 from protostar.cli import ProtostarCommand
 from protostar.cli.common_arguments import (
     COMPILED_CONTRACTS_DIR_ARG,
-    CAIRO_PATH,
+    LINKED_LIBRARIES,
     CONTRACT_NAME,
 )
 from protostar.configuration_file.configuration_file import ConfigurationFile
@@ -40,7 +40,7 @@ class BuildCairo1Command(ProtostarCommand):
     @property
     def arguments(self):
         return [
-            CAIRO_PATH,
+            LINKED_LIBRARIES,
             COMPILED_CONTRACTS_DIR_ARG,
             CONTRACT_NAME,
         ]
@@ -50,7 +50,7 @@ class BuildCairo1Command(ProtostarCommand):
         try:
             await self.build(
                 output_dir=args.compiled_contracts_dir,
-                relative_cairo_path=args.cairo_path,
+                relative_cairo_path=args.linked_libraries,
                 target_contract_name=args.contract_name,
             )
         except BaseException as ex:

@@ -328,31 +328,31 @@ class ContractsController:
 
     async def prepare(
         self,
-        declared: DeclaredContract,
+        class_hash: int,
         constructor_calldata: CairoOrPythonData,
         salt: int,
     ) -> PreparedContract:
         constructor_calldata = await self._transform_calldata_to_cairo_data(
-            class_hash=declared.class_hash,
+            class_hash=class_hash,
             function_name="constructor",
             calldata=constructor_calldata,
         )
 
         contract_address = calculate_contract_address_from_hash(
             salt=salt,
-            class_hash=declared.class_hash,
+            class_hash=class_hash,
             constructor_calldata=constructor_calldata,
             deployer_address=0,
         )
 
         self.cheatable_state.contract_address_to_class_hash_map[
             Address(contract_address)
-        ] = declared.class_hash
+        ] = class_hash
 
         return PreparedContract(
             constructor_calldata=constructor_calldata,
             contract_address=contract_address,
-            class_hash=declared.class_hash,
+            class_hash=class_hash,
             salt=salt,
         )
 
