@@ -27,12 +27,12 @@ Print machine-readable output in [NDJSON](https://github.com/ndjson/ndjson-spec)
 $ protostar build-cairo1
 ```
 Compile cairo1 contracts.
-#### `--cairo-path PATH[]`
-Additional directories to look for sources.
 #### `--compiled-contracts-dir PATH=build`
 An output directory used to put the compiled contracts in.
 #### `--contract-name STRING`
 Specify a contract name that should be built.
+#### `--linked-libraries PATH[]`
+Paths to cairo1 modules
 ### `cairo-migrate`
 Migrate project sources to Cairo 0.10.
 #### `targets STRING[]=['.']`
@@ -436,7 +436,7 @@ Print machine-readable output in [NDJSON](https://github.com/ndjson/ndjson-spec)
 #### `-lf` `--last-failed`
 Only re-run failed and broken test cases.
 #### `--linked-libraries PATH[]`
-Libraries to include in compilation
+Paths to cairo1 modules
 #### `--no-progress-bar`
 Disable progress bar.
 #### `--report-slowest-tests INT`
