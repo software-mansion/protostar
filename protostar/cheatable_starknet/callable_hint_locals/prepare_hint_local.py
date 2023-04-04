@@ -7,14 +7,13 @@ from protostar.cheatable_starknet.callable_hint_locals.callable_hint_local impor
 from protostar.cheatable_starknet.controllers.contracts import (
     ContractsCheaterException,
     ContractsController,
-    DeclaredContract,
     PreparedContract,
 )
 from protostar.starknet import CheatcodeException
 from protostar.starknet.data_transformer import CairoOrPythonData
 
 
-class PrepareCairo0HintLocal(CallableHintLocal):
+class PrepareHintLocal(CallableHintLocal):
     salt_nonce = 1
 
     def __init__(self, contracts_controller: ContractsController):
@@ -22,37 +21,37 @@ class PrepareCairo0HintLocal(CallableHintLocal):
 
     @property
     def name(self) -> str:
-        return "prepare_tp_cairo0"
+        return "prepare_tp"
 
     def _build(self) -> Callable[[Any], Any]:
-        return self.prepare_cairo0
+        return self.prepare
 
-    def prepare_cairo0(
+    def prepare(
         self,
-        declared: DeclaredContract,
-        constructor_calldata: Optional[CairoOrPythonData] = None,
-        salt: Optional[int] = None,
+        class_hash: int,
+        calldata: Optional[CairoOrPythonData] = None,
     ) -> PreparedContract:
         return asyncio.run(
-            self._prepare_cairo0(
-                declared=declared, constructor_calldata=constructor_calldata, salt=salt
+            self._prepare(
+                class_hash=class_hash,
+                constructor_calldata=calldata,
             )
         )
 
-    async def _prepare_cairo0(
+    async def _prepare(
         self,
-        declared: DeclaredContract,
+        class_hash: int,
         constructor_calldata: Optional[CairoOrPythonData] = None,
-        salt: Optional[int] = None,
     ) -> PreparedContract:
-        contract_salt = PrepareCairo0HintLocal.salt_nonce
-        PrepareCairo0HintLocal.salt_nonce += 1
-        salt = salt or contract_salt
+        salt = PrepareHintLocal.salt_nonce
+        PrepareHintLocal.salt_nonce += 1
         constructor_calldata = constructor_calldata or []
 
         try:
-            return await self._contracts_controller.prepare_cairo0(
-                declared=declared, constructor_calldata=constructor_calldata, salt=salt
+            return await self._contracts_controller.prepare(
+                class_hash=class_hash,
+                constructor_calldata=constructor_calldata,
+                salt=salt,
             )
         except ContractsCheaterException as exc:
             raise CheatcodeException(self, exc.message) from exc

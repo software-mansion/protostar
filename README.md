@@ -2,7 +2,7 @@
   <img src="./readme/protostar-logo--light.svg#gh-light-mode-only" width=300 alt="protostar-logo" />
   <img src="./readme/protostar-logo--dark.svg#gh-dark-mode-only" width=300 alt="protostar-logo" />
 
-  <h4>StarkNet smart contract development toolchain</h4>
+  <h4>Starknet smart contract development toolchain</h4>
 
 </div>
 
@@ -30,7 +30,7 @@ Protostar manages your dependencies, compiles your project, and runs tests.
 https://docs.swmansion.com/protostar/
 
 ### Additional resources
-- [Testing StarkNet contracts made easy with Protostar](https://blog.swmansion.com/testing-starknet-contracts-made-easy-with-protostar-2ecdad3c9133)
+- [Testing Starknet contracts made easy with Protostar](https://blog.swmansion.com/testing-starknet-contracts-made-easy-with-protostar-2ecdad3c9133)
 
 ## Installation
 
@@ -53,7 +53,7 @@ curl -L https://raw.githubusercontent.com/software-mansion/protostar/master/inst
 ### Requirements
 - good knowledge of [Python](https://www.python.org/)
 - good knowledge of [pytest](https://docs.pytest.org/en/7.1.x/)
-- basic knowledge of [Cairo and StarkNet](https://www.cairo-lang.org/docs/index.html)
+- basic knowledge of [Cairo and Starknet](https://www.cairo-lang.org/docs/index.html)
 - basic knowledge of [mypy](https://mypy.readthedocs.io/en/stable/getting_started.html)
 
 

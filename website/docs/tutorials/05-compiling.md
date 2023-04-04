@@ -4,7 +4,7 @@ sidebar_label: Compilation
 
 # Compiling a Project with Protostar
 
-To compile your StarkNet contracts using Protostar, follow these steps:
+To compile your Starknet contracts using Protostar, follow these steps:
 
 1. Specify the contracts and their corresponding Cairo source files in the [`protostar.toml` configuration file](/docs/tutorials/configuration-file).
 Each Cairo file that contains an entrypoint function should be listed in the [`contracts` section of the configuration file](/docs/tutorials/configuration-file#contracts).

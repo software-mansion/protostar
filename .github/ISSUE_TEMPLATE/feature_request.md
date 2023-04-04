@@ -7,4 +7,4 @@ assignees: ''
 
 ---
 
-As a StarkNet smart contract developer, I want `<GOAL>` so that `<REASON>`.
+As a Starknet smart contract developer, I want `<GOAL>` so that `<REASON>`.

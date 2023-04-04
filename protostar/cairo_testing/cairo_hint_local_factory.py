@@ -11,8 +11,8 @@ from protostar.cheatable_starknet.callable_hint_locals import (
     PrankHintLocal,
     RollHintLocal,
     WarpHintLocal,
-    DeployCairo0HintLocal,
-    PrepareCairo0HintLocal,
+    DeployHintLocal,
+    PrepareHintLocal,
     DeclareCairo0HintLocal,
     DeclareHintLocal,
     StopWarpHintLocal,
@@ -74,16 +74,24 @@ class CairoSharedHintLocalFactory:
             project_compiler=self.cairo0_project_compiler,
             contracts_controller=contracts_controller,
         )
-        prepare_cairo0_cheatcode = PrepareCairo0HintLocal(
+        prepare_cairo0_cheatcode = PrepareHintLocal(
             contracts_controller=contracts_controller,
         )
-        deploy_cairo0_cheatcode = DeployCairo0HintLocal(
+        deploy_cairo0_cheatcode = DeployHintLocal(
             contracts_controller=contracts_controller,
         )
 
         expect_call_controller = ExpectCallController(
-            test_finish_hook=self._test_finish_hook,
             cheatable_state=self._test_execution_state.cheatable_state,
+        )
+        expect_events_controller = ExpectEventsController(
+            test_execution_state=self._test_execution_state,
+            cheatable_state=self._test_execution_state.cheatable_state,
+        )
+
+        self._test_finish_hook.on(expect_call_controller.assert_no_expected_calls_left)
+        self._test_finish_hook.on(
+            expect_events_controller.compare_expected_and_actual_results
         )
 
         return [
@@ -110,13 +118,7 @@ class CairoSharedHintLocalFactory:
             InvokeHintLocal(contracts_controller=contracts_controller),
             StoreHintLocal(storage_controller=storage_controller),
             LoadHintLocal(storage_controller=storage_controller),
-            ExpectEventsHintLocal(
-                controller=ExpectEventsController(
-                    test_finish_hook=self._test_finish_hook,
-                    test_execution_state=self._test_execution_state,
-                    cheatable_state=self._test_execution_state.cheatable_state,
-                ),
-            ),
+            ExpectEventsHintLocal(controller=expect_events_controller),
             MockCallHintLocal(controller=contracts_controller),
             ExpectCallHintLocal(controller=expect_call_controller),
             AssertExpectCallHintLocal(controller=expect_call_controller),

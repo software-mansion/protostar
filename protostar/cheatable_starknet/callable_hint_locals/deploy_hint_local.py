@@ -11,25 +11,25 @@ from protostar.cheatable_starknet.controllers.contracts import (
 from .callable_hint_local import CallableHintLocal
 
 
-class DeployCairo0HintLocal(CallableHintLocal):
+class DeployHintLocal(CallableHintLocal):
     def __init__(self, contracts_controller: ContractsController):
         self._contracts_controller = contracts_controller
 
     @property
     def name(self) -> str:
-        return "deploy_tp_cairo0"
+        return "deploy_tp"
 
     def _build(self) -> Callable[[Any], Any]:
-        return self.deploy_cairo0_prepared
+        return self.deploy_prepared
 
-    def deploy_cairo0_prepared(
+    def deploy_prepared(
         self,
         prepared: PreparedContract,
     ):
-        return asyncio.run(self._run_deploy_cairo0_prepared(prepared))
+        return asyncio.run(self._run_deploy_prepared(prepared))
 
-    async def _run_deploy_cairo0_prepared(self, prepared: PreparedContract):
+    async def _run_deploy_prepared(self, prepared: PreparedContract):
         try:
-            return await self._contracts_controller.deploy_cairo0_prepared(prepared)
+            return await self._contracts_controller.deploy_prepared(prepared)
         except ContractsCheaterException as exc:
             raise CheatcodeException(self, exc.message) from exc

@@ -7,7 +7,7 @@ const darkCodeTheme = require("prism-react-renderer/themes/dracula");
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: "Protostar",
-  tagline: "StarkNet smart contract development toolchain",
+  tagline: "Starknet smart contract development toolchain",
   url: "https://docs.swmansion.com",
   baseUrl: "/protostar/",
   onBrokenLinks: "throw",
@@ -91,7 +91,7 @@ const config = {
       tagName: "meta",
       attributes: {
         property: "og:image:alt",
-        content: "StarkNet smart contract development toolchain."
+        content: "Starknet smart contract development toolchain."
       }
     },
     {

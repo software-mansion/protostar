@@ -2,7 +2,7 @@
 authors = [
     "tomasz.rejowski <tomasz.rejowski@swmansion.com>",
 ]
-description = "Toolchain for developing, testing and interacting with Cairo contracts for StarkNet"
+description = "Toolchain for developing, testing and interacting with Cairo contracts for Starknet"
 license = "MIT"
 name = "protostar"
 readme = "README.md"
@@ -30,7 +30,7 @@ maturin = "^0.14.16"
 
 [tool.poetry.dev-dependencies]
 GitPython = "^3.1.31"
-black = "^23.1.0"
+black = "^23.3.0"
 freezegun = "^1.2.1"
 pexpect = "^4.8.0"
 poethepoet = "^0.19.0"
