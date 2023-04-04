@@ -11,7 +11,8 @@ from protostar.cli.common_arguments import (
 from protostar.configuration_file.configuration_file import ConfigurationFile
 import protostar.cairo.cairo_bindings as cairo1
 
-from .fetch_from_scarb import maybe_fetch_linked_libraries
+from .fetch_from_scarb import maybe_fetch_linked_libraries, has_scarb_toml
+from ...protostar_exception import ProtostarException
 
 
 class BuildCairo1Command(ProtostarCommand):
@@ -84,6 +85,13 @@ class BuildCairo1Command(ProtostarCommand):
         cairo_path = relative_cairo_path or []
 
         libraries = maybe_fetch_linked_libraries(self._project_root_path)
+
+        if has_scarb_toml(self._project_root_path) and cairo_path:
+            raise ProtostarException(
+                "Provided linked-libraries (explicitly or in protostar.toml) while Scarb.toml was present. "
+                "Manage all of your dependencies using Scarb."
+            )
+
         cairo_path += libraries or []
 
         if not output_dir.is_absolute():

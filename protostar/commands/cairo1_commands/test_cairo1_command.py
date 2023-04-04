@@ -24,7 +24,7 @@ from protostar.commands.test.test_command_cache import TestCommandCache
 from protostar.commands.test.messages import TestCollectorResultMessage
 from protostar.cairo_testing.cairo1_test_collector import Cairo1TestCollector
 from protostar.cairo_testing.cairo1_test_runner import Cairo1TestRunner
-from .fetch_from_scarb import maybe_fetch_linked_libraries
+from .fetch_from_scarb import maybe_fetch_linked_libraries, has_scarb_toml
 from ...protostar_exception import ProtostarException
 
 
@@ -87,7 +87,8 @@ A glob or globs to a directory or a test suite, for example:
             ProtostarArgument(
                 name="linked-libraries",
                 value_parser="list",
-                description="Libraries to include in compilation",  # TODO: provide info about error with Scarb.toml
+                description="Libraries to include in compilation. "
+                "Shouldn't be explicitly provided when managing dependencies using Scarb.",
                 type="path",
             ),
             ProtostarArgument(
@@ -123,9 +124,9 @@ A glob or globs to a directory or a test suite, for example:
 
         libraries = maybe_fetch_linked_libraries(self._project_root_path) or []
 
-        if libraries and args.linked_libraries:
+        if has_scarb_toml(self._project_root_path) and args.linked_libraries:
             raise ProtostarException(
-                "Provided linked-libraries argument while Scarb.toml was present. "
+                "Provided linked-libraries (explicitly or in protostar.toml) while Scarb.toml was present. "
                 "Manage all of your dependencies using Scarb."
             )
 

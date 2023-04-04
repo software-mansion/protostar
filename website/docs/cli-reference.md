@@ -436,7 +436,7 @@ Print machine-readable output in [NDJSON](https://github.com/ndjson/ndjson-spec)
 #### `-lf` `--last-failed`
 Only re-run failed and broken test cases.
 #### `--linked-libraries PATH[]`
-Libraries to include in compilation
+Libraries to include in compilation. Shouldn't be explicitly provided when managing dependencies using Scarb.
 #### `--no-progress-bar`
 Disable progress bar.
 #### `--report-slowest-tests INT`

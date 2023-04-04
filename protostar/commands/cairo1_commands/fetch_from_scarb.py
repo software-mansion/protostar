@@ -107,15 +107,16 @@ def maybe_fetch_linked_libraries(project_root_path: Path) -> Optional[List[Path]
             )
 
         valuable_dependencies = filter(
-            lambda dependency: dependency["name"] != "core"
-            and dependency["package"] != current_package_name,
+            lambda dependency: dependency["name"] != "core",
             unit_with_dependencies["components_data"],
         )
 
         # using path.parent because component["source_path"] points to lib.cairo
         paths: List[Path] = list(
             map(
-                lambda component: Path(component["source_path"]).parent,
+                lambda component: find_directory_with_cairo_project_toml(
+                    Path(component["source_path"])
+                ),
                 valuable_dependencies,
             )
         )
@@ -124,3 +125,12 @@ def maybe_fetch_linked_libraries(project_root_path: Path) -> Optional[List[Path]
         raise ScarbMetadataFetchException("Error parsing metadata:\n" + str(ex)) from ex
 
     return paths
+
+
+def find_directory_with_cairo_project_toml(lib_cairo_path: Path) -> Path:
+    src_directory_path = lib_cairo_path.parent
+    return (
+        src_directory_path
+        if "cairo_project.toml" in os.listdir(src_directory_path)
+        else src_directory_path.parent
+    )
