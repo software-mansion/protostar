@@ -6,7 +6,6 @@ from protostar.starknet import CairoOrPythonData, Address
 from protostar.starknet.selector import Selector
 
 if TYPE_CHECKING:
-    from protostar.testing import Hook
     from protostar.cheatable_starknet.cheatables.cheatable_cached_state import (
         CheatableCachedState,
     )
@@ -31,12 +30,9 @@ class ExpectedCall:
 class ExpectCallController:
     def __init__(
         self,
-        test_finish_hook: "Hook",
         cheatable_state: "CheatableCachedState",
     ) -> None:
-        self._test_finish_hook = test_finish_hook
         self._cheatable_state = cheatable_state
-        self._test_finish_hook.on(self.assert_no_expected_calls_left)
 
     def add_expected_call(self, expected_call: ExpectedCall):
         contract_address = Address(int(expected_call.address))
