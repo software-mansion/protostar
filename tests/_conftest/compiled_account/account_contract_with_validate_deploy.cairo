@@ -33,7 +33,7 @@ const FALSE = 0;
 // Hashing Transactions
 //
 
-const PREFIX_TRANSACTION = 'StarkNet Transaction';
+const PREFIX_TRANSACTION = 'Starknet Transaction';
 
 //
 // Numbers

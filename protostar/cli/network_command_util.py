@@ -24,7 +24,7 @@ class NetworkCommandUtil:
     network_arguments = [
         ProtostarArgument(
             name=GATEWAY_URL_ARG_NAME,
-            description="The URL of a StarkNet gateway. It is required unless `--network` is provided.",
+            description="The URL of a Starknet gateway. It is required unless `--network` is provided.",
             type="str",
         ),
         ProtostarArgument(
@@ -38,10 +38,10 @@ class NetworkCommandUtil:
             description=(
                 "\n".join(
                     [
-                        "The name of the StarkNet network.",
+                        "The name of the Starknet network.",
                         "It is required unless `--gateway-url` is provided.",
                         "",
-                        "Supported StarkNet networks:",
+                        "Supported Starknet networks:",
                     ]
                     + [f"- `{n}`" for n in NETWORKS]
                 )
