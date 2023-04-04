@@ -69,7 +69,7 @@ class TestCollectorPassManagerFactory(StarknetPassManagerFactory):
 
 class ProtostarPassMangerFactory(StarknetPassManagerFactory):
     """
-    Standard StarkNet pass which includes types used for storage_vars in ABI.
+    Standard Starknet pass which includes types used for storage_vars in ABI.
     """
 
     @staticmethod
