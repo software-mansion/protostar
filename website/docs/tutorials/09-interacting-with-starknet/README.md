@@ -1,9 +1,9 @@
-## Interacting with StarkNet
+## Interacting with Starknet
 
-Protostar provides a couple of commands allowing users to interact with StarkNet without the need to
+Protostar provides a couple of commands allowing users to interact with Starknet without the need to
 install [`cairo-lang`](https://pypi.org/project/cairo-lang/) Python package locally.
 
-Protostar offers similar CLI to [StarkNet's CLI](https://docs.starknet.io/docs/CLI/commands). 
+Protostar offers similar CLI to [Starknet's CLI](https://docs.starknet.io/docs/CLI/commands). 
 However, with Protostar you can move deployment configuration to [`protostar.toml`](/docs/tutorials/project-initialization#protostartoml) and display help for each command.
 
 ```mdx-code-block

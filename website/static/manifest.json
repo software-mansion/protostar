@@ -3,7 +3,7 @@
   "name": "Protostar",
   "short_name": "Protostar",
   "background_color": "#fff",
-  "description": "StarkNet smart contract development toolchain.",
+  "description": "Starknet smart contract development toolchain.",
   "dir": "auto",
   "lang": "en",
   "orientation": "any",

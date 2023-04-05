@@ -29,7 +29,7 @@ export default function Home(): JSX.Element {
             <ToolsIcon className="fill-icons" width={64} height={64} />
           )}
           title="Compile"
-          description="No need for setting up Cairo and StarkNet"
+          description="No need for setting up Cairo and Starknet"
         />
         <HomepageFeature
           renderIcon={() => (

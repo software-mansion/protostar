@@ -141,7 +141,7 @@ func test_sending_events_from_test_case_and_l1_handler{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
 }() {
     // This test protects against regression.
-    // Cheatcodes as syscall handlers mess up StarkNet's logic resulting in the following error:
+    // Cheatcodes as syscall handlers mess up Starknet's logic resulting in the following error:
     // "starkware/starknet/business_logic/execution/objects.py", line 337, in get_sorted_events
     // IndexError: list assignment index out of range
     // https://github.com/software-mansion/protostar/issues/1065

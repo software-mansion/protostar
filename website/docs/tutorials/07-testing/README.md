@@ -131,7 +131,7 @@ func test_something() {
 
 :::info
 Protostar executes `__setup__` only once per test suite.
-Then, for each test case Protostar copies the StarkNet state and the `context` object.
+Then, for each test case Protostar copies the Starknet state and the `context` object.
 :::
 
 ### Setup case

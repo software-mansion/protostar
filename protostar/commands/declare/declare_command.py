@@ -47,7 +47,7 @@ class DeclareCommand(ProtostarCommand):
 
     @property
     def description(self) -> str:
-        return "Sends a declare transaction to StarkNet."
+        return "Sends a declare transaction to Starknet."
 
     @property
     def example(self) -> Optional[str]:
