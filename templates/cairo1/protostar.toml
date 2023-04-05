@@ -4,4 +4,4 @@ lib-path = "lib"
 linked-libraries = ["src"]
 
 [contracts]
-
+main = ["src/main.cairo"]
