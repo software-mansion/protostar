@@ -336,4 +336,39 @@ def test_deploy_contract(datadir: Path):
         )
 
 
-# TODO (pmagiera): add deploy_contract_cairo0
+# TODO: fix compiler
+# def test_deploy_contract_cairo0(datadir: Path):
+#     protostar_casm = compile_suite(datadir / "deploy_contract_cairo0_test.cairo")
+#     cairo_runner_facade = CairoRunnerFacade(program=protostar_casm.program)
+#
+#     for test_case_name, offset in protostar_casm.offset_map.items():
+#         cairo_runner_facade.run_from_offset(
+#             offset=offset,
+#             hint_locals={
+#                 "declare_cairo0": get_mock_for_lib_func(
+#                     lib_func_name="declare_cairo0",
+#                     err_code=0,
+#                     cairo_runner_facade=cairo_runner_facade,
+#                     test_case_name=test_case_name,
+#                     return_values_provider=lambda _: {"class_hash": 123},  # type: ignore
+#                 ),
+#                 "prepare_tp": get_mock_for_lib_func(
+#                     lib_func_name="prepare_tp",
+#                     err_code=0,
+#                     cairo_runner_facade=cairo_runner_facade,
+#                     test_case_name=test_case_name,
+#                     return_values_provider=lambda _: {  # type: ignore
+#                         "constructor_calldata": [101, 202, 613, 721],
+#                         "contract_address": 111,
+#                         "class_hash": 123,
+#                     },
+#                 ),
+#                 "deploy_tp": get_mock_for_lib_func(
+#                     lib_func_name="deploy_tp",
+#                     err_code=0,
+#                     cairo_runner_facade=cairo_runner_facade,
+#                     test_case_name=test_case_name,
+#                     return_values_provider=lambda _: {"deployed_contract_address": 132},  # type: ignore
+#                 ),
+#             },
+#         )

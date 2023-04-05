@@ -1,14 +1,13 @@
 from typing import Optional, Any
 
 from protostar.cairo.short_string import CairoShortString
-from protostar.cheatable_starknet.callable_hint_locals import (
-    DeclareCairo0HintLocal,
-    DeployHintLocal,
-    PrepareHintLocal,
-    CallableHintLocal,
-)
 from protostar.cheatable_starknet.controllers.contracts import DeployedContract
 from protostar.starknet.data_transformer import CairoOrPythonData
+
+from .deploy_hint_local import DeployHintLocal
+from .declare_cairo0_hint_local import DeclareCairo0HintLocal
+from .prepare_hint_local import PrepareHintLocal
+from .callable_hint_local import CallableHintLocal
 
 
 class DeployContractCairo0HintLocal(CallableHintLocal):
