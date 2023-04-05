@@ -436,7 +436,7 @@ Print machine-readable output in [NDJSON](https://github.com/ndjson/ndjson-spec)
 #### `-lf` `--last-failed`
 Only re-run failed and broken test cases.
 #### `--linked-libraries PATH[]`
-Paths to cairo1 modules. Shouldn't be explicitly provided when managing dependencies using Scarb.
+Paths to cairo1 modules. Should not be explicitly provided when managing dependencies using Scarb.
 #### `--no-progress-bar`
 Disable progress bar.
 #### `--report-slowest-tests INT`
