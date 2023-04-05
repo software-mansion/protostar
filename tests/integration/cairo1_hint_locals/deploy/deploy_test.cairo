@@ -8,15 +8,16 @@ fn test_deploy() {
 
     let prepare_result = prepare(class_hash, ArrayTrait::new()).unwrap();
 
-    assert(prepare_result.contract_address != 0, 'deployed contract_address != 0');
-    assert(prepare_result.class_hash != 0, 'deployed class_hash != 0');
+    assert(prepare_result.contract_address != 0, 'prepared contract_address != 0');
+    assert(prepare_result.class_hash != 0, 'prepared class_hash != 0');
 
     let prepared_contract = PreparedContract {
         contract_address: prepare_result.contract_address,
         class_hash: prepare_result.class_hash,
         constructor_calldata: prepare_result.constructor_calldata
     };
-    deploy(prepared_contract).unwrap();
+    let deployed_contract_address = deploy(prepared_contract).unwrap();
+    assert(deployed_contract_address != 0, 'deployed_contract_address != 0');
 }
 
 #[test]
@@ -31,8 +32,8 @@ fn test_deploy_with_ctor() {
 
     let prepare_result = prepare(class_hash, constructor_calldata).unwrap();
 
-    assert(prepare_result.contract_address != 0, 'deployed contract_address != 0');
-    assert(prepare_result.class_hash != 0, 'deployed class_hash != 0');
+    assert(prepare_result.contract_address != 0, 'prepared contract_address != 0');
+    assert(prepare_result.class_hash != 0, 'prepared class_hash != 0');
     // TODO: check the length of the array, this produces: error: Variable was previously moved
     // https://github.com/software-mansion/protostar/issues/1717
     // assert(prepare_result.constructor_calldata.len() == 2_u32, 'constructor_calldata size == 2');
@@ -42,7 +43,8 @@ fn test_deploy_with_ctor() {
         class_hash: prepare_result.class_hash,
         constructor_calldata: prepare_result.constructor_calldata
     };
-    deploy(prepared_contract).unwrap();
+    let deployed_contract_address = deploy(prepared_contract).unwrap();
+    assert(deployed_contract_address != 0, 'deployed_contract_address != 0');
 }
 
 #[test]
