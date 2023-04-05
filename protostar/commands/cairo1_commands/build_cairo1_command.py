@@ -67,7 +67,7 @@ class BuildCairo1Command(ProtostarCommand):
             f"Multiple files found for contract {contract_name}, "
             f"only one file per contract is supported in cairo1!"
         )
-        cairo1.compile_starknet_contract_to_casm_from_path(
+        cairo1.compile_starknet_contract_to_sierra_from_path(
             input_path=contract_paths[0],
             cairo_path=cairo_path,
             output_path=output_dir / (contract_name + ".json"),

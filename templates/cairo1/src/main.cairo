@@ -1,6 +1,18 @@
-fn fib(a: felt252, b: felt252, n: felt252) -> felt252 {
-    match n {
-        0 => a,
-        _ => fib(b, a + b, n - 1),
+#[contract]
+mod HelloStarknet {
+    struct Storage {
+        balance: felt252,
+    }
+
+    // Increases the balance by the given amount.
+    #[external]
+    fn increase_balance(amount: felt252) {
+        balance::write(balance::read() + amount);
+    }
+
+    // Returns the current balance.
+    #[view]
+    fn get_balance() -> felt252 {
+        balance::read()
     }
 }
