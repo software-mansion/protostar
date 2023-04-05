@@ -20,6 +20,7 @@ async def test_deploy_hint_local(protostar: ProtostarFixture, shared_datadir: Pa
         {
             "minimal": shared_datadir / "minimal.cairo",
             "with_ctor": shared_datadir / "with_ctor.cairo",
+            "with_ctor_panic": shared_datadir / "with_ctor_panic.cairo",
         }
     )
 
@@ -36,5 +37,6 @@ async def test_deploy_hint_local(protostar: ProtostarFixture, shared_datadir: Pa
         ],
         expected_failed_test_cases_names=[
             "test_deploy_with_ctor_invalid_calldata",
+            "test_deploy_with_ctor_panic",
         ],
     )
