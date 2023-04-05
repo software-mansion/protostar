@@ -1,15 +1,9 @@
 use array::ArrayTrait;
 use result::ResultTrait;
 
-// #[test]
-// fn test_fib() {
-//     let x = fib(0, 1, 13);
-//     assert(x == 233, 'fib(0, 1, 13) == 233');
-// }
-
 #[test]
 fn test_increase_balance() {
-    let contract_address = deploy_contract('main', ArrayTrait::new()).unwrap();
+    let contract_address = deploy_contract('hello_starknet', ArrayTrait::new()).unwrap();
 
     let result_before = call(contract_address, 'get_balance', ArrayTrait::new()).unwrap();
     assert(*result_before.at(0_u32) == 0, 'Invalid balance');
@@ -24,7 +18,7 @@ fn test_increase_balance() {
 
 #[test]
 fn test_cannot_increase_balance_with_negative_value() {
-    let contract_address = deploy_contract('main', ArrayTrait::new()).unwrap();
+    let contract_address = deploy_contract('hello_starknet', ArrayTrait::new()).unwrap();
 
     let result_before = call(contract_address, 'get_balance', ArrayTrait::new()).unwrap();
     assert(*result_before.at(0_u32) == 0, 'Invalid balance');
