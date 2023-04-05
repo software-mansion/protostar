@@ -32,7 +32,7 @@ An output directory used to put the compiled contracts in.
 #### `--contract-name STRING`
 Specify a contract name that should be built.
 #### `--linked-libraries PATH[]`
-Paths to cairo1 modules. Shouldn't be explicitly provided when managing dependencies using Scarb.
+Paths to cairo1 modules. Should not be explicitly provided when managing dependencies using Scarb.
 ### `cairo-migrate`
 Migrate project sources to Cairo 0.10.
 #### `targets STRING[]=['.']`
