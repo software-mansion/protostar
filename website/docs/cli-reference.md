@@ -141,7 +141,7 @@ Generated links will point to that block explorer. Available values:
 #### `--chain-id INT`
 The chain id. It is required unless `--network` is provided.
 #### `--gateway-url STRING`
-The URL of a StarkNet gateway. It is required unless `--network` is provided.
+The URL of a Starknet gateway. It is required unless `--network` is provided.
 #### `--json`
 Print machine-readable output in [NDJSON](https://github.com/ndjson/ndjson-spec) format.
 #### `--max-fee FEE`
@@ -149,10 +149,10 @@ Required.
 
 The maximum fee that the sender is willing to pay for the transaction. Provide "auto" to auto estimate the fee.
 #### `-n` `--network STRING`
-The name of the StarkNet network.
+The name of the Starknet network.
 It is required unless `--gateway-url` is provided.
 
-Supported StarkNet networks:
+Supported Starknet networks:
 - `testnet`
 - `mainnet`
 - `testnet2`
