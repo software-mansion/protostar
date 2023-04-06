@@ -18,7 +18,7 @@ def ensure_output_path(output_path: Optional[Path]):
 @dataclass
 class TestCollectorOutput:
     sierra_output: Optional[str]
-    test_names: list[str]
+    test_names: list[tuple[str, Optional[int]]]
 
 
 def compile_starknet_contract_to_casm_from_path(
@@ -66,7 +66,7 @@ def collect_tests(
 
 
 def compile_protostar_sierra_to_casm_from_path(
-    named_tests: list[str], input_path: Path, output_path: Optional[Path] = None
+    named_tests: list[tuple[str, Optional[int]]], input_path: Path, output_path: Optional[Path] = None
 ) -> Optional[dict]:
     ensure_output_path(output_path=output_path)
     with handle_bindings_errors("compile_protostar_sierra_to_casm_from_path"):
@@ -77,7 +77,7 @@ def compile_protostar_sierra_to_casm_from_path(
 
 
 def compile_protostar_sierra_to_casm(
-    named_tests: list[str], input_data: str, output_path: Optional[Path] = None
+    named_tests: list[tuple[str, Optional[int]]], input_data: str, output_path: Optional[Path] = None
 ) -> Optional[dict]:
     ensure_output_path(output_path=output_path)
     with handle_bindings_errors("compile_protostar_sierra_to_casm"):

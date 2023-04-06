@@ -279,7 +279,7 @@ class TestCollector:
         test_cases = list(
             test_suite_info.filter_test_cases(
                 self._collect_test_cases(
-                    function_names=function_names,
+                    function_names=[(fn, None) for fn in function_names],
                     test_path=test_suite_info.path,
                 )
             )
@@ -293,14 +293,14 @@ class TestCollector:
 
     def _collect_test_cases(
         self,
-        function_names: List[str],
+        function_names: List[tuple[str, Optional[int]]],
         test_path: Path,
     ) -> Iterable[TestCase]:
         test_prefix = "test_"
         setup_prefix = "setup_"
 
         fn_names = set(function_names)
-        for test_fn_name in fn_names:
+        for (test_fn_name, _) in fn_names:
             if test_fn_name.startswith(test_prefix):
                 base_name = test_fn_name[len(test_prefix) :]
 

@@ -52,7 +52,9 @@ def test_cairo_path_for_tests(datadir: Path, shared_datadir: Path):
         ],
     )
     assert result.sierra_output
-    assert result.test_names == [("test_with_deps::test_with_deps::test_assert_true", None)]
+    assert result.test_names == [
+        ("test_with_deps::test_with_deps::test_assert_true", None)
+    ]
 
     protostar_casm = cairo1.compile_protostar_sierra_to_casm(
         result.test_names,
