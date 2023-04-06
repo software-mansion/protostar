@@ -1,14 +1,17 @@
 import dataclasses
 from pathlib import Path
-from typing import Optional, TypeVar, Union
+from typing import Optional, TypeVar, Union, NoReturn
 
+from starknet_py.hash.casm_class_hash import compute_casm_class_hash
 from starknet_py.net.account.account import Account
 from starknet_py.net.client_errors import ClientError
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.models import Transaction, Invoke
+from starknet_py.net.models.transaction import Declare, DeclareV2
+from starknet_py.net.schemas.gateway import CasmClassSchema
 from starknet_py.net.signer import BaseSigner
 from starknet_py.net.udc_deployer.deployer import Deployer, ContractDeployment
-from starknet_py.net.client_models import Call
+from starknet_py.net.client_models import Call, CasmClass
 from starknet_py.transaction_exceptions import (
     TransactionFailedError,
     TransactionRejectedError,
@@ -203,37 +206,13 @@ class GatewayFacade(MulticallClientProtocol):
         except FileNotFoundError as err:
             raise CompilationOutputNotFoundException(compiled_contract_path) from err
 
-    async def declare(
+    async def _declare(
         self,
-        compiled_contract_path: Path,
-        account_address: Address,
-        signer: BaseSigner,
-        max_fee: Fee,
+        declare_tx: Union[Declare, DeclareV2],
+        account: Account,
         wait_for_acceptance: bool = False,
         token: Optional[str] = None,
-    ):
-        compiled_contract = self._load_compiled_contract(
-            self._project_root_path / compiled_contract_path
-        )
-        account = await self._get_account(
-            account_address=account_address, signer=signer
-        )
-
-        try:
-            declare_tx = await account.sign_declare_transaction(
-                compiled_contract=compiled_contract,
-                max_fee=max_fee if isinstance(max_fee, int) else None,
-                auto_estimate=max_fee == "auto",
-            )
-        except ClientError as ex:
-            account_address_found_in_message = hex(int(account_address)) in ex.message
-            message = (
-                "No account associated with provided account address found. Contact your wallet provider."
-                if "StarknetErrorCode.UNINITIALIZED_CONTRACT" in ex.message
-                and account_address_found_in_message
-                else ex.message
-            )
-            raise ProtostarException(message) from ex
+    ) -> SuccessfulDeclareResponse:
         try:
             response = await self._gateway_client.declare(declare_tx, token=token)
 
@@ -252,6 +231,72 @@ class GatewayFacade(MulticallClientProtocol):
             code=response.code or "?",
             class_hash=response.class_hash,
             transaction_hash=response.transaction_hash,
+        )
+
+    async def declare_cairo1(
+        self,
+        compiled_contract_sierra: str,
+        compiled_contract_casm: str,
+        account_address: Address,
+        signer: BaseSigner,
+        max_fee: Fee,
+        wait_for_acceptance: bool = False,
+        token: Optional[str] = None,
+    ) -> SuccessfulDeclareResponse:
+        account = await self._get_account(
+            account_address=account_address, signer=signer
+        )
+        try:
+            casm_class = CasmClassSchema().loads(compiled_contract_casm)
+            assert isinstance(casm_class, CasmClass)
+            compiled_class_hash = compute_casm_class_hash(casm_class)
+
+            declare_tx = await account.sign_declare_v2_transaction(
+                compiled_contract=compiled_contract_sierra,
+                compiled_class_hash=compiled_class_hash,
+                max_fee=max_fee if isinstance(max_fee, int) else None,
+                auto_estimate=max_fee == "auto",
+            )
+        except ClientError as ex:
+            _handle_declare_error(account_address, ex)
+
+        return await self._declare(
+            declare_tx=declare_tx,
+            account=account,
+            wait_for_acceptance=wait_for_acceptance,
+            token=token,
+        )
+
+    async def declare(
+        self,
+        compiled_contract_path: Path,
+        account_address: Address,
+        signer: BaseSigner,
+        max_fee: Fee,
+        wait_for_acceptance: bool = False,
+        token: Optional[str] = None,
+    ) -> SuccessfulDeclareResponse:
+        compiled_contract = self._load_compiled_contract(
+            self._project_root_path / compiled_contract_path
+        )
+        account = await self._get_account(
+            account_address=account_address, signer=signer
+        )
+
+        try:
+            declare_tx = await account.sign_declare_transaction(
+                compiled_contract=compiled_contract,
+                max_fee=max_fee if isinstance(max_fee, int) else None,
+                auto_estimate=max_fee == "auto",
+            )
+        except ClientError as ex:
+            _handle_declare_error(account_address, ex)
+
+        return await self._declare(
+            declare_tx=declare_tx,
+            account=account,
+            wait_for_acceptance=wait_for_acceptance,
+            token=token,
         )
 
     async def _get_account(
@@ -330,6 +375,17 @@ class GatewayFacade(MulticallClientProtocol):
 
     async def wait_for_acceptance(self, tx_hash: int):
         await self._gateway_client.wait_for_tx(tx_hash=tx_hash, wait_for_accept=True)
+
+
+def _handle_declare_error(account_address: Address, ex: ClientError) -> NoReturn:
+    account_address_found_in_message = hex(int(account_address)) in ex.message
+    message = (
+        "No account associated with provided account address found. Contact your wallet provider."
+        if "StarknetErrorCode.UNINITIALIZED_CONTRACT" in ex.message
+        and account_address_found_in_message
+        else ex.message
+    )
+    raise ProtostarException(message) from ex
 
 
 class InputValidationException(ProtostarException):

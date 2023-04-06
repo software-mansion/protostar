@@ -20,6 +20,7 @@ from protostar.commands import (
     InitCairo1Command,
     InvokeCommand,
     MulticallCommand,
+    DeclareCairo1Command,
 )
 from protostar.commands.deploy_account_command import DeployAccountCommand
 from protostar.commands.deploy_command import DeployCommand
@@ -62,6 +63,7 @@ class ProtostarFixture:
         build_cairo1_command: BuildCairo1Command,
         format_command: FormatCommand,
         declare_command: DeclareCommand,
+        declare_cairo1_command: DeclareCairo1Command,
         deploy_command: DeployCommand,
         test_command: TestCommand,
         invoke_command: InvokeCommand,
@@ -81,6 +83,7 @@ class ProtostarFixture:
         self._build_cairo1_command = build_cairo1_command
         self._format_command = format_command
         self._declare_command = declare_command
+        self._declare_cairo1_command = declare_cairo1_command
         self._deploy_command = deploy_command
         self._test_command = test_command
         self._invoke_command = invoke_command
@@ -109,23 +112,65 @@ class ProtostarFixture:
         wait_for_acceptance: Optional[bool] = False,
         max_fee: Optional[Fee] = None,
     ):
+        args = self._declare_common_args(
+            contract=contract,
+            account_address=account_address,
+            chain_id=chain_id,
+            gateway_url=gateway_url,
+            wait_for_acceptance=wait_for_acceptance,
+            max_fee=max_fee,
+        )
+
+        return await self._declare_command.run(args)
+
+    async def declare_cairo1(
+        self,
+        contract: Path,
+        compiled_class_hash: int,
+        account_address: Optional[Address] = None,
+        chain_id: Optional[StarknetChainId] = None,
+        gateway_url: Optional[str] = None,
+        wait_for_acceptance: Optional[bool] = False,
+        max_fee: Optional[Fee] = None,
+    ):
+        args = self._declare_common_args(
+            contract=contract,
+            account_address=account_address,
+            chain_id=chain_id,
+            gateway_url=gateway_url,
+            wait_for_acceptance=wait_for_acceptance,
+            max_fee=max_fee,
+        )
+        args.compiled_class_hash = compiled_class_hash
+
+        return await self._declare_cairo1_command.run(args)
+
+    def _declare_common_args(
+        self,
+        contract: Path,
+        account_address: Optional[Address] = None,
+        chain_id: Optional[StarknetChainId] = None,
+        gateway_url: Optional[str] = None,
+        wait_for_acceptance: Optional[bool] = False,
+        max_fee: Optional[Fee] = None,
+    ) -> Namespace:
         args = Namespace()
-        args.signer_class = None
-        args.account_address = None
-        args.private_key_path = None
-        args.contract = contract
-        args.gateway_url = None
-        args.network = None
-        args.token = None
-        args.block_explorer = None
+
         args.wait_for_acceptance = wait_for_acceptance
         args.chain_id = chain_id or StarknetChainId.TESTNET
         args.account_address = account_address
         args.contract = contract
         args.gateway_url = gateway_url
         args.max_fee = max_fee
+
         args.json = False
-        return await self._declare_command.run(args)
+        args.signer_class = None
+        args.private_key_path = None
+        args.network = None
+        args.token = None
+        args.block_explorer = None
+
+        return args
 
     async def deploy(
         self,

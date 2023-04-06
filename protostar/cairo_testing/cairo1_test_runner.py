@@ -94,8 +94,6 @@ class Cairo1TestRunner:
         self.project_compiler = ProjectCompiler(
             project_root_path=project_root_path,
             configuration_file=configuration_file,
-            default_config=project_compiler_config,
-            project_cairo_path_builder=self.project_cairo_path_builder,
         )
 
         project_cairo_path = (
