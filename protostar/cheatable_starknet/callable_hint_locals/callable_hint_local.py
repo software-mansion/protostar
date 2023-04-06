@@ -6,9 +6,6 @@ from typing_extensions import Literal
 from starknet_py.cairo.felt import encode_shortstring
 
 from protostar.cairo import HintLocal
-from protostar.cheatable_starknet.controllers.transaction_revert_exception import (
-    TransactionRevertException,
-)
 
 
 @dataclass(init=False)
@@ -38,11 +35,11 @@ class CallableHintLocal(HintLocal, ABC):
         ...
 
     def build(self):
-        def wrapper(*args: Any, **kwargs: Any):
+        def wrapper(*args: Any, **kwargs: Any) -> ExecutionResult:
             try:
                 result = self._build()(*args, **kwargs)
                 return ValidExecution(ok=result)
-            except TransactionRevertException as ex:
-                return InvalidExecution(err_code=encode_shortstring(ex.message[:31]))
+            except BaseException as ex:
+                return InvalidExecution(err_code=encode_shortstring(str(ex)[:31]))
 
         return wrapper
