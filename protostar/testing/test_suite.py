@@ -104,6 +104,7 @@ class Cairo1TestSuite(TestSuite):
             test_path=test_case.test_path,
             test_fn_name=test_case.test_fn_name,
             test_fn_offset=test_fn_offset,
+            available_gas=test_case.available_gas,
             setup_fn_name=test_case.setup_fn_name,
             setup_fn_offset=offset_map.get(test_case.test_fn_name),
         )
