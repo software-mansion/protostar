@@ -73,7 +73,7 @@ class Cairo1TestCollector(TestCollector):
         setup_prefix = "setup_"
 
         fn_names = set(function_names)
-        for (test_fn_name, gas) in fn_names:
+        for test_fn_name, gas in fn_names:
             setup_fn_name = setup_prefix + test_fn_name
             setup_fn_name = setup_fn_name if setup_fn_name in fn_names else None
 

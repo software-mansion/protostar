@@ -300,7 +300,7 @@ class TestCollector:
         setup_prefix = "setup_"
 
         fn_names = set(function_names)
-        for (test_fn_name, _) in fn_names:
+        for test_fn_name, _ in fn_names:
             if test_fn_name.startswith(test_prefix):
                 base_name = test_fn_name[len(test_prefix) :]
 
