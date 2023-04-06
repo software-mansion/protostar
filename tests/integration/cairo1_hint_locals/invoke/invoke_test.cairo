@@ -1,0 +1,91 @@
+use array::ArrayTrait;
+use result::ResultTrait;
+
+#[test]
+fn test_invoke_simple() {
+    let deployed_contract_address = deploy_contract('get_set', ArrayTrait::new()).unwrap();
+
+    let return_data = call(deployed_contract_address, 'get_a', ArrayTrait::new()).unwrap();
+    assert(*return_data.at(0_u32) == 0, 'check call result');
+
+    let mut calldata = ArrayTrait::new();
+    calldata.append(3);
+
+    invoke(deployed_contract_address, 'set_a', calldata).unwrap();
+
+    let return_data2 = call(deployed_contract_address, 'get_a', ArrayTrait::new()).unwrap();
+    assert(*return_data2.at(0_u32) == 3, 'check call result 2');
+}
+
+#[test]
+fn test_invoke_cairo0() {
+    let class_hash = declare_cairo0('cairo0').unwrap();
+    let prepared = prepare(class_hash, ArrayTrait::new()).unwrap();
+    let deployed_contract_address = deploy(prepared).unwrap();
+
+    let return_data = call(deployed_contract_address, 'get_balance', ArrayTrait::new()).unwrap();
+    assert(*return_data.at(0_u32) == 0, 'check call result');
+
+    let mut calldata = ArrayTrait::new();
+    calldata.append(10);
+
+    invoke(deployed_contract_address, 'increase_balance', calldata).unwrap();
+
+    let return_data2 = call(deployed_contract_address, 'get_balance', ArrayTrait::new()).unwrap();
+    assert(*return_data2.at(0_u32) == 10, 'check call result 2');
+}
+
+#[test]
+fn test_invoke_with_ctor() {
+    let mut calldata = ArrayTrait::new();
+    calldata.append(10);
+
+    let deployed_contract_address = deploy_contract('get_set_with_ctor', calldata).unwrap();
+
+    let return_data = call(deployed_contract_address, 'get_a', ArrayTrait::new()).unwrap();
+    assert(*return_data.at(0_u32) == 10, 'check call result');
+
+    let mut calldata = ArrayTrait::new();
+    calldata.append(3);
+
+    invoke(deployed_contract_address, 'set_a', calldata).unwrap();
+
+    let return_data2 = call(deployed_contract_address, 'get_a', ArrayTrait::new()).unwrap();
+    assert(*return_data2.at(0_u32) == 3, 'check call result 2');
+}
+
+#[test]
+fn test_invoke_wrong_number_of_args() {
+    let deployed_contract_address = deploy_contract('get_set', ArrayTrait::new()).unwrap();
+    let mut calldata = ArrayTrait::new();
+    calldata.append(3);
+    calldata.append(2);
+    invoke(deployed_contract_address, 'set_a', calldata).unwrap();
+}
+
+#[test]
+fn test_invoke_non_existing_function() {
+    let deployed_contract_address = deploy_contract('get_set', ArrayTrait::new()).unwrap();
+    invoke(deployed_contract_address, 'set_b', ArrayTrait::new()).unwrap();
+}
+
+#[test]
+fn test_invoke_cairo0_wrong_number_of_args() {
+    let class_hash = declare_cairo0('cairo0').unwrap();
+    let prepared = prepare(class_hash, ArrayTrait::new()).unwrap();
+    let deployed_contract_address = deploy(prepared).unwrap();
+
+    let mut calldata = ArrayTrait::new();
+    calldata.append(3);
+    calldata.append(2);
+    invoke(deployed_contract_address, 'increase_balance', calldata).unwrap();
+}
+
+#[test]
+fn test_invoke_cairo0_non_existing_function() {
+    let class_hash = declare_cairo0('cairo0').unwrap();
+    let prepared = prepare(class_hash, ArrayTrait::new()).unwrap();
+    let deployed_contract_address = deploy(prepared).unwrap();
+
+    invoke(deployed_contract_address, 'set_balance', ArrayTrait::new()).unwrap();
+}

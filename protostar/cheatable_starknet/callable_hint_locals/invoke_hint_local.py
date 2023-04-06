@@ -1,6 +1,9 @@
 import asyncio
 from typing import Any, Optional
 
+from starkware.starknet.public.abi import starknet_keccak
+
+from protostar.cairo.short_string import short_string_to_str
 from protostar.cheatable_starknet.callable_hint_locals.callable_hint_local import (
     CallableHintLocal,
 )
@@ -35,7 +38,9 @@ class InvokeHintLocal(CallableHintLocal):
         calldata: Optional[CairoOrPythonData] = None,
     ):
         self._invoke(
-            entry_point_selector=Selector(function_name),
+            entry_point_selector=Selector(
+                starknet_keccak(str.encode(short_string_to_str(function_name)))
+            ),
             calldata=calldata,
             contract_address=Address.from_user_input(contract_address),
         )
