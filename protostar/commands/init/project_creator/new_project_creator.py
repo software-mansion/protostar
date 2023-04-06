@@ -78,16 +78,9 @@ class NewProjectCreator(ProjectCreator):
             project_root_path=project_root_path,
             project_name=project_name,
         )
-        self.save_protostar_toml_from_config(
-            project_root_path=project_root_path,
-            configuration_model=self._make_project_config(),
-        )
-
-    def save_protostar_toml_from_config(
-        self, project_root_path: Path, configuration_model: ConfigurationFileV2Model
-    ):
         self._save_protostar_toml(
-            project_root_path=project_root_path, configuration_model=configuration_model
+            project_root_path=project_root_path,
+            configuration_model=self._make_project_config(cairo_version=cairo_version),
         )
 
     def copy_and_replace_template(
@@ -109,7 +102,21 @@ class NewProjectCreator(ProjectCreator):
                     f"Folder or file named {project_root_path.name} already exists. Choose different project name."
                 ) from ex_file_exists
 
-    def _make_project_config(self) -> ConfigurationFileV2Model:
+    def _make_project_config(
+        self, cairo_version: CairoVersion
+    ) -> ConfigurationFileV2Model:
+        if cairo_version == CairoVersion.cairo0:
+            return ConfigurationFileV2Model(
+                protostar_version=str(self._protostar_version),
+                contract_name_to_path_strs={"main": ["src/main.cairo"]},
+                project_config={
+                    "lib-path": "lib",
+                },
+                command_name_to_config={},
+                profile_name_to_project_config={},
+                profile_name_to_commands_config={},
+            )
+
         return ConfigurationFileV2Model(
             protostar_version=str(self._protostar_version),
             contract_name_to_path_strs={"hello_starknet": ["src"]},
