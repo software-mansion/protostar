@@ -19,6 +19,6 @@ mod HelloStarknet {
     // Calls a function defined in outside module
     #[view]
     fn get_two() -> felt252 {
-        my_project::business_logic::utils::returns_two()
+        $PROJECT_NAME::business_logic::utils::returns_two()
     }
 }

@@ -1,2 +1,2 @@
 [crate_roots]
-my_project = "."
+$PROJECT_NAME = "."
