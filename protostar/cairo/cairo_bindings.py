@@ -60,7 +60,7 @@ def collect_tests(
             str(input_path),
             str(output_path) if output_path else None,
             [str(path) for path in cairo_path] if cairo_path else None,
-            RUNNER_BUILTINS_TITLE_CASE,
+            RUNNER_BUILTINS_TITLE_CASE + ["GasBuiltin"],
         )
         return TestCollectorOutput(sierra_output=output[0], test_names=output[1])
 
