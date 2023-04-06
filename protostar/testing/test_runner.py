@@ -86,15 +86,7 @@ class TestRunner:
         )
         self.project_compiler = ProjectCompiler(
             project_root_path=project_root_path,
-            project_cairo_path_builder=ProjectCairoPathBuilder(
-                project_root_path=project_root_path,
-            ),
             configuration_file=configuration_file,
-            default_config=ProjectCompilerConfig(
-                relative_cairo_path=[Path(s_pth).resolve() for s_pth in include_paths],
-                hint_validation_disabled=disable_hint_validation_in_user_contracts,
-                debugging_info_attached=profiling,
-            ),
         )
 
     @dataclass

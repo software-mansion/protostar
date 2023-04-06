@@ -12,9 +12,9 @@ def test_compilator_and_parser(mocker: MockerFixture, datadir: Path):
 
     assert test_collector_output.sierra_output
     assert test_collector_output.test_names == [
-        "roll_test::roll_test::test_cheatcode_caller",
-        "roll_test::roll_test::test_cheatcode_caller_twice",
-        "roll_test::roll_test::test_cheatcode_caller_three",
+        ("roll_test::roll_test::test_cheatcode_caller", None),
+        ("roll_test::roll_test::test_cheatcode_caller_twice", None),
+        ("roll_test::roll_test::test_cheatcode_caller_three", None),
     ]
 
     protostar_casm_json = cairo1.compile_protostar_sierra_to_casm(
@@ -52,7 +52,9 @@ def test_cairo_path_for_tests(datadir: Path, shared_datadir: Path):
         ],
     )
     assert result.sierra_output
-    assert result.test_names == ["test_with_deps::test_with_deps::test_assert_true"]
+    assert result.test_names == [
+        ("test_with_deps::test_with_deps::test_assert_true", None)
+    ]
 
     protostar_casm = cairo1.compile_protostar_sierra_to_casm(
         result.test_names,

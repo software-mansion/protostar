@@ -94,8 +94,6 @@ class Cairo1TestRunner:
         self.project_compiler = ProjectCompiler(
             project_root_path=project_root_path,
             configuration_file=configuration_file,
-            default_config=project_compiler_config,
-            project_cairo_path_builder=self.project_cairo_path_builder,
         )
 
         project_cairo_path = (
@@ -200,7 +198,8 @@ class Cairo1TestRunner:
 
             casm_json = cairo1.compile_protostar_sierra_to_casm(
                 named_tests=[
-                    test_case.test_fn_name for test_case in test_suite.test_cases
+                    (test_case.test_fn_name, test_case.available_gas)
+                    for test_case in test_suite.test_cases
                 ],
                 input_data=test_suite.sierra_output,
             )
