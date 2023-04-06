@@ -223,7 +223,7 @@ def test_declaring_contract(
 
 
 @pytest.mark.usefixtures("init")
-def test_declaring_contract_with_signature(
+def test_declaring_cairo1_contract(
     protostar: ProtostarFixture,
     devnet_gateway_url: str,
     datadir: Path,
@@ -231,24 +231,24 @@ def test_declaring_contract_with_signature(
     devnet_account: DevnetAccount,
 ):
     copy_file(
-        src=str(datadir / "contract_with_constructor.cairo"),
+        src=str(datadir / "balance.cairo"),
         dst="./src/main.cairo",
     )
-    protostar(["build"])
+
     with set_private_key_env_var(devnet_account.private_key):
         result = protostar(
             [
                 "--no-color",
-                "declare",
-                "./build/main.json",
+                "declare-cairo1",
+                "main",
                 "--gateway-url",
                 devnet_gateway_url,
-                "--chain-id",
-                str(StarknetChainId.TESTNET.value),
                 "--account-address",
                 str(devnet_account.address),
                 "--max-fee",
                 "auto",
+                "--chain-id",
+                str(StarknetChainId.TESTNET.value),
                 "--json",
             ],
             ignore_stderr=True,

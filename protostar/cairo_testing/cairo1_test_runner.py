@@ -17,10 +17,11 @@ from protostar.cairo_testing.execution_environments.cairo_setup_case_execution_e
     CairoSetupCaseExecutionEnvironment,
 )
 from protostar.compiler import (
-    ProjectCompiler,
+    Cairo0ProjectCompiler,
     ProjectCairoPathBuilder,
     ProjectCompilerConfig,
 )
+from protostar.compiler.project_compiler import ProjectCompiler
 from protostar.configuration_file import ConfigurationFileFactory
 from protostar.starknet import ReportedException
 from protostar.protostar_exception import ProtostarException
@@ -84,11 +85,15 @@ class Cairo1TestRunner:
             debugging_info_attached=profiling,
         )
         self.project_cairo_path_builder = ProjectCairoPathBuilder(project_root_path)
-        self.project_compiler = ProjectCompiler(
+        self.cairo0_project_compiler = Cairo0ProjectCompiler(
             project_root_path=project_root_path,
             configuration_file=configuration_file,
             default_config=project_compiler_config,
             project_cairo_path_builder=self.project_cairo_path_builder,
+        )
+        self.project_compiler = ProjectCompiler(
+            project_root_path=project_root_path,
+            configuration_file=configuration_file,
         )
 
         project_cairo_path = (
@@ -124,6 +129,7 @@ class Cairo1TestRunner:
     async def _build_execution_state(self, test_config: TestConfig):
         return await CairoTestExecutionState.from_test_config(
             test_config=test_config,
+            cairo0_project_compiler=self.cairo0_project_compiler,
             project_compiler=self.project_compiler,
         )
 

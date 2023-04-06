@@ -11,7 +11,7 @@ from starkware.starknet.services.api.gateway.transaction import (
 from starkware.starknet.testing.contract import DeclaredClass
 from starkware.starknet.testing.contract_utils import EventManager
 
-from protostar.compiler import ProjectCompiler
+from protostar.compiler import Cairo0ProjectCompiler
 from protostar.starknet import Cheatcode, KeywordOnlyArgumentCheatcodeException
 
 
@@ -33,7 +33,7 @@ class DeclareCheatcode(Cheatcode):
     def __init__(
         self,
         syscall_dependencies: Cheatcode.SyscallDependencies,
-        project_compiler: ProjectCompiler,
+        project_compiler: Cairo0ProjectCompiler,
     ):
         super().__init__(syscall_dependencies)
         self._project_compiler = project_compiler

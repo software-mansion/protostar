@@ -66,14 +66,11 @@ def get_mock_for_lib_func(
                 "contract_address": return_values_provider(test_case_name)[
                     "contract_address"
                 ],
-                "return_class_hash": return_values_provider(test_case_name)[
-                    "return_class_hash"
-                ],
+                "class_hash": return_values_provider(test_case_name)["class_hash"],
             },
         )()
-        ok = type("ok", (object,), {"prepared_contract": prepared_contract})()
         return_value = type(
-            "return_value", (object,), {"err_code": err_code, "ok": ok}
+            "return_value", (object,), {"err_code": err_code, "ok": prepared_contract}
         )()
     else:
         return_value = type("return_value", (object,), {"err_code": err_code})()
@@ -91,12 +88,7 @@ def get_mock_for_lib_func(
     return mock
 
 
-def check_library_function(
-    lib_func_name: str,
-    cairo_test_path: Path,
-    args_validator: Optional[Callable] = None,
-    return_values_provider: Optional[Callable] = None,
-):
+def compile_suite(cairo_test_path: Path) -> ProtostarCasm:
     test_collector_output = cairo1.collect_tests(input_path=cairo_test_path)
     assert test_collector_output.sierra_output
     protostar_casm_json = cairo1.compile_protostar_sierra_to_casm(
@@ -104,8 +96,17 @@ def check_library_function(
         input_data=test_collector_output.sierra_output,
     )
     assert protostar_casm_json
+    return ProtostarCasm.from_json(protostar_casm_json)
+
+
+def check_library_function(
+    lib_func_name: str,
+    cairo_test_path: Path,
+    args_validator: Optional[Callable] = None,
+    return_values_provider: Optional[Callable] = None,
+):
+    protostar_casm = compile_suite(cairo_test_path)
     for mocked_error_code in [0, 1, 50]:
-        protostar_casm = ProtostarCasm.from_json(protostar_casm_json)
         cairo_runner_facade = CairoRunnerFacade(program=protostar_casm.program)
         for test_case_name, offset in protostar_casm.offset_map.items():
             cairo_runner_facade.run_from_offset(
@@ -223,17 +224,17 @@ def test_prepare(datadir: Path):
         "test_prepare": {
             "constructor_calldata": [101, 202, 613, 721],
             "contract_address": 111,
-            "return_class_hash": 222,
+            "class_hash": 222,
         },
         "test_prepare_tp": {
             "constructor_calldata": [3, 2, 1],
             "contract_address": 0,
-            "return_class_hash": 444,
+            "class_hash": 444,
         },
         "test_prepare_no_args": {
             "constructor_calldata": [],
             "contract_address": 999,
-            "return_class_hash": 345,
+            "class_hash": 345,
         },
     }
 
@@ -296,3 +297,40 @@ def test_call(datadir: Path):
         args_validator=_args_validator,
         return_values_provider=_return_values_provider,
     )
+
+
+def test_deploy_contract(datadir: Path):
+    protostar_casm = compile_suite(datadir / "deploy_contract_test.cairo")
+    cairo_runner_facade = CairoRunnerFacade(program=protostar_casm.program)
+
+    for test_case_name, offset in protostar_casm.offset_map.items():
+        cairo_runner_facade.run_from_offset(
+            offset=offset,
+            hint_locals={
+                "declare": get_mock_for_lib_func(
+                    lib_func_name="declare",
+                    err_code=0,
+                    cairo_runner_facade=cairo_runner_facade,
+                    test_case_name=test_case_name,
+                    return_values_provider=lambda _: {"class_hash": 123},  # type: ignore
+                ),
+                "prepare_tp": get_mock_for_lib_func(
+                    lib_func_name="prepare_tp",
+                    err_code=0,
+                    cairo_runner_facade=cairo_runner_facade,
+                    test_case_name=test_case_name,
+                    return_values_provider=lambda _: {  # type: ignore
+                        "constructor_calldata": [101, 202, 613, 721],
+                        "contract_address": 111,
+                        "class_hash": 123,
+                    },
+                ),
+                "deploy_tp": get_mock_for_lib_func(
+                    lib_func_name="deploy_tp",
+                    err_code=0,
+                    cairo_runner_facade=cairo_runner_facade,
+                    test_case_name=test_case_name,
+                    return_values_provider=lambda _: {"deployed_contract_address": 132},  # type: ignore
+                ),
+            },
+        )

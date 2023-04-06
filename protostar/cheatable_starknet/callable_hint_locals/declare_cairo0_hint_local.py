@@ -5,7 +5,7 @@ from protostar.cheatable_starknet.controllers.contracts import (
     ContractsController,
     DeclaredContract,
 )
-from protostar.compiler import ProjectCompiler
+from protostar.compiler import Cairo0ProjectCompiler
 from protostar.cairo.short_string import CairoShortString, short_string_to_str
 
 from .callable_hint_local import CallableHintLocal
@@ -23,7 +23,7 @@ class DeclareCheatcodeProtocol(Protocol):
 class DeclareCairo0HintLocal(CallableHintLocal):
     def __init__(
         self,
-        project_compiler: ProjectCompiler,
+        project_compiler: Cairo0ProjectCompiler,
         contracts_controller: ContractsController,
     ):
         self._contracts_controller = contracts_controller

@@ -48,8 +48,8 @@ class NetworkConfig:
             raise ProtostarException(
                 "\n".join(
                     [
-                        "Unknown StarkNet network",
-                        "The following StarkNet network names are supported:",
+                        "Unknown Starknet network",
+                        "The following Starknet network names are supported:",
                         *(f"- {network_name}" for network_name in NETWORKS),
                     ]
                 )

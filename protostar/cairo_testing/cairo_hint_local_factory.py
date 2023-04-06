@@ -14,6 +14,7 @@ from protostar.cheatable_starknet.callable_hint_locals import (
     DeployHintLocal,
     PrepareHintLocal,
     DeclareCairo0HintLocal,
+    DeclareHintLocal,
     StopWarpHintLocal,
     StopRollHintLocal,
     SendMessageToL2HintLocal,
@@ -38,7 +39,8 @@ from protostar.cheatable_starknet.controllers import (
 from protostar.cheatable_starknet.controllers.expect_events_controller import (
     ExpectEventsController,
 )
-from protostar.compiler import ProjectCompiler
+from protostar.compiler import Cairo0ProjectCompiler
+from protostar.compiler.project_compiler import ProjectCompiler
 from protostar.testing import Hook
 
 
@@ -46,11 +48,13 @@ class CairoSharedHintLocalFactory:
     def __init__(
         self,
         cheatable_state: CheatableCachedState,
+        cairo0_project_compiler: Cairo0ProjectCompiler,
         project_compiler: ProjectCompiler,
         test_finish_hook: Hook,
         test_execution_state: CairoTestExecutionState,
     ):
         self.cheatable_state = cheatable_state
+        self.cairo0_project_compiler = cairo0_project_compiler
         self.project_compiler = project_compiler
         self._test_finish_hook = test_finish_hook
         self._test_execution_state = test_execution_state
@@ -62,8 +66,12 @@ class CairoSharedHintLocalFactory:
         contracts_controller = ContractsController(cheatable_state=self.cheatable_state)
         storage_controller = StorageController(cheatable_state=self.cheatable_state)
 
-        declare_cairo0_cheatcode = DeclareCairo0HintLocal(
+        declare_cheatcode = DeclareHintLocal(
+            contracts_controller=contracts_controller,
             project_compiler=self.project_compiler,
+        )
+        declare_cairo0_cheatcode = DeclareCairo0HintLocal(
+            project_compiler=self.cairo0_project_compiler,
             contracts_controller=contracts_controller,
         )
         prepare_cheatcode = PrepareHintLocal(
@@ -74,8 +82,16 @@ class CairoSharedHintLocalFactory:
         )
 
         expect_call_controller = ExpectCallController(
-            test_finish_hook=self._test_finish_hook,
             cheatable_state=self._test_execution_state.cheatable_state,
+        )
+        expect_events_controller = ExpectEventsController(
+            test_execution_state=self._test_execution_state,
+            cheatable_state=self._test_execution_state.cheatable_state,
+        )
+
+        self._test_finish_hook.on(expect_call_controller.assert_no_expected_calls_left)
+        self._test_finish_hook.on(
+            expect_events_controller.compare_expected_and_actual_results
         )
 
         return [
@@ -87,6 +103,7 @@ class CairoSharedHintLocalFactory:
             StopPrankHintLocal(contracts_controller=contracts_controller),
             SendMessageToL2HintLocal(contracts_controller=contracts_controller),
             deploy_cheatcode,
+            declare_cheatcode,
             declare_cairo0_cheatcode,
             prepare_cheatcode,
             DeployContractHintLocal(
@@ -101,13 +118,7 @@ class CairoSharedHintLocalFactory:
             InvokeHintLocal(contracts_controller=contracts_controller),
             StoreHintLocal(storage_controller=storage_controller),
             LoadHintLocal(storage_controller=storage_controller),
-            ExpectEventsHintLocal(
-                controller=ExpectEventsController(
-                    test_finish_hook=self._test_finish_hook,
-                    test_execution_state=self._test_execution_state,
-                    cheatable_state=self._test_execution_state.cheatable_state,
-                ),
-            ),
+            ExpectEventsHintLocal(controller=expect_events_controller),
             MockCallHintLocal(controller=contracts_controller),
             ExpectCallHintLocal(controller=expect_call_controller),
             AssertExpectCallHintLocal(controller=expect_call_controller),
