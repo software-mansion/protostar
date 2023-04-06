@@ -1,11 +1,15 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any, Callable, Union
+import hashlib
 
 from typing_extensions import Literal
 from starknet_py.cairo.felt import encode_shortstring
 
 from protostar.cairo import HintLocal
+from protostar.cheatable_starknet.controllers.transaction_revert_exception import (
+    TransactionRevertException,
+)
 
 
 @dataclass(init=False)
@@ -39,7 +43,11 @@ class CallableHintLocal(HintLocal, ABC):
             try:
                 result = self._build()(*args, **kwargs)
                 return ValidExecution(ok=result)
-            except BaseException as ex:
-                return InvalidExecution(err_code=encode_shortstring(str(ex)[:31]))
+            except TransactionRevertException as ex:
+                return InvalidExecution(
+                    err_code=encode_shortstring(
+                        hashlib.md5(ex.message.encode()).hexdigest()[:31]
+                    )
+                )
 
         return wrapper

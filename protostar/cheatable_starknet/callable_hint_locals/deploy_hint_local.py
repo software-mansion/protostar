@@ -1,11 +1,15 @@
 import asyncio
 from typing import Any, Callable
 
-from protostar.starknet import CheatcodeException
+from starkware.starkware_utils.error_handling import StarkException
+
 from protostar.cheatable_starknet.controllers.contracts import (
     ContractsCheaterException,
     ContractsController,
     PreparedContract,
+)
+from protostar.cheatable_starknet.controllers.transaction_revert_exception import (
+    TransactionRevertException,
 )
 
 from .callable_hint_local import CallableHintLocal
@@ -46,5 +50,5 @@ class DeployHintLocal(CallableHintLocal):
     async def _run_deploy_prepared(self, prepared: PreparedContract):
         try:
             return await self._contracts_controller.deploy_prepared(prepared)
-        except ContractsCheaterException as exc:
-            raise CheatcodeException(self, exc.message) from exc
+        except (ContractsCheaterException, StarkException) as exc:
+            raise TransactionRevertException(str(exc), exc) from exc
