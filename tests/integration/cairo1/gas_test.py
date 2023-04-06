@@ -18,6 +18,10 @@ def test_return_value(datadir: Path):
     protostar_casm = ProtostarCasm.from_json(protostar_casm_json)
     cairo_runner_facade = CairoRunnerFacade(program=protostar_casm.program)
 
+    assert len(protostar_casm.offset_map.items()) == 3
     for name, offset in protostar_casm.offset_map.items():
         cairo_runner_facade.run_from_offset(offset=offset)
-        assert not cairo_runner_facade.did_panic()
+        if name == "test::test::fibonacci_test_out_of_gas_panic":
+            assert cairo_runner_facade.did_panic()
+        else:
+            assert not cairo_runner_facade.did_panic()
