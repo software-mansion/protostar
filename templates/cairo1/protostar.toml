@@ -5,3 +5,4 @@ linked-libraries = ["src"]
 
 [contracts]
 hello_starknet = ["src"]
+
