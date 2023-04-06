@@ -19,6 +19,7 @@ async def test_deploy_hint_local(protostar: ProtostarFixture, shared_datadir: Pa
     protostar.create_contracts(
         {
             "minimal": shared_datadir / "minimal.cairo",
+            "cairo0": shared_datadir / "cairo0.cairo",
             "with_ctor": shared_datadir / "with_ctor.cairo",
             "with_ctor_panic": shared_datadir / "with_ctor_panic.cairo",
         }
@@ -33,6 +34,7 @@ async def test_deploy_hint_local(protostar: ProtostarFixture, shared_datadir: Pa
         testing_summary,
         expected_passed_test_cases_names=[
             "test_deploy",
+            "test_deploy_cairo0",
             "test_deploy_with_ctor",
             "test_deploy_with_ctor_panic_check_err_code",
         ],

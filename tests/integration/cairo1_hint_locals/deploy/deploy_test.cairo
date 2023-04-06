@@ -21,6 +21,25 @@ fn test_deploy() {
 }
 
 #[test]
+fn test_deploy_cairo0() {
+    let class_hash = declare_cairo0('cairo0').unwrap();
+    assert(class_hash != 0, 'class_hash != 0');
+
+    let prepare_result = prepare(class_hash, ArrayTrait::new()).unwrap();
+
+    assert(prepare_result.contract_address != 0, 'prepared contract_address != 0');
+    assert(prepare_result.class_hash != 0, 'prepared class_hash != 0');
+
+    let prepared_contract = PreparedContract {
+        contract_address: prepare_result.contract_address,
+        class_hash: prepare_result.class_hash,
+        constructor_calldata: prepare_result.constructor_calldata
+    };
+    let deployed_contract_address = deploy(prepared_contract).unwrap();
+    assert(deployed_contract_address != 0, 'deployed_contract_address != 0');
+}
+
+#[test]
 fn test_deploy_with_ctor() {
     let mut constructor_calldata = ArrayTrait::new();
     constructor_calldata.append(1);
