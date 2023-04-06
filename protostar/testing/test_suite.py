@@ -33,6 +33,7 @@ class TestCaseWithOffsets(TestCase):
         test_path: Path,
         test_fn_name: str,
         test_fn_offset: int,
+        available_gas : Optional[int] = None,
         setup_fn_name: Optional[str] = None,
         setup_fn_offset: Optional[int] = None,
         available_gas: AvailableGas = None,

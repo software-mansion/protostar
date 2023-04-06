@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import List, Iterable
+from typing import List, Iterable, Optional
 
 from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
     PreprocessorError,
