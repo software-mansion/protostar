@@ -1,3 +1,4 @@
+import re
 import shutil
 import tempfile
 from dataclasses import dataclass
@@ -45,6 +46,9 @@ class NewProjectCreator(ProjectCreator):
             if project_name
             else self._gather_input()
         )
+
+        if cairo_version == CairoVersion.cairo1:
+            self._validate_project_name(project_config.project_dirname)
 
         self._create_project(
             project_config=project_config,
@@ -129,3 +133,11 @@ class NewProjectCreator(ProjectCreator):
                 PROJECT_NAME=project_name
             )
             path.write_text(file_contents, encoding="utf-8")
+
+    @staticmethod
+    def _validate_project_name(name: str):
+        pattern = r"^[a-zA-Z0-9][a-zA-Z0-9_]+$"
+        if not re.match(pattern, name):
+            raise ProtostarException(
+                f"Provided project name {name} does not match regex {pattern}. Choose a different project name."
+            )
