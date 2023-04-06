@@ -7,9 +7,6 @@ from typing_extensions import Literal
 from starknet_py.cairo.felt import encode_shortstring
 
 from protostar.cairo import HintLocal
-from protostar.cheatable_starknet.controllers.transaction_revert_exception import (
-    TransactionRevertException,
-)
 
 
 @dataclass(init=False)
