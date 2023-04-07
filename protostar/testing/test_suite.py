@@ -7,16 +7,11 @@ from protostar.cairo.cairo_function_executor import Offset
 
 class TestCase:
     def __init__(
-        self,
-        test_path: Path,
-        test_fn_name: str,
-        available_gas: Optional[int] = None,
-        setup_fn_name: Optional[str] = None,
+        self, test_path: Path, test_fn_name: str, setup_fn_name: Optional[str] = None
     ):
         self.test_path = test_path
         self.test_fn_name = test_fn_name
         self.setup_fn_name = setup_fn_name
-        self.available_gas = available_gas
 
     def __eq__(self, other: Self) -> bool:
         return (
@@ -32,11 +27,10 @@ class TestCaseWithOffsets(TestCase):
         test_path: Path,
         test_fn_name: str,
         test_fn_offset: int,
-        available_gas: Optional[int] = None,
         setup_fn_name: Optional[str] = None,
         setup_fn_offset: Optional[int] = None,
     ):
-        super().__init__(test_path, test_fn_name, available_gas, setup_fn_name)
+        super().__init__(test_path, test_fn_name, setup_fn_name)
         self.test_fn_offset = test_fn_offset
         self.setup_fn_offset = setup_fn_offset
 
