@@ -43,7 +43,6 @@ jobs:
         run: |
           echo $PATH
           pwd
-          ls -l
       - name: Populate caches
         uses: actions/cache@v3
         with:
@@ -63,7 +62,6 @@ jobs:
         run: |
           echo $PATH
           pwd
-          ls -l
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
@@ -166,7 +164,6 @@ jobs:
         run: |
           echo $PATH
           pwd
-          ls -l
       - name: E2E tests
         run: |
           poetry run poe test_e2e
