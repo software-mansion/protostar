@@ -68,7 +68,7 @@ def maybe_fetch_linked_libraries(project_root_path: Path) -> Optional[List[Path]
     metadata = read_scarb_metadata(scarb_toml_path)
 
     try:
-        # assuming we have only one entry in workspace section
+        # assuming we have only one entry in the workspace section
         current_package_name = metadata["workspace"]["members"][0]
 
         matching_compilation_units = list(

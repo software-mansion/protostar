@@ -1,0 +1,3 @@
+[package]
+name = "external_lib_bar"
+version = "0.1.0"

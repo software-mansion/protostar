@@ -1,0 +1,3 @@
+[project]
+protostar-version = "0.9.1"
+lib-path = "lib"
