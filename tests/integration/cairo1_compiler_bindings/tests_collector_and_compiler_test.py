@@ -59,3 +59,17 @@ def test_cairo_path_for_tests(datadir: Path, shared_datadir: Path):
         result.sierra_output,
     )
     assert protostar_casm
+
+
+def test_importing_from_contract(datadir: Path, shared_datadir: Path):
+    result = cairo1.collect_tests(
+        input_path=datadir / "test_with_contract_deps.cairo",
+        cairo_path=[
+            shared_datadir / "external_contract",
+        ],
+    )
+
+    assert result.sierra_output
+    assert result.test_names == [
+        "test_with_contract_deps::test_with_contract_deps::test_importing_from_contract"
+    ]
