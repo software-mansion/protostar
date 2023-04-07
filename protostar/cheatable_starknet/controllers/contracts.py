@@ -35,6 +35,7 @@ from starkware.starknet.services.api.contract_class.contract_class import (
     ContractClass,
     CompiledClass,
 )
+from starkware.starknet.business_logic.utils import write_class_facts
 
 from protostar.cheatable_starknet.cheatables.cheatable_execute_entry_point import (
     CheatableExecuteEntryPoint,
@@ -199,6 +200,12 @@ class ContractsController:
         abi = contract_class.abi
 
         class_hash = tx.class_hash
+        await write_class_facts(
+            self.cheatable_state.state_reader.ffc,  # pyright: ignore
+            contract_class,
+            compiled_class,
+        )
+
         await self.cheatable_state.set_contract_class(class_hash, compiled_class)
 
         return DeclaredSierraClass(class_hash=class_hash, abi=abi)
