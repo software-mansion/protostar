@@ -38,7 +38,8 @@ jobs:
           https://github.com/software-mansion/scarb/releases/download/v0.1.0/scarb-v0.1.0-x86_64-unknown-linux-gnu.tar.gz
           tar -xf scarb.tar.gz
           mv scarb-v0.1.0-x86_64-unknown-linux-gnu scarb
-          echo "$GITHUB_WORKSPACE/scarb" >> $GITHUB_PATH
+          echo "${GITHUB_WORKSPACE}/scarb/bin" >> $GITHUB_PATH
+          echo "${GITHUB_WORKSPACE}/scarb/bin"
       - name: echo_github_path  # TODO: remove, temporary to check stuff
         run: |
           echo $GITHUB_PATH
