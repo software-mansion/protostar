@@ -12,10 +12,10 @@ def test_l1_to_l2_message_cheatcode(
     run_test_runner: RunTestRunnerFixture,
     create_protostar_project: CreateProtostarProjectFixture,
 ):
-    with create_protostar_project() as protostar:
+    with create_protostar_project() as protostar_project:
         contracts_sources_path = Path(__file__).parent
 
-        protostar.create_files(
+        protostar_project.create_files(
             {
                 "tests/test_main.cairo": contracts_sources_path
                 / "simple_l1_handler_test.cairo",
@@ -23,7 +23,7 @@ def test_l1_to_l2_message_cheatcode(
                 / "external_contract_with_l1_handler.cairo",
             }
         )
-        protostar.build_sync()
+        protostar_project.protostar.build_sync()
 
         testing_summary = asyncio.run(
             run_test_runner(

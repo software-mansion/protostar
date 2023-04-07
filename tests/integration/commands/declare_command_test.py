@@ -23,10 +23,10 @@ from tests.integration._conftest import ProtostarFixture
 
 @pytest.fixture(name="protostar")
 def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
-    with create_protostar_project() as protostar:
-        protostar.create_files({"./src/main.cairo": CONTRACT_WITH_CONSTRUCTOR})
-        protostar.build_sync()
-        yield protostar
+    with create_protostar_project() as protostar_project:
+        protostar_project.create_files({"./src/main.cairo": CONTRACT_WITH_CONSTRUCTOR})
+        protostar_project.protostar.build_sync()
+        yield protostar_project.protostar
 
 
 @pytest.fixture(name="compiled_contract_path")

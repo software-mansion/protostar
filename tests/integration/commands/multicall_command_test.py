@@ -18,9 +18,9 @@ from tests.conftest import DevnetFixture, SetPrivateKeyEnvVarFixture
 
 @pytest.fixture(name="protostar")
 def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
-    with create_protostar_project() as protostar:
-        protostar.build_sync()
-        yield protostar
+    with create_protostar_project() as protostar_project:
+        protostar_project.protostar.build_sync()
+        yield protostar_project.protostar
 
 
 @pytest.fixture(name="standard_contract_class_hash")

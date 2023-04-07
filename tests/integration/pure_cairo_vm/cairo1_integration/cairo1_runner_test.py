@@ -11,8 +11,8 @@ from tests.integration.conftest import (
 
 @pytest.fixture(name="protostar", scope="function")
 def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
-    with create_protostar_project() as protostar:
-        yield protostar
+    with create_protostar_project() as protostar_project:
+        yield protostar_project.protostar
 
 
 async def test_cairo_1_runner(protostar: ProtostarFixture, datadir: Path):
