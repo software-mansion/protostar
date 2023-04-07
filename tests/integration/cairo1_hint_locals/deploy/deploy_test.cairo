@@ -53,8 +53,7 @@ fn test_deploy_with_ctor() {
 
     assert(prepare_result.contract_address != 0, 'prepared contract_address != 0');
     assert(prepare_result.class_hash != 0, 'prepared class_hash != 0');
-    // TODO: check the length of the array, this produces: error: Variable was previously moved
-    // https://github.com/software-mansion/protostar/issues/1717
+    // TODO (1717): check the length of the array, this produces: error: Variable was previously moved
     // assert(prepare_result.constructor_calldata.len() == 2_u32, 'constructor_calldata size == 2');
 
     let prepared_contract = PreparedContract {
