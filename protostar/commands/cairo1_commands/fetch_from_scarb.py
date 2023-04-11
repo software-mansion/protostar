@@ -71,27 +71,22 @@ def maybe_fetch_linked_libraries(project_root_path: Path) -> Optional[List[Path]
         # assuming we have only one entry in the workspace section
         current_package_name = metadata["workspace"]["members"][0]
 
-        matching_compilation_units = list(
-            filter(
-                lambda compilation_unit: compilation_unit["package"]
-                == current_package_name,
-                metadata["compilation_units"],
-            )
-        )
+        matching_compilation_units = [
+            compilation_unit
+            for compilation_unit in metadata["compilation_units"]
+            if compilation_unit["package"] == current_package_name
+        ]
 
-        matching_contract_units = list(
-            filter(
-                lambda compilation_unit: compilation_unit["target"]["kind"]
-                == "starknet-contract",
-                matching_compilation_units,
-            )
-        )
-        matching_lib_units = list(
-            filter(
-                lambda compilation_unit: compilation_unit["target"]["kind"] == "lib",
-                matching_compilation_units,
-            )
-        )
+        matching_contract_units = [
+            compilation_unit
+            for compilation_unit in matching_compilation_units
+            if compilation_unit["target"]["kind"] == "starknet-contract"
+        ]
+        matching_lib_units = [
+            compilation_unit
+            for compilation_unit in matching_compilation_units
+            if compilation_unit["target"]["kind"] == "lib"
+        ]
 
         # if contract target does not exist we fall back to lib
         unit_with_dependencies = (
