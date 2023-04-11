@@ -1,17 +1,23 @@
 from pathlib import Path
 from typing import List, Optional, Union
 from typing_extensions import Self
+from protostar.cairo.cairo_bindings import AvailableGas
 
 from protostar.cairo.cairo_function_executor import Offset
 
 
 class TestCase:
     def __init__(
-        self, test_path: Path, test_fn_name: str, setup_fn_name: Optional[str] = None
+        self,
+        test_path: Path,
+        test_fn_name: str,
+        setup_fn_name: Optional[str] = None,
+        available_gas: AvailableGas = None,
     ):
         self.test_path = test_path
         self.test_fn_name = test_fn_name
         self.setup_fn_name = setup_fn_name
+        self.available_gas = available_gas
 
     def __eq__(self, other: Self) -> bool:
         return (
@@ -29,8 +35,9 @@ class TestCaseWithOffsets(TestCase):
         test_fn_offset: int,
         setup_fn_name: Optional[str] = None,
         setup_fn_offset: Optional[int] = None,
+        available_gas: AvailableGas = None,
     ):
-        super().__init__(test_path, test_fn_name, setup_fn_name)
+        super().__init__(test_path, test_fn_name, setup_fn_name, available_gas)
         self.test_fn_offset = test_fn_offset
         self.setup_fn_offset = setup_fn_offset
 
@@ -98,6 +105,7 @@ class Cairo1TestSuite(TestSuite):
             test_path=test_case.test_path,
             test_fn_name=test_case.test_fn_name,
             test_fn_offset=test_fn_offset,
+            available_gas=test_case.available_gas,
             setup_fn_name=test_case.setup_fn_name,
             setup_fn_offset=offset_map.get(test_case.test_fn_name),
         )

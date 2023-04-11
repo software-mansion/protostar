@@ -45,7 +45,7 @@ class Cairo1TestCollector(TestCollector):
         ] = collector_output.sierra_output
         return [
             namespaced_test_name.split("::")[-1]
-            for namespaced_test_name in collector_output.test_names
+            for (namespaced_test_name, _) in collector_output.collected_tests
         ]
 
     def _build_test_suite_from_test_suite_info(
@@ -67,13 +67,13 @@ class Cairo1TestCollector(TestCollector):
 
     def _collect_test_cases(
         self,
-        function_names: List[str],
+        function_names: List[tuple[str, cairo1.AvailableGas]],
         test_path: Path,
     ) -> Iterable[TestCase]:
         setup_prefix = "setup_"
 
         fn_names = set(function_names)
-        for test_fn_name in fn_names:
+        for test_fn_name, gas in fn_names:
             setup_fn_name = setup_prefix + test_fn_name
             setup_fn_name = setup_fn_name if setup_fn_name in fn_names else None
 
@@ -81,4 +81,5 @@ class Cairo1TestCollector(TestCollector):
                 test_path=test_path,
                 test_fn_name=test_fn_name,
                 setup_fn_name=setup_fn_name,
+                available_gas=gas,
             )
