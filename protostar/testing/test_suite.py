@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import List, Optional, Union
 from typing_extensions import Self
+from protostar.cairo.cairo_bindings import AvailableGas
 
 from protostar.cairo.cairo_function_executor import Offset
 
@@ -11,7 +12,7 @@ class TestCase:
         test_path: Path,
         test_fn_name: str,
         setup_fn_name: Optional[str] = None,
-        available_gas: Optional[int] = None,
+        available_gas: AvailableGas = None,
     ):
         self.test_path = test_path
         self.test_fn_name = test_fn_name
@@ -34,7 +35,7 @@ class TestCaseWithOffsets(TestCase):
         test_fn_offset: int,
         setup_fn_name: Optional[str] = None,
         setup_fn_offset: Optional[int] = None,
-        available_gas: Optional[int] = None,
+        available_gas: AvailableGas = None,
     ):
         super().__init__(test_path, test_fn_name, setup_fn_name, available_gas)
         self.test_fn_offset = test_fn_offset

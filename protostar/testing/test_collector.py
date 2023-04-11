@@ -5,7 +5,7 @@ from fnmatch import fnmatch
 from glob import glob
 from pathlib import Path
 from time import time
-from typing import Dict, Iterable, List, Optional, Set, Tuple, Protocol
+from typing import Dict, Iterable, Optional, Set, Protocol
 
 from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
     LocationError,
@@ -294,7 +294,7 @@ class TestCollector:
 
     def _collect_test_cases(
         self,
-        function_names: List[Tuple[str, AvailableGas]],
+        function_names: list[tuple[str, AvailableGas]],
         test_path: Path,
     ) -> Iterable[TestCase]:
         test_prefix = "test_"
