@@ -5,7 +5,9 @@ fn fib(a: felt252, b: felt252, n: felt252) -> felt252 {
     match gas::withdraw_gas() {
         Option::Some(_) => {},
         Option::None(_) => {
-            assert(false, 'Out of gas');
+            let mut data = ArrayTrait::new();
+            data.append('Out of gas');
+            panic(data);
         }
     }
 
