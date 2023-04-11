@@ -10,7 +10,7 @@ from tests.integration.conftest import (
 from tests.integration._conftest import ProtostarProjectFixture
 
 
-@pytest.fixture(autouse=True, name="protostar")
+@pytest.fixture(autouse=True, name="protostar_project")
 def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
     with create_protostar_project(
         cairo_version=CairoVersion.cairo1
