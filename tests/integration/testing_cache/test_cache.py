@@ -14,8 +14,8 @@ from tests.data.tests import (
 
 @pytest.fixture(name="protostar")
 def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
-    with create_protostar_project() as protostar:
-        protostar.create_files(
+    with create_protostar_project() as protostar_project:
+        protostar_project.create_files(
             {
                 "./tests/test_passing.cairo": TEST_PASSING,
                 "./tests/test_partially_passing.cairo": TEST_PARTIALLY_PASSING,
@@ -23,8 +23,8 @@ def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
                 "./tests/test_broken.cairo": TEST_BROKEN,
             }
         )
-        protostar.build_sync()
-        yield protostar
+        protostar_project.protostar.build_sync()
+        yield protostar_project.protostar
 
 
 async def test_execute_all_tests(

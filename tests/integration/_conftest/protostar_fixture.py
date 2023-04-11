@@ -26,15 +26,6 @@ from protostar.commands.deploy_account_command import DeployAccountCommand
 from protostar.commands.deploy_command import DeployCommand
 from protostar.commands.test import TestCommand
 from protostar.commands.test.test_result_formatter import format_test_result
-from protostar.configuration_file import (
-    ConfigurationFileV2Model,
-    ConfigurationFileV2,
-    ConfigurationTOMLContentBuilder,
-    ConfigurationFileV2ContentFactory,
-)
-from protostar.configuration_file.configuration_toml_interpreter import (
-    ConfigurationTOMLInterpreter,
-)
 from protostar.formatter.formatting_result import FormattingResult
 from protostar.formatter.formatting_summary import FormattingSummary
 from protostar.io import log_color_provider
@@ -52,7 +43,6 @@ ContractMap = Dict[str, List[str]]
 
 
 # pylint: disable=too-many-instance-attributes
-# pylint: disable=too-many-public-methods
 class ProtostarFixture:
     def __init__(
         self,
@@ -387,80 +377,6 @@ class ProtostarFixture:
 
         return result
 
-    def create_files(
-        self, relative_path_str_to_file: Dict[str, Union[str, Path]]
-    ) -> None:
-        for relative_path_str, file in relative_path_str_to_file.items():
-            if isinstance(file, Path):
-                content = file.read_text("utf-8")
-            else:
-                content = file
-            self._save_file(self._project_root_path / relative_path_str, content)
-
-    def create_contracts(self, contract_name_to_file: Dict[str, Union[str, Path]]):
-        relative_path_str_to_file = {
-            f"src/{contract_name}.cairo": file
-            for contract_name, file in contract_name_to_file.items()
-        }
-        self.create_files(relative_path_str_to_file)
-        self.add_contracts_to_protostar_toml(contract_name_to_file)
-
-    def add_contracts_to_protostar_toml(
-        self, contract_name_to_file: Dict[str, Union[str, Path]]
-    ):
-        protostar_toml_path = self.project_root_path / "protostar.toml"
-        assert (
-            protostar_toml_path.is_file()
-        ), "No protostar.toml found, cannot change contents."
-
-        interpreter = ConfigurationTOMLInterpreter(
-            protostar_toml_path.read_text("utf-8")
-        )
-        config_file_v2 = ConfigurationFileV2(
-            project_root_path=self.project_root_path,
-            configuration_file_interpreter=interpreter,
-            file_path=protostar_toml_path,
-            active_profile_name=None,
-        )
-
-        previous_contract_map = {
-            contract_name: [
-                str(src_path)
-                for src_path in config_file_v2.get_contract_source_paths(contract_name)
-            ]
-            for contract_name in config_file_v2.get_contract_names()
-        }
-
-        new_contract_map = {
-            contract_name: [str(file_path.resolve())]
-            if isinstance(file_path, Path)
-            else [file_path]
-            for contract_name, file_path in contract_name_to_file.items()
-        }
-
-        declared_protostar_v = config_file_v2.get_declared_protostar_version()
-        declared_protostar_v_str = (
-            str(declared_protostar_v) if declared_protostar_v else None
-        )
-        overriden_config_file_model_v2 = ConfigurationFileV2Model(
-            protostar_version=declared_protostar_v_str,
-            contract_name_to_path_strs={
-                **previous_contract_map,
-                **new_contract_map,
-            },
-            project_config={},
-            command_name_to_config={},
-            profile_name_to_project_config={},
-            profile_name_to_commands_config={},
-        )
-        content_factory = ConfigurationFileV2ContentFactory(
-            content_builder=ConfigurationTOMLContentBuilder()
-        )
-        file_content = content_factory.create_file_content(
-            overriden_config_file_model_v2
-        )
-        protostar_toml_path.write_text(file_content)
-
     async def run_test_runner(
         self,
         target: Union[str, Path],
@@ -499,16 +415,6 @@ class ProtostarFixture:
         return self._parser.parse(
             [command_name] + tokenize(positional_args or [], named_args or {})
         )
-
-    @staticmethod
-    def _save_file(path: Path, content: str) -> None:
-        path.parent.mkdir(exist_ok=True, parents=True)
-        with open(
-            path,
-            mode="w",
-            encoding="utf-8",
-        ) as output_file:
-            output_file.write(content)
 
     def format_test_result(self, test_result: TestResult) -> str:
         return format_test_result(test_result=test_result).format_human(

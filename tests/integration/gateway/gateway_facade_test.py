@@ -22,21 +22,21 @@ from tests.data.contracts import CONTRACT_WITH_CONSTRUCTOR, IDENTITY_CONTRACT
 from tests.integration.conftest import CreateProtostarProjectFixture
 from tests.integration._conftest import (
     GatewayClientTxInterceptor,
-    ProtostarFixture,
     TransactionRegistry,
+    ProtostarProjectFixture,
 )
 
 
-@pytest.fixture(autouse=True, scope="function", name="protostar")
+@pytest.fixture(autouse=True, scope="function", name="protostar_project")
 def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
-    with create_protostar_project() as protostar:
-        protostar.build_sync()
-        yield protostar
+    with create_protostar_project() as protostar_project:
+        protostar_project.protostar.build_sync()
+        yield protostar_project
 
 
 @pytest.fixture(name="compiled_contract_path")
-def compiled_contract_path_fixture(protostar: ProtostarFixture) -> Path:
-    return protostar.project_root_path / "build" / "main.json"
+def compiled_contract_path_fixture(protostar_project: ProtostarProjectFixture) -> Path:
+    return protostar_project.project_root_path / "build" / "main.json"
 
 
 @pytest.fixture(name="transaction_registry")
@@ -77,9 +77,9 @@ async def declared_class_hash_fixture(
 
 
 @pytest.fixture(name="contract_abi")
-def contract_abi_fixture(protostar: ProtostarFixture):
+def contract_abi_fixture(protostar_project: ProtostarProjectFixture):
     return ContractAbi.from_json_file(
-        protostar.project_root_path / "build" / "main_abi.json"
+        protostar_project.project_root_path / "build" / "main_abi.json"
     )
 
 
@@ -168,16 +168,16 @@ async def test_call_to_unknown_contract(gateway_facade: GatewayFacade):
 
 @pytest.fixture(name="compiled_contract_without_constructor_class_hash")
 async def compiled_contract_without_constructor_class_hash_fixture(
-    protostar: ProtostarFixture,
+    protostar_project: ProtostarProjectFixture,
     devnet_gateway_url: str,
     devnet_account: DevnetAccount,
     set_private_key_env_var: SetPrivateKeyEnvVarFixture,
 ):
-    protostar.create_files({"./src/main.cairo": IDENTITY_CONTRACT})
-    await protostar.build()
+    protostar_project.create_files({"./src/main.cairo": IDENTITY_CONTRACT})
+    await protostar_project.protostar.build()
     with set_private_key_env_var(devnet_account.private_key):
-        declare_res = await protostar.declare(
-            protostar.project_root_path / "build" / "main.json",
+        declare_res = await protostar_project.protostar.declare(
+            protostar_project.protostar.project_root_path / "build" / "main.json",
             gateway_url=devnet_gateway_url,
             account_address=devnet_account.address,
             max_fee="auto",
@@ -206,16 +206,16 @@ async def test_compiled_contract_without_constructor_class_hash(
 
 @pytest.fixture(name="compiled_contract_with_constructor_class_hash")
 async def compiled_contract_with_constructor_class_hash_fixture(
-    protostar: ProtostarFixture,
+    protostar_project: ProtostarProjectFixture,
     devnet_gateway_url: str,
     devnet_account: DevnetAccount,
     set_private_key_env_var: SetPrivateKeyEnvVarFixture,
 ):
-    protostar.create_files({"./src/main.cairo": CONTRACT_WITH_CONSTRUCTOR})
-    await protostar.build()
+    protostar_project.create_files({"./src/main.cairo": CONTRACT_WITH_CONSTRUCTOR})
+    await protostar_project.protostar.build()
     with set_private_key_env_var(devnet_account.private_key):
-        declare_res = await protostar.declare(
-            protostar.project_root_path / "build" / "main.json",
+        declare_res = await protostar_project.protostar.declare(
+            protostar_project.project_root_path / "build" / "main.json",
             gateway_url=devnet_gateway_url,
             account_address=devnet_account.address,
             max_fee="auto",
