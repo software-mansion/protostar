@@ -5,7 +5,7 @@ from fnmatch import fnmatch
 from glob import glob
 from pathlib import Path
 from time import time
-from typing import Dict, Iterable, Optional, Set, Protocol
+from typing import Dict, List, Tuple, Iterable, Optional, Set, Protocol
 
 from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
     LocationError,
