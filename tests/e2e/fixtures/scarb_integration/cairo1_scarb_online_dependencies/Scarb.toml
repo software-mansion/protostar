@@ -1,0 +1,6 @@
+[package]
+name = "cairo1_scarb_online_dependencies"
+version = "0.1.0"
+
+[dependencies]
+quaireaux_math = { git = "https://github.com/keep-starknet-strange/quaireaux.git", rev = "2cfb05d" }

@@ -33,7 +33,7 @@ def read_scarb_metadata(scarb_toml_path: Path) -> Dict:
                 "--format-version",
                 "1",
             ],
-            check=False,  # don't throw exception on fail
+            check=False,
             cwd=scarb_toml_path.parent,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
@@ -93,7 +93,7 @@ def maybe_fetch_linked_libraries(project_root_path: Path) -> Optional[List[Path]
             )
         )
 
-        #  lib is the default target
+        # if contract target does not exist we fall back to lib
         unit_with_dependencies = (
             matching_contract_units[0]
             if matching_contract_units
@@ -111,7 +111,6 @@ def maybe_fetch_linked_libraries(project_root_path: Path) -> Optional[List[Path]
             unit_with_dependencies["components_data"],
         )
 
-        # using path.parent because component["source_path"] points to lib.cairo
         paths: List[Path] = list(
             map(
                 lambda component: find_directory_with_cairo_project_toml(
