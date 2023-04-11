@@ -92,7 +92,7 @@ def compile_suite(cairo_test_path: Path) -> ProtostarCasm:
     test_collector_output = cairo1.collect_tests(input_path=cairo_test_path)
     assert test_collector_output.sierra_output
     protostar_casm_json = cairo1.compile_protostar_sierra_to_casm(
-        named_tests=test_collector_output.test_names,
+        named_tests=test_collector_output.collected_tests,
         input_data=test_collector_output.sierra_output,
     )
     assert protostar_casm_json

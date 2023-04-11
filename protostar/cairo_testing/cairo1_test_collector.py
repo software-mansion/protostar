@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import List, Iterable, Optional
+from typing import List, Iterable
 
 from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
     PreprocessorError,
@@ -44,8 +44,8 @@ class Cairo1TestCollector(TestCollector):
             file_path
         ] = collector_output.sierra_output
         return [
-            namespaced_test_name[0].split("::")[-1]
-            for namespaced_test_name in collector_output.test_names
+            namespaced_test_name.split("::")[-1]
+            for (namespaced_test_name, _) in collector_output.collected_tests
         ]
 
     def _build_test_suite_from_test_suite_info(
@@ -67,7 +67,7 @@ class Cairo1TestCollector(TestCollector):
 
     def _collect_test_cases(
         self,
-        function_names: List[tuple[str, Optional[int]]],
+        function_names: List[tuple[str, cairo1.AvailableGas]],
         test_path: Path,
     ) -> Iterable[TestCase]:
         setup_prefix = "setup_"

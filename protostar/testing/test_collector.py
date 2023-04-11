@@ -11,6 +11,7 @@ from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
     LocationError,
     PreprocessorError,
 )
+from protostar.cairo.cairo_bindings import AvailableGas
 
 from protostar.cairo.cairo_exceptions import CairoBindingException
 
@@ -293,14 +294,14 @@ class TestCollector:
 
     def _collect_test_cases(
         self,
-        function_names: List[tuple[str, Optional[int]]],
+        function_names: List[Tuple[str, AvailableGas]],
         test_path: Path,
     ) -> Iterable[TestCase]:
         test_prefix = "test_"
         setup_prefix = "setup_"
 
-        fn_names = set(function_names)
-        for (test_fn_name, _) in fn_names:
+        fn_names = set(fn[0] for fn in function_names)
+        for test_fn_name in fn_names:
             if test_fn_name.startswith(test_prefix):
                 base_name = test_fn_name[len(test_prefix) :]
 
