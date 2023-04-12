@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 from typing import Dict, Union, Generator, Any
 from contextlib import contextmanager
-from distutils.dir_util import copy_tree
+import shutil
 
 from pytest_mock import MockerFixture
 
@@ -107,7 +107,9 @@ class ProtostarProjectFixture:
                 contract_dir
             ).is_dir(), "contracts in cairo1 should be represented as directories"
             relative_path = f"src/{contract_name}"
-            copy_tree(str(contract_dir), str(self._project_root_path / relative_path))
+            shutil.copytree(
+                str(contract_dir), str(self._project_root_path / relative_path)
+            )
         self.add_contracts_to_protostar_toml(contract_name_to_contract_dir)
         self.protostar = self.create_protostar_fixture(
             self._mocker, self._project_root_path
