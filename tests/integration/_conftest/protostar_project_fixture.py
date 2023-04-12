@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 from typing import Dict, Union, Generator, Any
 from contextlib import contextmanager
+from distutils.dir_util import copy_tree
 
 from pytest_mock import MockerFixture
 
@@ -94,6 +95,20 @@ class ProtostarProjectFixture:
         }
         self.create_files(relative_path_str_to_file)
         self.add_contracts_to_protostar_toml(contract_name_to_file)
+        self.protostar = self.create_protostar_fixture(
+            self._mocker, self._project_root_path
+        )
+
+    def create_contracts_cairo1(
+        self, contract_name_to_contract_dir: Dict[str, Union[str, Path]]
+    ):
+        for contract_name, contract_dir in contract_name_to_contract_dir.items():
+            assert Path(
+                contract_dir
+            ).is_dir(), "contracts in cairo1 should be represented as directories"
+            relative_path = f"src/{contract_name}"
+            copy_tree(str(contract_dir), str(self._project_root_path / relative_path))
+        self.add_contracts_to_protostar_toml(contract_name_to_contract_dir)
         self.protostar = self.create_protostar_fixture(
             self._mocker, self._project_root_path
         )
