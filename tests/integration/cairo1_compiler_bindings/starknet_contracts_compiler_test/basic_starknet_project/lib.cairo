@@ -1,3 +1,6 @@
+#[cfg(test)]
+mod test;
+
 #[contract]
 mod HelloStarknet {
     struct Storage { balance: felt252, }
