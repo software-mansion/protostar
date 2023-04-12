@@ -1,5 +1,4 @@
 import json
-import shutil
 from pathlib import Path
 
 import pytest
@@ -8,40 +7,42 @@ from tests._conftest.devnet.devnet_fixture import DevnetFixture
 from tests.conftest import DevnetAccount, SetPrivateKeyEnvVarFixture
 from tests.data.contracts import UINT256_IDENTITY_CONTRACT
 from tests.integration.conftest import CreateProtostarProjectFixture
-from tests.integration._conftest import ProtostarFixture
+from tests.integration._conftest import ProtostarFixture, ProtostarProjectFixture
 
 
-@pytest.fixture(name="protostar")
+@pytest.fixture(name="protostar_project")
 def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
-    with create_protostar_project() as protostar:
-        protostar.create_files(
+    with create_protostar_project() as protostar_project:
+        protostar_project.create_files(
             {"src/main.cairo": Path(__file__).parent / "getter_contract.cairo"}
         )
-        protostar.build_sync()
-        yield protostar
+        protostar_project.protostar.build_sync()
+        yield protostar_project
 
 
 async def test_call(
-    protostar: ProtostarFixture,
+    protostar_project: ProtostarProjectFixture,
     devnet_gateway_url: str,
     devnet_account: DevnetAccount,
     set_private_key_env_var: SetPrivateKeyEnvVarFixture,
 ):
     with set_private_key_env_var(devnet_account.private_key):
-        declare_response = await protostar.declare(
-            contract=protostar.project_root_path / "build" / "main.json",
+        declare_response = await protostar_project.protostar.declare(
+            contract=protostar_project.protostar.project_root_path
+            / "build"
+            / "main.json",
             gateway_url=devnet_gateway_url,
             account_address=devnet_account.address,
             max_fee="auto",
         )
-        deploy_response = await protostar.deploy(
+        deploy_response = await protostar_project.protostar.deploy(
             class_hash=declare_response.class_hash,
             gateway_url=devnet_gateway_url,
             account_address=devnet_account.address,
             max_fee="auto",
         )
 
-    result = await protostar.call(
+    result = await protostar_project.protostar.call(
         contract_address=deploy_response.address,
         function_name="add_3",
         inputs=[3],
@@ -71,17 +72,17 @@ async def deploy_main_contract(
 
 
 async def test_call_inputs(
-    protostar: ProtostarFixture,
+    protostar_project: ProtostarProjectFixture,
     devnet_gateway_url: str,
     devnet_account: DevnetAccount,
     set_private_key_env_var: SetPrivateKeyEnvVarFixture,
 ):
     with set_private_key_env_var(devnet_account.private_key):
         deploy_response = await deploy_main_contract(
-            protostar, devnet_gateway_url, devnet_account
+            protostar_project.protostar, devnet_gateway_url, devnet_account
         )
 
-    result = await protostar.call(
+    result = await protostar_project.protostar.call(
         contract_address=deploy_response.address,
         function_name="add_multiple_values",
         inputs=[3, 2, 5],
@@ -92,17 +93,17 @@ async def test_call_inputs(
 
 
 async def test_call_inputs_args_dict(
-    protostar: ProtostarFixture,
+    protostar_project: ProtostarProjectFixture,
     devnet_gateway_url: str,
     devnet_account: DevnetAccount,
     set_private_key_env_var: SetPrivateKeyEnvVarFixture,
 ):
     with set_private_key_env_var(devnet_account.private_key):
         deploy_response = await deploy_main_contract(
-            protostar, devnet_gateway_url, devnet_account
+            protostar_project.protostar, devnet_gateway_url, devnet_account
         )
 
-    result = await protostar.call(
+    result = await protostar_project.protostar.call(
         contract_address=deploy_response.address,
         function_name="add_multiple_values",
         inputs={"a": 5, "c": 3, "b": 2},
@@ -113,61 +114,65 @@ async def test_call_inputs_args_dict(
 
 
 async def test_call_inputs_args_dict_with_custom_abi(
-    protostar: ProtostarFixture,
+    protostar_project: ProtostarProjectFixture,
     devnet_gateway_url: str,
     devnet_account: DevnetAccount,
     set_private_key_env_var: SetPrivateKeyEnvVarFixture,
 ):
     with set_private_key_env_var(devnet_account.private_key):
         deploy_response = await deploy_main_contract(
-            protostar, devnet_gateway_url, devnet_account
+            protostar_project.protostar, devnet_gateway_url, devnet_account
         )
 
-    result = await protostar.call(
+    result = await protostar_project.protostar.call(
         contract_address=deploy_response.address,
         function_name="add_multiple_values",
         inputs={"a": 5, "c": 3, "b": 2},
         gateway_url=devnet_gateway_url,
-        abi_path=protostar.project_root_path / "build" / "main_abi.json",
+        abi_path=protostar_project.protostar.project_root_path
+        / "build"
+        / "main_abi.json",
     )
 
     assert result.call_output.cairo_data == [10]
 
 
 async def test_error_when_custom_abi_is_invalid(
-    protostar: ProtostarFixture,
+    protostar_project: ProtostarProjectFixture,
     devnet_gateway_url: str,
     devnet_account: DevnetAccount,
     set_private_key_env_var: SetPrivateKeyEnvVarFixture,
 ):
     with set_private_key_env_var(devnet_account.private_key):
         deploy_response = await deploy_main_contract(
-            protostar, devnet_gateway_url, devnet_account
+            protostar_project.protostar, devnet_gateway_url, devnet_account
         )
 
     with pytest.raises(ProtostarException):
-        await protostar.call(
+        await protostar_project.protostar.call(
             contract_address=deploy_response.address,
             function_name="add_multiple_values",
             inputs={"a": 5, "c": 3, "b": 2},
             gateway_url=devnet_gateway_url,
-            abi_path=protostar.project_root_path / "build" / "main.json",
+            abi_path=protostar_project.protostar.project_root_path
+            / "build"
+            / "main.json",
         )
 
 
 async def test_call_inputs_args_dict_fail(
-    protostar: ProtostarFixture,
+    protostar_project: ProtostarProjectFixture,
     devnet_gateway_url: str,
     devnet_account: DevnetAccount,
     set_private_key_env_var: SetPrivateKeyEnvVarFixture,
 ):
     with set_private_key_env_var(devnet_account.private_key):
         deploy_response = await deploy_main_contract(
-            protostar, devnet_gateway_url, devnet_account
+            protostar_project.protostar, devnet_gateway_url, devnet_account
         )
 
     with pytest.raises(ProtostarException):
-        await protostar.call(
+        await protostar_project.protostar.call(
             contract_address=deploy_response.address,
             function_name="add_multiple_values",
             inputs={"a": 5, "c": 3, "ba": 2},
@@ -176,20 +181,20 @@ async def test_call_inputs_args_dict_fail(
 
 
 async def test_call_failure(
-    protostar: ProtostarFixture,
+    protostar_project: ProtostarProjectFixture,
     devnet_gateway_url: str,
     devnet_account: DevnetAccount,
     set_private_key_env_var: SetPrivateKeyEnvVarFixture,
 ):
-    await protostar.build()
+    await protostar_project.protostar.build()
     with set_private_key_env_var(devnet_account.private_key):
-        declare_response = await protostar.declare(
-            protostar.project_root_path / "build" / "main.json",
+        declare_response = await protostar_project.protostar.declare(
+            protostar_project.protostar.project_root_path / "build" / "main.json",
             gateway_url=devnet_gateway_url,
             account_address=devnet_account.address,
             max_fee="auto",
         )
-        deploy_response = await protostar.deploy(
+        deploy_response = await protostar_project.protostar.deploy(
             class_hash=declare_response.class_hash,
             gateway_url=devnet_gateway_url,
             account_address=devnet_account.address,
@@ -197,7 +202,7 @@ async def test_call_failure(
         )
 
     with pytest.raises(ProtostarException, match="0 != 1"):
-        await protostar.call(
+        await protostar_project.protostar.call(
             contract_address=deploy_response.address,
             function_name="error_call",
             inputs=[],
@@ -206,22 +211,24 @@ async def test_call_failure(
 
 
 async def test_uint256(
-    protostar: ProtostarFixture,
+    protostar_project: ProtostarProjectFixture,
     devnet_gateway_url: str,
     devnet_account: DevnetAccount,
     set_private_key_env_var: SetPrivateKeyEnvVarFixture,
     capsys: pytest.CaptureFixture[str],
 ):
-    protostar.create_files({"./src/main.cairo": UINT256_IDENTITY_CONTRACT})
-    await protostar.build()
+    protostar_project.create_files({"./src/main.cairo": UINT256_IDENTITY_CONTRACT})
+    await protostar_project.protostar.build()
     with set_private_key_env_var(devnet_account.private_key):
-        declare_response = await protostar.declare(
-            contract=protostar.project_root_path / "build" / "main.json",
+        declare_response = await protostar_project.protostar.declare(
+            contract=protostar_project.protostar.project_root_path
+            / "build"
+            / "main.json",
             gateway_url=devnet_gateway_url,
             max_fee="auto",
             account_address=devnet_account.address,
         )
-        deploy_response = await protostar.deploy(
+        deploy_response = await protostar_project.protostar.deploy(
             class_hash=declare_response.class_hash,
             gateway_url=devnet_gateway_url,
             max_fee="auto",
@@ -229,7 +236,7 @@ async def test_uint256(
         )
 
         capsys.readouterr()
-        await protostar.call(
+        await protostar_project.protostar.call(
             contract_address=deploy_response.address,
             function_name="identity",
             inputs=[21, 37],
@@ -242,22 +249,24 @@ async def test_uint256(
 
 
 async def test_json(
-    protostar: ProtostarFixture,
+    protostar_project: ProtostarProjectFixture,
     devnet_gateway_url: str,
     devnet_account: DevnetAccount,
     set_private_key_env_var: SetPrivateKeyEnvVarFixture,
     capsys: pytest.CaptureFixture[str],
 ):
-    protostar.create_files({"./src/main.cairo": UINT256_IDENTITY_CONTRACT})
-    await protostar.build()
+    protostar_project.create_files({"./src/main.cairo": UINT256_IDENTITY_CONTRACT})
+    await protostar_project.protostar.build()
     with set_private_key_env_var(devnet_account.private_key):
-        declare_response = await protostar.declare(
-            contract=protostar.project_root_path / "build" / "main.json",
+        declare_response = await protostar_project.protostar.declare(
+            contract=protostar_project.protostar.project_root_path
+            / "build"
+            / "main.json",
             gateway_url=devnet_gateway_url,
             max_fee="auto",
             account_address=devnet_account.address,
         )
-        deploy_response = await protostar.deploy(
+        deploy_response = await protostar_project.protostar.deploy(
             class_hash=declare_response.class_hash,
             gateway_url=devnet_gateway_url,
             max_fee="auto",
@@ -265,7 +274,7 @@ async def test_json(
         )
 
         capsys.readouterr()
-        await protostar.call(
+        await protostar_project.protostar.call(
             contract_address=deploy_response.address,
             function_name="identity",
             inputs={"arg": {"low": 21, "high": 37}},
@@ -282,39 +291,41 @@ async def test_json(
 
 
 async def test_calling_through_proxy(
-    protostar: ProtostarFixture,
+    protostar_project: ProtostarProjectFixture,
     devnet: DevnetFixture,
     devnet_account: DevnetAccount,
     set_private_key_env_var: SetPrivateKeyEnvVarFixture,
-    tmp_path: Path,
 ):
     with set_private_key_env_var(devnet_account.private_key):
-        declared = await protostar.declare(
-            contract=protostar.project_root_path / "build" / "main.json",
+        declared = await protostar_project.protostar.declare(
+            contract=protostar_project.protostar.project_root_path
+            / "build"
+            / "main.json",
             gateway_url=devnet.get_gateway_url(),
             max_fee="auto",
             account_address=devnet_account.address,
             wait_for_acceptance=True,
         )
-        contract_abi_path = tmp_path / "abi.json"
-        shutil.copy(
-            protostar.project_root_path / "build" / "main_abi.json", contract_abi_path
+        contract_abi_path = (
+            protostar_project.protostar.project_root_path / "build" / "main_abi.json"
         )
-        # TODO (1689): Workaround for the bug with config not being updated in commands after contract creation
-        protostar.create_files(
-            {"src/main.cairo": Path(__file__).parent / "proxy.cairo"}
-        )
-        await protostar.build()
 
-        declared_proxy = await protostar.declare(
-            contract=protostar.project_root_path / "build" / "main.json",
+        protostar_project.create_contracts(
+            {"proxy": Path(__file__).parent / "proxy.cairo"}
+        )
+        await protostar_project.protostar.build()
+
+        declared_proxy = await protostar_project.protostar.declare(
+            contract=protostar_project.protostar.project_root_path
+            / "build"
+            / "proxy.json",
             wait_for_acceptance=True,
             account_address=devnet_account.address,
             gateway_url=devnet.get_gateway_url(),
             max_fee="auto",
         )
 
-        proxy = await protostar.deploy(
+        proxy = await protostar_project.protostar.deploy(
             class_hash=declared_proxy.class_hash,
             inputs=[
                 int(declared.class_hash),
@@ -327,7 +338,7 @@ async def test_calling_through_proxy(
             wait_for_acceptance=True,
         )
 
-        call_result = await protostar.call(
+        call_result = await protostar_project.protostar.call(
             contract_address=proxy.address,
             gateway_url=devnet.get_gateway_url(),
             function_name="add_multiple_values",

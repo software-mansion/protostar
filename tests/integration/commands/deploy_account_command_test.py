@@ -8,8 +8,8 @@ from tests.integration._conftest import ProtostarFixture
 
 @pytest.fixture(name="protostar")
 def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
-    with create_protostar_project() as protostar:
-        yield protostar
+    with create_protostar_project() as protostar_project:
+        yield protostar_project.protostar
 
 
 async def test_deploying_account(

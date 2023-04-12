@@ -14,13 +14,14 @@ from tests.data.contracts import (
     FORMATTED_CONTRACT,
     UNFORMATTED_CONTRACT,
 )
-from tests.integration.conftest import CreateProtostarProjectFixture, ProtostarFixture
+from tests.integration._conftest import ProtostarFixture
+from tests.integration.conftest import CreateProtostarProjectFixture
 
 
 @pytest.fixture(name="protostar")
 def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
-    with create_protostar_project() as protostar:
-        protostar.create_files(
+    with create_protostar_project() as protostar_project:
+        protostar_project.create_files(
             {
                 "to_format/formatted.cairo": FORMATTED_CONTRACT,
                 "to_format/unformatted1.cairo": UNFORMATTED_CONTRACT,
@@ -28,7 +29,7 @@ def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
                 "to_format/broken.cairo": BROKEN_CONTRACT,
             }
         )
-        yield protostar
+        yield protostar_project.protostar
 
 
 class FormattingResultCollector(UserList[FormattingResult]):
