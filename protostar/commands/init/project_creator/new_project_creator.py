@@ -73,7 +73,7 @@ class NewProjectCreator(ProjectCreator):
         project_root_path = output_dir_path / project_config.project_dirname
         project_name = project_config.project_dirname
 
-        self.copy_and_replace_template(
+        self.project_directory_from_template(
             cairo_version=cairo_version,
             project_root_path=project_root_path,
             project_name=project_name,
@@ -83,7 +83,7 @@ class NewProjectCreator(ProjectCreator):
             configuration_model=self._make_project_config(cairo_version=cairo_version),
         )
 
-    def copy_and_replace_template(
+    def project_directory_from_template(
         self, cairo_version: CairoVersion, project_root_path: Path, project_name: str
     ):
         template_path = self.script_root / "templates" / cairo_version.value
