@@ -50,8 +50,4 @@ async def test_deploy_hint_local(
             "test_deploy_with_ctor_invalid_calldata",
             "test_deploy_with_ctor_panic",
         ],
-        expected_failed_test_cases_names=[
-            "test_deploy_with_ctor_invalid_calldata",
-            "test_deploy_with_ctor_panic",
-        ],
     )
