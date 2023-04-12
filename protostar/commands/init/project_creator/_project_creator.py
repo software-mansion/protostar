@@ -31,23 +31,7 @@ class ProjectCreator(ABC):
                 f"Folder or file named {project_root_path.name} already exists. Choose different project name."
             ) from ex_file_exists
 
-    def save_protostar_toml(self, project_root_path: Path) -> None:
-        config = ConfigurationFileV2Model(
-            protostar_version=str(self._protostar_version),
-            contract_name_to_path_strs={"main": ["src/main.cairo"]},
-            project_config={
-                "lib-path": "lib",
-                "linked-libraries": ["src"],
-            },
-            command_name_to_config={},
-            profile_name_to_project_config={},
-            profile_name_to_commands_config={},
-        )
-        self._save_protostar_toml(
-            project_root_path=project_root_path, configuration_model=config
-        )
-
-    def _save_protostar_toml(
+    def _write_protostar_toml_from_config(
         self, project_root_path: Path, configuration_model: ConfigurationFileV2Model
     ) -> None:
         configuration_file_content = (

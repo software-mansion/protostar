@@ -78,7 +78,7 @@ class NewProjectCreator(ProjectCreator):
             project_root_path=project_root_path,
             project_name=project_name,
         )
-        self._save_protostar_toml(
+        self._write_protostar_toml_from_config(
             project_root_path=project_root_path,
             configuration_model=self._make_project_config(cairo_version=cairo_version),
         )
