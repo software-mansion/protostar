@@ -41,15 +41,15 @@ async def test_deploy_contract(run_test_runner: RunTestRunnerFixture):
 def test_deploying_contract_by_name(
     create_protostar_project: CreateProtostarProjectFixture,
 ):
-    with create_protostar_project() as protostar:
-        protostar.create_files(
+    with create_protostar_project() as protostar_project:
+        protostar_project.create_files(
             {
                 "./src/main.cairo": TEST_CONTRACTS_PATH / "basic_contract.cairo",
                 "./tests/test_main.cairo": TEST_CONTRACTS_PATH
                 / "deploying_contract_by_name_test.cairo",
             }
         )
-        result = asyncio.run(protostar.test(["./tests"]))
+        result = asyncio.run(protostar_project.protostar.test(["./tests"]))
 
     assert_cairo_test_cases(
         result, expected_passed_test_cases_names=["test_deploy_contract_by_name"]

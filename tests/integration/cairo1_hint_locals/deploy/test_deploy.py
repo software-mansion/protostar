@@ -15,30 +15,35 @@ def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
         yield protostar_project
 
 
-async def test_declare_hint_local(
+async def test_deploy_hint_local(
     protostar_project: ProtostarProjectFixture, shared_datadir: Path
 ):
     protostar_project.create_contracts(
         {
             "minimal": shared_datadir / "minimal.cairo",
-            "broken": shared_datadir / "broken.cairo",
             "cairo0": shared_datadir / "cairo0.cairo",
+            "with_storage": shared_datadir / "with_storage.cairo",
+            "with_ctor": shared_datadir / "with_ctor.cairo",
+            "with_ctor_panic": shared_datadir / "with_ctor_panic.cairo",
         }
     )
 
     testing_summary = await protostar_project.protostar.run_test_runner(
-        Path(__file__).parent / "declare_test.cairo",
+        Path(__file__).parent / "deploy_test.cairo",
         cairo1_test_runner=True,
     )
 
     assert_cairo_test_cases(
         testing_summary,
         expected_passed_test_cases_names=[
-            "test_declare",
+            "test_deploy",
+            "test_deploy_cairo0",
+            "test_deploy_with_ctor",
+            "test_deploy_with_storage",
+            "test_deploy_with_ctor_panic_check_err_code",
         ],
-        expected_broken_test_cases_names=[
-            "test_declare_nonexistent",
-            "test_declare_broken",
-            "test_declare_cairo0",
+        expected_failed_test_cases_names=[
+            "test_deploy_with_ctor_invalid_calldata",
+            "test_deploy_with_ctor_panic",
         ],
     )

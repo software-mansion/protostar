@@ -1,6 +1,5 @@
 import json
 import os
-from contextlib import contextmanager
 from pathlib import Path
 from typing import Callable, ContextManager, List, Optional, cast
 
@@ -16,7 +15,7 @@ from protostar.io.log_color_provider import LogColorProvider
 from protostar.testing import TestingSummary
 from protostar.cli import MessengerFactory
 from tests.conftest import TESTS_ROOT_PATH, run_devnet, ProtostarTmpPathFactory
-from tests.integration._conftest import ProtostarFixture, create_protostar_fixture
+from tests.integration._conftest import ProtostarProjectFixture
 from tests.integration._conftest import (
     assert_cairo_test_cases as _assert_cairo_test_cases,
 )
@@ -132,7 +131,7 @@ def run_test_runner_fixture(
 class CreateProtostarProjectFixture(Protocol):
     def __call__(
         self, cairo_version: CairoVersion = CairoVersion.cairo0
-    ) -> ContextManager[ProtostarFixture]:
+    ) -> ContextManager[ProtostarProjectFixture]:
         ...
 
 
@@ -141,32 +140,10 @@ def create_protostar_project_fixture(
     session_mocker: MockerFixture,
     tmp_path_factory: ProtostarTmpPathFactory,
 ) -> CreateProtostarProjectFixture:
-    @contextmanager
-    def create_protostar_project(cairo_version: CairoVersion = CairoVersion.cairo0):
-        tmp_path = tmp_path_factory()
-        project_root_path = tmp_path
-        cwd = Path().resolve()
-        protostar = create_protostar_fixture(
-            mocker=session_mocker,
-            project_root_path=tmp_path,
-        )
+    def _create_protostar_project(cairo_version: CairoVersion = CairoVersion.cairo0):
+        return ProtostarProjectFixture(session_mocker, tmp_path_factory, cairo_version)
 
-        project_name = "project_name"
-        if cairo_version == CairoVersion.cairo0:
-            protostar.init_sync(project_name)
-        else:
-            protostar.init_cairo1_sync(project_name)
-
-        project_root_path = project_root_path / project_name
-        os.chdir(project_root_path)
-        # rebuilding protostar fixture to reload configuration file
-        yield create_protostar_fixture(
-            mocker=session_mocker,
-            project_root_path=project_root_path,
-        )
-        os.chdir(cwd)
-
-    return create_protostar_project
+    return _create_protostar_project
 
 
 GetAbiFromContractFixture = Callable[[str], AbiType]
@@ -177,9 +154,9 @@ def get_abi_from_contract_fixture(
     create_protostar_project: CreateProtostarProjectFixture,
 ) -> GetAbiFromContractFixture:
     def get_abi_from_contract(contract_source_code: str) -> AbiType:
-        with create_protostar_project() as protostar:
-            protostar.create_files({"src/main.cairo": contract_source_code})
-            protostar.build_sync()
+        with create_protostar_project() as protostar_project:
+            protostar_project.create_files({"src/main.cairo": contract_source_code})
+            protostar_project.protostar.build_sync()
             with open("build/main_abi.json") as f:
                 abi = json.load(f)
                 return abi

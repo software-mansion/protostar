@@ -5,12 +5,13 @@ from fnmatch import fnmatch
 from glob import glob
 from pathlib import Path
 from time import time
-from typing import Dict, Iterable, List, Optional, Set, Tuple, Protocol
+from typing import Dict, List, Tuple, Iterable, Optional, Set, Protocol
 
 from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
     LocationError,
     PreprocessorError,
 )
+from protostar.cairo.cairo_bindings import AvailableGas
 
 from protostar.cairo.cairo_exceptions import CairoBindingException
 
@@ -279,7 +280,7 @@ class TestCollector:
         test_cases = list(
             test_suite_info.filter_test_cases(
                 self._collect_test_cases(
-                    function_names=function_names,
+                    function_names=[(fn, None) for fn in function_names],
                     test_path=test_suite_info.path,
                 )
             )
@@ -293,13 +294,13 @@ class TestCollector:
 
     def _collect_test_cases(
         self,
-        function_names: List[str],
+        function_names: list[tuple[str, AvailableGas]],
         test_path: Path,
     ) -> Iterable[TestCase]:
         test_prefix = "test_"
         setup_prefix = "setup_"
 
-        fn_names = set(function_names)
+        fn_names = set(fn[0] for fn in function_names)
         for test_fn_name in fn_names:
             if test_fn_name.startswith(test_prefix):
                 base_name = test_fn_name[len(test_prefix) :]

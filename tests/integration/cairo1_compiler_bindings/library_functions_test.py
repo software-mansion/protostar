@@ -36,8 +36,8 @@ def get_mock_for_lib_func(
             "ok",
             (object,),
             {
-                "deployed_contract_address": return_values_provider(test_case_name)[
-                    "deployed_contract_address"
+                "contract_address": return_values_provider(test_case_name)[
+                    "contract_address"
                 ]
             },
         )()
@@ -92,7 +92,7 @@ def compile_suite(cairo_test_path: Path) -> ProtostarCasm:
     test_collector_output = cairo1.collect_tests(input_path=cairo_test_path)
     assert test_collector_output.sierra_output
     protostar_casm_json = cairo1.compile_protostar_sierra_to_casm(
-        named_tests=test_collector_output.test_names,
+        named_tests=test_collector_output.collected_tests,
         input_data=test_collector_output.sierra_output,
     )
     assert protostar_casm_json
@@ -175,9 +175,9 @@ def test_deploy(datadir: Path):
         "test_deploy_tp": [5, 4, 2],
     }
     return_values = {
-        "test_deploy": {"deployed_contract_address": 123},
-        "test_deploy_no_args": {"deployed_contract_address": 4443},
-        "test_deploy_tp": {"deployed_contract_address": 0},
+        "test_deploy": {"contract_address": 123},
+        "test_deploy_no_args": {"contract_address": 4443},
+        "test_deploy_tp": {"contract_address": 0},
     }
 
     def _args_validator(test_case_name: str, *args: Any, **kwargs: Any):
@@ -330,7 +330,7 @@ def test_deploy_contract(datadir: Path):
                     err_code=0,
                     cairo_runner_facade=cairo_runner_facade,
                     test_case_name=test_case_name,
-                    return_values_provider=lambda _: {"deployed_contract_address": 132},  # type: ignore
+                    return_values_provider=lambda _: {"contract_address": 132},  # type: ignore
                 ),
             },
         )
