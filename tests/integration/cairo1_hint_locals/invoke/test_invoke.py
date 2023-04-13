@@ -37,6 +37,7 @@ async def test_invoke_hint_local(
             "test_invoke_simple",
             "test_invoke_cairo0",
             "test_invoke_with_ctor",
+            "test_invoke_vs_call_state_changes",
         ],
         expected_failed_test_cases_names=[
             "test_invoke_wrong_number_of_args",

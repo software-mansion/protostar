@@ -89,3 +89,25 @@ fn test_invoke_cairo0_non_existing_function() {
 
     invoke(deployed_contract_address, 'set_balance', ArrayTrait::new()).unwrap();
 }
+
+#[test]
+fn test_invoke_vs_call_state_changes() {
+    let deployed_contract_address = deploy_contract('get_set', ArrayTrait::new()).unwrap();
+
+    let return_data = call(deployed_contract_address, 'get_a', ArrayTrait::new()).unwrap();
+    assert(*return_data.at(0_u32) == 0, 'check call result 2'); // Unchanged
+
+    let mut calldata = ArrayTrait::new();
+    calldata.append(3);
+    call(deployed_contract_address, 'set_a', calldata).unwrap();
+
+    let return_data = call(deployed_contract_address, 'get_a', ArrayTrait::new()).unwrap();
+    assert(*return_data.at(0_u32) == 0, 'check call result 2'); // Unchanged
+
+    let mut calldata2 = ArrayTrait::new();
+    calldata2.append(3);
+    invoke(deployed_contract_address, 'set_a', calldata2).unwrap();
+
+    let return_data2 = call(deployed_contract_address, 'get_a', ArrayTrait::new()).unwrap();
+    assert(*return_data2.at(0_u32) == 3, 'check call result 2'); // Changed
+}
