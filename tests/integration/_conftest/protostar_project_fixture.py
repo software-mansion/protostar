@@ -94,7 +94,7 @@ class ProtostarProjectFixture:
             for contract_name, file in contract_name_to_file.items()
         }
         self.create_files(relative_path_str_to_file)
-        self.add_contracts_to_protostar_toml(contract_name_to_file)
+        self._add_contracts_to_protostar_toml(contract_name_to_file)
         self.protostar = self.create_protostar_fixture(
             self._mocker, self._project_root_path
         )
@@ -108,12 +108,12 @@ class ProtostarProjectFixture:
             ).is_dir(), "contracts in cairo1 should be represented as directories"
             relative_path = f"src/{contract_name}"
             shutil.copytree(contract_dir, self._project_root_path / relative_path)
-        self.add_contracts_to_protostar_toml(contract_name_to_contract_dir)
+        self._add_contracts_to_protostar_toml(contract_name_to_contract_dir)
         self.protostar = self.create_protostar_fixture(
             self._mocker, self._project_root_path
         )
 
-    def add_contracts_to_protostar_toml(
+    def _add_contracts_to_protostar_toml(
         self, contract_name_to_file: Dict[str, Union[str, Path]]
     ):
         protostar_toml_path = self.project_root_path / "protostar.toml"
