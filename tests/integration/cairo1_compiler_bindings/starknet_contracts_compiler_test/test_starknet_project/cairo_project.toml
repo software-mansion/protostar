@@ -1,2 +1,2 @@
 [crate_roots]
-basic_starknet_project = "."
+test_starknet_project = "."
