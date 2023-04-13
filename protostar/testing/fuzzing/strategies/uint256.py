@@ -24,6 +24,9 @@ def is_uint256(cairo_type: CairoType):
     )
 
 
+Uint256 = NamedTuple("Uint256", (("low", int), ("high", int)))
+
+
 class Uint256StrategyDescriptor(StrategyDescriptor):
     def __init__(
         self, min_value: Optional[int] = None, max_value: Optional[int] = None
@@ -45,8 +48,6 @@ class Uint256StrategyDescriptor(StrategyDescriptor):
             raise SearchStrategyBuildError(
                 "Strategy 'uint256' can only be applied to Uint256 parameters."
             )
-
-        Uint256 = NamedTuple("Uint256", (("low", int), ("high", int)))
 
         return integers(min_value=self.min_value, max_value=self.max_value).map(
             lambda x: Uint256(low=_get_low(x), high=_get_high(x))
