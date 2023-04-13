@@ -12,7 +12,7 @@ Cairo 1 is constantly being updated, so all the requirements mentioned here may 
 
 Currently, Cairo1 forces the following file structure of a contract:
 ```
-my-contract/
+my_contract/
 ├── lib.cairo
 ├── cairo_project.toml
 ```
@@ -27,6 +27,10 @@ That means that you can have only one contract per module. More information abou
     my_contract = "."
     ```
     - `lib.cairo` file which defines the module and may also contain the code of the contract.
+
+## Module name
+
+The name must use only ASCII alphanumeric characters or `_`, and cannot be empty. It cannot also start with underscore. For the alternative reference, please see [this](https://docs.swmansion.com/scarb/docs/reference/manifest#name).
 
 ## Multiple contracts for a project
 
