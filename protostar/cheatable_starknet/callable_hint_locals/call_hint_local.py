@@ -9,7 +9,7 @@ from protostar.cheatable_starknet.controllers.contracts import (
 )
 from protostar.cheatable_starknet.controllers import ExpectCallController
 from protostar.cheatable_starknet.controllers.expect_call_controller import ExpectedCall
-from protostar.starknet.data_transformer import CairoOrPythonData
+from protostar.starknet.data_transformer import CairoData
 from protostar.cairo.short_string import short_string_to_str, CairoShortString
 
 from .callable_hint_local import CallableHintLocal
@@ -30,16 +30,14 @@ class CallHintLocal(CallableHintLocal):
 
     def _build(
         self,
-    ) -> Callable[
-        [RawAddress, CairoShortString, Optional[CairoOrPythonData]], CallResult
-    ]:
+    ) -> Callable[[RawAddress, CairoShortString, Optional[CairoData]], CallResult]:
         return self.call
 
     def call(
         self,
         contract_address: RawAddress,
         function_name: CairoShortString,
-        calldata: Optional[CairoOrPythonData] = None,
+        calldata: Optional[CairoData] = None,
     ) -> CallResult:
         return asyncio.run(
             self._call(
@@ -53,7 +51,7 @@ class CallHintLocal(CallableHintLocal):
         self,
         contract_address: Address,
         entry_point_selector: Selector,
-        calldata: Optional[CairoOrPythonData] = None,
+        calldata: Optional[CairoData] = None,
     ) -> CallResult:
         try:
             self._expect_call_controller.remove_expected_call(
