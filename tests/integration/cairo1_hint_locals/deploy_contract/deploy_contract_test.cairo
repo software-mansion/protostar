@@ -2,7 +2,7 @@ use array::ArrayTrait;
 use result::ResultTrait;
 
 #[test]
-fn test_deploy_contract_simple() {
+fn test_deploy_contract_minimal() {
     let deployed_contract_address = deploy_contract('minimal', ArrayTrait::new()).unwrap();
     assert(deployed_contract_address != 0, 'deployed_contract_address != 0');
 }
