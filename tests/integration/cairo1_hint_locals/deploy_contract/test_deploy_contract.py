@@ -24,6 +24,7 @@ async def test_deploy_contract_hint_local(
             "with_ctor": shared_datadir / "with_ctor.cairo",
             "with_ctor_panic": shared_datadir / "with_ctor_panic.cairo",
             "cairo0": shared_datadir / "cairo0.cairo",
+            "cairo0_with_ctor": shared_datadir / "cairo0_with_ctor.cairo",
         }
     )
 
@@ -38,6 +39,7 @@ async def test_deploy_contract_hint_local(
             "test_deploy_contract_simple",
             "test_deploy_contract_with_ctor",
             "test_deploy_contract_cairo0",
+            "test_deploy_contract_cairo0_with_ctor",
         ],
         expected_failed_test_cases_names=[
             "test_deploy_contract_with_ctor_panic",

@@ -38,6 +38,15 @@ fn test_deploy_contract_cairo0() {
 }
 
 #[test]
+fn test_deploy_contract_cairo0_with_ctor() {
+    let mut constructor_calldata = ArrayTrait::new();
+    constructor_calldata.append(3);
+
+    let deployed_contract_address = deploy_contract_cairo0('cairo0_with_ctor', constructor_calldata).unwrap();
+    assert(deployed_contract_address != 0, 'deployed_contract_address != 0');
+}
+
+#[test]
 fn test_deploy_contract_cairo0_using_cairo1() {
     let deployed_contract_address = deploy_contract('cairo0', ArrayTrait::new()).unwrap();
 }
