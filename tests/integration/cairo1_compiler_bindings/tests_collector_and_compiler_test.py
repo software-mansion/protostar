@@ -72,6 +72,8 @@ def test_importing_from_contract(datadir: Path, shared_datadir: Path):
     )
 
     assert result.sierra_output
-    assert result.test_names == [
-        "test_with_contract_deps::test_with_contract_deps::test_importing_from_contract"
-    ]
+    assert len(result.collected_tests) == 1
+    assert (
+        result.collected_tests[0][0]
+        == "test_with_contract_deps::test_with_contract_deps::test_importing_from_contract"
+    )
