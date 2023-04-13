@@ -1,15 +1,16 @@
 import asyncio
 from typing import Callable, Optional
 
-from protostar.starknet import CheatcodeException, RawAddress, Address
+from protostar.starknet import CheatcodeException, RawAddress, Address, Selector
 from protostar.cheatable_starknet.controllers.contracts import (
     ContractsCheaterException,
     ContractsController,
+    CallResult,
 )
 from protostar.cheatable_starknet.controllers import ExpectCallController
 from protostar.cheatable_starknet.controllers.expect_call_controller import ExpectedCall
-from protostar.starknet.data_transformer import CairoOrPythonData, CairoData
-from protostar.starknet.selector import Selector
+from protostar.starknet.data_transformer import CairoData
+from protostar.cairo.short_string import short_string_to_str, CairoShortString
 
 from .callable_hint_local import CallableHintLocal
 
@@ -29,19 +30,19 @@ class CallHintLocal(CallableHintLocal):
 
     def _build(
         self,
-    ) -> Callable[[RawAddress, str, Optional[CairoOrPythonData]], CairoOrPythonData]:
+    ) -> Callable[[RawAddress, CairoShortString, Optional[CairoData]], CallResult]:
         return self.call
 
     def call(
         self,
         contract_address: RawAddress,
-        function_name: str,
-        calldata: Optional[CairoOrPythonData] = None,
-    ) -> CairoData:
+        function_name: CairoShortString,
+        calldata: Optional[CairoData] = None,
+    ) -> CallResult:
         return asyncio.run(
             self._call(
                 contract_address=Address.from_user_input(contract_address),
-                entry_point_selector=Selector(function_name),
+                entry_point_selector=Selector(short_string_to_str(function_name)),
                 calldata=calldata,
             )
         )
@@ -50,8 +51,8 @@ class CallHintLocal(CallableHintLocal):
         self,
         contract_address: Address,
         entry_point_selector: Selector,
-        calldata: Optional[CairoOrPythonData] = None,
-    ) -> CairoData:
+        calldata: Optional[CairoData] = None,
+    ) -> CallResult:
         try:
             self._expect_call_controller.remove_expected_call(
                 ExpectedCall(
