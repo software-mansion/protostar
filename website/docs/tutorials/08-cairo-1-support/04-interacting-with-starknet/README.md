@@ -1,8 +1,6 @@
 # Interacting With Starknet
 
-Protostar provides a couple of commands allowing users to interact with Starknet.
-
-Protostar offers similar CLI to Starknet's CLI.
+Protostar offers CLI similar to Starknet's CLI.
 
 ```mdx-code-block
 import DocCardList from '@theme/DocCardList';
