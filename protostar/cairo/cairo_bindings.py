@@ -52,6 +52,18 @@ def compile_starknet_contract_to_sierra_from_path(
         )
 
 
+def compile_starknet_contract_sierra_to_casm_from_path(
+    input_path: Path,
+    output_path: Optional[Path] = None,
+) -> Optional[str]:
+    ensure_output_path(output_path=output_path)
+    with handle_bindings_errors("compile_starknet_contract_to_sierra_from_path"):
+        return cairo_python_bindings.compile_starknet_contract_sierra_to_casm_from_path(  # pyright: ignore
+            str(input_path),
+            str(output_path) if output_path else None,
+        )
+
+
 def collect_tests(
     input_path: Path,
     output_path: Optional[Path] = None,

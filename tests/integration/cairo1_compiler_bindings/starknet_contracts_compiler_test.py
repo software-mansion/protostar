@@ -15,6 +15,23 @@ def test_contract_to_casm(datadir: Path):
     assert result
 
 
+def test_contract_to_sierra_to_casm(datadir: Path):
+    cairo1.compile_starknet_contract_to_sierra_from_path(
+        input_path=datadir / "basic_starknet_contract.cairo",
+        output_path=datadir / "basic_starknet_contract.sierra",
+    )
+    cairo1.compile_starknet_contract_to_sierra_from_path(
+        input_path=datadir / "basic_starknet_test.cairo",
+        output_path=datadir / "basic_starknet_test.sierra",
+    )
+    assert cairo1.compile_starknet_contract_sierra_to_casm_from_path(
+        datadir / "basic_starknet_contract.sierra"
+    )
+    assert cairo1.compile_starknet_contract_sierra_to_casm_from_path(
+        datadir / "basic_starknet_test.sierra"
+    )
+
+
 def test_contract_with_builtins_to_casm(datadir: Path):
     result = cairo1.compile_starknet_contract_to_casm_from_path(
         datadir / "starknet_contract_with_builtins.cairo",

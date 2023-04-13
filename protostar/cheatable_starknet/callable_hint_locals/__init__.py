@@ -2,7 +2,6 @@ from .call_hint_local import CallHintLocal
 from .declare_hint_local import DeclareHintLocal
 from .declare_cairo0_hint_local import DeclareCairo0HintLocal
 from .deploy_hint_local import DeployHintLocal
-from .deploy_contract_hint_local import DeployContractHintLocal
 from .invoke_hint_local import InvokeHintLocal
 from .prank_hint_local import PrankHintLocal
 from .prepare_hint_local import PrepareHintLocal
