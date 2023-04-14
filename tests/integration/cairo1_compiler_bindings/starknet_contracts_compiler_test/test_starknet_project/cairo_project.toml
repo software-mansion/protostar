@@ -1,0 +1,2 @@
+[crate_roots]
+test_starknet_project = "."

@@ -1,5 +1,7 @@
 import json
 import re
+import shutil
+import os
 from distutils.file_util import copy_file
 from pathlib import Path
 
@@ -230,17 +232,15 @@ def test_declaring_cairo1_contract(
     set_private_key_env_var: SetPrivateKeyEnvVarFixture,
     devnet_account: DevnetAccount,
 ):
-    copy_file(
-        src=str(datadir / "balance.cairo"),
-        dst="./src/main.cairo",
-    )
+    shutil.copytree(datadir / "cairo1_project", "cairo1_project")
+    os.chdir("cairo1_project")
 
     with set_private_key_env_var(devnet_account.private_key):
         result = protostar(
             [
                 "--no-color",
                 "declare-cairo1",
-                "main",
+                "balance",
                 "--gateway-url",
                 devnet_gateway_url,
                 "--account-address",

@@ -1,0 +1,2 @@
+[crate_roots]
+minimal_with_args = "."
