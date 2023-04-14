@@ -38,7 +38,7 @@ Create a separate Rust application that will provide these features
 
 - Parsing the inputted commands
 - Running Protostar binaries
-- Resolve the environment details from `protostar.toml` (`Scarb.toml` + `scarb metadata` in the future)
+- Resolve the environment details from `protostar.toml` (`scarb metadata` in the future)
 - Providing the binaries with necessary arguments
 
 ## Architecture
@@ -68,7 +68,7 @@ for most (or all) commands._
 
 ### Configuration Parser
 
-Parse configuration file (`protostar.toml` and, in the future, `Scarb.toml`) and resolve
+Parse configuration file (`protostar.toml` and, in the future read output of `scarb metadata`) and resolve
 details required for running Backends such as network configuration, contracts' dependencies, etc.
 
 ### Scarb Metadata Parser
