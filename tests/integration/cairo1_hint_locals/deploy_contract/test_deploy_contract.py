@@ -20,11 +20,15 @@ async def test_deploy_contract_hint_local(
 ):
     protostar_project.create_contracts(
         {
-            "minimal": shared_datadir / "minimal.cairo",
-            "with_constructor": shared_datadir / "with_constructor.cairo",
-            "with_constructor_panic": shared_datadir / "with_constructor_panic.cairo",
             "cairo0": shared_datadir / "cairo0.cairo",
             "cairo0_with_constructor": shared_datadir / "cairo0_with_constructor.cairo",
+        }
+    )
+    protostar_project.create_contracts_cairo1(
+        {
+            "minimal": shared_datadir / "minimal",
+            "with_constructor": shared_datadir / "with_constructor",
+            "with_constructor_panic": shared_datadir / "with_constructor_panic",
         }
     )
 
@@ -36,7 +40,7 @@ async def test_deploy_contract_hint_local(
     assert_cairo_test_cases(
         testing_summary,
         expected_passed_test_cases_names=[
-            "test_deploy_contract_simple",
+            "test_deploy_contract_minimal",
             "test_deploy_contract_with_constructor",
             "test_deploy_contract_cairo0",
             "test_deploy_contract_cairo0_with_constructor",
