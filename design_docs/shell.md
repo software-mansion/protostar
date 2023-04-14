@@ -56,8 +56,7 @@ any binary and parse any commands provided the required configuration.
 
 ### CLI
 
-Translate CLI arguments to the Backend message format based on the configuration provided
-to the [Shell](#shell).
+Translate CLI arguments to the Backend message format.
 
 Initially CLI will be written by-hand to only support `protostar test` command. Other commands
 will be simply passed directly to Protostar.
