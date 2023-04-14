@@ -16,6 +16,8 @@
     * [Scarb Metadata Parser](#scarb-metadata-parser)
     * [Backend Runner](#backend-runner)
     * [Changes to Backends](#changes-to-backends)
+      * [Future Changes](#future-changes)
+      * [Migrating to Backend](#migrating-to-backend)
   * [Scope Limitations](#scope-limitations)
 <!-- TOC -->
 
@@ -91,6 +93,23 @@ Protostar Backends will have to provide interface compatible with Shell communic
 Initially whole Protostar will be treated as single Backend. A CLI interface for test-runner
 will be created, which will be utilized by Protostar Shell. Other commands will initially
 be handled on Protostar side.
+
+#### Future Changes
+
+Eventually, we will gradually split Protostar into multiple Backends based on domains.
+The details of that split remain to be resolved, but as per [Protostar modular architecture](protostar-architecture.md)
+we will introduce at least Starknet-CLI Backend and Testing Backend.
+
+#### Migrating to Backend
+
+To migrate a domain of Protostar into a separate Backend these steps are necessary (but not limited):
+
+1. Introduce a JSON interface that can receive messages from Shell and handle them.
+2. Remove any direct or indirect dependencies on other Protostar Backends.
+3. Extract the domain into a separate package i.e. one that be built and distributed independently.
+
+To facilitate easier migration, after introducing complete or initial JSON interface,
+integration with Shell can be started and process of separating the package can be postponed.
 
 ## Scope Limitations
 
