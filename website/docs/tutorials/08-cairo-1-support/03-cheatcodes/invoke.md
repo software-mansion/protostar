@@ -12,14 +12,14 @@ use array::ArrayTrait;
 
 fn my_function() {
 
-    let address = 123;
+    let contract_address = 123;
 
     let mut calldata = ArrayTrait::new();
     calldata.append(10);
     calldata.append(11);
     calldata.append(12);
 
-    invoke(address, 'function_name', calldata).unwrap();
+    invoke(contract_address, 'function_name', calldata).unwrap();
 
     // ...
 }
