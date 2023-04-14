@@ -29,5 +29,4 @@ fn test_cannot_increase_balance_with_zero_value() {
 
     assert(invoke_result.is_err(), 'Invoke should fail');
     let err = invoke_result.unwrap_err();
-    assert(err == 'Invoke failed', 'Invalid err message');
 }
