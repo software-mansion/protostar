@@ -4,7 +4,7 @@
 fn invoke(contract_address: felt252, function_name: felt252, calldata: Array::<felt252>) -> Result::<(), felt252> nopanic;
 ```
 
-Invokes a contract. `function_name` parameter should be provided as a shortstring.
+Invokes a contract. `function_name` parameter should be provided as a short string.
 
 ```cairo title="Example"
 use result::ResultTrait;
