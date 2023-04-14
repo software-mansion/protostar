@@ -1,6 +1,7 @@
 import asyncio
 from typing import Any, Optional
 
+from protostar.cairo.short_string import short_string_to_str, CairoShortString
 from protostar.cheatable_starknet.callable_hint_locals.callable_hint_local import (
     CallableHintLocal,
 )
@@ -31,11 +32,11 @@ class InvokeHintLocal(CallableHintLocal):
     def invoke(
         self,
         contract_address: RawAddress,
-        function_name: str,
+        function_name: CairoShortString,
         calldata: Optional[CairoOrPythonData] = None,
     ):
         self._invoke(
-            entry_point_selector=Selector(function_name),
+            entry_point_selector=Selector(short_string_to_str(function_name)),
             calldata=calldata,
             contract_address=Address.from_user_input(contract_address),
         )

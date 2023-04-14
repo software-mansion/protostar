@@ -7,7 +7,6 @@ from protostar.cheatable_starknet.callable_hint_locals import (
     StoreHintLocal,
     InvokeHintLocal,
     CallHintLocal,
-    DeployContractHintLocal,
     PrankHintLocal,
     RollHintLocal,
     WarpHintLocal,
@@ -106,11 +105,6 @@ class CairoSharedHintLocalFactory:
             declare_cheatcode,
             declare_cairo0_cheatcode,
             prepare_cheatcode,
-            DeployContractHintLocal(
-                declare_cheatcode=declare_cairo0_cheatcode,
-                prepare_cheatcode=prepare_cheatcode,
-                deploy_cheatcode=deploy_cheatcode,
-            ),
             CallHintLocal(
                 contracts_controller=contracts_controller,
                 expect_call_controller=expect_call_controller,
