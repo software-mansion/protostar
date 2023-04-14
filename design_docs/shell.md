@@ -45,10 +45,9 @@ Create a separate Rust application that will provide these features
 
 ### Communication
 
-Protostar Shell will a use a defined message format (like JSON) to provide commands
-and environment details to the Backends.
+Protostar Shell will use JSON messages to provide commands and environment details to the Backends.
 
-Details of the format should be decided in revision of this document or in the separate document.
+Detailed schema of the message should be decided in revision of this document or in the separate document.
 
 ### Shell
 
