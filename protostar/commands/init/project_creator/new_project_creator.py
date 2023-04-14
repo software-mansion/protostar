@@ -80,7 +80,7 @@ class NewProjectCreator(ProjectCreator):
         )
         self._write_protostar_toml_from_config(
             project_root_path=project_root_path,
-            configuration_model=self._make_project_config(cairo_version=cairo_version),
+            configuration_model=self._new_project_config(cairo_version=cairo_version),
         )
 
     def project_directory_from_template(
@@ -102,7 +102,7 @@ class NewProjectCreator(ProjectCreator):
                     f"Folder or file named {project_root_path.name} already exists. Choose different project name."
                 ) from ex_file_exists
 
-    def _make_project_config(
+    def _new_project_config(
         self, cairo_version: CairoVersion
     ) -> ConfigurationFileV2Model:
         if cairo_version == CairoVersion.cairo0:
