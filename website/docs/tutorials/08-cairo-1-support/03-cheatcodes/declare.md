@@ -1,7 +1,7 @@
 # `declare`
 
 ```cairo
-fn declare(contract: felt) -> Result::<felt, felt> nopanic;
+fn declare(contract: felt252) -> Result::<felt252, felt252> nopanic;
 ```
 
 Declares a contract given its name defined in the [protostar.toml](../../04-configuration-file.md) configuration
