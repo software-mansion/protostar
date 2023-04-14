@@ -1,0 +1,2 @@
+[crate_roots]
+nested_deps_starknet_project = "."

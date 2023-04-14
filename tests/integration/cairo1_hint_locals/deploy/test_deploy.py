@@ -20,11 +20,15 @@ async def test_deploy_hint_local(
 ):
     protostar_project.create_contracts(
         {
-            "minimal": shared_datadir / "minimal.cairo",
             "cairo0": shared_datadir / "cairo0.cairo",
-            "with_storage": shared_datadir / "with_storage.cairo",
-            "with_ctor": shared_datadir / "with_ctor.cairo",
-            "with_ctor_panic": shared_datadir / "with_ctor_panic.cairo",
+        }
+    )
+    protostar_project.create_contracts_cairo1(
+        {
+            "minimal": shared_datadir / "minimal",
+            "with_storage": shared_datadir / "with_storage",
+            "with_ctor": shared_datadir / "with_ctor",
+            "with_ctor_panic": shared_datadir / "with_ctor_panic",
         }
     )
 
