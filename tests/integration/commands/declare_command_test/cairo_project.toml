@@ -1,0 +1,2 @@
+[crate_roots]
+declare_command_test = "."

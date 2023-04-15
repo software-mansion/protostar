@@ -20,10 +20,14 @@ async def test_call_hint_local(
 ):
     protostar_project.create_contracts(
         {
-            "simple": shared_datadir / "simple.cairo",
-            "with_ctor": shared_datadir / "with_ctor.cairo",
-            "with_ctor_panic": shared_datadir / "with_ctor_panic.cairo",
             "cairo0": shared_datadir / "cairo0.cairo",
+        }
+    )
+    protostar_project.create_contracts_cairo1(
+        {
+            "simple": shared_datadir / "simple",
+            "with_ctor": shared_datadir / "with_ctor",
+            "with_ctor_panic": shared_datadir / "with_ctor_panic",
         }
     )
 

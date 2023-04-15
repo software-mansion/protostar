@@ -18,11 +18,11 @@ def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
 async def test_declare_hint_local(
     protostar_project: ProtostarProjectFixture, shared_datadir: Path
 ):
-    protostar_project.create_contracts(
+    protostar_project.create_contracts_cairo1(
         {
-            "minimal": shared_datadir / "minimal.cairo",
-            "broken": shared_datadir / "broken.cairo",
-            "cairo0": shared_datadir / "cairo0.cairo",
+            "minimal": shared_datadir / "minimal",
+            "cairo0": shared_datadir / "cairo0",
+            "broken": shared_datadir / "broken",
         }
     )
 

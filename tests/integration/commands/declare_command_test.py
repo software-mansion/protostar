@@ -45,7 +45,7 @@ def mocked_project_compiler_fixture(datadir: Path) -> ProjectCompiler:
         ):
             # pylint: disable=unused-argument
             compiled = cairo_bindings.compile_starknet_contract_to_sierra_from_path(
-                input_path=datadir / "balance.cairo",
+                input_path=datadir,
             )
             assert compiled is not None
             return compiled
@@ -55,7 +55,7 @@ def mocked_project_compiler_fixture(datadir: Path) -> ProjectCompiler:
         ):
             # pylint: disable=unused-argument
             compiled = cairo_bindings.compile_starknet_contract_to_casm_from_path(
-                input_path=datadir / "balance.cairo",
+                input_path=datadir,
             )
             assert compiled is not None
             return compiled
