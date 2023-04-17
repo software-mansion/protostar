@@ -32,25 +32,54 @@ my_project/
 └── protostar.toml
 ```
 
-This template contains:
-
-- `src` directory
-    - `cairo_project.toml` which is needed for compilation
-    - `lib.cairo` file which defines the module
-    - `business_logic.cairo` file which imports contents of `business_logic` directory
-    - `contracts.cairo` file which imports contents of `contracts` directory
-    - `business_logic` directory
-        - `utils.cairo` file containing methods used by hello_starknet contract
-    - `contracts` directory
-        - `hello_starknet.cairo` file containing actual contract code
-- `test` directory
-    - `test_hello_starknet.cairo` test of hello_starknet contract methods
-    - `test_utils.cairo` unit tests of utils functions
-- `protostar.toml` containing information about the project
-
 :::warning
 This template will be changed in future versions, but the old one will still be usable with newer protostar versions
 :::
+
+### `cairo_project.toml` and `lib.cairo`
+
+All Cairo1 crates must define these files.
+
+`cairo_project.toml` defines the name of the crate. It is a good practice that this name matches the top-level directory
+name - `src` in our case.
+
+`lib.cairo` exposes all of our modules to the compiler. Initially it only contains two modules
+
+```cairo title="lib.cairo"
+mod business_logic;
+mod contracts;
+```
+
+You can learn about [modules](#cairo-1-modules) and [how to add them](#adding-a-new-module) in further sections.
+
+### `contracts`
+
+This directory contains the code of our contract - `HelloStarknet`. For easy testing, we recommend this directory
+contains only contract definition utilizing functions imported from other modules.
+
+### `business_logic`
+
+This directory contains stand-alone cairo1 methods that can be imported and used in contract definition. We recommend
+writing business logic in this directory for ease of writing unit tests.
+
+### `contracts.cairo` and `business_logic.cairo`
+
+All modules (directories) must be "imported" to the top-level directory. Note that these files only contain `mod ...`
+definitions that import files from directories.
+
+Creation these files is necessary, so they can be imported in the `lib.cairo.`
+
+```cairo title="contracts.cairo
+mod hello_starknet;
+```
+
+### `tests`
+
+All tests should be defined in this directory.
+
+### `protostar.toml`
+
+This file contains configuration of the Protostar project.
 
 ## Cairo 1 modules
 
