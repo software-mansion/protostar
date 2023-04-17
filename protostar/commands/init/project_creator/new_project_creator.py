@@ -140,7 +140,7 @@ class NewProjectCreator(ProjectCreator):
 
     @staticmethod
     def _validate_project_name(name: str):
-        pattern = r"^[a-zA-Z0-9][a-zA-Z0-9_]+$"
+        pattern = r"^[a-zA-Z0-9][a-zA-Z0-9_]*$"
         if not re.match(pattern, name):
             raise ProtostarException(
                 f"Provided project name {name} does not match regex {pattern}. Choose a different project name."
