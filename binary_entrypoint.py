@@ -23,11 +23,11 @@ def init():
     main = import_protostar_main()
     main(SCRIPT_ROOT, start_time)
 
+
 def fix_corelib_path(script_root: Path):
     # FIXME: this is a temporary fix for corelib detection, bindings need to consume this value explicitly
-    os.environ["CARGO_MANIFEST_DIR"] = str(
-        script_root / "cairo" / "corelib"
-    )
+    os.environ["CARGO_MANIFEST_DIR"] = str(script_root / "cairo" / "corelib")
+
 
 def fix_ssl_certificate_errors_on_macos():
     os.environ["SSL_CERT_FILE"] = certifi.where()
