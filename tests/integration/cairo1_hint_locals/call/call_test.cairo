@@ -19,6 +19,25 @@ fn test_call_simple() {
 }
 
 #[test]
+fn test_call_not_mutating_state() {
+    let mut constructor_calldata = ArrayTrait::new();
+    constructor_calldata.append(100);
+    let deployed_contract_address = deploy_contract('with_storage', constructor_calldata).unwrap();
+    assert(deployed_contract_address != 0, 'deployed_contract_address != 0');
+
+    let return_data = call(deployed_contract_address, 'get_a', ArrayTrait::new()).unwrap();
+    assert(*return_data.at(0_u32) == 100, 'call result is 100');
+
+    let mut calldata = ArrayTrait::new();
+    calldata.append(200);
+    let return_data2 = call(deployed_contract_address, 'set_a', calldata).unwrap();
+    assert(return_data2.is_empty(), 'call result is empty');
+
+    let return_data3 = call(deployed_contract_address, 'get_a', ArrayTrait::new()).unwrap();
+    assert(*return_data3.at(0_u32) == 100, 'call result is 100');
+}
+
+#[test]
 fn test_call_with_ctor() {
     let mut constructor_calldata = ArrayTrait::new();
     constructor_calldata.append(3);
