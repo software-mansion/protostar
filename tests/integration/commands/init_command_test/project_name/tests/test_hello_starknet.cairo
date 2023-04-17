@@ -28,5 +28,4 @@ fn test_cannot_increase_balance_with_zero_value() {
     let invoke_result = invoke(contract_address, 'increase_balance', invoke_calldata);
 
     assert(invoke_result.is_err(), 'Invoke should fail');
-    let err = invoke_result.unwrap_err();
 }
