@@ -124,9 +124,6 @@ class NewProjectCreator(ProjectCreator):
                 "lib-path": "lib",
                 "linked-libraries": ["src"],
             },
-            command_name_to_config={},
-            profile_name_to_project_config={},
-            profile_name_to_commands_config={},
         )
 
     @staticmethod
