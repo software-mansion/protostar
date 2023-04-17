@@ -1,0 +1,2 @@
+[crate_roots]
+builtins_starknet_project = "."
