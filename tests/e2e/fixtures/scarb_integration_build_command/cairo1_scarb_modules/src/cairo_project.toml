@@ -1,0 +1,2 @@
+[crate_roots]
+cairo1_scarb_modules = "."

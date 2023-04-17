@@ -1,6 +1,5 @@
-from pathlib import Path
-
 import os
+from pathlib import Path
 
 from tests.e2e.conftest import ProtostarFixture, CopyFixture
 
