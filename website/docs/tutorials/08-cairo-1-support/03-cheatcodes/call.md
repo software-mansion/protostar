@@ -1,13 +1,13 @@
 # `call`
 
 ```cairo
-extern fn call(contract: felt252, entry_point_selector: felt252, calldata: Array::<felt252>) -> Result::<(Array::<felt252>), felt252> nopanic;
+extern fn call(contract: felt252, function_name: felt252, calldata: Array::<felt252>) -> Result::<(Array::<felt252>), felt252> nopanic;
 ```
 
 Calls a [deployed](./deploy.md) contract. Unlike [invoke](./invoke.md), it **does not** mutate the blockchain state.
 
 - `contract` - deployed contract address
-- `entry_point_selector` - the name of the function you wish to call
+- `function_name` - the name of the function you wish to call, this is the [Cairo short string](https://www.cairo-lang.org/docs/how_cairo_works/consts.html#short-string-literals) which can be at most 31-characters long.
 - `calldata` - arguments to the target function
 
 ```cairo title="Example"
