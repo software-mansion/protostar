@@ -1,4 +1,5 @@
 from argparse import Namespace
+import os
 from pathlib import Path
 from typing import List, Optional
 
@@ -145,8 +146,7 @@ A glob or globs to a directory or a test suite, for example:
             for path in self._project_cairo_path_builder.build_project_cairo_path_list(
                 cairo_path or []
             )
-        ] + [str(self._protostar_directory.protostar_cairo1_corelib_path)]
-        print(str(self._protostar_directory.protostar_cairo1_corelib_path))
+        ]
         testing_seed = determine_testing_seed(seed=None)
 
         compiler_config = CairoCompilerConfig(

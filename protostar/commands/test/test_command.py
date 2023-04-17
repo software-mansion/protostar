@@ -208,10 +208,6 @@ A glob or globs to a directory or a test suite, for example:
             include_paths.append(
                 str(self._protostar_directory.protostar_cairo1_corelib_path)
             )
-            # FIXME: this is a temporary fix for corelib detection, bindings need to consume this value explicitly
-            os.environ["CARGO_MANIFEST_DIR"] = str(
-                self._protostar_directory.protostar_cairo1_corelib_path.resolve()
-            )
         else:
             include_paths.append(
                 str(self._protostar_directory.protostar_test_only_cairo_packages_path)
