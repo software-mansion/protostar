@@ -146,7 +146,7 @@ A glob or globs to a directory or a test suite, for example:
                 cairo_path or []
             )
         ] + [str(self._protostar_directory.protostar_cairo1_corelib_path)]
-
+        print(str(self._protostar_directory.protostar_cairo1_corelib_path))
         testing_seed = determine_testing_seed(seed=None)
 
         compiler_config = CairoCompilerConfig(
