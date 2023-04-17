@@ -1,3 +1,5 @@
+use array::ArrayTrait;
+
 fn fib(a: felt252, b: felt252, n: felt252) -> felt252 {
     match gas::withdraw_gas() {
         Option::Some(_) => {},
