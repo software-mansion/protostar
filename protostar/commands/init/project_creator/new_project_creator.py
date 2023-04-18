@@ -3,7 +3,6 @@ import shutil
 import tempfile
 from dataclasses import dataclass
 from pathlib import Path
-from string import Template
 from typing import Optional
 
 from protostar.commands.init.project_creator._project_creator import ProjectCreator
@@ -71,12 +70,10 @@ class NewProjectCreator(ProjectCreator):
     ) -> None:
         output_dir_path = self._output_dir_path
         project_root_path = output_dir_path / project_config.project_dirname
-        project_name = project_config.project_dirname
 
         self.create_project_directory_from_template(
             cairo_version=cairo_version,
             project_root_path=project_root_path,
-            project_name=project_name,
         )
         self._write_protostar_toml_from_config(
             project_root_path=project_root_path,
@@ -84,7 +81,7 @@ class NewProjectCreator(ProjectCreator):
         )
 
     def create_project_directory_from_template(
-        self, cairo_version: CairoVersion, project_root_path: Path, project_name: str
+        self, cairo_version: CairoVersion, project_root_path: Path
     ):
         template_path = self.script_root / "templates" / cairo_version.value
 
@@ -93,7 +90,6 @@ class NewProjectCreator(ProjectCreator):
             new_template_path = Path(temp_dir) / "template"
 
             shutil.copytree(template_path, new_template_path)
-            self._insert_project_name_to_template(project_name, new_template_path)
 
             try:
                 shutil.copytree(new_template_path, project_root_path)
@@ -125,18 +121,6 @@ class NewProjectCreator(ProjectCreator):
                 "linked-libraries": ["hello_starknet"],
             },
         )
-
-    @staticmethod
-    def _insert_project_name_to_template(project_name: str, temp_dir: Path):
-        for path in temp_dir.glob("**/*"):
-            if not path.is_file():
-                continue
-
-            file_contents = path.read_text("utf-8")
-            file_contents = Template(file_contents).substitute(
-                PROJECT_NAME=project_name
-            )
-            path.write_text(file_contents, encoding="utf-8")
 
     @staticmethod
     def _validate_project_name(name: str):
