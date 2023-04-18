@@ -119,10 +119,10 @@ class NewProjectCreator(ProjectCreator):
 
         return ConfigurationFileV2Model(
             protostar_version=str(self._protostar_version),
-            contract_name_to_path_strs={"hello_starknet": ["src"]},
+            contract_name_to_path_strs={"hello_starknet": ["hello_starknet"]},
             project_config={
                 "lib-path": "lib",
-                "linked-libraries": ["src"],
+                "linked-libraries": ["hello_starknet"],
             },
         )
 
