@@ -17,15 +17,16 @@ After running the command, the following structure will be generated:
 
 ```
 my_project/
-├── src/
-│   ├── business_logic/
-│   │   └── utils.cairo
-│   ├── contracts/
-│   │   └── hello_starknet.cairo
-│   ├── business_logic.cairo
-│   ├── cairo_project.toml
-│   ├── contracts.cairo
-│   └── lib.cairo
+├── hello_starknet/
+│   ├── src/
+│   │   ├── business_logic/
+│   │   │   └── utils.cairo
+│   │   ├── contracts/
+│   │   │   └── hello_starknet.cairo
+│   │   ├── business_logic.cairo
+│   │   ├── contracts.cairo
+│   │   └── lib.cairo
+│   └── cairo_project.toml
 ├── tests/
 │   ├── test_hello_starknet.cairo
 │   └── test_utils.cairo
@@ -36,12 +37,16 @@ my_project/
 This template will be changed in future versions, but the old one will still be usable with newer protostar versions
 :::
 
+### `hello_starknet`
+
+This directory contains our only crate in this project - `hello_starknet`.
+
 ### `cairo_project.toml` and `lib.cairo`
 
 All Cairo1 crates must define these files.
 
 - `cairo_project.toml` - this file defines the name of the crate. It is good practice for this name to match the
-  top-level directory name - `src` in our case.
+  top-level directory name - `hello_starknet` in our case.
 - `lib.cairo` - this file exposes all of our modules to the compiler. Initially, it only contains two modules:
 
 ```cairo title="lib.cairo"
@@ -97,7 +102,7 @@ the `src` directory.
 
 ```toml
 [crate_roots]
-my_project = "."
+my_project = "src"
 ```
 
 #### 2. `lib.cairo`
@@ -146,18 +151,19 @@ If you followed the steps correctly, your new project structure should look like
 
 ```
 my_project/
-├── src/
-│   ├── business_logic/
-│   │   └── utils.cairo
-│   ├── contracts/
-│   │   └── hello_starknet.cairo
-│   ├── mod1/ <------------------------ new directory
-│   │   └── functions.cairo <---------- new file
-│   ├── business_logic.cairo
-│   ├── cairo_project.toml
-│   ├── contracts.cairo
-│   ├── lib.cairo  <------------------- contents updated
-│   └── mod1.cairo <------------------- new file
+├── hello_starknet/
+│   ├── src/
+│   │   ├── business_logic/
+│   │   │   └── utils.cairo
+│   │   ├── contracts/
+│   │   │   └── hello_starknet.cairo
+│   │   ├── mod1/  <------------------- new directory
+│   │   │   └── functions.cairo  <----- new file
+│   │   ├── business_logic.cairo
+│   │   ├── contracts.cairo
+│   │   ├── lib.cairo  <--------------- contents updated
+│   │   └── mod1.cairo  <-------------- new file
+│   └── cairo_project.toml
 ├── tests/
 │   ├── test_hello_starknet.cairo
 │   └── test_utils.cairo
@@ -179,10 +185,10 @@ their own module definition and `cairo_project.toml`).
 [project]
 protostar-version = "0.9.2"
 lib-path = "lib"
-linked-libraries = ["src"]
+linked-libraries = ["hello_starknet"]
 
 [contracts]
-hello_starknet = ["src"]
+hello_starknet = ["hello_starknet"]
 ```
 
 :::info
@@ -203,14 +209,14 @@ Multi-contract projects structure like this will not work:
 
 ```
 my_project/
-├── src/
-│   ...
-│   ├── contracts/
-│   │   └── hello_starknet.cairo
-│   │   └── other_contract.cairo
-│   ...
-├── tests/
-│   ...
+├── hello_starknet/
+│   ├── src/
+│   │  ...
+│   │   ├── contracts/
+│   │   │   ├── hello_starknet.cairo
+│   │   │   └── other_contract.cairo
+│   │  ...
+│   └── cairo_project.toml
 ... ...
 └── protostar.toml
 ```
@@ -237,21 +243,23 @@ and
 
 ```
 my_project/
-├── crate1/
-│   ├── contracts/
-│   │   └── hello_starknet.cairo
-│   ├── cairo_project.toml
-│   ├── contracts.cairo
-│   └── lib.cairo
-├── crate2/
-│   ├── contracts/
-│   │   └── other_contract.cairo
-│   ├── cairo_project.toml
-│   ├── contracts.cairo
-│   └── lib.cairo
-├── tests
-│   ...
-... ...
+├── hello_starknet/
+│   ├── src/
+│   │   ├── contracts/
+│   │   │   └── hello_starknet.cairo
+│   │  ...
+│   │   ├── contracts.cairo
+│   │   └── lib.cairo
+│   └── cairo_project.toml
+├── other_contract/
+│   ├── src/
+│   │   ├── contracts/
+│   │   │   └── other_contract.cairo
+│   │  ...
+│   │   ├── contracts.cairo
+│   │   └── lib.cairo
+│   └── cairo_project.toml
+...
 └── protostar.toml
 ```
 
@@ -259,12 +267,12 @@ Make sure `[crate_roots]` are correctly defined.
 
 ```toml title="crate1/cairo_project.toml"
 [crate_roots]
-crate1 = "."
+crate1 = "src"
 ```
 
 ```toml title="crate2/cairo_project.toml"
 [crate_roots]
-crate2 = "."
+crate2 = "src"
 ```
 
 Define each contract in the `[contracts]` section of the protostar.toml and crates
