@@ -1,8 +1,8 @@
 [project]
 protostar-version = "0.0.0"
 lib-path = "lib"
-linked-libraries = ["src"]
+linked-libraries = ["hello_starknet"]
 
 [contracts]
-hello_starknet = ["src"]
+hello_starknet = ["hello_starknet"]
 
