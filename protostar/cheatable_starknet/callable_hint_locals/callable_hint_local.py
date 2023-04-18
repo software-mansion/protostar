@@ -1,10 +1,6 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any, Callable, Union
-import hashlib
-
-from typing_extensions import Literal
-from starknet_py.cairo.felt import encode_shortstring
 
 from protostar.cairo import HintLocal
 from protostar.cheatable_starknet.controllers.transaction_revert_exception import (
@@ -12,22 +8,16 @@ from protostar.cheatable_starknet.controllers.transaction_revert_exception impor
 )
 
 
-@dataclass(init=False)
+@dataclass(frozen=True)
 class InvalidExecution:
     ok = None
-    err_code: int
-
-    def __init__(self, err_code: int):
-        assert (
-            err_code > 0
-        ), "Error code 0 is reserved for successful execution. Error code must be a positive number."
-        self.err_code = err_code
+    panic_data: list[int]
 
 
 @dataclass(frozen=True)
 class ValidExecution:
     ok: Any
-    err_code: Literal[0] = 0
+    panic_data = None
 
 
 ExecutionResult = Union[ValidExecution, InvalidExecution]
@@ -44,10 +34,6 @@ class CallableHintLocal(HintLocal, ABC):
                 result = self._build()(*args, **kwargs)
                 return ValidExecution(ok=result)
             except TransactionRevertException as ex:
-                return InvalidExecution(
-                    err_code=encode_shortstring(
-                        hashlib.md5(ex.message.encode()).hexdigest()[:31]
-                    )
-                )
+                return InvalidExecution(panic_data=ex.get_panic_data())
 
         return wrapper

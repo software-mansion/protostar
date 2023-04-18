@@ -27,6 +27,7 @@ async def test_invoke_hint_local(
         {
             "get_set": shared_datadir / "get_set",
             "get_set_with_ctor": shared_datadir / "get_set_with_ctor",
+            "panicking_contract": shared_datadir / "panicking_contract",
         }
     )
 
@@ -41,6 +42,7 @@ async def test_invoke_hint_local(
             "test_invoke_cairo0",
             "test_invoke_with_ctor",
             "test_invoke_vs_call_state_changes",
+            "test_invoke_exception_handling",
         ],
         expected_failed_test_cases_names=[
             "test_invoke_wrong_number_of_args",
