@@ -33,3 +33,9 @@ def test_init_with_invalid_name(protostar: ProtostarFixture):
         f"Provided project name {project_name} does not match regex ^[a-zA-Z0-9][a-zA-Z0-9_]*$. "
         f"Choose a different project name." in output
     )
+
+
+def test_init_without_name(protostar: ProtostarFixture):
+    output = protostar(["init-cairo1"], expect_exit_code=1)
+
+    assert "project directory name: " in output
