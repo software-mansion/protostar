@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import List, Iterable
+from typing import List, Iterable, Tuple
 
 from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
     PreprocessorError,
@@ -26,7 +26,7 @@ class Cairo1TestCollector(TestCollector):
     def collect_cairo1_tests_and_cache_outputs(
         self,
         file_path: Path,
-    ) -> List[str]:
+    ) -> List[Tuple[str, cairo1.AvailableGas]]:
         try:
             collector_output = cairo1.collect_tests(
                 file_path,
@@ -44,8 +44,11 @@ class Cairo1TestCollector(TestCollector):
             file_path
         ] = collector_output.sierra_output
         return [
-            namespaced_test_name.split("::")[-1]
-            for (namespaced_test_name, _) in collector_output.collected_tests
+            (namespaced_test_name.split("::")[-1], available_gas)
+            for (
+                namespaced_test_name,
+                available_gas,
+            ) in collector_output.collected_tests
         ]
 
     def _build_test_suite_from_test_suite_info(
