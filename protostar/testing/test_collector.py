@@ -278,7 +278,10 @@ class TestCollector:
     ) -> TestSuite:
         function_names = self._get_suite_function_names(test_suite_info.path)
 
-        if isinstance(function_names[0], str):
+        if len(function_names) == 0:
+            names: List[str] = []
+            gas: List[AvailableGas] = []
+        elif isinstance(function_names[0], str):
             function_names = cast(List[str], function_names)
             names: List[str] = function_names
             gas: List[AvailableGas] = [None] * len(function_names)
