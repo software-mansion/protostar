@@ -286,7 +286,7 @@ class ProtostarFixture:
         args = Namespace()
         args.compiled_contracts_dir = Path("./build")
         args.disable_hint_validation = False
-        args.cairo_path = None
+        args.linked_libraries = None
         args.json = False
         args.contract_name = ""
         return args

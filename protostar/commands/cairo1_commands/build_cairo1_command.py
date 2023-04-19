@@ -2,6 +2,11 @@ import logging
 from pathlib import Path
 from typing import Optional, Any
 
+from starkware.starknet.core.os.contract_class.compiled_class_hash import (
+    compute_compiled_class_hash,
+)
+from starkware.starknet.services.api.contract_class.contract_class import CompiledClass
+
 from protostar.cli import ProtostarCommand
 from protostar.cli.common_arguments import (
     COMPILED_CONTRACTS_DIR_ARG,
@@ -15,6 +20,13 @@ from protostar.commands.cairo1_commands.fetch_from_scarb import (
     maybe_fetch_linked_libraries_from_scarb,
 )
 from protostar.protostar_exception import ProtostarException
+
+
+def compute_compiled_class_hash_from_path(file_path: Path):
+    with open(file_path, mode="r", encoding="utf-8") as file:
+        compiled_class = CompiledClass.loads(file.read())
+        compiled_class_hash = compute_compiled_class_hash(compiled_class)
+        return compiled_class_hash
 
 
 class BuildCairo1Command(ProtostarCommand):
@@ -72,8 +84,9 @@ class BuildCairo1Command(ProtostarCommand):
             f"Multiple files found for contract {contract_name}, "
             f"only one file per contract is supported in cairo1!"
         )
-        sierra_file_path = output_dir / (contract_name + ".sierra.json")
+
         try:
+            sierra_file_path = output_dir / (contract_name + ".sierra.json")
             cairo1.compile_starknet_contract_to_sierra_from_path(
                 input_path=contract_paths[0],
                 cairo_path=linked_libraries
@@ -83,12 +96,23 @@ class BuildCairo1Command(ProtostarCommand):
                 ),
                 output_path=sierra_file_path,
             )
+
+            casm_compiled_contract_path = output_dir / (contract_name + ".casm.json")
             cairo1.compile_starknet_contract_sierra_to_casm_from_path(
                 input_path=sierra_file_path,
-                output_path=output_dir / (contract_name + ".casm.json"),
+                output_path=casm_compiled_contract_path,
             )
         except cairo1.CairoBindingException as ex:
             raise ProtostarException(ex.message) from ex
+
+        compiled_class_hash = compute_compiled_class_hash_from_path(
+            casm_compiled_contract_path
+        )
+        logging.info(
+            "Compiled class hash for contract %s: %s",
+            contract_name,
+            hex(int(compiled_class_hash)),
+        )
 
     async def build(
         self,
