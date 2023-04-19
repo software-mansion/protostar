@@ -1,11 +1,18 @@
 import logging
+import json
 from pathlib import Path
 from typing import Optional, Any
 
 from starkware.starknet.core.os.contract_class.compiled_class_hash import (
     compute_compiled_class_hash,
 )
-from starkware.starknet.services.api.contract_class.contract_class import CompiledClass
+from starkware.starknet.core.os.contract_class.class_hash import (
+    compute_class_hash,
+)
+from starkware.starknet.services.api.contract_class.contract_class import (
+    CompiledClass,
+    ContractClass,
+)
 
 from protostar.cli import ProtostarCommand
 from protostar.cli.common_arguments import (
@@ -22,8 +29,19 @@ from protostar.commands.cairo1_commands.fetch_from_scarb import (
 from protostar.protostar_exception import ProtostarException
 
 
-def compute_compiled_class_hash_from_path(file_path: Path):
-    with open(file_path, mode="r", encoding="utf-8") as file:
+def compute_class_hash_from_path(sierra_contract_file_path: Path):
+    with open(sierra_contract_file_path, mode="r", encoding="utf-8") as file:
+        sierra_compiled = json.loads(file.read())
+        sierra_compiled.pop("sierra_program_debug_info", None)
+        sierra_compiled["abi"] = json.dumps(sierra_compiled["abi"])
+
+        contract_class = ContractClass.load(sierra_compiled)
+        class_hash = compute_class_hash(contract_class)
+        return class_hash
+
+
+def compute_compiled_class_hash_from_path(casm_contract_file_path: Path):
+    with open(casm_contract_file_path, mode="r", encoding="utf-8") as file:
         compiled_class = CompiledClass.loads(file.read())
         compiled_class_hash = compute_compiled_class_hash(compiled_class)
         return compiled_class_hash
@@ -86,7 +104,7 @@ class BuildCairo1Command(ProtostarCommand):
         )
 
         try:
-            sierra_file_path = output_dir / (contract_name + ".sierra.json")
+            sierra_compiled_contract_path = output_dir / (contract_name + ".sierra.json")
             cairo1.compile_starknet_contract_to_sierra_from_path(
                 input_path=contract_paths[0],
                 cairo_path=linked_libraries
@@ -94,25 +112,30 @@ class BuildCairo1Command(ProtostarCommand):
                     package_root_path=contract_paths[0],
                     linked_libraries=linked_libraries,
                 ),
-                output_path=sierra_file_path,
+                output_path=sierra_compiled_contract_path,
+            )
+            class_hash = compute_class_hash_from_path(sierra_compiled_contract_path)
+            logging.info(
+                'Class hash for contract "%s": %s',
+                contract_name,
+                hex(int(class_hash)),
             )
 
             casm_compiled_contract_path = output_dir / (contract_name + ".casm.json")
             cairo1.compile_starknet_contract_sierra_to_casm_from_path(
-                input_path=sierra_file_path,
+                input_path=sierra_compiled_contract_path,
                 output_path=casm_compiled_contract_path,
+            )
+            compiled_class_hash = compute_compiled_class_hash_from_path(
+                casm_compiled_contract_path
+            )
+            logging.info(
+                'Compiled class hash for contract "%s": %s',
+                contract_name,
+                hex(int(compiled_class_hash)),
             )
         except cairo1.CairoBindingException as ex:
             raise ProtostarException(ex.message) from ex
-
-        compiled_class_hash = compute_compiled_class_hash_from_path(
-            casm_compiled_contract_path
-        )
-        logging.info(
-            "Compiled class hash for contract %s: %s",
-            contract_name,
-            hex(int(compiled_class_hash)),
-        )
 
     async def build(
         self,
