@@ -4,20 +4,7 @@ use result::ResultTrait;
 
 #[test]
 fn test_call_simple() {
-    let class_hash = declare('simple').unwrap();
-    assert(class_hash != 0, 'class_hash != 0');
-
-    let prepare_result = prepare(class_hash, ArrayTrait::new()).unwrap();
-
-    assert(prepare_result.contract_address != 0, 'deployed contract_address != 0');
-    assert(prepare_result.class_hash != 0, 'deployed class_hash != 0');
-
-    let prepared_contract = PreparedContract {
-        contract_address: prepare_result.contract_address,
-        class_hash: prepare_result.class_hash,
-        constructor_calldata: prepare_result.constructor_calldata
-    };
-    let deployed_contract_address = deploy(prepared_contract).unwrap();
+    let deployed_contract_address = deploy_contract('simple', ArrayTrait::new()).unwrap();
     assert(deployed_contract_address != 0, 'deployed_contract_address != 0');
 
     let return_data = call(deployed_contract_address, 'empty', ArrayTrait::new()).unwrap();
@@ -33,23 +20,10 @@ fn test_call_simple() {
 
 #[test]
 fn test_call_with_ctor() {
-    let class_hash = declare('with_ctor').unwrap();
-    assert(class_hash != 0, 'class_hash != 0');
-
     let mut constructor_calldata = ArrayTrait::new();
     constructor_calldata.append(3);
     constructor_calldata.append(2);
-    let prepare_result = prepare(class_hash, constructor_calldata).unwrap();
-
-    assert(prepare_result.contract_address != 0, 'deployed contract_address != 0');
-    assert(prepare_result.class_hash != 0, 'deployed class_hash != 0');
-
-    let prepared_contract = PreparedContract {
-        contract_address: prepare_result.contract_address,
-        class_hash: prepare_result.class_hash,
-        constructor_calldata: prepare_result.constructor_calldata
-    };
-    let deployed_contract_address = deploy(prepared_contract).unwrap();
+    let deployed_contract_address = deploy_contract('with_ctor', constructor_calldata).unwrap();
     assert(deployed_contract_address != 0, 'deployed_contract_address != 0');
 
     let return_data = call(deployed_contract_address, 'getme123', ArrayTrait::new()).unwrap();
@@ -58,21 +32,7 @@ fn test_call_with_ctor() {
 
 #[test]
 fn test_call_cairo0() {
-    let class_hash = declare_cairo0('cairo0').unwrap();
-    assert(class_hash != 0, 'class_hash != 0');
-
-    let prepare_result = prepare(class_hash, ArrayTrait::new()).unwrap();
-
-    assert(prepare_result.contract_address != 0, 'deployed contract_address != 0');
-    assert(prepare_result.class_hash != 0, 'deployed class_hash != 0');
-
-    let prepared_contract = PreparedContract {
-        contract_address: prepare_result.contract_address,
-        class_hash: prepare_result.class_hash,
-        constructor_calldata: prepare_result.constructor_calldata
-    };
-
-    let deployed_contract_address = deploy(prepared_contract).unwrap();
+    let deployed_contract_address = deploy_contract_cairo0('cairo0', ArrayTrait::new()).unwrap();
     assert(deployed_contract_address != 0, 'deployed_contract_address != 0');
 
     let mut calldata = ArrayTrait::new();
@@ -87,21 +47,7 @@ fn test_call_cairo0() {
 
 #[test]
 fn test_call_cairo0_non_existing_entrypoint() {
-    let class_hash = declare_cairo0('cairo0').unwrap();
-    assert(class_hash != 0, 'class_hash != 0');
-
-    let prepare_result = prepare(class_hash, ArrayTrait::new()).unwrap();
-
-    assert(prepare_result.contract_address != 0, 'deployed contract_address != 0');
-    assert(prepare_result.class_hash != 0, 'deployed class_hash != 0');
-
-    let prepared_contract = PreparedContract {
-        contract_address: prepare_result.contract_address,
-        class_hash: prepare_result.class_hash,
-        constructor_calldata: prepare_result.constructor_calldata
-    };
-
-    let deployed_contract_address = deploy(prepared_contract).unwrap();
+    let deployed_contract_address = deploy_contract_cairo0('cairo0', ArrayTrait::new()).unwrap();
     assert(deployed_contract_address != 0, 'deployed_contract_address != 0');
 
     let mut calldata = ArrayTrait::new();
@@ -112,20 +58,7 @@ fn test_call_cairo0_non_existing_entrypoint() {
 
 #[test]
 fn test_call_wrong_name() {
-    let class_hash = declare('simple').unwrap();
-    assert(class_hash != 0, 'class_hash != 0');
-
-    let prepare_result = prepare(class_hash, ArrayTrait::new()).unwrap();
-
-    assert(prepare_result.contract_address != 0, 'deployed contract_address != 0');
-    assert(prepare_result.class_hash != 0, 'deployed class_hash != 0');
-
-    let prepared_contract = PreparedContract {
-        contract_address: prepare_result.contract_address,
-        class_hash: prepare_result.class_hash,
-        constructor_calldata: prepare_result.constructor_calldata
-    };
-    let deployed_contract_address = deploy(prepared_contract).unwrap();
+    let deployed_contract_address = deploy_contract('simple', ArrayTrait::new()).unwrap();
     assert(deployed_contract_address != 0, 'deployed_contract_address != 0');
 
     call(deployed_contract_address, 'empty_no_exist', ArrayTrait::new()).unwrap();
@@ -133,20 +66,7 @@ fn test_call_wrong_name() {
 
 #[test]
 fn test_call_wrong_number_of_args() {
-    let class_hash = declare('simple').unwrap();
-    assert(class_hash != 0, 'class_hash != 0');
-
-    let prepare_result = prepare(class_hash, ArrayTrait::new()).unwrap();
-
-    assert(prepare_result.contract_address != 0, 'deployed contract_address != 0');
-    assert(prepare_result.class_hash != 0, 'deployed class_hash != 0');
-
-    let prepared_contract = PreparedContract {
-        contract_address: prepare_result.contract_address,
-        class_hash: prepare_result.class_hash,
-        constructor_calldata: prepare_result.constructor_calldata
-    };
-    let deployed_contract_address = deploy(prepared_contract).unwrap();
+    let deployed_contract_address = deploy_contract('simple', ArrayTrait::new()).unwrap();
     assert(deployed_contract_address != 0, 'deployed_contract_address != 0');
 
     let mut calldata = ArrayTrait::new();
