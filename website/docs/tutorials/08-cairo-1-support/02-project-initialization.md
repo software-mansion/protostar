@@ -62,6 +62,11 @@ This directory contains the code of our contract - `HelloStarknet`. For easy tes
 contains
 only the contract definition that utilizes functions imported from other modules.
 
+:::danger
+Currently protostar only supports having one contract per module. You cannot add more contracts to this directory. To
+use multiple contracts in your project see [this section](#using-multiple-contracts-in-project).
+:::
+
 ### `business_logic`
 
 This directory contains standalone cairo1 methods that can be imported and used in the contract definition. We recommend
