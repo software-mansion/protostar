@@ -275,20 +275,26 @@ class ProtostarFixture:
         return asyncio.run(self._build_command.run(args))
 
     async def build_cairo1(self):
-        args = self._prepare_build_args()
+        args = self._prepare_build_cairo1_args()
         return await self._build_cairo1_command.run(args)
 
     def build_cairo1_sync(self):
-        args = self._prepare_build_args()
+        args = self._prepare_build_cairo1_args()
         return asyncio.run(self._build_cairo1_command.run(args))
 
     def _prepare_build_args(self):
         args = Namespace()
         args.compiled_contracts_dir = Path("./build")
         args.disable_hint_validation = False
-        args.linked_libraries = None
+        args.cairo_path = None
         args.json = False
         args.contract_name = ""
+        return args
+
+    def _prepare_build_cairo1_args(self):
+        args = self._prepare_build_args()
+        delattr(args, "cairo_path")
+        args.linked_libraries = None
         return args
 
     async def invoke(
