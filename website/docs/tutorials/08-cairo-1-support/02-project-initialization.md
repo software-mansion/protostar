@@ -74,14 +74,7 @@ writing business logic in this directory for ease of writing unit tests.
 
 ### `contracts.cairo` and `business_logic.cairo`
 
-`contracts.cairo` and `business_logic.cairo`: All modules must be listed in `lib.cairo`
-Note that these files only contain `mod ...` definitions that import files from directories.
-
-Creation of these files is necessary so that they can be imported in the `lib.cairo file`.
-
-```cairo title="contracts.cairo
-mod hello_starknet;
-```
+These files are necessary so that they can be imported in the `lib.cairo` file.
 
 ### `tests`
 
