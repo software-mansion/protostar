@@ -78,11 +78,11 @@ These files are necessary so that they can be imported in the `lib.cairo` file.
 
 ### `tests`
 
-All tests should be defined in this directory.
+All [tests](./03-testing.md) should be defined in this directory.
 
 ### `protostar.toml`
 
-This file contains the configuration for the Protostar project.
+This file contains the [configuration for the Protostar project](#the-protostartoml).
 
 ## Cairo 1 modules
 
