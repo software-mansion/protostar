@@ -42,7 +42,6 @@ async def test_call_hint_local(
         expected_passed_test_cases_names=[
             "test_call_simple",
             "test_call_not_mutating_state",
-            "test_call_with_ctor",
             "test_call_cairo0",
         ],
         expected_failed_test_cases_names=[

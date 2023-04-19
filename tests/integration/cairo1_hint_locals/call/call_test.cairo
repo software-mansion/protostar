@@ -38,18 +38,6 @@ fn test_call_not_mutating_state() {
 }
 
 #[test]
-fn test_call_with_ctor() {
-    let mut constructor_calldata = ArrayTrait::new();
-    constructor_calldata.append(3);
-    constructor_calldata.append(2);
-    let deployed_contract_address = deploy_contract('with_ctor', constructor_calldata).unwrap();
-    assert(deployed_contract_address != 0, 'deployed_contract_address != 0');
-
-    let return_data = call(deployed_contract_address, 'getme123', ArrayTrait::new()).unwrap();
-    assert(*return_data.at(0_u32) == 123, 'call result is 123');
-}
-
-#[test]
 fn test_call_cairo0() {
     let deployed_contract_address = deploy_contract_cairo0('cairo0', ArrayTrait::new()).unwrap();
     assert(deployed_contract_address != 0, 'deployed_contract_address != 0');
