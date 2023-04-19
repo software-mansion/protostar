@@ -298,3 +298,7 @@ fn test_returns_two() {
     assert(crate1::business_logic::utils::returns_two() == 2, 'Should return 2');
 }
 ```
+
+### Modules names considerations
+
+The names must use only ASCII alphanumeric characters or `_`, and cannot be empty. It cannot also start with underscore.
