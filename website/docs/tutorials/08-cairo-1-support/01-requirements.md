@@ -20,7 +20,7 @@ modules [here](./02-project-initialization.md#cairo-1-modules).
 Having multiple modules requires some considerations. Learn more about
 it [here](./02-project-initialization.md#using-multiple-contracts-in-project).
 
-### Module and crate names
+### Module and package names
 
 The names must use only ASCII alphanumeric characters or `_`, and cannot be empty. It cannot also start with underscore.
 For the alternative reference, please see [this](https://docs.swmansion.com/scarb/docs/reference/manifest#name).
