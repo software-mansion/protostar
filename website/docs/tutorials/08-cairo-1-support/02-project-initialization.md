@@ -6,7 +6,7 @@ sidebar_label: Project initialization
 
 ## Creating a project
 
-To create a new Protostar project with cairo1 support, you will need to run the `protostar init-cairo1` command followed
+To create a new Protostar project with cairo 1.0 support, you will need to run the `protostar init-cairo1` command followed
 by the name of your project. For example:
 
 ```shell
@@ -39,7 +39,7 @@ This template will be changed in future versions, but the old one will still be 
 
 ### `hello_starknet`
 
-This directory contains our only crate in this project - `hello_starknet`.
+This directory contains our only module in this project - `hello_starknet`.
 
 ### `cairo_project.toml` and `lib.cairo`
 
@@ -58,9 +58,9 @@ You can learn about [modules](#cairo-1-modules) and [how to add them](#adding-a-
 
 ### `contracts`
 
-This directory contains the code of our contract - `HelloStarknet`. For easy testing, we recommend this directory
+This directory contains the code of our contract - `HelloStarknet`. As a good practice, we recommend this directory
 contains
-only the contract definition that utilizes functions imported from other modules.
+only the contract definition, bussines logic should be kept in other modules.
 
 :::danger
 Currently protostar only supports having one contract per module. You cannot add more contracts to this directory. To
@@ -74,7 +74,7 @@ writing business logic in this directory for ease of writing unit tests.
 
 ### `contracts.cairo` and `business_logic.cairo`
 
-`contracts.cairo` and `business_logic.cairo`: All modules (directories) must be "imported" to the top-level directory.
+`contracts.cairo` and `business_logic.cairo`: All modules must be listed in `lib.cairo`
 Note that these files only contain `mod ...` definitions that import files from directories.
 
 Creation of these files is necessary so that they can be imported in the `lib.cairo file`.

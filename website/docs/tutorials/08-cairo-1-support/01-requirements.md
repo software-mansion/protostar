@@ -27,7 +27,5 @@ For the alternative reference, please see [this](https://docs.swmansion.com/scar
 
 ### Sharing common code
 
-If you want to have code that will be shared between multiple contracts, you need to wrap this code into a shared
-library.
-That means you have to wrap this code in the [module](./02-project-initialization.md#cairo-1-modules) and then add a
+If you want to have code that will be shared between multiple contracts, you need to wrap this code into a [module](./02-project-initialization.md#cairo-1-modules) and then add a
 path of this module to the [protostar.toml](./02-project-initialization.md#the-protostartoml)'s `linked-libraries`.
