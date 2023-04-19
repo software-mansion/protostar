@@ -9,17 +9,23 @@ sidebar_label: Requirements
 Projects should follow a defined structure. Learn more in the [project initialization](./02-project-initialization.md)
 section.
 
-## Module and crate names
+## Multiple contracts in a single project
+
+If you wish to have multiple contracts for a single project, you need to put them in
+separate [modules](./02-project-initialization.md#cairo-1-modules). You can learn more about
+modules [here](./02-project-initialization.md#cairo-1-modules).
+
+### Setting up multiple modules
+
+Having multiple modules requires some considerations. Learn more about
+it [here](./02-project-initialization.md#using-multiple-contracts-in-project).
+
+### Module and crate names
 
 The names must use only ASCII alphanumeric characters or `_`, and cannot be empty. It cannot also start with underscore.
 For the alternative reference, please see [this](https://docs.swmansion.com/scarb/docs/reference/manifest#name).
 
-## Multiple contracts for a project
-
-If you wish to have multiple contracts for a single project, you need to put them in
-separate [modules](./02-project-initialization.md#using-multiple-contracts-in-project).
-
-## Mutual code for multiple contracts
+### Sharing common code
 
 If you want to have code that will be shared between multiple contracts, you need to wrap this code into a shared
 library.
