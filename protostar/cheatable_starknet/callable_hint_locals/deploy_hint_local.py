@@ -50,5 +50,7 @@ class DeployHintLocal(CallableHintLocal):
     async def _run_deploy_prepared(self, prepared: PreparedContract):
         try:
             return await self._contracts_controller.deploy_prepared(prepared)
-        except (ContractsCheaterException, StarkException) as exc:
+        except ContractsCheaterException as exc:
             raise TransactionRevertException(exc.message, exc) from exc
+        except StarkException as exc:
+            raise TransactionRevertException(exc.message or exc.code.name, exc) from exc

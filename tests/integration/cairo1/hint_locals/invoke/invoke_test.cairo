@@ -1,5 +1,6 @@
 use array::ArrayTrait;
 use result::ResultTrait;
+use cheatcodes::RevertedTransactionTrait;
 
 #[test]
 fn test_invoke_simple() {
@@ -118,6 +119,6 @@ fn test_invoke_exception_handling() {
 
     match invoke(deployed_contract_address, 'go_bonkers', ArrayTrait::new()) {
         Result::Ok(_) => assert(false, 'contract did not panic'),
-        Result::Err(x) => assert(x.first() == 'i am bonkers', x),
+        Result::Err(x) => assert(x.first() == 'i am bonkers', x.first()),
     }
 }

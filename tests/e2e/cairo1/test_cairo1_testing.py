@@ -33,13 +33,17 @@ def test_failing_tests(protostar: ProtostarFixture, copy_fixture: CopyFixture):
 
     expected_output_lines = [
         "Collected 1 suite, and 3 test cases",
-        "[PASS] tests/failing_test.cairo test_ok",
-        "[FAIL] tests/failing_test.cairo test_panic_multiple_values",
-        "Test failed with data: [101, 102, 103]",
-        "[FAIL] tests/failing_test.cairo test_panic_single_value",
-        "Test failed with data: [21]",
-        "1 failed, 1 total",
-        "2 failed, 1 passed, 3 total",
+        "[FAIL] tests/failing_test.cairo test_panic_single_value (time=0.00s)",
+        "Test failed with data:",
+        "[21] (integer representation)",
+        "['\\\\x15'] (short-string representation)",
+        "[PASS] tests/failing_test.cairo test_ok (time=0.00s)",
+        "[FAIL] tests/failing_test.cairo test_panic_multiple_values (time=0.00s)",
+        "Test failed with data: ",
+        "[101, 102, 103] (integer representation)",
+        "['e', 'f', 'g'] (short-string representation)",
+        "Test suites: 1 failed, 1 total",
+        "Tests:       2 failed, 1 passed, 3 total",
     ]
 
     for expected_output_line in expected_output_lines:

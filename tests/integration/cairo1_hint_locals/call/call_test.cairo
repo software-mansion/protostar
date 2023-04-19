@@ -1,6 +1,6 @@
-
 use array::ArrayTrait;
 use result::ResultTrait;
+use cheatcodes::RevertedTransactionTrait;
 
 #[test]
 fn test_call_simple() {
@@ -161,6 +161,6 @@ fn test_call_exception_handling() {
 
     match call(deployed_contract_address, 'go_bonkers', ArrayTrait::new()) {
         Result::Ok(_) => assert(false, 'bonkers contract did not panic'),
-        Result::Err(x) => assert(x == 'i am bonkers', x),
+        Result::Err(x) => assert(x.first() == 'i am bonkers', x.first()),
     }
 }
