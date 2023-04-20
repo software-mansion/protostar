@@ -194,7 +194,9 @@ class ContractsController:
             max_fee=0,
             version=2,
             signature=[],
-            nonce=0,
+            nonce=await self.cheatable_state.get_nonce_at(
+                DEFAULT_DECLARE_SENDER_ADDRESS
+            ),
         )
 
         with self.cheatable_state.copy_and_apply() as state_copy:
