@@ -1,34 +1,21 @@
 import os
 from pathlib import Path
 
+import pytest
+
 from tests.e2e.conftest import ProtostarFixture, CopyFixture
 
 
-def test_build_with_libraries_using_scarb(
-    protostar: ProtostarFixture, copy_fixture: CopyFixture
-):
-    execute_build_test("libraries", protostar, copy_fixture)
-
-
-def test_build_with_modules_using_scarb(
-    protostar: ProtostarFixture, copy_fixture: CopyFixture
-):
-    execute_build_test("modules", protostar, copy_fixture)
-
-
-# TODO #1767: investigate differences in gas support between quaireaux and protostar
+# TODO #1767: investigate differences in gas support between quaireaux and protostar ("online_dependencies")
 #  building works for some reason even considering the differences mentioned above...
-def test_build_with_online_dependencies_using_scarb(
-    protostar: ProtostarFixture, copy_fixture: CopyFixture
+@pytest.mark.parametrize(
+    "project_directory", ("libraries", "modules", "online_dependencies")
+)
+def test_build_with_dependencies_using_scarb(
+    project_directory: str, protostar: ProtostarFixture, copy_fixture: CopyFixture
 ):
-    execute_build_test("online_dependencies", protostar, copy_fixture)
-
-
-def execute_build_test(
-    path: str, protostar: ProtostarFixture, copy_fixture: CopyFixture
-):
-    copy_fixture("scarb_integration/" + path, "./" + path)
-    os.chdir("./" + path)
+    copy_fixture("scarb_integration/" + project_directory, "./" + project_directory)
+    os.chdir("./" + project_directory)
 
     result = protostar(["--no-color", "build-cairo1"])
 
