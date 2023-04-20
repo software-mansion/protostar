@@ -16,8 +16,12 @@ def test_cairo1_build_with_contract_names_separate_builds(
         build_path = Path("build")
         assert build_path.exists()
         built_files = list(build_path.glob("*"))
-        assert built_files == [Path("build") / (contract + ".json")]
+        assert set(built_files) == {
+            Path("build") / (contract + ".casm.json"),
+            Path("build") / (contract + ".sierra.json"),
+        }
         built_files[0].unlink()
+        built_files[1].unlink()
 
 
 def test_cairo1_build_with_contract_names_build_together(
@@ -35,10 +39,12 @@ def test_cairo1_build_with_contract_names_build_together(
     protostar(["build-cairo1"])
     build_path = Path("build")
     assert build_path.exists()
-    built_files = list(build_path.glob("*"))
-    assert set(built_files) == set(
-        Path("build") / (contract + ".json") for contract in contracts
-    )
+    actual_built_files = set(list(build_path.glob("*")))
+    expected_built_files = set()
+    for contract in contracts:
+        expected_built_files.add(Path("build") / (contract + ".casm.json"))
+        expected_built_files.add(Path("build") / (contract + ".sierra.json"))
+    assert actual_built_files == expected_built_files
 
 
 def test_cairo0_build_with_contract_names_separate_builds(
