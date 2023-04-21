@@ -28,9 +28,21 @@ def devnet_gateway_url_fixture(
     devnet_port: int,
 ):
     cwd = os.getcwd()
+
+    # integration/.. (tests)/.. (protostar)/cairo
+    cairo_submodule_toml_path = (
+        Path(__file__).parent.parent / "cairo/Cargo.toml"
+    ).resolve()
+
     os.chdir(TESTS_ROOT_PATH.parent.resolve())
     proc = run_devnet(
-        ["poetry", "run", "starknet-devnet"],
+        [
+            "poetry",
+            "run",
+            "starknet-devnet",
+            "--cairo-compiler-manifest",
+            str(cairo_submodule_toml_path),
+        ],
         devnet_port,
     )
     os.chdir(cwd)
