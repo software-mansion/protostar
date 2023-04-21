@@ -152,7 +152,6 @@ other_contract = ["package2"]
 
 ### Testing multi-contract projects
 
-You can write your tests in the standard manner. Make sure you use correct paths.
 For example, to test function `returns_two` defined in the `package1/business_logic/utils.cairo` write
 
 ```cairo title="Example test"
@@ -161,3 +160,5 @@ fn test_returns_two() {
     assert(package1::business_logic::utils::returns_two() == 2, 'Should return 2');
 }
 ```
+
+Make sure that the path::to:the::module is correct for your package structure.
