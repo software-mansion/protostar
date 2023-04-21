@@ -27,6 +27,13 @@ def test_cairo1_build(protostar: ProtostarFixture, copy_fixture: CopyFixture):
     assert compiled_casm_path.exists()
     assert compiled_casm_path.read_text()
 
+    class_hash_path = Path("build/main.class.hash")
+    compiled_class_hash_path = Path("build/main.compiled.class.hash")
+    assert class_hash_path.exists()
+    assert class_hash_path.read_text().startswith("0x")
+    assert compiled_class_hash_path.exists()
+    assert compiled_class_hash_path.read_text().startswith("0x")
+
 
 def test_cairo1_build_json(protostar: ProtostarFixture, copy_fixture: CopyFixture):
     copy_fixture("cairo1_build", "./cairo_project")

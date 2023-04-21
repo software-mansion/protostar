@@ -31,7 +31,7 @@ from protostar.commands.cairo1_commands.fetch_from_scarb import (
 from protostar.protostar_exception import ProtostarException
 
 
-def compute_class_hash_from_path(sierra_contract_file_path: Path):
+def compute_class_hash_from_path(sierra_contract_file_path: Path, output_path: Path):
     with open(sierra_contract_file_path, mode="r", encoding="utf-8") as file:
         sierra_compiled = json.loads(file.read())
         sierra_compiled.pop("sierra_program_debug_info", None)
@@ -39,13 +39,23 @@ def compute_class_hash_from_path(sierra_contract_file_path: Path):
 
         contract_class = ContractClass.load(sierra_compiled)
         class_hash = compute_class_hash(contract_class)
+
+        with open(output_path, mode="w", encoding="utf-8") as output_file:
+            output_file.write(f"{hex(int(class_hash))}")
+
         return class_hash
 
 
-def compute_compiled_class_hash_from_path(casm_contract_file_path: Path):
+def compute_compiled_class_hash_from_path(
+    casm_contract_file_path: Path, output_path: Path
+):
     with open(casm_contract_file_path, mode="r", encoding="utf-8") as file:
         compiled_class = CompiledClass.loads(file.read())
         compiled_class_hash = compute_compiled_class_hash(compiled_class)
+
+        with open(output_path, mode="w", encoding="utf-8") as output_file:
+            output_file.write(f"{hex(int(compiled_class_hash))}")
+
         return compiled_class_hash
 
 
@@ -149,13 +159,16 @@ class BuildCairo1Command(ProtostarCommand):
                 input_path=sierra_compiled_contract_path,
                 output_path=casm_compiled_contract_path,
             )
-
-            class_hash = compute_class_hash_from_path(sierra_compiled_contract_path)
-            compiled_class_hash = compute_compiled_class_hash_from_path(
-                casm_compiled_contract_path
-            )
         except cairo1.CairoBindingException as ex:
             raise ProtostarException(ex.message) from ex
+
+        class_hash = compute_class_hash_from_path(
+            sierra_compiled_contract_path, output_dir / (contract_name + ".class.hash")
+        )
+        compiled_class_hash = compute_compiled_class_hash_from_path(
+            casm_compiled_contract_path,
+            output_dir / (contract_name + ".compiled.class.hash"),
+        )
 
         messenger(
             SuccessfulBuildCairo1Message(contract_name, class_hash, compiled_class_hash)
