@@ -413,6 +413,7 @@ class ContractsController:
             contract_address=contract_address,
             calldata=cairo_calldata,
             entry_point_selector=entry_point_selector,
+            caller_address=self.cheatable_state.get_pranked_address(contract_address),
         )
         with self.cheatable_state.copy_and_apply() as state_copy:
             call_info = await entry_point.execute_for_testing(
