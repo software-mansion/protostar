@@ -278,17 +278,18 @@ class TestCollector:
     ) -> TestSuite:
         function_names = self._get_suite_function_names(test_suite_info.path)
 
+        names: list[str] = []
+        gas: list[AvailableGas] = []
         if len(function_names) == 0:
-            names: List[str] = []
-            gas: List[AvailableGas] = []
+            pass
         elif isinstance(function_names[0], str):
-            function_names = cast(List[str], function_names)
-            names: List[str] = function_names
-            gas: List[AvailableGas] = [None] * len(function_names)
+            function_names = cast(list[str], function_names)
+            names = function_names
+            gas = [None] * len(function_names)
         else:
-            function_names = cast(List[Tuple[str, AvailableGas]], function_names)
-            names: List[str] = [fn[0] for fn in function_names]
-            gas: List[AvailableGas] = [fn[1] for fn in function_names]
+            function_names = cast(list[tuple[str, AvailableGas]], function_names)
+            names = [fn[0] for fn in function_names]
+            gas = [fn[1] for fn in function_names]
 
         setup_fn_name = self._collect_setup_hook_name(names)
 

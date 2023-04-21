@@ -26,7 +26,7 @@ class Cairo1TestCollector(TestCollector):
     def collect_cairo1_tests_and_cache_outputs(
         self,
         file_path: Path,
-    ) -> List[Tuple[str, cairo1.AvailableGas]]:
+    ) -> list[tuple[str, cairo1.AvailableGas]]:
         try:
             collector_output = cairo1.collect_tests(
                 file_path,
