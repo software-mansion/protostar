@@ -79,7 +79,7 @@ TestSuiteInfoDict = Dict[TestSuitePath, TestSuiteInfo]
 class FunctionNameGetter(Protocol):
     def __call__(
         self, file_path: Path
-    ) -> Union[List[str], List[Tuple[str, AvailableGas]]]:
+    ) -> Union[list[str], list[tuple[str, AvailableGas]]]:
         ...
 
 
