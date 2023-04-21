@@ -161,4 +161,15 @@ fn test_returns_two() {
 }
 ```
 
+Or using the `use path:to::mod` syntax
+
+```cairo title="Example test
+use package1::business_logic::utils::returns_two;
+
+#[test]
+fn test_returns_two() {
+    assert(returns_two() == 2, 'Should return 2');
+}
+```
+
 Make sure that the path::to:the::module is correct for your package structure.
