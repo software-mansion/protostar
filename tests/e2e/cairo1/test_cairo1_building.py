@@ -1,3 +1,4 @@
+import json
 import os
 from pathlib import Path
 
@@ -25,6 +26,27 @@ def test_cairo1_build(protostar: ProtostarFixture, copy_fixture: CopyFixture):
     assert compiled_sierra_path.read_text()
     assert compiled_casm_path.exists()
     assert compiled_casm_path.read_text()
+
+
+def test_cairo1_build_json(protostar: ProtostarFixture, copy_fixture: CopyFixture):
+    copy_fixture("cairo1_build", "./cairo_project")
+    os.chdir("./cairo_project")
+    result_json = protostar(["build-cairo1", "--json"])
+
+    output_json_parsed = json.loads(
+        result_json.split("\n")[
+            3 if "This project expects older Protostar" in result_json else 0
+        ]
+    )
+
+    assert (
+        output_json_parsed["main"]["class_hash"]
+        == "0x345df0a9b35ce05d03772ba7938acad66921c5c39c1a5af74aee72aa25c363e"
+    )
+    assert (
+        output_json_parsed["main"]["compiled_class_hash"]
+        == "0x5c82c98f2ab111bd50293ba64bb18cf49037374783ad2486c712709c4ba0d89"
+    )
 
 
 def test_cairo1_build_invalid_contract_path_to_cairo_file(
