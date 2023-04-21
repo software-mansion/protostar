@@ -55,7 +55,8 @@ mod business_logic;
 mod contracts;
 ```
 
-You can learn about [packages](#cairo-1-packages) and how to [add new module to a package](#adding-a-new-module) in
+You can learn about [packages](./01-understanding-cairo-packages.md) and how
+to [add new module to a package](./01-understanding-cairo-packages.md#adding-a-new-module) in
 further sections.
 
 ### `contracts`
@@ -79,116 +80,11 @@ These files are necessary so that they can be imported in the `lib.cairo` file.
 
 ### `tests`
 
-All [tests](./03-testing.md) should be defined in this directory.
+All [tests](./04-testing.md) should be defined in this directory.
 
 ### `protostar.toml`
 
-This file contains the [configuration for the Protostar project](#the-protostartoml).
-
-## Cairo 1 packages
-
-In order to understand how to create Cairo 1.0 packages, we need to talk about the purpose of `cairo_project.toml`
-and `lib.cairo`.
-
-### Project defaults
-
-#### 1. `cairo_project.toml`
-
-It is needed for the definition of `[crate_roots]`, which is a directory containing `lib.cairo`.
-
-The default `cairo_project.toml` file contains only the definition of the `hello_starknet` package which is contained in
-the `src` directory.
-
-```toml
-[crate_roots]
-hello_starknet = "src"
-```
-
-#### 2. `lib.cairo`
-
-It is the root of the package tree. Here you can define functions, declare used modules, etc.
-
-The default one has `contracts` and `business_logic` module declarations:
-
-```
-mod business_logic;
-mod contracts;
-```
-
-### Creating and using a new modules
-
-Suppose we wanted to create a module called `mod1` inside the `hello_starknet` package and use it in tests.
-We want this module to only have one file `functions.cairo` containing one function defined like:
-
-```cairo
-fn returns_three() -> felt252 {
-    3
-}
-```
-
-#### Adding a new module
-
-Here are the steps we need to take:
-
-1. Create a `mod1` subdirectory inside `src`.
-2. Create file `functions.cairo` inside `mod1` subdirectory and define your code there
-3. Create `mod1.cairo` file **in the `src` directory**, with the contents of
-
-```cairo
-mod functions;
-```
-
-4. Update the `lib.cairo` file to include `mod1`. It's contents should now look like this
-
-```cairo
-// previous code stays
-// ...
-mod mod1;
-```
-
-If you followed the steps correctly, your new project structure should look like this
-
-```
-my_project/
-├── hello_starknet/
-│   ├── src/
-│   │   ├── business_logic/
-│   │   │   └── utils.cairo
-│   │   ├── contracts/
-│   │   │   └── hello_starknet.cairo
-│   │   ├── mod1/  <------------------- new directory
-│   │   │   └── functions.cairo  <----- new file
-│   │   ├── business_logic.cairo
-│   │   ├── contracts.cairo
-│   │   ├── lib.cairo  <--------------- contents updated
-│   │   └── mod1.cairo  <-------------- new file
-│   └── cairo_project.toml
-├── tests/
-│   ├── test_hello_starknet.cairo
-│   └── test_utils.cairo
-└── protostar.toml
-```
-
-#### Using added module
-
-You now use your function in the HelloStarknet contract use `hello_starknet::mod1::functions::returns_three()`.
-
-## The protostar.toml
-
-Apart from the usual things you can find in `protostar.toml`, there is a `linked-libarires` entry which is used to find
-cairo1 packages in tests and building.
-This makes it possible for you to include dependencies if they are correct cairo1 packages (with
-their own package definition and `cairo_project.toml`).
-
-```
-[project]
-protostar-version = "0.9.2"
-lib-path = "lib"
-linked-libraries = ["hello_starknet"]
-
-[contracts]
-hello_starknet = ["hello_starknet"]
-```
+This file contains the [configuration for the Protostar project](./03-protostar-toml.md).
 
 :::info
 Even though `hello_starknet.cairo` file is defined in the nested directory, we use a package
@@ -203,41 +99,9 @@ other commands to fail.
 
 **That is, having projects structured like this is not valid and will not work correctly.**
 
-### ❌ Incorrect multi-contract project structure
+### Multi-contract project structure
 
-Multi-contract projects structure like this will not work:
-
-```
-my_project/
-├── hello_starknet/
-│   ├── src/
-│   │  ...
-│   │   ├── contracts/
-│   │   │   ├── hello_starknet.cairo
-│   │   │   └── other_contract.cairo
-│   │  ...
-│   └── cairo_project.toml
-... ...
-└── protostar.toml
-```
-
-```cairo title="hello_starknet.cairo"
-#[contract]
-mod HelloStarknet {
-    // ...
-}
-```
-
-```cairo title="other_contract.cairo"
-#[contract]
-mod HelloStarknet {
-    // ...
-}
-```
-
-### ✅ Correct multi-contract project structure
-
-Instead, each contract must be defined in the separate package: A different directory with separate `cairo_project.toml`
+Each contract must be defined in the separate package: A different directory with separate `cairo_project.toml`
 and `lib.cairo` files defined.
 
 ```
@@ -297,7 +161,3 @@ fn test_returns_two() {
     assert(package1::business_logic::utils::returns_two() == 2, 'Should return 2');
 }
 ```
-
-### Packages and modules names considerations
-
-The names must use only ASCII alphanumeric characters or `_`, and cannot be empty. It cannot also start with underscore.
