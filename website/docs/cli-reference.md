@@ -26,11 +26,13 @@ Print machine-readable output in [NDJSON](https://github.com/ndjson/ndjson-spec)
 ```shell
 $ protostar build-cairo1
 ```
-Compile cairo1 contracts.
+Compile cairo1 contracts. Writes `class_hash` and `compiled_class_hash` to the files and to stdout.
 #### `--compiled-contracts-dir PATH=build`
 An output directory used to put the compiled contracts in.
 #### `--contract-name STRING`
 Specify a contract name that should be built.
+#### `--json`
+Print machine-readable output in [NDJSON](https://github.com/ndjson/ndjson-spec) format.
 #### `--linked-libraries PATH[]`
 Paths to cairo1 modules. Should not be explicitly provided when managing dependencies using Scarb.
 ### `cairo-migrate`
