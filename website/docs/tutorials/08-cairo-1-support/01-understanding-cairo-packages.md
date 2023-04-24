@@ -52,7 +52,7 @@ As an example we can define:
 
 ```toml title="cairo_project.toml"
 [crate_roots]
-hello_starknet = "src"
+my_package = "src"
 ```
 
 ### `lib.cairo`
@@ -60,8 +60,8 @@ hello_starknet = "src"
 It is the root of the package tree. Here you can define functions, declare used modules, etc.
 
 ```cairo title="lib.cairo"
-mod business_logic;
-mod contracts;
+mod my_module;
+mod my_other_module;
 ```
 
 ### Creating and using a new modules
