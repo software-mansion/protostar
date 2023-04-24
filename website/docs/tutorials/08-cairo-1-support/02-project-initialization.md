@@ -85,8 +85,8 @@ containing the contract (like `business_logic`) to work.
 
 ## Using multiple contracts in project
 
-Due to limitations of cairo1 compiler, having multiple contracts defined in the package will cause `protostar build` and
-other commands to fail.
+Due to limitations of the Cairo 1 compiler, having multiple contracts defined in the package will cause
+the `protostar build` command and other commands to fail.
 
 **That is, having projects structured like this is not valid and will not work correctly.**
 

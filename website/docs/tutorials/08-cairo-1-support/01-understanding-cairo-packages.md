@@ -10,7 +10,8 @@ structures etc.
 
 ## Modules
 
-A module consists of one or more Cairo files, usually organized in a single directory. To define a module, create a `.cairo`
+A module consists of one or more Cairo files, usually organized in a single directory. To define a module, create
+a `.cairo`
 file named like the module and define components of this module with the `mod` keyword.
 
 ```
@@ -51,6 +52,7 @@ It is needed for the definition of `[crate_roots]`, which is a directory contain
 It is good practice for the package name defined here to match the top-level directory name.
 
 As an example we can define:
+
 ```toml title="cairo_project.toml"
 [crate_roots]
 hello_starknet = "src"
@@ -137,4 +139,5 @@ You now use your function in the HelloStarknet contract use `hello_starknet::mod
 
 ## Packages and modules names considerations
 
-The names must use only ASCII alphanumeric characters or `_`, and cannot be empty. It cannot also start with an underscore.
+The names must use only ASCII alphanumeric characters or `_`, and cannot be empty. Additionally, it cannot start with an
+underscore.
