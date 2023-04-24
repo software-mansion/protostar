@@ -19,9 +19,11 @@ def test_cairo1_build_with_contract_names_separate_builds(
         assert set(built_files) == {
             Path("build") / (contract + ".casm.json"),
             Path("build") / (contract + ".sierra.json"),
+            Path("build") / (contract + ".class.hash"),
+            Path("build") / (contract + ".compiled.class.hash"),
         }
-        built_files[0].unlink()
-        built_files[1].unlink()
+        for file in built_files:
+            file.unlink()
 
 
 def test_cairo1_build_with_contract_names_build_together(
@@ -44,6 +46,8 @@ def test_cairo1_build_with_contract_names_build_together(
     for contract in contracts:
         expected_built_files.add(Path("build") / (contract + ".casm.json"))
         expected_built_files.add(Path("build") / (contract + ".sierra.json"))
+        expected_built_files.add(Path("build") / (contract + ".class.hash"))
+        expected_built_files.add(Path("build") / (contract + ".compiled.class.hash"))
     assert actual_built_files == expected_built_files
 
 
