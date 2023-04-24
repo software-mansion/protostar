@@ -1,7 +1,6 @@
 # Understanding Cairo Packages
 
-There are several requirements that Cairo packages have to follow. Further documentation pages assume some knowledge
-of the Cairo package structure. Please refer to this page for details.
+There are several requirements that Cairo packages have to follow. These are explained in the following sections.
 
 ## `.cairo` files
 
