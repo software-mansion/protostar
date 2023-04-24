@@ -5,11 +5,6 @@ There are several requirements that Cairo packages have to follow. These are exp
 You can refer to [official Cairo documentation](https://github.com/starkware-libs/cairo/tree/main/docs/reference) for
 more details.
 
-## `.cairo` files
-
-Files with the `.cairo` extension contain Cairo code, including Starknet contracts. A file may define multiple methods,
-structures etc.
-
 ## Modules
 
 A module consists of one or more Cairo files, usually organized in a single directory. To define a module, create
