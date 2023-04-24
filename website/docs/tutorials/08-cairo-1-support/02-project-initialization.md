@@ -164,3 +164,5 @@ fn test_returns_two() {
 ```
 
 Make sure that the path::to:the::module is correct for your package structure.
+
+For more details on of how to test contracts, see [this page](./04-testing.md).
