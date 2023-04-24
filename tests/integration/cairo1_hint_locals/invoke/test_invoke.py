@@ -30,9 +30,8 @@ async def test_invoke_hint_local(
         }
     )
 
-    testing_summary = await protostar_project.protostar.run_test_runner(
+    testing_summary = await protostar_project.protostar.test_cairo1(
         Path(__file__).parent / "invoke_test.cairo",
-        cairo1_test_runner=True,
     )
 
     assert_cairo_test_cases(

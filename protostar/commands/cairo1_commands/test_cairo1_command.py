@@ -119,7 +119,7 @@ A glob or globs to a directory or a test suite, for example:
         summary = await self.test(
             targets=cache.obtain_targets(args.target, args.last_failed),
             ignored_targets=args.ignore,
-            cairo_path=args.linked_libraries,
+            linked_libraries=args.linked_libraries,
             no_progress_bar=args.no_progress_bar,
             exit_first=args.exit_first,
             slowest_tests_to_report_count=args.report_slowest_tests,
@@ -135,7 +135,7 @@ A glob or globs to a directory or a test suite, for example:
         targets: List[str],
         messenger: Messenger,
         ignored_targets: Optional[List[str]] = None,
-        cairo_path: Optional[List[Path]] = None,
+        linked_libraries: Optional[List[Path]] = None,
         no_progress_bar: bool = False,
         exit_first: bool = False,
         slowest_tests_to_report_count: int = 0,
@@ -143,7 +143,7 @@ A glob or globs to a directory or a test suite, for example:
         include_paths = [
             str(path)
             for path in self._project_cairo_path_builder.build_project_cairo_path_list(
-                cairo_path or []
+                linked_libraries or []
             )
         ]
         testing_seed = determine_testing_seed(seed=None)
