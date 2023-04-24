@@ -80,7 +80,7 @@ To create a configuration profile, add a new section to the `protostar.toml`. Fo
 
 - to create a configuration named `mainnet` for the [`declare-cairo1` command](../../cli-reference.md#declare-cairo1),
   add `[profile.mainnet.declare]` section
-- to create a sharde configuration named `testnet`, add `[profile.testnet.project]` section
+- to create a shared configuration named `testnet`, add `[profile.testnet.project]` section
 
 To use a profile, add the [-p or --profile argument](../../cli-reference.md#-p---profile-string) followed by the name of
 the profile.

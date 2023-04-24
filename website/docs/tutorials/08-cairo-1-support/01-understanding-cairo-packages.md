@@ -20,15 +20,15 @@ my_module/
 my_module.cairo
 ```
 
-```cairo title="my_mod.cairo"
+```cairo title="my_module.cairo"
 mod a;
 mod b;
 mod c;
 ```
 
-Alternatively, modules can be defined with a file itself using
+Alternatively, modules can be defined within a file using
 
-```cairo title="my_mod.cairo"
+```cairo title="my_module.cairo"
 mod my_mod {
     fn function_a() -> ();
     // ...
