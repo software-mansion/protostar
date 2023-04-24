@@ -2,12 +2,17 @@ use array::ArrayTrait;
 use result::ResultTrait;
 
 #[test]
+fn test_prepare_no_ctor() {
+    let class_hash = declare('minimal_no_ctor').unwrap();
+
+    drop(prepare(class_hash, ArrayTrait::new()).unwrap());
+}
+
+#[test]
 fn test_prepare_no_args() {
     let class_hash = declare('minimal_no_args').unwrap();
 
-    let calldata = ArrayTrait::new();
-    let prepared_contract = prepare(class_hash, calldata).unwrap();
-    drop(prepared_contract);
+    drop(prepare(class_hash, ArrayTrait::new()).unwrap());
 }
 
 #[test]
@@ -16,6 +21,5 @@ fn test_prepare_with_args() {
 
     let mut calldata = ArrayTrait::new();
     calldata.append('name');
-    let prepared_contract = prepare(class_hash, calldata).unwrap();
-    drop(prepared_contract);
+    drop(prepare(class_hash, calldata).unwrap());
 }
