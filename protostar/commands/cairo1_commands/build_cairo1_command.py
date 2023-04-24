@@ -106,7 +106,7 @@ class BuildCairo1Command(ProtostarCommand):
 
     @property
     def description(self) -> str:
-        return "Compile cairo1 contracts."
+        return "Compile cairo1 contracts. Writes `class_hash` and `compiled_class_hash` to the files and to stdout."
 
     @property
     def arguments(self):
