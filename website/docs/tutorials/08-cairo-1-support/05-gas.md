@@ -4,7 +4,7 @@ sidebar_label: Gas
 
 # Limiting gas
 
-To limit gas available in a test case you can use `#[available_gas(x)]` decorator, replacing `x` with the desired limit.
+To limit gas available in a test case you can use `#[available_gas(x)]` attribute, replacing `x` with the desired limit.
 
 Example:
 ```
