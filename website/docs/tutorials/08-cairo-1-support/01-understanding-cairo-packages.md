@@ -39,7 +39,9 @@ mod my_module {
 Package consist of multiple modules and must define `cairo_project.toml` and `lib.cairo` files.
 
 :::info
-Some other tools use name "crates" for packages.
+Some other tools and resources,
+including [official Cairo documentation](https://github.com/starkware-libs/cairo/tree/main/docs/reference) use the
+term "crates" for packages.
 :::
 
 ### `cairo_project.toml`
