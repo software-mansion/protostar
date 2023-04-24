@@ -40,7 +40,7 @@ Package consist of multiple modules and must define `cairo_project.toml` and `li
 
 :::info
 Some other tools and resources,
-including [official Cairo documentation](https://github.com/starkware-libs/cairo/tree/main/docs/reference) use the
+including [official Cairo documentation](https://github.com/starkware-libs/cairo/tree/main/docs/reference), use the
 term "crates" for packages.
 :::
 
