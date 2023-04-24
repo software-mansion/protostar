@@ -36,7 +36,7 @@ mod my_module {
 
 ## Packages
 
-Package is a collection of modules that also defines `cairo_project.toml` and `lib.cairo` files.
+Package consist of multiple modules and must define `cairo_project.toml` and `lib.cairo` files.
 
 :::info
 Some other tools use name "crates" for packages.
