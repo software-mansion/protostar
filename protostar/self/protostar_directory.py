@@ -47,7 +47,6 @@ class ProtostarDirectory:
         assert self.protostar_binary_dir_path is not None
         return self.protostar_binary_dir_path / "protostar_cairo"
 
-    # TODO (1521): This probably should have other values for dev and built binary
     @property
     def protostar_cairo1_corelib_path(self) -> Path:
         assert self.protostar_binary_dir_path is not None
