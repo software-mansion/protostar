@@ -53,10 +53,6 @@ Tests are run on Cairo VM, so no Starknet syscalls are available from the test c
 
 See [command reference](../../cli-reference.md#test-cairo1) for more details on usage.
 
-:::info
-There is no support currently for starknet contracts at the moment, it's a work in progress.
-:::
-
 ## Caveats
 ### 1. Test collecting
 `test-cairo1` will collect all tests ending with `.cairo` since there's no distinction between cairo 0 and cairo 1 files in terms of extension right now.
