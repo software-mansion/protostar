@@ -8,7 +8,6 @@ sidebar_label: Testing
 This functionality is in the alpha stage, expect rapid iteration
 :::
 
-
 ## Writing your first test
 
 To make a test function, you need to mark the function with a decorator `#[test]`
@@ -47,17 +46,23 @@ fn test_panic_multiple_values() {
 ## Running the tests
 
 To run cairo 1 tests, there is a special command called `test-cairo1`.
-It is a sibling command to the `test` command, it will collect all the tests in the given directory/module, run them, and print out a summary.
+It is a sibling command to the `test` command, it will collect all the tests in the given directory/module, run them,
+and print out a summary.
 
 Tests are run on Cairo VM, so no Starknet syscalls are available from the test code.
 
 See [command reference](../../cli-reference.md#test-cairo1) for more details on usage.
 
 ## Caveats
-### 1. Test collecting
-`test-cairo1` will collect all tests ending with `.cairo` since there's no distinction between cairo 0 and cairo 1 files in terms of extension right now.
 
-That means that you will either have to specify a regex to match your test names (see [command reference](../../cli-reference.md#test-cairo1)), or keep them in a separate directory to avoid syntax errors.
+### 1. Test collecting
+
+`test-cairo1` will collect all tests ending with `.cairo` since there's no distinction between cairo 0 and cairo 1 files
+in terms of extension right now.
+
+That means that you will either have to specify a regex to match your test names (
+see [command reference](../../cli-reference.md#test-cairo1)), or keep them in a separate directory to avoid syntax
+errors.
 
 A `test_` file prefix or `_test` postfix is required as well, to mark the files as test suites.
 
@@ -69,9 +74,11 @@ A `test_` file prefix or `_test` postfix is required as well, to mark the files 
 
 A test function must not return any values, be panickable, and not have any arguments for correct test result assessment
 
-In case the last statement in the function returns a value, you can add a line with a `;` in order to avoid returning any values from the test function.
+In case the last statement in the function returns a value, you can add a line with a `;` in order to avoid returning
+any values from the test function.
 
 Example:
+
 ```
 fn foo() -> felt {
     1
