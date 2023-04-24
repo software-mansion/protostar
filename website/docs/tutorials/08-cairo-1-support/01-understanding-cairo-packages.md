@@ -29,7 +29,7 @@ mod c;
 Alternatively, modules can be defined within a file using
 
 ```cairo title="my_module.cairo"
-mod my_mod {
+mod my_module {
     fn function_a() -> ();
     // ...
 }
