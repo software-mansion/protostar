@@ -139,7 +139,6 @@ class ContractBasedTestExecutionEnvironment(
                 details=ex.message,
             ) from ex
 
-    # TODO(mkaput): Replace these two with stateless parameters passing to ForkableStarknet.
     @staticmethod
     def set_cheatcodes(cheatcode_factory: CheatcodeFactory):
         CheatableExecuteEntryPoint.cheatcode_factory = cheatcode_factory

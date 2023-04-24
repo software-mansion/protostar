@@ -166,6 +166,3 @@ async def test_deploying_contract_with_signing(
         "1830633873577487268914590325347030490499699872026627682646826922183589844384",
     ]
 
-
-def test_account_doesnt_exist():
-    pass  # TODO: Implement in 0.10

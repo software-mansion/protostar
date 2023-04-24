@@ -37,7 +37,7 @@ class ProjectCreator(ABC):
         configuration_file_content = self._configuration_file_content_factory.create_file_content(
             ConfigurationFileV2Model(
                 protostar_version=str(self._protostar_version),
-                # TODO(pmagiera): temporary solution
+                # TODO https://github.com/software-mansion/protostar/issues/1825
                 #  assume protostar.toml will change when we start supporting contracts
                 contract_name_to_path_strs={}
                 if cairo_version == CairoVersion.cairo1
