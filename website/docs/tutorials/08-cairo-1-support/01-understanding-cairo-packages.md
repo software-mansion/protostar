@@ -1,6 +1,7 @@
 # Understanding Cairo Packages
 
-[//]: # (TODO intro)
+There are several requirements that Cairo packages have to follow. Further documentation pages assume some knowledge
+of Cairo package structure. Please refer to this page for details.
 
 ## `.cairo` files
 
