@@ -36,7 +36,7 @@ def test_failing_tests(protostar: ProtostarFixture, copy_fixture: CopyFixture):
         "[FAIL] tests/failing_test.cairo test_panic_single_value (time=0.00s)",
         "Test failed with data:",
         "[21] (integer representation)",
-        "['\\\\x15'] (short-string representation)",
+        "['\\x15'] (short-string representation)",
         "[PASS] tests/failing_test.cairo test_ok (time=0.00s)",
         "[FAIL] tests/failing_test.cairo test_panic_multiple_values (time=0.00s)",
         "Test failed with data: ",
