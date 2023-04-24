@@ -21,6 +21,7 @@ async def test_declare_hint_local(
     protostar_project.create_contracts_cairo1(
         {
             "minimal": shared_datadir / "minimal",
+            "simple": shared_datadir / "simple",
             "cairo0": shared_datadir / "cairo0",
             "broken": shared_datadir / "broken",
         }
@@ -35,6 +36,7 @@ async def test_declare_hint_local(
         testing_summary,
         expected_passed_test_cases_names=[
             "test_declare",
+            "test_two_declares",
         ],
         expected_broken_test_cases_names=[
             "test_declare_nonexistent",
