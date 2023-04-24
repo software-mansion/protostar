@@ -46,7 +46,8 @@ term "crates" for packages.
 
 ### `cairo_project.toml`
 
-It is needed for the definition of `[crate_roots]`, which is a directory containing `lib.cairo`.
+It is a required part of the package definition. It contains `[crate_roots]` parameter, which is the path to
+the `lib.cairo` file.
 
 It is good practice for the package name defined here to match the top-level directory name.
 
