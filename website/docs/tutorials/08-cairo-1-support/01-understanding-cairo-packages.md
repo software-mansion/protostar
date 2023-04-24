@@ -44,21 +44,21 @@ Package is a collection of modules that also defines `cairo_project.toml` and `l
 Some other tools use name "crates" for packages.
 :::
 
-### Project defaults
-
-#### 1. `cairo_project.toml`
+### `cairo_project.toml`
 
 It is needed for the definition of `[crate_roots]`, which is a directory containing `lib.cairo`.
 
 The default `cairo_project.toml` file contains only the definition of the `hello_starknet` package which is contained in
 the `src` directory.
 
+It is good practice for the package name defined here to match the top-level directory name.
+
 ```toml title="cairo_project.toml"
 [crate_roots]
 hello_starknet = "src"
 ```
 
-#### 2. `lib.cairo`
+### `lib.cairo`
 
 It is the root of the package tree. Here you can define functions, declare used modules, etc.
 

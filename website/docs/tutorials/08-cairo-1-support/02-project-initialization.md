@@ -46,15 +46,6 @@ This directory contains our only package in this project - `hello_starknet`.
 
 All Cairo1 packages must define these files.
 
-- `cairo_project.toml` - this file defines the name of the package. It is good practice for this name to match the
-  top-level directory name - `hello_starknet` in our case.
-- `lib.cairo` - this file exposes all of our package to the compiler. Initially, it only contains two modules:
-
-```cairo title="lib.cairo"
-mod business_logic;
-mod contracts;
-```
-
 You can learn about [packages](./01-understanding-cairo-packages.md) and how
 to [add new module to a package](./01-understanding-cairo-packages.md#adding-a-new-module) in
 further sections.
