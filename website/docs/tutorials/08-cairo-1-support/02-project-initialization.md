@@ -63,7 +63,7 @@ use multiple contracts in your project see [this section](#using-multiple-contra
 ### `business_logic`
 
 This directory contains standalone cairo1 methods that can be imported and used in the contract definition. We recommend
-writing business logic in this directory for ease of writing unit tests.
+writing business logic in this directory to simplify writing unit tests.
 
 ### `contracts.cairo` and `business_logic.cairo`
 
@@ -85,7 +85,7 @@ containing the contract (like `business_logic`) to work.
 
 ## Using multiple contracts in project
 
-Due to limitations of cairo1 compiler, having multiple contracts defined in the project will cause `protostar build` and
+Due to limitations of cairo1 compiler, having multiple contracts defined in the package will cause `protostar build` and
 other commands to fail.
 
 **That is, having projects structured like this is not valid and will not work correctly.**

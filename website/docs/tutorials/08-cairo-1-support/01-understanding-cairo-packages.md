@@ -1,17 +1,17 @@
 # Understanding Cairo Packages
 
 There are several requirements that Cairo packages have to follow. Further documentation pages assume some knowledge
-of Cairo package structure. Please refer to this page for details.
+of the Cairo package structure. Please refer to this page for details.
 
 ## `.cairo` files
 
-Files with `.cairo` extension contain cairo code, including Starknet contracts. A file can define multiple methods,
+Files with the `.cairo` extension contain Cairo code, including Starknet contracts. A file may define multiple methods,
 structures etc.
 
 ## Modules
 
-Module consists of one or more cairo files, usually organized in a single directory. To define a module, create `.cairo`
-file named like the module and define components of this module with `mod` keyword.
+A module consists of one or more Cairo files, usually organized in a single directory. To define a module, create a `.cairo`
+file named like the module and define components of this module with the `mod` keyword.
 
 ```
 my_module/
@@ -53,10 +53,10 @@ the `src` directory.
 
 It is good practice for the package name defined here to match the top-level directory name.
 
+As an example we can define:
 ```toml title="cairo_project.toml"
 [crate_roots]
 hello_starknet = "src"
-```
 
 ### `lib.cairo`
 
@@ -141,4 +141,4 @@ You now use your function in the HelloStarknet contract use `hello_starknet::mod
 
 ## Packages and modules names considerations
 
-The names must use only ASCII alphanumeric characters or `_`, and cannot be empty. It cannot also start with underscore.
+The names must use only ASCII alphanumeric characters or `_`, and cannot be empty. It cannot also start with an underscore.
