@@ -57,6 +57,7 @@ As an example we can define:
 ```toml title="cairo_project.toml"
 [crate_roots]
 hello_starknet = "src"
+```
 
 ### `lib.cairo`
 
