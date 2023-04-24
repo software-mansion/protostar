@@ -1,4 +1,4 @@
-# Understanding Cairo Packages
+# Understanding Cairo packages
 
 There are several requirements that Cairo packages have to follow. These are explained in the following sections.
 
