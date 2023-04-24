@@ -48,9 +48,6 @@ Some other tools use name "crates" for packages.
 
 It is needed for the definition of `[crate_roots]`, which is a directory containing `lib.cairo`.
 
-The default `cairo_project.toml` file contains only the definition of the `hello_starknet` package which is contained in
-the `src` directory.
-
 It is good practice for the package name defined here to match the top-level directory name.
 
 As an example we can define:
@@ -62,8 +59,6 @@ hello_starknet = "src"
 ### `lib.cairo`
 
 It is the root of the package tree. Here you can define functions, declare used modules, etc.
-
-The default one has `contracts` and `business_logic` module declarations:
 
 ```cairo title="lib.cairo"
 mod business_logic;
