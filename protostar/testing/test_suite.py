@@ -12,12 +12,10 @@ class TestCase:
         test_path: Path,
         test_fn_name: str,
         setup_fn_name: Optional[str] = None,
-        available_gas: AvailableGas = None,
     ):
         self.test_path = test_path
         self.test_fn_name = test_fn_name
         self.setup_fn_name = setup_fn_name
-        self.available_gas = available_gas
 
     def __eq__(self, other: Self) -> bool:
         return (
@@ -27,7 +25,7 @@ class TestCase:
         )
 
 
-class TestCaseWithOffsets(TestCase):
+class Cairo1TestCase(TestCase):
     def __init__(
         self,
         test_path: Path,
@@ -37,12 +35,12 @@ class TestCaseWithOffsets(TestCase):
         setup_fn_offset: Optional[int] = None,
         available_gas: AvailableGas = None,
     ):
-        super().__init__(test_path, test_fn_name, setup_fn_name, available_gas)
+        super().__init__(test_path, test_fn_name, setup_fn_name)
         self.test_fn_offset = test_fn_offset
         self.setup_fn_offset = setup_fn_offset
 
 
-TestCases = Union[List[TestCase], List[TestCaseWithOffsets]]
+TestCases = Union[List[TestCase], List[Cairo1TestCase]]
 
 
 class TestSuite:
@@ -94,14 +92,14 @@ class Cairo1TestSuite(TestSuite):
 
     def _convert_to_case_with_offsets(
         self, test_case: TestCase, offset_map: dict[str, Offset]
-    ) -> TestCaseWithOffsets:
+    ) -> Cairo1TestCase:
         test_fn_offset = offset_map.get(test_case.test_fn_name)
         if test_fn_offset is None:
             raise KeyError(
                 f"No code offset found for test function: {test_case.test_fn_name}"
             )
 
-        return TestCaseWithOffsets(
+        return Cairo1TestCase(
             test_path=test_case.test_path,
             test_fn_name=test_case.test_fn_name,
             test_fn_offset=test_fn_offset,
