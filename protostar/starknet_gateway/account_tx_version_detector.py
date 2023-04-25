@@ -20,8 +20,6 @@ class AccountTxVersionDetector:
     This class has a built-in permanent cache, keyed by account address.
     """
 
-    # TODO(mkaput): Remove this when Cairo 0.11 will remove transactions v0.
-
     def __init__(self, client: GatewayClient):
         self._client = client
         self._cache: dict[Address, Awaitable[int]] = {}
