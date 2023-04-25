@@ -1,5 +1,4 @@
 import logging
-import json
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional, Any
@@ -10,10 +9,6 @@ from starkware.starknet.core.os.contract_class.compiled_class_hash import (
 from starkware.starknet.core.os.contract_class.class_hash import (
     compute_class_hash,
 )
-from starkware.starknet.services.api.contract_class.contract_class import (
-    CompiledClass,
-    ContractClass,
-)
 
 from protostar.cli import ProtostarCommand, MessengerFactory
 from protostar.cli.common_arguments import (
@@ -21,6 +16,7 @@ from protostar.cli.common_arguments import (
     LINKED_LIBRARIES,
     CONTRACT_NAME,
 )
+from protostar.compiler.project_compiler import make_compiled_class, make_contract_class
 from protostar.configuration_file.configuration_file import ConfigurationFile
 import protostar.cairo.cairo_bindings as cairo1
 from protostar.io import StructuredMessage, LogColorProvider, Messenger
@@ -33,11 +29,7 @@ from protostar.protostar_exception import ProtostarException
 
 def compute_class_hash_from_path(sierra_contract_file_path: Path, output_path: Path):
     with open(sierra_contract_file_path, mode="r", encoding="utf-8") as file:
-        sierra_compiled = json.loads(file.read())
-        sierra_compiled.pop("sierra_program_debug_info", None)
-        sierra_compiled["abi"] = json.dumps(sierra_compiled["abi"])
-
-        contract_class = ContractClass.load(sierra_compiled)
+        contract_class = make_contract_class(file.read())
         class_hash = compute_class_hash(contract_class)
 
         with open(output_path, mode="w", encoding="utf-8") as output_file:
@@ -50,7 +42,7 @@ def compute_compiled_class_hash_from_path(
     casm_contract_file_path: Path, output_path: Path
 ):
     with open(casm_contract_file_path, mode="r", encoding="utf-8") as file:
-        compiled_class = CompiledClass.loads(file.read())
+        compiled_class = make_compiled_class(file.read())
         compiled_class_hash = compute_compiled_class_hash(compiled_class)
 
         with open(output_path, mode="w", encoding="utf-8") as output_file:

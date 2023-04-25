@@ -1,5 +1,4 @@
 import asyncio
-import json
 from typing import Callable, Tuple
 
 from starkware.starknet.services.api.contract_class.contract_class import (
@@ -17,7 +16,11 @@ from protostar.cheatable_starknet.controllers.contracts import (
     DeclaredSierraClass,
 )
 from protostar.compiler import CompilationException
-from protostar.compiler.project_compiler import ProjectCompiler
+from protostar.compiler.project_compiler import (
+    ProjectCompiler,
+    make_compiled_class,
+    make_contract_class,
+)
 from protostar.compiler.project_compiler_types import ContractIdentifier
 from protostar.configuration_file.configuration_file import (
     ContractNameNotFoundException,
@@ -67,28 +70,16 @@ class DeclareHintLocal(CallableHintLocal):
         def _compile_contract(
             contract_identifier: ContractIdentifier,
         ) -> Tuple[CompiledClass, ContractClass]:
-            contract_class = _make_contract_class(contract_identifier)
-
-            compiled_class = _make_compiled_class(contract_identifier)
-
-            return compiled_class, contract_class
-
-        def _make_contract_class(contract_identifier: ContractIdentifier):
             sierra_compiled = self._project_compiler.compile_contract_to_sierra_from_contract_identifier(
                 contract_identifier
             )
+            contract_class = make_contract_class(sierra_compiled)
 
-            sierra_compiled = json.loads(sierra_compiled)
-            sierra_compiled.pop("sierra_program_debug_info", None)
-            sierra_compiled["abi"] = json.dumps(sierra_compiled["abi"])
-
-            return ContractClass.load(sierra_compiled)
-
-        def _make_compiled_class(contract_identifier: ContractIdentifier):
             casm_compiled = self._project_compiler.compile_contract_to_casm_from_contract_identifier(
                 contract_identifier
             )
+            compiled_class = make_compiled_class(casm_compiled)
 
-            return CompiledClass.loads(casm_compiled)
+            return compiled_class, contract_class
 
         return declare

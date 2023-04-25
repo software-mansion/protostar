@@ -1,5 +1,11 @@
 from enum import Enum, auto
 from pathlib import Path
+import json
+
+from starkware.starknet.services.api.contract_class.contract_class import (
+    ContractClass,
+    CompiledClass,
+)
 
 from protostar.cairo.cairo_bindings import (
     compile_starknet_contract_to_sierra_from_path,
@@ -13,6 +19,18 @@ from protostar.compiler.project_compiler_types import (
     ContractIdentifier,
 )
 from protostar.configuration_file.configuration_file import ConfigurationFile
+
+
+def make_contract_class(sierra_compiled: str):
+    sierra_compiled_dict = json.loads(sierra_compiled)
+    sierra_compiled_dict.pop("sierra_program_debug_info", None)
+    sierra_compiled_dict["abi"] = json.dumps(sierra_compiled_dict["abi"])
+
+    return ContractClass.load(sierra_compiled_dict)
+
+
+def make_compiled_class(casm_compiled: str):
+    return CompiledClass.loads(casm_compiled)
 
 
 class _OutputType(Enum):
