@@ -33,12 +33,12 @@ def test_failing_tests(protostar: ProtostarFixture, copy_fixture: CopyFixture):
 
     expected_output_lines = [
         "Collected 1 suite, and 3 test cases",
-        "[FAIL] tests/failing_test.cairo test_panic_single_value (time=0.00s)",
+        "[FAIL] tests/failing_test.cairo test_panic_single_value",
         "Test failed with data:",
         "[21] (integer representation)",
         "['\\x15'] (short-string representation)",
-        "[PASS] tests/failing_test.cairo test_ok (time=0.00s)",
-        "[FAIL] tests/failing_test.cairo test_panic_multiple_values (time=0.00s)",
+        "[PASS] tests/failing_test.cairo test_ok",
+        "[FAIL] tests/failing_test.cairo test_panic_multiple_values",
         "Test failed with data: ",
         "[1870930782904301745253, 482670963043, 31066316372818838395891839589] (integer representation)",
         "['elaborate', 'panic', 'data is here'] (short-string representation)",
