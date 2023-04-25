@@ -1188,14 +1188,14 @@ test = ["eth-utils (>=1.0.1,<3)", "hypothesis (>=3.44.24,<=6.31.6)", "pytest (>=
 
 [[package]]
 name = "hypothesis"
-version = "6.72.0"
+version = "6.72.2"
 description = "A library for property-based testing"
 category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "hypothesis-6.72.0-py3-none-any.whl", hash = "sha256:12d2a7d72eed477701f66ca48e5b212ea49e2e57ad63903d9bc36f08a5ca2bdb"},
-    {file = "hypothesis-6.72.0.tar.gz", hash = "sha256:1fb102fe1fdf5c00206507e2719ddfa118d84cf4b9799ef5c28e4aff020964e0"},
+    {file = "hypothesis-6.72.2-py3-none-any.whl", hash = "sha256:83224b49c8320fca3fadcd5b6041c5311f59fdf4190d3819a783869f4720b690"},
+    {file = "hypothesis-6.72.2.tar.gz", hash = "sha256:a3c6003c45e825a9c5f7b910c0b4a0522d7e6302f9616b3d723df3f6129a18ca"},
 ]
 
 [package.dependencies]
@@ -2192,14 +2192,14 @@ testutils = ["gitpython (>3)"]
 
 [[package]]
 name = "pyright"
-version = "1.1.303"
+version = "1.1.304"
 description = "Command line wrapper for pyright"
 category = "dev"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "pyright-1.1.303-py3-none-any.whl", hash = "sha256:8fe3d122d7e965e2df2cef64e1ceb98cff8200f458e7892d92a4c21ee85689c7"},
-    {file = "pyright-1.1.303.tar.gz", hash = "sha256:7daa516424555681e8974b21a95c108c5def791bf5381522b1410026d4da62c1"},
+    {file = "pyright-1.1.304-py3-none-any.whl", hash = "sha256:70021bbae07fc28ed16e435f5efa65cd71e06a1888d9ca998798c283d4b3d010"},
+    {file = "pyright-1.1.304.tar.gz", hash = "sha256:87adec38081904c939e3657ab23d5fc40b7ccc22709be0af1859fc785ae4ea61"},
 ]
 
 [package.dependencies]
@@ -2242,14 +2242,14 @@ files = [
 
 [[package]]
 name = "pytest"
-version = "7.3.0"
+version = "7.3.1"
 description = "pytest: simple powerful testing with Python"
 category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "pytest-7.3.0-py3-none-any.whl", hash = "sha256:933051fa1bfbd38a21e73c3960cebdad4cf59483ddba7696c48509727e17f201"},
-    {file = "pytest-7.3.0.tar.gz", hash = "sha256:58ecc27ebf0ea643ebfdf7fb1249335da761a00c9f955bcd922349bcb68ee57d"},
+    {file = "pytest-7.3.1-py3-none-any.whl", hash = "sha256:3799fa815351fea3a5e96ac7e503a96fa51cc9942c3753cda7651b93c1cfa362"},
+    {file = "pytest-7.3.1.tar.gz", hash = "sha256:434afafd78b1d78ed0addf160ad2b77a30d35d4bdf8af234fe621919d9ed15e3"},
 ]
 
 [package.dependencies]
@@ -2678,14 +2678,14 @@ files = [
 
 [[package]]
 name = "snakeviz"
-version = "2.1.2"
+version = "2.2.0"
 description = "A web-based viewer for Python profiler output"
 category = "dev"
 optional = false
-python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
+python-versions = ">=3.7"
 files = [
-    {file = "snakeviz-2.1.2-py2.py3-none-any.whl", hash = "sha256:56c2c97dc2651dcc4c24689d3ead29b8031a4d4b655537e03375e545bbd0fa69"},
-    {file = "snakeviz-2.1.2.tar.gz", hash = "sha256:2b8a919abb5e7e92afe35127860b8c276b2a797beffce2dac8614f98cff86f21"},
+    {file = "snakeviz-2.2.0-py2.py3-none-any.whl", hash = "sha256:569e2d71c47f80a886aa6e70d6405cb6d30aa3520969ad956b06f824c5f02b8e"},
+    {file = "snakeviz-2.2.0.tar.gz", hash = "sha256:7bfd00be7ae147eb4a170a471578e1cd3f41f803238958b6b8efcf2c698a6aa9"},
 ]
 
 [package.dependencies]
@@ -3363,4 +3363,4 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.9"
-content-hash = "5b593f7dad1bba3c76c2c223f32dc1269efb58393b065e52a9d49ab4238c6ae1"
+content-hash = "23dab6eb8225d85843fbae3ac3d26240478a49ba8c832d7de10125109bb0a911"

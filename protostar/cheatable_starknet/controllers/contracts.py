@@ -376,12 +376,6 @@ class ContractsController:
         entry_point_selector: Selector,
         calldata: Optional[CairoData] = None,
     ) -> CallResult:
-        # TODO https://github.com/software-mansion/protostar/issues/1754
-        # cairo_calldata = await self._transform_calldata_to_cairo_data_by_addr(
-        #     contract_address=contract_address,
-        #     function_name=str(entry_point_selector),
-        #     calldata=calldata,
-        # )
         cairo_calldata = calldata or []
         entry_point = CheatableExecuteEntryPoint.create_for_protostar(
             contract_address=contract_address,

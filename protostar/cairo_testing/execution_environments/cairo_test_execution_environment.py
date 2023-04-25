@@ -36,7 +36,6 @@ class CairoTestExecutionEnvironment(CairoExecutionEnvironment):
             await self.execute_test_case(function_identifier)
             return TestExecutionResult(execution_resources=None)
 
-    # TODO #1303: Estimate gas if self.state.config.gas_estimation_enabled
     async def execute_test_case(
         self,
         function_identifier: OffsetOrName,
