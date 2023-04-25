@@ -85,7 +85,6 @@ def translate_samples(
     return samples_new
 
 
-# TODO(maksymiliandemitraszek): Enable it again
 def merge_profiles(contract_samples: list["ContractProfile"]) -> TransactionProfile:
     global_functions = build_global_functions(contract_samples)
     global_instructions = build_global_instructions(global_functions, contract_samples)

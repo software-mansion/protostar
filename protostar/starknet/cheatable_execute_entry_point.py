@@ -73,7 +73,6 @@ class ContractProfile:
     profile: RuntimeProfile
 
 
-# TODO(mkaput): Eradicate this function in favor of `cheaters`.
 def extract_cheatable_state(state: SyncState) -> CheatableCachedState:
     assert isinstance(state, StateSyncifier)
     async_state = state.async_state
@@ -83,7 +82,6 @@ def extract_cheatable_state(state: SyncState) -> CheatableCachedState:
 
 # pylint: disable=raise-missing-from
 # pylint: disable=too-many-statements
-# TODO(maksymiliandemitraszek): Enable it again
 # pylint: disable=too-many-branches
 class CheatableExecuteEntryPoint(ExecuteEntryPoint):
     cheatcode_factory: Optional["CheatcodeFactory"] = None
