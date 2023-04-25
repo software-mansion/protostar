@@ -13,6 +13,7 @@ from .protostar_compatibility_with_project_checker import (
     ProtostarVersion,
     parse_protostar_version,
 )
+from tomlkit import parse 
 
 RuntimeConstantName = Literal["PROTOSTAR_VERSION", "CAIRO_VERSION"]
 RuntimeConstantValue = str
@@ -51,6 +52,11 @@ class ProtostarDirectory:
     def protostar_cairo1_corelib_path(self) -> Path:
         assert self.protostar_binary_dir_path is not None
         return self.protostar_binary_dir_path / "cairo" / "corelib"
+
+    @property
+    def protostar_cairo1_compiler_path(self) -> Path:
+        assert self.protostar_binary_dir_path is not None
+        return self.protostar_binary_dir_path / "cairo"
 
     def _read_runtime_constants(self) -> Optional[RuntimeConstantsDict]:
         constants_str = (
@@ -109,6 +115,19 @@ class VersionManager:
             pass
         return None
 
+    @property
+    def cairo1_compiler_version(self) -> Optional[Version]:
+        try:
+            compiler_cargo = self._protostar_directory.protostar_cairo1_compiler_path / "Cargo.toml"
+            with open(compiler_cargo, "r") as file:
+                cargo = parse(file.read())
+                version_str : str = cargo["workspace"]["package"]["version"] # type: ignore
+                return version.parse(version_str)
+        except BaseException:
+                return None
+
+
     def print_current_version(self) -> None:
         print(f"Protostar version: {self.protostar_version or 'unknown'}")
         print(f"Cairo-lang version: {self.cairo_version or 'unknown'}")
+        print(f"Cairo 1 compiler version: {self.cairo1_compiler_version or 'unknown'}")
