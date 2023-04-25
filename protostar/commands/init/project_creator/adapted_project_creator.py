@@ -12,7 +12,6 @@ class AdaptedProjectCreator(ProjectCreator):
             contract_name_to_path_strs={"main": ["src/main.cairo"]},
             project_config={
                 "lib-path": "lib",
-                "linked-libraries": ["src"],
             },
         )
 
