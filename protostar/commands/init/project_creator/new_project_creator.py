@@ -68,8 +68,7 @@ class NewProjectCreator(ProjectCreator):
         project_config: "NewProjectCreator.NewProjectConfig",
         cairo_version: CairoVersion,
     ) -> None:
-        output_dir_path = self._output_dir_path
-        project_root_path = output_dir_path / project_config.project_dirname
+        project_root_path = self._output_dir_path / project_config.project_dirname
 
         self._create_project_directory_from_template(
             cairo_version=cairo_version,
