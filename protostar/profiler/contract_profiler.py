@@ -148,7 +148,6 @@ def collect_contract_functions(tracer_data: TracerDataManager) -> list[Function]
             )
         )
 
-    # TODO(maksymiliandemitraszek) check if this is necessary
     main_func = Function(
         id="__main__",
         filename="<dummy_filename>",
@@ -205,7 +204,6 @@ def build_call_callstacks(
         stack_len = math.inf
 
         top = instr_callstack[0]
-        # TODO make it based on builtin memory access
         if top.function.id == "starkware.starknet.common.syscalls.call_contract":
             stack_len = len(instr_callstack)
             callstacks.append(instr_callstack)
@@ -267,7 +265,6 @@ def get_not_accessed_addresses(
                 not_accessed_addr.remove(idx)
             except KeyError:
                 pass
-    # TODO(maksymiliandemitraszek) does it include some builtin segments memholes?
     return not_accessed_addr
 
 
