@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Optional
 
@@ -24,10 +24,14 @@ from .configuration_file_v1 import ConfigurationFileV1Model
 class ConfigurationFileV2Model:
     protostar_version: Optional[str]
     contract_name_to_path_strs: dict[ContractName, list[str]]
-    project_config: CommandConfig
-    command_name_to_config: CommandNameToConfig
-    profile_name_to_project_config: dict[ProfileName, CommandConfig]
-    profile_name_to_commands_config: dict[ProfileName, CommandNameToConfig]
+    project_config: CommandConfig = field(default_factory=dict)
+    command_name_to_config: CommandNameToConfig = field(default_factory=dict)
+    profile_name_to_project_config: dict[ProfileName, CommandConfig] = field(
+        default_factory=dict
+    )
+    profile_name_to_commands_config: dict[ProfileName, CommandNameToConfig] = field(
+        default_factory=dict
+    )
 
     @classmethod
     # pylint: disable=invalid-name
