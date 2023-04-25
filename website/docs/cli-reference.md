@@ -5,7 +5,7 @@ Disable colors.
 #### `-p` `--profile STRING`
 Specifies active configuration profile defined in the configuration file.
 #### `-v` `--version`
-Show Protostar and Cairo-lang version.
+Show Protostar, Cairo-lang and Cairo 1 compiler versions.
 ## Commands
 ### `build`
 ```shell

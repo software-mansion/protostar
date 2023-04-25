@@ -61,7 +61,7 @@ class ProtostarCLI(CLIApp, CommandNamesProviderProtocol):
                     name="version",
                     short_name="v",
                     type="bool",
-                    description="Show Protostar and Cairo-lang version.",
+                    description="Show Protostar, Cairo-lang and Cairo 1 compiler versions.",
                 ),
                 ProtostarArgument(
                     name="no-color",
