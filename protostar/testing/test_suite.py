@@ -12,10 +12,12 @@ class TestCase:
         test_path: Path,
         test_fn_name: str,
         setup_fn_name: Optional[str] = None,
+        available_gas: AvailableGas = None,
     ):
         self.test_path = test_path
         self.test_fn_name = test_fn_name
         self.setup_fn_name = setup_fn_name
+        self.available_gas = available_gas
 
     def __eq__(self, other: Self) -> bool:
         return (
@@ -35,7 +37,7 @@ class Cairo1TestCase(TestCase):
         setup_fn_offset: Optional[int] = None,
         available_gas: AvailableGas = None,
     ):
-        super().__init__(test_path, test_fn_name, setup_fn_name)
+        super().__init__(test_path, test_fn_name, setup_fn_name, available_gas)
         self.test_fn_offset = test_fn_offset
         self.setup_fn_offset = setup_fn_offset
 
