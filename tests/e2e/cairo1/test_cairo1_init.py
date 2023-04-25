@@ -23,3 +23,31 @@ def test_init(protostar: ProtostarFixture):
     result = protostar(["test-cairo1"])
     assert "Collected 2 suites, and 3 test cases" in result
     assert "3 passed" in result
+
+
+def test_init_with_invalid_name(protostar: ProtostarFixture):
+    project_name = "invalid-name"
+    output = protostar(["init-cairo1", project_name], expect_exit_code=1)
+
+    assert (
+        f"Provided project name {project_name} does not match regex ^[a-zA-Z0-9][a-zA-Z0-9_]*$. "
+        f"Choose a different project name." in output
+    )
+
+
+def test_init_without_name(protostar: ProtostarFixture):
+    output = protostar(["init-cairo1"], expect_exit_code=1)
+
+    assert "project directory name: " in output
+
+
+def test_init_fails_with_existing_folder(protostar: ProtostarFixture):
+    project_name = "my_project"
+    os.mkdir(project_name)
+
+    output = protostar(["init-cairo1", project_name], expect_exit_code=1)
+
+    assert (
+        f"Folder or file named {project_name} already exists. Choose different project name."
+        in output
+    )
