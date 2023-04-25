@@ -22,7 +22,7 @@ def test_versions(protostar: ProtostarFixture):
     result = protostar(["-v"])
     assert "Protostar" in result
     assert "Cairo-lang" in result
-    assert "Cairo 1 compiler"
+    assert "Cairo 1 compiler" in result
 
 
 def test_init(init_project: ProjectInitializer, project_name: str):

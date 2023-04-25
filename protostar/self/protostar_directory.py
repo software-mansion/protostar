@@ -7,13 +7,15 @@ from typing import Literal, Optional
 from packaging import version
 from packaging.version import Version
 
+from tomlkit import parse
+
 from protostar.git import get_git_version, ProtostarGitException
 
 from .protostar_compatibility_with_project_checker import (
     ProtostarVersion,
     parse_protostar_version,
 )
-from tomlkit import parse 
+
 
 RuntimeConstantName = Literal["PROTOSTAR_VERSION", "CAIRO_VERSION"]
 RuntimeConstantValue = str
@@ -118,14 +120,15 @@ class VersionManager:
     @property
     def cairo1_compiler_version(self) -> Optional[Version]:
         try:
-            compiler_cargo = self._protostar_directory.protostar_cairo1_compiler_path / "Cargo.toml"
+            compiler_cargo = (
+                self._protostar_directory.protostar_cairo1_compiler_path / "Cargo.toml"
+            )
             with open(compiler_cargo, "r") as file:
                 cargo = parse(file.read())
-                version_str : str = cargo["workspace"]["package"]["version"] # type: ignore
+                version_str: str = cargo["workspace"]["package"]["version"]  # type: ignore
                 return version.parse(version_str)
         except BaseException:
-                return None
-
+            return None
 
     def print_current_version(self) -> None:
         print(f"Protostar version: {self.protostar_version or 'unknown'}")
