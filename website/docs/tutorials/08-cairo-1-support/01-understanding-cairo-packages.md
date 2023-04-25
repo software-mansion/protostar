@@ -96,7 +96,7 @@ Here are the steps we need to take:
 2. Create file `functions.cairo` inside `mod1` subdirectory and define your code there
 3. Create `mod1.cairo` file **in the `src` directory**, with the contents of
 
-```cairo title="mod.cairo"
+```cairo title="mod1.cairo"
 mod functions;
 ```
 
