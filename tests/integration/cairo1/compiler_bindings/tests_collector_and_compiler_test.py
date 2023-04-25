@@ -26,7 +26,6 @@ def test_compilator_and_parser(mocker: MockerFixture, datadir: Path):
 
     cheat_mock = mocker.MagicMock()
     cheat_mock.return_value = type("return_value", (object,), {"err_code": 0})()
-    # TODO https://github.com/software-mansion/protostar/issues/1434
     cairo_runner_facade = CairoRunnerFacade(program=protostar_casm.program)
     for offset in protostar_casm.offset_map.values():
         cairo_runner_facade.run_from_offset(offset, hint_locals={"roll": cheat_mock})

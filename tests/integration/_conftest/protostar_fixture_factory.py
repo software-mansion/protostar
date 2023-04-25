@@ -20,6 +20,7 @@ from protostar.commands import (
     MulticallCommand,
     DeclareCairo1Command,
 )
+from protostar.commands.cairo1_commands.test_cairo1_command import TestCairo1Command
 from protostar.commands.deploy_account_command import DeployAccountCommand
 from protostar.commands.deploy_command import DeployCommand
 from protostar.commands.init.project_creator.new_project_creator import (
@@ -171,6 +172,15 @@ def create_protostar_fixture(
         messenger_factory=messenger_factory,
     )
 
+    test_cairo1_command = TestCairo1Command(
+        project_root_path=project_root_path,
+        protostar_directory=ProtostarDirectory(REPOSITORY_ROOT),
+        log_color_provider=log_color_provider,
+        cwd=project_root_path,
+        active_profile_name=None,
+        messenger_factory=messenger_factory,
+    )
+
     invoke_command = InvokeCommand(
         gateway_facade_factory=gateway_facade_factory,
         messenger_factory=messenger_factory,
@@ -211,6 +221,7 @@ def create_protostar_fixture(
         declare_cairo1_command=declare_cairo1_command,
         deploy_command=deploy_command,
         test_command=test_command,
+        test_cairo1_command=test_cairo1_command,
         invoke_command=invoke_command,
         deploy_account_command=deploy_account_command,
         cli_app=cli_app,
