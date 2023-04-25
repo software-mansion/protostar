@@ -45,7 +45,7 @@ def test_init_fails_with_existing_folder(protostar: ProtostarFixture):
     project_name = "my_project"
     os.mkdir(project_name)
 
-    output = protostar(["init", project_name], expect_exit_code=1)
+    output = protostar(["init-cairo1", project_name], expect_exit_code=1)
 
     assert (
         f"Folder or file named {project_name} already exists. Choose different project name."
