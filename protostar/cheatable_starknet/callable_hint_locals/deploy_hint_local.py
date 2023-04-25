@@ -4,9 +4,9 @@ from typing import Any, Callable
 from starkware.starkware_utils.error_handling import StarkException
 
 from protostar.cheatable_starknet.controllers.contracts import (
-    ContractsCheaterException,
     ContractsController,
     PreparedContract,
+    ConstructorInvocationException,
 )
 from protostar.cheatable_starknet.controllers.transaction_revert_exception import (
     TransactionRevertException,
@@ -50,7 +50,7 @@ class DeployHintLocal(CallableHintLocal):
     async def _run_deploy_prepared(self, prepared: PreparedContract):
         try:
             return await self._contracts_controller.deploy_prepared(prepared)
-        except ContractsCheaterException as exc:
+        except ConstructorInvocationException as exc:
             raise TransactionRevertException(exc.message, exc) from exc
         except StarkException as exc:
             raise TransactionRevertException(exc.message or exc.code.name, exc) from exc
