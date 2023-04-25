@@ -21,20 +21,21 @@ async def test_declare_hint_local(
     protostar_project.create_contracts_cairo1(
         {
             "minimal": shared_datadir / "minimal",
+            "simple": shared_datadir / "simple",
             "cairo0": shared_datadir / "cairo0",
             "broken": shared_datadir / "broken",
         }
     )
 
-    testing_summary = await protostar_project.protostar.run_test_runner(
+    testing_summary = await protostar_project.protostar.test_cairo1(
         Path(__file__).parent / "declare_test.cairo",
-        cairo1_test_runner=True,
     )
 
     assert_cairo_test_cases(
         testing_summary,
         expected_passed_test_cases_names=[
             "test_declare",
+            "test_two_declares",
         ],
         expected_broken_test_cases_names=[
             "test_declare_nonexistent",

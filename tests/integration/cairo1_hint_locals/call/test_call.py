@@ -27,20 +27,20 @@ async def test_call_hint_local(
         {
             "simple": shared_datadir / "simple",
             "with_ctor": shared_datadir / "with_ctor",
+            "with_storage": shared_datadir / "with_storage",
             "with_ctor_panic": shared_datadir / "with_ctor_panic",
         }
     )
 
-    testing_summary = await protostar_project.protostar.run_test_runner(
+    testing_summary = await protostar_project.protostar.test_cairo1(
         Path(__file__).parent / "call_test.cairo",
-        cairo1_test_runner=True,
     )
 
     assert_cairo_test_cases(
         testing_summary,
         expected_passed_test_cases_names=[
             "test_call_simple",
-            "test_call_with_ctor",
+            "test_call_not_mutating_state",
             "test_call_cairo0",
         ],
         expected_failed_test_cases_names=[
