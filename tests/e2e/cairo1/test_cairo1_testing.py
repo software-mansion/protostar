@@ -40,8 +40,8 @@ def test_failing_tests(protostar: ProtostarFixture, copy_fixture: CopyFixture):
         "[PASS] tests/failing_test.cairo test_ok (time=0.00s)",
         "[FAIL] tests/failing_test.cairo test_panic_multiple_values (time=0.00s)",
         "Test failed with data: ",
-        "[101, 102, 103] (integer representation)",
-        "['e', 'f', 'g'] (short-string representation)",
+        "[1870930782904301745253, 482670963043, 31066316372818838395891839589] (integer representation)",
+        "['elaborate', 'panic', 'data is here'] (short-string representation)",
         "Test suites: 1 failed, 1 total",
         "Tests:       2 failed, 1 passed, 3 total",
     ]
