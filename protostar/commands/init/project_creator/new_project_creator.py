@@ -108,9 +108,6 @@ class NewProjectCreator(ProjectCreator):
                 project_config={
                     "lib-path": "lib",
                 },
-                command_name_to_config={},
-                profile_name_to_project_config={},
-                profile_name_to_commands_config={},
             )
 
         return ConfigurationFileV2Model(
