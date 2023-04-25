@@ -15,9 +15,12 @@ def test_init(protostar: ProtostarFixture):
 
     # Assert contract is buildable
     result = protostar(["build-cairo1"])
-    compiled_path = Path("build/hello_starknet.json")
-    assert compiled_path.exists()
-    assert compiled_path.read_text()
+    compiled_sierra_path = Path("build/hello_starknet.sierra.json")
+    compiled_casm_path = Path("build/hello_starknet.casm.json")
+    assert compiled_sierra_path.exists()
+    assert compiled_sierra_path.read_text()
+    assert compiled_casm_path.exists()
+    assert compiled_casm_path.read_text()
 
     # # Assert tests are running
     result = protostar(["test-cairo1"])
