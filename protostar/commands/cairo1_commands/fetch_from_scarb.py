@@ -21,16 +21,6 @@ def has_scarb_toml(package_root_path: Path) -> bool:
     return "Scarb.toml" in os.listdir(package_root_path)
 
 
-def raise_exception_if_using_multiple_dependencies_managers(
-    package_path: Path, linked_libraries: list[Path]
-):
-    if has_scarb_toml(package_path) and linked_libraries:
-        raise ProtostarException(
-            "Provided linked-libraries (explicitly or in protostar.toml) while Scarb.toml was present. "
-            "Manage all of your dependencies using Scarb."
-        )
-
-
 def read_scarb_metadata(scarb_toml_path: Path) -> Dict:
     result = subprocess.run(
         [
@@ -69,12 +59,14 @@ def read_scarb_metadata(scarb_toml_path: Path) -> Dict:
 def maybe_fetch_linked_libraries_from_scarb(
     package_root_path: Path, linked_libraries: list[Path]
 ) -> list[Path]:
-    raise_exception_if_using_multiple_dependencies_managers(
-        package_root_path, linked_libraries
-    )
-
-    if not has_scarb_toml(package_root_path):
+    if not package_root_path.is_dir() or not has_scarb_toml(package_root_path):
         return []
+
+    if linked_libraries:
+        raise ProtostarException(
+            "Provided linked-libraries (explicitly or in protostar.toml) while Scarb.toml was present. "
+            "Manage all of your dependencies using Scarb."
+        )
 
     scarb_toml_path = package_root_path / "Scarb.toml"
     metadata = read_scarb_metadata(scarb_toml_path)
