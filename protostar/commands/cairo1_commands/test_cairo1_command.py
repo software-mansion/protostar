@@ -27,8 +27,7 @@ from protostar.commands.test.test_command_cache import TestCommandCache
 from protostar.commands.test.messages import TestCollectorResultMessage
 from protostar.cairo_testing.cairo1_test_collector import Cairo1TestCollector
 from protostar.cairo_testing.cairo1_test_runner import Cairo1TestRunner
-from .fetch_from_scarb import maybe_fetch_linked_libraries, has_scarb_toml
-from ...protostar_exception import ProtostarException
+from .fetch_from_scarb import maybe_fetch_linked_libraries_from_scarb
 
 
 class TestCairo1Command(ProtostarCommand):
@@ -119,18 +118,14 @@ A glob or globs to a directory or a test suite, for example:
         messenger = self._messenger_factory.from_args(args)
         cache = TestCommandCache(CacheIO(self._project_root_path))
 
-        libraries = maybe_fetch_linked_libraries(self._project_root_path) or []
-
-        if has_scarb_toml(self._project_root_path) and args.linked_libraries:
-            raise ProtostarException(
-                "Provided linked-libraries (explicitly or in protostar.toml) while Scarb.toml was present. "
-                "Manage all of your dependencies using Scarb."
-            )
-
         summary = await self.test(
             targets=cache.obtain_targets(args.target, args.last_failed),
             ignored_targets=args.ignore,
-            linked_libraries=args.linked_libraries + libraries,
+            linked_libraries=args.linked_libraries
+            + maybe_fetch_linked_libraries_from_scarb(
+                package_root_path=self._project_root_path,
+                linked_libraries=args.linked_libraries,
+            ),
             no_progress_bar=args.no_progress_bar,
             exit_first=args.exit_first,
             slowest_tests_to_report_count=args.report_slowest_tests,

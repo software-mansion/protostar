@@ -1,5 +1,5 @@
 # pyright: reportUnknownLambdaType=false
-from typing import Optional, Dict, List
+from typing import Optional, Dict
 from pathlib import Path
 import os
 import json
@@ -17,33 +17,41 @@ class ScarbMetadataFetchException(ProtostarException):
         )
 
 
-def has_scarb_toml(project_root_path: Path) -> bool:
-    return "Scarb.toml" in os.listdir(project_root_path)
+def has_scarb_toml(package_root_path: Path) -> bool:
+    return "Scarb.toml" in os.listdir(package_root_path)
+
+
+def raise_exception_if_using_multiple_dependencies_managers(
+    package_path: Path, linked_libraries: list[Path]
+):
+    if has_scarb_toml(package_path) and linked_libraries:
+        raise ProtostarException(
+            "Provided linked-libraries (explicitly or in protostar.toml) while Scarb.toml was present. "
+            "Manage all of your dependencies using Scarb."
+        )
 
 
 def read_scarb_metadata(scarb_toml_path: Path) -> Dict:
-    try:
-        result = subprocess.run(
-            [
-                "scarb",
-                "--json",
-                "--manifest-path",
-                scarb_toml_path,
-                "metadata",
-                "--format-version",
-                "1",
-            ],
-            check=False,
-            cwd=scarb_toml_path.parent,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        )
-    except subprocess.CalledProcessError as ex:
-        raise ScarbMetadataFetchException(str(ex)) from ex
+    result = subprocess.run(
+        [
+            "scarb",
+            "--json",
+            "--manifest-path",
+            scarb_toml_path,
+            "metadata",
+            "--format-version",
+            "1",
+        ],
+        check=False,
+        cwd=scarb_toml_path.parent,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
 
     if result.returncode != 0:
         raise ScarbMetadataFetchException(
-            "Metadata fetch returned a non-zero exit code."
+            "Metadata fetch returned a non-zero exit code. "
+            'Try running "scarb metadata --format-version 1" to diagnose the problem.'
         )
 
     # only the last line of the output contains metadata
@@ -52,19 +60,23 @@ def read_scarb_metadata(scarb_toml_path: Path) -> Dict:
     try:
         return json.loads(result)
     except json.JSONDecodeError as ex:
-        raise ScarbMetadataFetchException("Failed to decode the metadata json.") from ex
+        raise ScarbMetadataFetchException(
+            "Failed to decode the metadata json. "
+            'Try running "scarb metadata --format-version 1" to diagnose the problem.'
+        ) from ex
 
 
-def maybe_fetch_linked_libraries(project_root_path: Path) -> Optional[List[Path]]:
-    if not has_scarb_toml(project_root_path):
-        logging.info(
-            "Scarb.toml not found, using only packages provided by the argument."
-        )
-        return None
+def maybe_fetch_linked_libraries_from_scarb(
+    package_root_path: Path, linked_libraries: list[Path]
+) -> list[Path]:
+    raise_exception_if_using_multiple_dependencies_managers(
+        package_root_path, linked_libraries
+    )
 
-    logging.info("Scarb.toml found, fetching Scarb packages.")
+    if not has_scarb_toml(package_root_path):
+        return []
 
-    scarb_toml_path = project_root_path / "Scarb.toml"
+    scarb_toml_path = package_root_path / "Scarb.toml"
     metadata = read_scarb_metadata(scarb_toml_path)
 
     try:
@@ -98,7 +110,7 @@ def maybe_fetch_linked_libraries(project_root_path: Path) -> Optional[List[Path]
         if len(matching_contract_units) > 1:
             logging.warning(
                 "Scarb found multiple starknet-contract targets - using the target named %s.",
-                {unit_with_dependencies["target"]["name"]},
+                unit_with_dependencies["target"]["name"],
             )
 
         valuable_dependencies = filter(
@@ -106,14 +118,20 @@ def maybe_fetch_linked_libraries(project_root_path: Path) -> Optional[List[Path]
             unit_with_dependencies["components_data"],
         )
 
-        paths: List[Path] = list(
+        paths: list[Path] = list(
             map(
-                lambda component: find_directory_with_cairo_project_toml(
+                lambda component: validate_path_exists_and_find_directory_with_config(
                     Path(component["source_path"])
                 ),
                 valuable_dependencies,
             )
         )
+
+        if len(paths) != len(set(paths)):
+            raise ProtostarException(
+                "At least one cairo_project.toml is shared between packages. "
+                "Make sure every package has its own cairo_project.toml"
+            )
 
     except (IndexError, KeyError) as ex:
         raise ScarbMetadataFetchException("Error parsing metadata:\n" + str(ex)) from ex
@@ -121,10 +139,25 @@ def maybe_fetch_linked_libraries(project_root_path: Path) -> Optional[List[Path]
     return paths
 
 
-def find_directory_with_cairo_project_toml(lib_cairo_path: Path) -> Path:
+def validate_path_exists_and_find_directory_with_config(lib_cairo_path: Path) -> Path:
+    if not lib_cairo_path.exists():
+        raise ProtostarException(
+            "The file "
+            + str(lib_cairo_path)
+            + " is expected by Scarb, but it does not exist."
+        )
+
     src_directory_path = lib_cairo_path.parent
-    return (
+    result = (
         src_directory_path
         if "cairo_project.toml" in os.listdir(src_directory_path)
         else src_directory_path.parent
     )
+
+    if "cairo_project.toml" not in os.listdir(result):
+        raise ProtostarException(
+            "Missing cairo_project.toml for package located in "
+            + str(src_directory_path.parent)
+        )
+
+    return result

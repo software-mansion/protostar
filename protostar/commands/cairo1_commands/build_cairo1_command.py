@@ -11,8 +11,9 @@ from protostar.cli.common_arguments import (
 from protostar.configuration_file.configuration_file import ConfigurationFile
 import protostar.cairo.cairo_bindings as cairo1
 
-from .fetch_from_scarb import maybe_fetch_linked_libraries, has_scarb_toml
-from ...protostar_exception import ProtostarException
+from protostar.commands.cairo1_commands.fetch_from_scarb import (
+    maybe_fetch_linked_libraries_from_scarb,
+)
 
 
 class BuildCairo1Command(ProtostarCommand):
@@ -60,7 +61,7 @@ class BuildCairo1Command(ProtostarCommand):
         logging.info("Contracts built successfully")
 
     async def _build_contract(
-        self, contract_name: str, output_dir: Path, cairo_path: list[Path]
+        self, contract_name: str, output_dir: Path, linked_libraries: list[Path]
     ):
         contract_paths = self._configuration_file.get_contract_source_paths(
             contract_name
@@ -73,7 +74,11 @@ class BuildCairo1Command(ProtostarCommand):
         sierra_file_path = output_dir / (contract_name + ".sierra.json")
         cairo1.compile_starknet_contract_to_sierra_from_path(
             input_path=contract_paths[0],
-            cairo_path=cairo_path,
+            cairo_path=linked_libraries
+            + maybe_fetch_linked_libraries_from_scarb(
+                package_root_path=contract_paths[0],
+                linked_libraries=linked_libraries,
+            ),
             output_path=sierra_file_path,
         )
         cairo1.compile_starknet_contract_sierra_to_casm_from_path(
@@ -87,30 +92,21 @@ class BuildCairo1Command(ProtostarCommand):
         relative_cairo_path: Optional[list[Path]] = None,
         target_contract_name: str = "",
     ) -> None:
-        cairo_path = relative_cairo_path or []
-
-        libraries = maybe_fetch_linked_libraries(self._project_root_path)
-
-        if has_scarb_toml(self._project_root_path) and cairo_path:
-            raise ProtostarException(
-                "Provided linked-libraries (explicitly or in protostar.toml) while Scarb.toml was present. "
-                "Manage all of your dependencies using Scarb."
-            )
-
-        cairo_path += libraries or []
+        linked_libraries = relative_cairo_path or []
 
         if not output_dir.is_absolute():
             output_dir = self._project_root_path / output_dir
+
         if target_contract_name:
             await self._build_contract(
                 contract_name=target_contract_name,
                 output_dir=output_dir,
-                cairo_path=cairo_path,
+                linked_libraries=linked_libraries,
             )
             return
         for contract_name in self._configuration_file.get_contract_names():
             await self._build_contract(
                 contract_name=contract_name,
                 output_dir=output_dir,
-                cairo_path=cairo_path,
+                linked_libraries=linked_libraries,
             )

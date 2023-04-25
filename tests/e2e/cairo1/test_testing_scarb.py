@@ -16,6 +16,8 @@ from tests.e2e.conftest import CopyFixture, ProtostarFixture
         ("libraries", "libraries_as_dependencies"),
         ("modules", "modules_as_dependencies"),
         # ("online_dependencies", "online_repo_as_dependency"),
+        ("multiple_contracts", "test_bar_func"),
+        ("multiple_contracts", "test_foo_func"),
     ),
 )
 def test_testing_with_dependencies_using_scarb(
@@ -29,7 +31,6 @@ def test_testing_with_dependencies_using_scarb(
 
     result = protostar(["--no-color", "test-cairo1", "::" + test_name])
 
-    assert "Scarb.toml found, fetching Scarb packages" in result
     assert "Collected 1 suite, and 1 test case" in result
     assert test_name in result
     assert "1 passed, 1 total" in result
