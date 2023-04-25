@@ -33,14 +33,22 @@ protostar-project
 ├── out
 │   ├── main.casm.json
 │   ├── main.sierra.json
+│   ├── main.class.hash
+│   ├── main.compiled.class.hash
 │   ├── proxy.casm.json
 │   ├── proxy.sierra.json
+│   ├── proxy.class.hash
+│   ├── proxy.compiled.class.hash
 └── protostar.toml
 ```
 
 `.sierra.json` files contain contracts compiled to the sierra format which allows provable reverted transactions. Read more about sierra [here](https://docs.starknet.io/documentation/architecture_and_concepts/Contracts/cairo-1-and-sierra).
 
 `.casm.json` files contain contracts compiled to the casm format which can be executed on the virtual machine.
+
+`.class.hash` files contain class hash of the built contract
+
+`.compiled.class.hash` files contain compiled class hash of the built contract
 
 ## External libraries
 
