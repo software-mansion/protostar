@@ -84,12 +84,6 @@ Here is our initial file structure
 my_project/
 └── hello_starknet/
     ├── src/
-    │   ├── business_logic/
-    │   │   └── utils.cairo
-    │   ├── contracts/
-    │   │   └── hello_starknet.cairo
-    │   ├── business_logic.cairo
-    │   ├── contracts.cairo
     │   └── lib.cairo
     └── cairo_project.toml
 ```
@@ -120,22 +114,16 @@ If you followed the steps correctly, your new project structure should look like
 my_project/
 └── hello_starknet/
     ├── src/
-    │   ├── business_logic/
-    │   │   └── utils.cairo
-    │   ├── contracts/
-    │   │   └── hello_starknet.cairo
     │   ├── mod1/  <------------------- new directory
     │   │   └── functions.cairo  <----- new file
-    │   ├── business_logic.cairo
-    │   ├── contracts.cairo
     │   ├── lib.cairo  <--------------- contents updated
-    │   └── mod1.cairo  <-------------- new file
+    │   └── mod.cairo
     └── cairo_project.toml
 ```
 
 #### Using added module
 
-You now use your function in the HelloStarknet contract use `hello_starknet::mod1::functions::returns_three()`.
+You now use your function with `hello_starknet::mod1::functions::returns_three()`.
 
 ## Packages and modules names considerations
 
