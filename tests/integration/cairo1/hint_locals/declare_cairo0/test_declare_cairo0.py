@@ -18,17 +18,17 @@ def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
         yield protostar_project
 
 
-async def test_declare_cairo0(
-    protostar_project: ProtostarProjectFixture, datadir: Path
+async def test_declare_cairo0_hint_local(
+    protostar_project: ProtostarProjectFixture, shared_datadir: Path
 ):
     protostar_project.create_contracts(
         {
-            "basic_contract_cairo0": datadir / "basic_contract.cairo",
-            "broken_syntax_contract": datadir / "broken_syntax_contract.cairo",
+            "basic_contract_cairo0": shared_datadir / "basic_contract.cairo",
+            "broken_syntax_contract": shared_datadir / "broken_syntax_contract.cairo",
         },
     )
     testing_summary = await protostar_project.protostar.test_cairo1(
-        datadir / "declare_cairo0_test.cairo",
+        Path(__file__).parent / "declare_cairo0_test.cairo",
     )
 
     assert_cairo_test_cases(
