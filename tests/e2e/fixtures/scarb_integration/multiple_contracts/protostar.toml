@@ -1,0 +1,7 @@
+[project]
+protostar-version = "0.9.1"
+lib-path = "lib"
+
+[contracts]
+contract_foo = ["foo_contract"]
+contract_bar = ["bar_contract"]
