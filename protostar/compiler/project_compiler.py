@@ -51,6 +51,20 @@ class ProjectCompiler:
         self._sierra_file_extension = ".sierra.json"
         self._casm_file_extension = ".casm.json"
 
+    def compile_contract(
+        self,
+        contract_identifier: ContractIdentifier,
+        cairo_path: Optional[list[Path]] = None,
+        output_path: Optional[Path] = None,
+    ):
+        sierra_compiled = self.compile_contract_to_sierra_from_contract_identifier(
+            contract_identifier, cairo_path, output_path
+        )
+        casm_compiled = self.compile_contract_to_casm_from_contract_identifier(
+            contract_identifier, cairo_path, output_path
+        )
+        return sierra_compiled, casm_compiled
+
     def compile_contract_to_sierra_from_contract_identifier(
         self,
         contract_identifier: ContractIdentifier,
@@ -64,16 +78,6 @@ class ProjectCompiler:
             output_path=output_path,
         )
 
-    def compile_contract_to_sierra_from_contract_name(self, contract_name: str) -> str:
-        return self._compile_cairo1_contract_from_contract_name(
-            contract_name=contract_name, output_type=_OutputType.SIERRA
-        )
-
-    def compile_contract_to_sierra_from_source_path(self, contract_path: Path) -> str:
-        return self._compile_cairo1_contract_from_contract_source_path(
-            contract_path=contract_path, output_type=_OutputType.SIERRA
-        )
-
     def compile_contract_to_casm_from_contract_identifier(
         self,
         contract_identifier: ContractIdentifier,
@@ -85,16 +89,6 @@ class ProjectCompiler:
             output_type=_OutputType.CASM,
             cairo_path=cairo_path,
             output_path=output_path,
-        )
-
-    def compile_contract_to_casm_from_contract_name(self, contract_name: str) -> str:
-        return self._compile_cairo1_contract_from_contract_name(
-            contract_name=contract_name, output_type=_OutputType.CASM
-        )
-
-    def compile_contract_to_casm_from_source_path(self, contract_path: Path) -> str:
-        return self._compile_cairo1_contract_from_contract_source_path(
-            contract_path=contract_path, output_type=_OutputType.CASM
         )
 
     def _compile_cairo1_contract_from_contract_identifier(
@@ -177,20 +171,6 @@ class ProjectCompiler:
             )
 
         raise ValueError("Incorrect output_type provided")
-
-    def compile_contract(
-        self,
-        contract_identifier: ContractIdentifier,
-        cairo_path: Optional[list[Path]] = None,
-        output_path: Optional[Path] = None,
-    ):
-        sierra_compiled = self.compile_contract_to_sierra_from_contract_identifier(
-            contract_identifier, cairo_path, output_path
-        )
-        casm_compiled = self.compile_contract_to_casm_from_contract_identifier(
-            contract_identifier, cairo_path, output_path
-        )
-        return sierra_compiled, casm_compiled
 
     @staticmethod
     def _compile_to_sierra(
