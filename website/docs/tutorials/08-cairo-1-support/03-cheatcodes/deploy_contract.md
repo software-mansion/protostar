@@ -29,5 +29,5 @@ Errors raised by the constructor can be handled in the same way as for [deploy](
 
 
 :::info
-`deploy_contract` is just a syntactic sugar over executing cheatcodes `declare` -> `prepare` -> `deploy` separately, and it's what it does under the hood.
+`deploy_contract` is just a function which calls cheatcodes `declare` -> `prepare` -> `deploy`,  and it's what it does under the hood.
 :::

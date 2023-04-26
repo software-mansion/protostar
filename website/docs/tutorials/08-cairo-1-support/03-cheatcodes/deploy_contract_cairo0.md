@@ -5,7 +5,7 @@ fn deploy_contract_cairo0(contract: felt252, calldata: Array::<felt252>) ->
 Result::<felt252, RevertedTransaction>
 ```
 
-Declares and deploys a cairo0 contract given its name defined in the [protostar.toml](../../04-configuration-file.md) configuration
+Declares and deploys a cairo 0 contract given its name defined in the [protostar.toml](../../04-configuration-file.md) configuration
 file.
 
 ```cairo title="Example"
@@ -30,6 +30,6 @@ Errors raised by the constructor can be handled in the same way as for [deploy](
 
 
 :::info
-`deploy_contract_cairo0` is just a syntactic sugar over executing cheatcodes `declare_cairo0` -> `prepare` -> `deploy` separately, and it's what it does under the hood.
+`deploy_contract_cairo0` is just a function which calls cheatcodes `declare_cairo0` -> `prepare` -> `deploy`, and it's what it does under the hood.
 :::
 
