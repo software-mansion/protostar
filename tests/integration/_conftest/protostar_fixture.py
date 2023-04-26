@@ -22,6 +22,7 @@ from protostar.commands import (
     MulticallCommand,
     DeclareCairo1Command,
 )
+from protostar.commands.cairo1_commands.test_cairo1_command import TestCairo1Command
 from protostar.commands.deploy_account_command import DeployAccountCommand
 from protostar.commands.deploy_command import DeployCommand
 from protostar.commands.test import TestCommand
@@ -43,6 +44,7 @@ ContractMap = Dict[str, List[str]]
 
 
 # pylint: disable=too-many-instance-attributes
+# pylint: disable=too-many-public-methods
 class ProtostarFixture:
     def __init__(
         self,
@@ -56,6 +58,7 @@ class ProtostarFixture:
         declare_cairo1_command: DeclareCairo1Command,
         deploy_command: DeployCommand,
         test_command: TestCommand,
+        test_cairo1_command: TestCairo1Command,
         invoke_command: InvokeCommand,
         call_command: CallCommand,
         deploy_account_command: DeployAccountCommand,
@@ -76,6 +79,7 @@ class ProtostarFixture:
         self._declare_cairo1_command = declare_cairo1_command
         self._deploy_command = deploy_command
         self._test_command = test_command
+        self._test_cairo1_command = test_cairo1_command
         self._invoke_command = invoke_command
         self._calculate_account_address_command = calculate_account_address_command
         self._transaction_registry = transaction_registry
@@ -380,7 +384,6 @@ class ProtostarFixture:
     async def run_test_runner(
         self,
         target: Union[str, Path],
-        cairo1_test_runner: bool = False,
         cairo_path: Optional[List[Path]] = None,
     ) -> TestingSummary:
         """
@@ -402,8 +405,34 @@ class ProtostarFixture:
         return await self._test_command.test(
             targets=targets,
             messenger=messenger_factory.human(),
-            use_cairo1_test_runner=cairo1_test_runner,
             cairo_path=cairo_path,
+        )
+
+    async def test_cairo1(
+        self,
+        target: Union[str, Path],
+        linked_libraries: Optional[List[Path]] = None,
+    ) -> TestingSummary:
+        """
+        Runs test runner safely, without assertions on state of the summary and cache mechanism
+        """
+        if isinstance(target, Path):
+            targets = [str(target)]
+        else:
+            targets = [target]
+
+        def fake_indicator(_: str) -> ContextManager:
+            ...
+
+        messenger_factory = MessengerFactory(
+            log_color_provider=log_color_provider,
+            activity_indicator=fake_indicator,
+        )
+
+        return await self._test_cairo1_command.test(
+            targets=targets,
+            messenger=messenger_factory.human(),
+            linked_libraries=linked_libraries,
         )
 
     def _parse(

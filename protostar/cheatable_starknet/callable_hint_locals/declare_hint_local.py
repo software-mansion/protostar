@@ -52,7 +52,7 @@ class DeclareHintLocal(CallableHintLocal):
                 ) from ex
             except ContractNameNotFoundException as ex:
                 raise CheatcodeException(
-                    self, f"No contract found for the name f{ex.contract_name}"
+                    self, f"No contract found for the name {ex.contract_name}"
                 ) from ex
 
             declared_class: DeclaredSierraClass = asyncio.run(

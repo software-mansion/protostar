@@ -65,7 +65,6 @@ class Cheatcode(DeprecatedBlSyscallHandler, HintLocal):
             "CheatableExecuteEntryPoint"
         ] = syscall_dependencies["execute_entry_point_cls"]
 
-    # TODO(mkaput): Eradicate this property in favor of `cheaters`.
     @property
     def cheatable_state(self) -> CheatableCachedState:
         state_syncifier = self.state

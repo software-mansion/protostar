@@ -156,10 +156,6 @@ class ProtostarProjectFixture:
                 **previous_contract_map,
                 **new_contract_map,
             },
-            project_config={},
-            command_name_to_config={},
-            profile_name_to_project_config={},
-            profile_name_to_commands_config={},
         )
         content_factory = ConfigurationFileV2ContentFactory(
             content_builder=ConfigurationTOMLContentBuilder()
