@@ -148,7 +148,11 @@ class BuildCairo1Command(ProtostarCommand):
             raise ex
 
     async def _build_contract(
-        self, contract_name: str, output_dir: Path, linked_libraries: list[Path], messenger: Messenger,
+        self,
+        contract_name: str,
+        output_dir: Path,
+        linked_libraries: list[Path],
+        messenger: Messenger,
     ):
         contract_paths = self._configuration_file.get_contract_source_paths(
             contract_name
@@ -165,7 +169,7 @@ class BuildCairo1Command(ProtostarCommand):
         )
 
         sierra_compiled, casm_compiled = self._project_compiler.compile_contract(
-            contract_name, cairo_path, output_dir
+            contract_name, cairo_path, output_dir / contract_name
         )
 
         class_hash = compute_class_hash_from_sierra_code(
