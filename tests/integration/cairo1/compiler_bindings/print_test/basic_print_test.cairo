@@ -1,5 +1,5 @@
 use array::ArrayTrait;
-use debug::PrintTrait;
+use protostar_print::PrintTrait;
 use result::ResultTrait;
 
 #[test]

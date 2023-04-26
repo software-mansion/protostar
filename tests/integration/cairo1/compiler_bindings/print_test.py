@@ -22,9 +22,8 @@ async def test_print(protostar_project: ProtostarProjectFixture, datadir: Path):
             "simple": datadir / "simple",
         }
     )
-    testing_summary = await protostar_project.protostar.run_test_runner(
+    testing_summary = await protostar_project.protostar.test_cairo1(
         datadir / "basic_print_test.cairo",
-        cairo1_test_runner=True,
     )
 
     assert_cairo_test_cases(
