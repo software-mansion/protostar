@@ -36,7 +36,7 @@ async def test_prepare_hint_local(
 
     testing_summary = await protostar_project.protostar.test_cairo1(
         Path(__file__).parent / "prepare_test.cairo",
-        cairo_path=[shared_datadir / "minimal_custom_structures"],
+        linked_libraries=[shared_datadir / "minimal_custom_structures"],
     )
 
     assert_cairo_test_cases(
