@@ -16,9 +16,9 @@ class PrankHintLocal(CallableHintLocal):
         return "start_prank"
 
     def _build(self) -> Callable:
-        return self.prank
+        return self.start_prank
 
-    def prank(self, caller_address: int, target_contract_address: int):
+    def start_prank(self, caller_address: int, target_contract_address: int):
         valid_target_address = Address.from_user_input(target_contract_address)
         self._contracts_controller.prank(
             caller_address=Address.from_user_input(caller_address),
