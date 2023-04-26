@@ -27,12 +27,12 @@ fn test_prepare() {
 }
 
 #[test]
-fn test_prepare_tp() {
+fn test_prepare_impl() {
    let mut arr = ArrayTrait::new();
    arr.append(3);
    arr.append(2);
    arr.append(1);
-   match prepare_tp(123, arr) {
+   match prepare_impl(123, arr) {
       Result::Ok((constructor_calldata, contract_address, class_hash)) => {
         assert(constructor_calldata.len() == 3_u32, 'check constructor_calldata');
         assert(*constructor_calldata.at(0_usize) == 3, 'check constructor_calldata[0]');
