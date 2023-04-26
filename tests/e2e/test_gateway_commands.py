@@ -1,5 +1,7 @@
 import json
 import re
+import shutil
+import os
 from distutils.file_util import copy_file
 from pathlib import Path
 
@@ -223,32 +225,30 @@ def test_declaring_contract(
 
 
 @pytest.mark.usefixtures("init")
-def test_declaring_contract_with_signature(
+def test_declaring_cairo1_contract(
     protostar: ProtostarFixture,
     devnet_gateway_url: str,
     datadir: Path,
     set_private_key_env_var: SetPrivateKeyEnvVarFixture,
     devnet_account: DevnetAccount,
 ):
-    copy_file(
-        src=str(datadir / "contract_with_constructor.cairo"),
-        dst="./src/main.cairo",
-    )
-    protostar(["build"])
+    shutil.copytree(datadir / "cairo1_project", "cairo1_project")
+    os.chdir("cairo1_project")
+
     with set_private_key_env_var(devnet_account.private_key):
         result = protostar(
             [
                 "--no-color",
-                "declare",
-                "./build/main.json",
+                "declare-cairo1",
+                "balance",
                 "--gateway-url",
                 devnet_gateway_url,
-                "--chain-id",
-                str(StarknetChainId.TESTNET.value),
                 "--account-address",
                 str(devnet_account.address),
                 "--max-fee",
                 "auto",
+                "--chain-id",
+                str(StarknetChainId.TESTNET.value),
                 "--json",
             ],
             ignore_stderr=True,
@@ -262,7 +262,6 @@ def test_declaring_contract_with_signature(
 
 @pytest.mark.usefixtures("init")
 def test_deploy_account_is_available(protostar: ProtostarFixture):
-    # TODO(mkaput): Write more meaningful test here.
     assert "Sends deploy-account transaction" in protostar(
         ["--no-color", "deploy-account", "--help"]
     )

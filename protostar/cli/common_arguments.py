@@ -92,7 +92,7 @@ ABI_PATH_ARG = ProtostarArgument(
     name="abi",
     description=(
         "Path to the ABI file to be used by Data Transformer. "
-        "If not provided, Protostar will get the ABI from StarkNet."
+        "If not provided, Protostar will get the ABI from Starknet."
     ),
     type="path",
 )
@@ -166,4 +166,12 @@ CONTRACT_NAME = ProtostarArgument(
     description="Specify a contract name that should be built.",
     type="str",
     default="",
+)
+
+LINKED_LIBRARIES = ProtostarArgument(
+    name="linked-libraries",
+    value_parser="list",
+    description="Paths to cairo1 modules. "
+    "Should not be explicitly provided when managing dependencies using Scarb.",
+    type="path",
 )

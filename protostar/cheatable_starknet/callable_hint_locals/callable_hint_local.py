@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Any, Callable, Union
+import hashlib
 
 from typing_extensions import Literal
 from starknet_py.cairo.felt import encode_shortstring
@@ -38,11 +39,15 @@ class CallableHintLocal(HintLocal, ABC):
         ...
 
     def build(self):
-        def wrapper(*args: Any, **kwargs: Any):
+        def wrapper(*args: Any, **kwargs: Any) -> ExecutionResult:
             try:
                 result = self._build()(*args, **kwargs)
                 return ValidExecution(ok=result)
             except TransactionRevertException as ex:
-                return InvalidExecution(err_code=encode_shortstring(ex.message[:31]))
+                return InvalidExecution(
+                    err_code=encode_shortstring(
+                        hashlib.md5(ex.message.encode()).hexdigest()[:31]
+                    )
+                )
 
         return wrapper

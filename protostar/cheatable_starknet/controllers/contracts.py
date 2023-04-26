@@ -35,6 +35,7 @@ from starkware.starknet.services.api.contract_class.contract_class import (
     ContractClass,
     CompiledClass,
 )
+from starkware.starknet.business_logic.utils import write_class_facts
 
 from protostar.cheatable_starknet.cheatables.cheatable_execute_entry_point import (
     CheatableExecuteEntryPoint,
@@ -90,6 +91,11 @@ class PreparedContract:
 @dataclass(frozen=True)
 class DeployedContract:
     contract_address: int
+
+
+@dataclass(frozen=True)
+class CallResult:
+    return_data: CairoData
 
 
 class NonValidatedInternalDeclare(InternalDeclare):
@@ -188,7 +194,9 @@ class ContractsController:
             max_fee=0,
             version=2,
             signature=[],
-            nonce=0,
+            nonce=await self.cheatable_state.get_nonce_at(
+                DEFAULT_DECLARE_SENDER_ADDRESS
+            ),
         )
 
         with self.cheatable_state.copy_and_apply() as state_copy:
@@ -199,6 +207,12 @@ class ContractsController:
         abi = contract_class.abi
 
         class_hash = tx.class_hash
+        await write_class_facts(
+            self.cheatable_state.state_reader.ffc,  # pyright: ignore
+            contract_class,
+            compiled_class,
+        )
+
         await self.cheatable_state.set_contract_class(class_hash, compiled_class)
 
         return DeclaredSierraClass(class_hash=class_hash, abi=abi)
@@ -328,31 +342,31 @@ class ContractsController:
 
     async def prepare(
         self,
-        declared: DeclaredContract,
+        class_hash: int,
         constructor_calldata: CairoOrPythonData,
         salt: int,
     ) -> PreparedContract:
         constructor_calldata = await self._transform_calldata_to_cairo_data(
-            class_hash=declared.class_hash,
+            class_hash=class_hash,
             function_name="constructor",
             calldata=constructor_calldata,
         )
 
         contract_address = calculate_contract_address_from_hash(
             salt=salt,
-            class_hash=declared.class_hash,
+            class_hash=class_hash,
             constructor_calldata=constructor_calldata,
             deployer_address=0,
         )
 
         self.cheatable_state.contract_address_to_class_hash_map[
             Address(contract_address)
-        ] = declared.class_hash
+        ] = class_hash
 
         return PreparedContract(
             constructor_calldata=constructor_calldata,
             contract_address=contract_address,
-            class_hash=declared.class_hash,
+            class_hash=class_hash,
             salt=salt,
         )
 
@@ -360,13 +374,9 @@ class ContractsController:
         self,
         contract_address: Address,
         entry_point_selector: Selector,
-        calldata: Optional[CairoOrPythonData] = None,
-    ) -> CairoData:
-        cairo_calldata = await self._transform_calldata_to_cairo_data_by_addr(
-            contract_address=contract_address,
-            function_name=str(entry_point_selector),
-            calldata=calldata,
-        )
+        calldata: Optional[CairoData] = None,
+    ) -> CallResult:
+        cairo_calldata = calldata or []
         entry_point = CheatableExecuteEntryPoint.create_for_protostar(
             contract_address=contract_address,
             calldata=cairo_calldata,
@@ -380,7 +390,7 @@ class ContractsController:
             state=state_copy,
             general_config=StarknetGeneralConfig(),
         )
-        return result.retdata
+        return CallResult(return_data=result.retdata)
 
     async def invoke(
         self,

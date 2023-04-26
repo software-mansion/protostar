@@ -55,7 +55,7 @@ def test_mixin_throws_on_incorrect_network_name():
     args.network = "abcdef"
     args.gateway_url = None
     args.chain_id = None
-    with pytest.raises(ProtostarException, match=re.escape("Unknown StarkNet network")):
+    with pytest.raises(ProtostarException, match=re.escape("Unknown Starknet network")):
         NetworkCommandUtil(args).get_network_config()
 
 

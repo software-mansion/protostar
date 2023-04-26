@@ -14,7 +14,10 @@ from protostar.starknet.selector import Selector
 
 
 class ExpectCallHintLocal(CallableHintLocal):
-    def __init__(self, controller: ExpectCallController):
+    def __init__(
+        self,
+        controller: ExpectCallController,
+    ):
         self._controller = controller
 
     @property

@@ -18,7 +18,9 @@ from protostar.commands import (
     InitCairo1Command,
     InvokeCommand,
     MulticallCommand,
+    DeclareCairo1Command,
 )
+from protostar.commands.cairo1_commands.test_cairo1_command import TestCairo1Command
 from protostar.commands.deploy_account_command import DeployAccountCommand
 from protostar.commands.deploy_command import DeployCommand
 from protostar.commands.init.project_creator.new_project_creator import (
@@ -29,6 +31,7 @@ from protostar.compiler import (
     ProjectCairoPathBuilder,
     LinkedLibrariesBuilder,
     Cairo0ProjectCompiler,
+    ProjectCompiler,
 )
 from protostar.configuration_file import (
     ConfigurationFileFactory,
@@ -70,9 +73,13 @@ def create_protostar_fixture(
         project_root_path=project_root_path,
     )
 
-    project_compiler = Cairo0ProjectCompiler(
+    cairo0_project_compiler = Cairo0ProjectCompiler(
         project_root_path=project_root_path,
         project_cairo_path_builder=project_cairo_path_builder,
+        configuration_file=configuration_file,
+    )
+    project_compiler = ProjectCompiler(
+        project_root_path=project_root_path,
         configuration_file=configuration_file,
     )
 
@@ -115,12 +122,12 @@ def create_protostar_fixture(
     )
 
     build_command = BuildCommand(
-        project_compiler=project_compiler,
+        project_compiler=cairo0_project_compiler,
         messenger_factory=messenger_factory,
     )
 
     build_cairo1_command = BuildCairo1Command(
-        configuration_file=project_compiler.configuration_file,
+        configuration_file=cairo0_project_compiler.configuration_file,
         project_root_path=project_root_path,
     )
 
@@ -144,6 +151,11 @@ def create_protostar_fixture(
         gateway_facade_factory=gateway_facade_factory,
         messenger_factory=messenger_factory,
     )
+    declare_cairo1_command = DeclareCairo1Command(
+        project_compiler=project_compiler,
+        gateway_facade_factory=gateway_facade_factory,
+        messenger_factory=messenger_factory,
+    )
 
     deploy_command = DeployCommand(
         gateway_facade_factory=gateway_facade_factory,
@@ -154,6 +166,15 @@ def create_protostar_fixture(
         project_root_path=project_root_path,
         protostar_directory=ProtostarDirectory(REPOSITORY_ROOT),
         project_cairo_path_builder=LinkedLibrariesBuilder(),
+        log_color_provider=log_color_provider,
+        cwd=project_root_path,
+        active_profile_name=None,
+        messenger_factory=messenger_factory,
+    )
+
+    test_cairo1_command = TestCairo1Command(
+        project_root_path=project_root_path,
+        protostar_directory=ProtostarDirectory(REPOSITORY_ROOT),
         log_color_provider=log_color_provider,
         cwd=project_root_path,
         active_profile_name=None,
@@ -197,8 +218,10 @@ def create_protostar_fixture(
         build_cairo1_command=build_cairo1_command,
         format_command=format_command,
         declare_command=declare_command,
+        declare_cairo1_command=declare_cairo1_command,
         deploy_command=deploy_command,
         test_command=test_command,
+        test_cairo1_command=test_cairo1_command,
         invoke_command=invoke_command,
         deploy_account_command=deploy_account_command,
         cli_app=cli_app,

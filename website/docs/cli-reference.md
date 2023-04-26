@@ -27,12 +27,12 @@ Print machine-readable output in [NDJSON](https://github.com/ndjson/ndjson-spec)
 $ protostar build-cairo1
 ```
 Compile cairo1 contracts.
-#### `--cairo-path PATH[]`
-Additional directories to look for sources.
 #### `--compiled-contracts-dir PATH=build`
 An output directory used to put the compiled contracts in.
 #### `--contract-name STRING`
 Specify a contract name that should be built.
+#### `--linked-libraries PATH[]`
+Paths to cairo1 modules. Should not be explicitly provided when managing dependencies using Scarb.
 ### `cairo-migrate`
 Migrate project sources to Cairo 0.10.
 #### `targets STRING[]=['.']`
@@ -52,9 +52,9 @@ Input to the account's constructor.
 #### `--json`
 Print machine-readable output in [NDJSON](https://github.com/ndjson/ndjson-spec) format.
 ### `call`
-Calls a contract on StarkNet with given parameters
+Calls a contract on Starknet with given parameters
 #### `--abi PATH`
-Path to the ABI file to be used by Data Transformer. If not provided, Protostar will get the ABI from StarkNet.
+Path to the ABI file to be used by Data Transformer. If not provided, Protostar will get the ABI from Starknet.
 #### `--chain-id INT`
 The chain id. It is required unless `--network` is provided.
 #### `--contract-address ADDRESS`
@@ -66,7 +66,7 @@ Required.
 
 The name of the function being called.
 #### `--gateway-url STRING`
-The URL of a StarkNet gateway. It is required unless `--network` is provided.
+The URL of a Starknet gateway. It is required unless `--network` is provided.
 #### `-i` `--inputs INPUT[]`
 Inputs to the constructor, represented either by a list of space-delimited values (`1 2 3`) or by a mapping of their names to their values (`a=11 b=12 c=13`).
 Calldata arguments may be of any type that does not contain pointers.
@@ -74,15 +74,15 @@ Calldata arguments may be of any type that does not contain pointers.
 #### `--json`
 Print machine-readable output in [NDJSON](https://github.com/ndjson/ndjson-spec) format.
 #### `-n` `--network STRING`
-The name of the StarkNet network.
+The name of the Starknet network.
 It is required unless `--gateway-url` is provided.
 
-Supported StarkNet networks:
+Supported Starknet networks:
 - `testnet`
 - `mainnet`
 - `testnet2`
 ### `declare`
-Sends a declare transaction to StarkNet.
+Sends a declare transaction to Starknet.
 #### `contract PATH`
 Required.
 
@@ -99,7 +99,7 @@ Generated links will point to that block explorer. Available values:
 #### `--chain-id INT`
 The chain id. It is required unless `--network` is provided.
 #### `--gateway-url STRING`
-The URL of a StarkNet gateway. It is required unless `--network` is provided.
+The URL of a Starknet gateway. It is required unless `--network` is provided.
 #### `--json`
 Print machine-readable output in [NDJSON](https://github.com/ndjson/ndjson-spec) format.
 #### `--max-fee FEE`
@@ -107,10 +107,52 @@ Required.
 
 The maximum fee that the sender is willing to pay for the transaction. Provide "auto" to auto estimate the fee.
 #### `-n` `--network STRING`
-The name of the StarkNet network.
+The name of the Starknet network.
 It is required unless `--gateway-url` is provided.
 
-Supported StarkNet networks:
+Supported Starknet networks:
+- `testnet`
+- `mainnet`
+- `testnet2`
+#### `--private-key-path PATH`
+Path to the file, which stores your private key for the account in hex (prefixed with '0x') or decimal representation.
+Can be used instead of PROTOSTAR_ACCOUNT_PRIVATE_KEY env variable.
+#### `--signer-class STRING`
+Custom signer class module path.
+#### `--token STRING`
+Used by whitelisted users for deploying contracts in Alpha MainNet.
+#### `--wait-for-acceptance`
+Waits for transaction to be accepted on chain.
+### `declare-cairo1`
+Sends a declare transaction to Starknet.
+#### `contract STRING`
+Required.
+
+Name of the contract defined in the protostar.toml
+#### `--account-address ADDRESS`
+Required.
+
+Account address in hex (prefixed with '0x') or decimal representation.
+#### `--block-explorer BLOCK_EXPLORER`
+Generated links will point to that block explorer. Available values:
+- starkscan
+- viewblock
+- voyager
+#### `--chain-id INT`
+The chain id. It is required unless `--network` is provided.
+#### `--gateway-url STRING`
+The URL of a Starknet gateway. It is required unless `--network` is provided.
+#### `--json`
+Print machine-readable output in [NDJSON](https://github.com/ndjson/ndjson-spec) format.
+#### `--max-fee FEE`
+Required.
+
+The maximum fee that the sender is willing to pay for the transaction. Provide "auto" to auto estimate the fee.
+#### `-n` `--network STRING`
+The name of the Starknet network.
+It is required unless `--gateway-url` is provided.
+
+Supported Starknet networks:
 - `testnet`
 - `mainnet`
 - `testnet2`
@@ -144,7 +186,7 @@ Generated links will point to that block explorer. Available values:
 #### `--chain-id INT`
 The chain id. It is required unless `--network` is provided.
 #### `--gateway-url STRING`
-The URL of a StarkNet gateway. It is required unless `--network` is provided.
+The URL of a Starknet gateway. It is required unless `--network` is provided.
 #### `-i` `--inputs INPUT[]`
 Inputs to the constructor, represented either by a list of space-delimited values (`1 2 3`) or by a mapping of their names to their values (`a=11 b=12 c=13`).
 Calldata arguments may be of any type that does not contain pointers.
@@ -156,10 +198,10 @@ Required.
 
 The maximum fee that the sender is willing to pay for the transaction. Provide "auto" to auto estimate the fee.
 #### `-n` `--network STRING`
-The name of the StarkNet network.
+The name of the Starknet network.
 It is required unless `--gateway-url` is provided.
 
-Supported StarkNet networks:
+Supported Starknet networks:
 - `testnet`
 - `mainnet`
 - `testnet2`
@@ -189,7 +231,7 @@ Input to the account's constructor.
 #### `--chain-id INT`
 The chain id. It is required unless `--network` is provided.
 #### `--gateway-url STRING`
-The URL of a StarkNet gateway. It is required unless `--network` is provided.
+The URL of a Starknet gateway. It is required unless `--network` is provided.
 #### `--json`
 Print machine-readable output in [NDJSON](https://github.com/ndjson/ndjson-spec) format.
 #### `--max-fee WEI`
@@ -197,10 +239,10 @@ Required.
 
 Max amount of Wei you are willing to pay for the transaction
 #### `-n` `--network STRING`
-The name of the StarkNet network.
+The name of the Starknet network.
 It is required unless `--gateway-url` is provided.
 
-Supported StarkNet networks:
+Supported Starknet networks:
 - `testnet`
 - `mainnet`
 - `testnet2`
@@ -258,7 +300,7 @@ Directory containing project dependencies. This argument is used with the config
 #### `--name STRING`
 A custom package name. Use it to resolve name conflicts.
 ### `invoke`
-Sends an invoke transaction to the StarkNet sequencer.
+Sends an invoke transaction to the Starknet sequencer.
 #### `--account-address ADDRESS`
 Required.
 
@@ -279,7 +321,7 @@ Required.
 
 The name of the function being called.
 #### `--gateway-url STRING`
-The URL of a StarkNet gateway. It is required unless `--network` is provided.
+The URL of a Starknet gateway. It is required unless `--network` is provided.
 #### `-i` `--inputs INPUT[]`
 Inputs to the constructor, represented either by a list of space-delimited values (`1 2 3`) or by a mapping of their names to their values (`a=11 b=12 c=13`).
 Calldata arguments may be of any type that does not contain pointers.
@@ -291,10 +333,10 @@ Required.
 
 The maximum fee that the sender is willing to pay for the transaction. Provide "auto" to auto estimate the fee.
 #### `-n` `--network STRING`
-The name of the StarkNet network.
+The name of the Starknet network.
 It is required unless `--gateway-url` is provided.
 
-Supported StarkNet networks:
+Supported Starknet networks:
 - `testnet`
 - `mainnet`
 - `testnet2`
@@ -345,7 +387,7 @@ Generated links will point to that block explorer. Available values:
 #### `--chain-id INT`
 The chain id. It is required unless `--network` is provided.
 #### `--gateway-url STRING`
-The URL of a StarkNet gateway. It is required unless `--network` is provided.
+The URL of a Starknet gateway. It is required unless `--network` is provided.
 #### `--json`
 Print machine-readable output in [NDJSON](https://github.com/ndjson/ndjson-spec) format.
 #### `--max-fee FEE`
@@ -353,10 +395,10 @@ Required.
 
 The maximum fee that the sender is willing to pay for the transaction. Provide "auto" to auto estimate the fee.
 #### `-n` `--network STRING`
-The name of the StarkNet network.
+The name of the Starknet network.
 It is required unless `--gateway-url` is provided.
 
-Supported StarkNet networks:
+Supported Starknet networks:
 - `testnet`
 - `mainnet`
 - `testnet2`
@@ -436,7 +478,7 @@ Print machine-readable output in [NDJSON](https://github.com/ndjson/ndjson-spec)
 #### `-lf` `--last-failed`
 Only re-run failed and broken test cases.
 #### `--linked-libraries PATH[]`
-Libraries to include in compilation
+Paths to cairo1 modules. Should not be explicitly provided when managing dependencies using Scarb.
 #### `--no-progress-bar`
 Disable progress bar.
 #### `--report-slowest-tests INT`

@@ -34,7 +34,6 @@ class CheatableSysCallHandler(DeprecatedBlSyscallHandler):
 
         super().__init__(state=state, **kwargs)
 
-    # TODO(mkaput): Eradicate this property in favor of `cheaters`.
     @property
     def cheatable_state(self) -> CheatableCachedState:
         state_syncifier = self.sync_state

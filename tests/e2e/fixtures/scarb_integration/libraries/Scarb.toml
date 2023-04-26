@@ -1,0 +1,6 @@
+[package]
+name = "libraries_project"
+version = "0.1.0"
+
+[dependencies]
+external_lib_bar = { path = "libraries/external_lib_bar" }
