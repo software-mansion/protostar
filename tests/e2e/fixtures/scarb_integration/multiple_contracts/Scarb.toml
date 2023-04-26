@@ -1,0 +1,7 @@
+[package]
+name = "multiple_contracts"
+version = "0.1.0"
+
+[dependencies]
+foo_contract = { path = "foo_contract" }
+bar_contract = { path = "bar_contract" }

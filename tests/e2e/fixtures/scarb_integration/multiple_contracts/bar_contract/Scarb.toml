@@ -1,0 +1,6 @@
+[package]
+name = "bar_contract"
+version = "0.1.0"
+
+[dependencies]
+foo_contract = { path = "../foo_contract" }

@@ -5,7 +5,7 @@ from pathlib import Path
 from tests.e2e.conftest import CopyFixture, ProtostarFixture
 
 
-def test_testing(protostar: ProtostarFixture, copy_fixture: CopyFixture):
+def test_cairo1_test(protostar: ProtostarFixture, copy_fixture: CopyFixture):
     copy_fixture("cairo1_project", "./cairo1_project")
     copy_fixture("cairo1/test_a.cairo", "./cairo1_project/tests/test_a.cairo")
     os.chdir("./cairo1_project")
