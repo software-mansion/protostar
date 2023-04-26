@@ -7,6 +7,7 @@ block_cipher = None
 extra_files = [
     ("protostar_cairo", "protostar_cairo"),
     ("cairo/corelib", "cairo/corelib"),
+    ("cairo/Cargo.toml", "cairo"),
     ('templates', 'templates'),
     ('constants.json', 'info'),
 ] + collect_data_files('starkware')
