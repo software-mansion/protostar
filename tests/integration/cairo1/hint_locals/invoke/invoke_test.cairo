@@ -1,5 +1,6 @@
 use array::ArrayTrait;
 use result::ResultTrait;
+use cheatcodes::RevertedTransactionTrait;
 
 #[test]
 fn test_invoke_simple() {
@@ -110,4 +111,14 @@ fn test_invoke_vs_call_state_changes() {
 
     let return_data2 = call(deployed_contract_address, 'get_a', ArrayTrait::new()).unwrap();
     assert(*return_data2.at(0_u32) == 3, 'check call result 2'); // Changed
+}
+
+#[test]
+fn test_invoke_exception_handling() {
+    let deployed_contract_address = deploy_contract('panicking_contract', ArrayTrait::new()).unwrap();
+
+    match invoke(deployed_contract_address, 'go_bonkers', ArrayTrait::new()) {
+        Result::Ok(_) => assert(false, 'contract did not panic'),
+        Result::Err(x) => assert(x.first() == 'i am bonkers', x.first()),
+    }
 }

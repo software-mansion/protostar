@@ -1,5 +1,6 @@
 use array::ArrayTrait;
 use result::ResultTrait;
+use core::cheatcodes::RevertedTransactionTrait;
 
 #[test]
 fn test_deploy() {
@@ -119,16 +120,19 @@ fn test_deploy_with_ctor_panic() {
         class_hash: prepare_result.class_hash,
         constructor_calldata: prepare_result.constructor_calldata
     };
-    deploy(prepared_contract).unwrap();
+    match deploy(prepared_contract) {
+        Result::Ok(_) => assert(false, 'no error was raised'),
+        Result::Err(x) => assert(x.first() == 'panic', x.first()),
+    }
 }
 
 #[test]
-fn test_deploy_with_ctor_panic_check_err_code() {
+fn test_deploy_with_ctor_obsolete_calldata() {
     let mut constructor_calldata = ArrayTrait::new();
     constructor_calldata.append(1);
     constructor_calldata.append(2);
 
-    let class_hash = declare('with_ctor_panic').unwrap();
+    let class_hash = declare('minimal').unwrap();
     assert(class_hash != 0, 'declared class_hash != 0');
 
     let prepare_result = prepare(class_hash, constructor_calldata).unwrap();
@@ -139,11 +143,7 @@ fn test_deploy_with_ctor_panic_check_err_code() {
         constructor_calldata: prepare_result.constructor_calldata
     };
     match deploy(prepared_contract) {
-        Result::Ok(_) => {
-            assert(false, 'panic');
-        },
-        Result::Err(err) => {
-            assert(err == 179143216683939089435778763860492020889796834434088318742252478611012859956, 'proper error thrown');
-        },
+        Result::Ok(_) => assert(false, 'no error was raised'),
+        Result::Err(x) => assert(x.first() == 'No constructor was found', x.first()),
     }
 }

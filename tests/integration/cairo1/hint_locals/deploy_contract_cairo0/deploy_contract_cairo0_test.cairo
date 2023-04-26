@@ -1,6 +1,6 @@
 use array::ArrayTrait;
 use result::ResultTrait;
-
+use cheatcodes::RevertedTransactionTrait;
 
 #[test]
 fn test_deploy_contract_cairo0() {
@@ -20,9 +20,6 @@ fn test_deploy_contract_cairo0_w_ctor() {
 fn test_deploy_contract_cairo0_w_ctor_error() {
     let mut args = ArrayTrait::new();
     args.append(100);
-    match deploy_contract_cairo0('cairo0_w_ctor_error', args) {
-       Result::Ok(contract_address) => assert(false, 'should not have deployed'),
-       Result::Err(x) => assert(x == 88723383977659245052712844871367846102043870926066665245010961657188738359, x)
-    }
+    deploy_contract_cairo0('cairo0_w_ctor_error', args).unwrap();
 }
 

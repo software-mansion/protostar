@@ -17,9 +17,7 @@ fn test_call() {
         ()
       },
       Result::Err(x) => {
-         let mut data = ArrayTrait::new();
-         data.append(x);
-         panic(data)
+         panic(x.panic_data)
       },
    }
 }
@@ -33,9 +31,7 @@ fn test_call_no_args() {
         ()
       },
       Result::Err(x) => {
-         let mut data = ArrayTrait::new();
-         data.append(x);
-         panic(data)
+         panic(x.panic_data)
       },
    }
 }
