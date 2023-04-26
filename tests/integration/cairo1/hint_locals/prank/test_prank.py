@@ -18,7 +18,12 @@ def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
 async def test_prank_hint_local(
     protostar_project: ProtostarProjectFixture, shared_datadir: Path
 ):
-    protostar_project.create_contracts_cairo1({"pranked": shared_datadir / "pranked"})
+    protostar_project.create_contracts_cairo1(
+        {
+            "pranked": shared_datadir / "pranked",
+            "with_constructor": shared_datadir / "with_constructor",
+        }
+    )
 
     testing_summary = await protostar_project.protostar.test_cairo1(
         Path(__file__).parent / "prank_test.cairo",
@@ -33,5 +38,6 @@ async def test_prank_hint_local(
             "test_stop_prank_multiple_times",
             "test_start_prank_latest_takes_precedence",
             "test_stop_prank_cancels_all_pranks",
+            "test_prank_constructor",
         ],
     )

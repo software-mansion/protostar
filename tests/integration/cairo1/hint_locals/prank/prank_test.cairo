@@ -86,3 +86,17 @@ fn test_stop_prank_cancels_all_pranks() {
     let return_data = call(deployed_contract_address, 'get_a', ArrayTrait::new()).unwrap();
     assert(*return_data.at(0_u32) == 2, 'check call result');
 }
+
+#[test]
+fn test_prank_constructor() {
+    let class_hash = declare('with_constructor').unwrap();
+    let prepared = prepare(class_hash, ArrayTrait::new()).unwrap();
+    let owner_address = 123;
+
+    start_prank(owner_address, prepared.contract_address).unwrap();
+
+    let deployed_contract_address = deploy(prepared).unwrap();
+
+    let return_data = call(deployed_contract_address, 'get_owner', ArrayTrait::new()).unwrap();
+    assert(*return_data.at(0_u32) == owner_address, 'check call result');
+}
