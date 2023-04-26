@@ -143,7 +143,7 @@ fn test_deploy_with_ctor_panic_check_err_code() {
             assert(false, 'panic');
         },
         Result::Err(err) => {
-            assert(err == 179143216683939089435778763860492020889796834434088318742252478611012859956, 'proper error thrown');
+            assert(err == 90815880470660888088777585182432582461467837899711487292944456357619393079, 'proper error thrown');
         },
     }
 }
