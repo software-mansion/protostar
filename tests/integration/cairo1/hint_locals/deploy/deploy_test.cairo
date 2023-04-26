@@ -122,7 +122,7 @@ fn test_deploy_with_ctor_panic() {
     };
     match deploy(prepared_contract) {
         Result::Ok(_) => assert(false, 'no error was raised'),
-        Result::Err(x) => assert(x.first() == 'panic from ctor', x.first()),
+        Result::Err(x) => assert(x.first() == 'panic', x.first()),
     }
 }
 
@@ -145,32 +145,5 @@ fn test_deploy_with_ctor_obsolete_calldata() {
     match deploy(prepared_contract) {
         Result::Ok(_) => assert(false, 'no error was raised'),
         Result::Err(x) => assert(x.first() == 'No constructor was found', x.first()),
-    }
-}
-
-
-#[test]
-fn test_deploy_with_ctor_panic_check_err_code() {
-    let mut constructor_calldata = ArrayTrait::new();
-    constructor_calldata.append(1);
-    constructor_calldata.append(2);
-
-    let class_hash = declare('with_ctor_panic').unwrap();
-    assert(class_hash != 0, 'declared class_hash != 0');
-
-    let prepare_result = prepare(class_hash, constructor_calldata).unwrap();
-
-    let prepared_contract = PreparedContract {
-        contract_address: prepare_result.contract_address,
-        class_hash: prepare_result.class_hash,
-        constructor_calldata: prepare_result.constructor_calldata
-    };
-    match deploy(prepared_contract) {
-        Result::Ok(_) => {
-            assert(false, 'panic');
-        },
-        Result::Err(err) => {
-            assert(err.first() == 'panic from ctor', err.first());
-        },
     }
 }

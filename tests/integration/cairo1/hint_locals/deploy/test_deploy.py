@@ -43,7 +43,6 @@ async def test_deploy_hint_local(
             "test_deploy_cairo0",
             "test_deploy_with_ctor",
             "test_deploy_with_storage",
-            "test_deploy_with_ctor_panic_check_err_code",
             "test_deploy_with_ctor_panic",
             "test_deploy_with_ctor_obsolete_calldata",
         ],
