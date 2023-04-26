@@ -5,7 +5,10 @@ sidebar_label: Project initialization
 # Project initialization
 
 ## Creating a project
-To create a new Protostar project with cairo1 support, you will need to run the `protostar init-cairo1` command followed by the name of your project. For example:
+
+To create a new Protostar project with cairo 1.0 support, you will need to run the `protostar init-cairo1` command
+followed
+by the name of your project. For example:
 
 ```shell
 protostar init-cairo1 my-project
@@ -14,100 +17,152 @@ protostar init-cairo1 my-project
 After running the command, the following structure will be generated:
 
 ```
-my-project/
-├── src/
-│   └── main.cairo
-│   └── lib.cairo
+my_project/
+├── hello_starknet/
+│   ├── src/
+│   │   ├── business_logic/
+│   │   │   └── utils.cairo
+│   │   ├── contracts/
+│   │   │   └── hello_starknet.cairo
+│   │   ├── business_logic.cairo
+│   │   ├── contracts.cairo
+│   │   └── lib.cairo
 │   └── cairo_project.toml
 ├── tests/
-│   └── test_main.cairo
+│   ├── test_hello_starknet.cairo
+│   └── test_utils.cairo
 └── protostar.toml
 ```
-
-This template contains:
-
-- `src` directory
-    - `cairo_project.toml` which is needed for compilation 
-    - `main.cairo` file with one function definition
-    - `lib.cairo` file which defines the module
-- `test` directory
-    - Single test file with one test for function defined in `main.cairo`
-- `protostar.toml` containing information about the project
 
 :::warning
 This template will be changed in future versions, but the old one will still be usable with newer protostar versions
 :::
 
-## Cairo 1 modules
+### `hello_starknet`
 
-In order to understand how to create Cairo 1.0 modules, we need to talk about the purpose of `cairo_project.toml` and `lib.cairo`.
-### Project defaults
-#### 1. `cairo_project.toml`
-It is needed for the definition of crate roots, which are the places where `lib.cairo` files are located.
+This directory contains our only package in this project - `hello_starknet`.
 
-The default `cairo_project.toml` file contains only the definition of the `src` crate 
-```toml
-[crate_roots]
-src = "."
-```
+### `cairo_project.toml` and `lib.cairo`
 
-The `src` crate is then imported in our tests in the following manner:
-```
-use src::main::fib;
-```
+All Cairo1 packages must define these files.
 
-:::warning
-If you edit crate name in `cairo_project.toml`, make sure to reflect the changes in `linked-libraries` entry in `protostar.toml` as well
+You can learn about [packages](./01-understanding-cairo-packages.md) and how
+to [add new module to a package](./01-understanding-cairo-packages.md#adding-a-new-module) in
+further sections.
+
+### `contracts`
+
+This directory contains the code of our contract - `HelloStarknet`. As a good practice, we recommend this directory
+contains only the contract definition, business logic should be kept in other modules.
+
+:::danger
+Currently protostar only supports having one contract per package. You cannot add more contracts to this directory. To
+use multiple contracts in your project see [this section](#using-multiple-contracts-in-project).
 :::
 
-#### 2. `lib.cairo`
-It is the root of the module tree of the package. Here you can define functions, declare used modules, etc.
+### `business_logic`
 
-The default one has only the `main` module declaration:
-```
-mod main;
-```
-### Creating and using a new module
+This directory contains standalone cairo1 methods that can be imported and used in the contract definition. We recommend
+writing business logic in this directory to simplify writing unit tests.
 
-Suppose we wanted to create a module called `mod1` inside the `src` crate and use it in tests.
+### `contracts.cairo` and `business_logic.cairo`
 
-Here are the steps we need to take:
+These files are necessary so that they can be imported in the `lib.cairo` file.
 
-1. Create a `mod1` directory in the `src` crate
-2. Create `mod1.cairo` alongside this directory. 
-3. Create your source file inside of `mod1` (i.e. `functions.cairo` or any suitable name). Define your code here.
-4. Declare the source file/files in `mod1.cairo`. The file contents should look like this (assuming you have `functions.cairo` from the previous step):
-```
-mod functions;
-```
-5. Declare the module in the root of the module tree - `lib.cairo`. After adding, the file contents should look like this:
-```
-mod main;
-mod mod1;
-```
-6. You can import the symbols from `functions.cairo` in tests. For example, in `test_main.cairo`:
-```
-use src::mod1::functions::three;
+### `tests`
 
+All [tests](./04-testing.md) should be defined in this directory.
+
+### `protostar.toml`
+
+This file contains the [configuration for the Protostar project](./03-protostar-toml.md).
+
+:::info
+Even though `hello_starknet.cairo` file is defined in the nested directory, we use a package
+directory `"hello_starknet"` as path to the contract. This is necessary for the imports from modules within package
+containing the contract (like `business_logic`) to work.
+:::
+
+## Using multiple contracts in project
+
+Due to limitations of the Cairo 1 compiler, having multiple contracts defined in the package will cause
+the `protostar build` command and other commands to fail.
+
+**That is, having projects structured like this is not valid and will not work correctly.**
+
+### Multi-contract project structure
+
+Each contract must be defined in the separate package: A different directory with separate `cairo_project.toml`
+and `lib.cairo` files defined.
+
+```
+my_project/
+├── package1/
+│   ├── src/
+│   │   ├── contracts/
+│   │   │   └── hello_starknet.cairo
+│   │  ...
+│   │   ├── contracts.cairo
+│   │   └── lib.cairo
+│   └── cairo_project.toml
+├── package2/
+│   ├── src/
+│   │   ├── contracts/
+│   │   │   └── other_contract.cairo
+│   │  ...
+│   │   ├── contracts.cairo
+│   │   └── lib.cairo
+│   └── cairo_project.toml
+...
+└── protostar.toml
+```
+
+Make sure `[crate_roots]` are correctly defined.
+
+```toml title="package1/cairo_project.toml"
+[crate_roots]
+package1 = "src"
+```
+
+```toml title="package2/cairo_project.toml"
+[crate_roots]
+package2 = "src"
+```
+
+Define each contract in the `[contracts]` section of the protostar.toml and each package
+in the `linked-librares`
+
+```toml title="protostar.toml"
+# ...
+linked-libraries = ["package1", "package2"]
+
+[contracts]
+hello_starknet = ["package1"]
+other_contract = ["package2"]
+```
+
+### Testing multi-contract projects
+
+For example, to test function `returns_two` defined in the `package1/business_logic/utils.cairo` write
+
+```cairo title="Example test"
 #[test]
-fn test_numbers() {
-    assert(3 == three(), 'three() == 3');
+fn test_returns_two() {
+    assert(package1::business_logic::utils::returns_two() == 2, 'Should return 2');
 }
 ```
 
-## The protostar.toml
-Apart from the usual things you can find in `protostar.toml`, there is a `linked-libarires` entry which is used to find cairo 1 modules in tests and building.
-This makes it possible for you to include other modules from your dependencies if they are correct cairo 1 modules (with their own module definition and `cairo_project.toml`).
+Or using the `use path:to::mod` syntax
 
-```
-[project]
-protostar-version = "0.9.2"
-lib-path = "lib"
-linked-libraries = ["src"]
+```cairo title="Example test
+use package1::business_logic::utils::returns_two;
 
-[contracts]
+#[test]
+fn test_returns_two() {
+    assert(returns_two() == 2, 'Should return 2');
+}
 ```
 
-:::warning
-`[contracts]` section is not usable right now, since protostar can't build cairo 1 contracts yet 
-:::
+Make sure that the path::to:the::module is correct for your package structure.
+
+For more details on of how to test contracts, see [this page](./04-testing.md).
