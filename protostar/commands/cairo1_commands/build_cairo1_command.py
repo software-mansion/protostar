@@ -30,30 +30,6 @@ from protostar.commands.cairo1_commands.fetch_from_scarb import (
 from protostar.protostar_exception import ProtostarException
 
 
-def compute_class_hash_from_path(sierra_contract_file_path: Path, output_path: Path):
-    with open(sierra_contract_file_path, mode="r", encoding="utf-8") as file:
-        contract_class = make_contract_class(file.read())
-        class_hash = compute_class_hash(contract_class)
-
-        with open(output_path, mode="w", encoding="utf-8") as output_file:
-            output_file.write(f"{hex(int(class_hash))}")
-
-        return class_hash
-
-
-def compute_compiled_class_hash_from_path(
-    casm_contract_file_path: Path, output_path: Path
-):
-    with open(casm_contract_file_path, mode="r", encoding="utf-8") as file:
-        compiled_class = make_compiled_class(file.read())
-        compiled_class_hash = compute_compiled_class_hash(compiled_class)
-
-        with open(output_path, mode="w", encoding="utf-8") as output_file:
-            output_file.write(f"{hex(int(compiled_class_hash))}")
-
-        return compiled_class_hash
-
-
 def compute_class_hash_from_sierra_code(sierra_compiled: str, output_path: Path):
     contract_class = make_contract_class(sierra_compiled)
     class_hash = compute_class_hash(contract_class)
