@@ -141,6 +141,14 @@ jobs:
       - name: Build
         run: |
           poetry run poe build
+      - name: Install Scarb
+      # TODO: improve to download latest release - maybe https://github.com/marketplace/actions/release-downloader
+        run: |
+          curl -L -o scarb.tar.gz \
+          https://github.com/software-mansion/scarb/releases/download/v0.1.0/scarb-v0.1.0-x86_64-unknown-linux-gnu.tar.gz
+          tar -xf scarb.tar.gz
+          mv scarb-v0.1.0-x86_64-unknown-linux-gnu scarb
+          echo "${GITHUB_WORKSPACE}/scarb/bin" >> $GITHUB_PATH
       - name: E2E tests
         run: |
           poetry run poe test_e2e

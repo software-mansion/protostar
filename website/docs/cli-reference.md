@@ -32,7 +32,7 @@ An output directory used to put the compiled contracts in.
 #### `--contract-name STRING`
 Specify a contract name that should be built.
 #### `--linked-libraries PATH[]`
-Paths to cairo1 modules
+Paths to cairo1 modules. Should not be explicitly provided when managing dependencies using Scarb.
 ### `cairo-migrate`
 Migrate project sources to Cairo 0.10.
 #### `targets STRING[]=['.']`
@@ -478,7 +478,7 @@ Print machine-readable output in [NDJSON](https://github.com/ndjson/ndjson-spec)
 #### `-lf` `--last-failed`
 Only re-run failed and broken test cases.
 #### `--linked-libraries PATH[]`
-Paths to cairo1 modules
+Paths to cairo1 modules. Should not be explicitly provided when managing dependencies using Scarb.
 #### `--no-progress-bar`
 Disable progress bar.
 #### `--report-slowest-tests INT`
