@@ -9,9 +9,9 @@ fn test_print_basic() {
   'hello'.print();
 
   let mut array = ArrayTrait::new();
-  array.append(67);
-  array.append(78);
-  array.append(23);
+  array.append('veni');
+  array.append('vidi');
+  array.append('vici');
   array.print();
 
   (1 == 2).print();
@@ -23,7 +23,7 @@ fn test_print_basic() {
 
 #[test]
 fn test_print_in_contract() {
-    let contract_address = deploy_contract('simple', ArrayTrait::new()).unwrap();
+    let contract_address = deploy_contract('print_contract', ArrayTrait::new()).unwrap();
     assert(contract_address != 0, 'contract_address != 0');
 
     let mut calldata = ArrayTrait::new();
@@ -31,5 +31,5 @@ fn test_print_in_contract() {
     calldata.append(24);
     calldata.append(72);
 
-    call(contract_address, 'perform', calldata).unwrap();
+    call(contract_address, 'perform_print', calldata).unwrap();
 }

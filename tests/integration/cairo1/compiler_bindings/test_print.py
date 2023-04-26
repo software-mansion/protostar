@@ -19,11 +19,11 @@ def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
 async def test_print(protostar_project: ProtostarProjectFixture, datadir: Path):
     protostar_project.create_contracts_cairo1(
         {
-            "simple": datadir / "simple",
+            "print_contract": datadir / "print_contract",
         }
     )
     testing_summary = await protostar_project.protostar.test_cairo1(
-        datadir / "basic_print_test.cairo",
+        datadir / "print_test.cairo",
     )
 
     assert_cairo_test_cases(
@@ -40,14 +40,16 @@ async def test_print(protostar_project: ProtostarProjectFixture, datadir: Path):
         ],
         "test_print_basic": [
             "original value: [448378203247] converted to a string: [hello]",
+            "original value: [1953658213] converted to a string: [true]",
             "original value: [439721161573] converted to a string: [false]",
             "original value: [1953658213] converted to a string: [true]",
+            "original value: [1986358889] converted to a string: [veni]",
+            "original value: [1986618473] converted to a string: [vidi]",
+            "original value: [1986618217] converted to a string: [vici]",
         ],
     }
 
-    mapping_item = testing_summary.test_suites_mapping.get(
-        datadir / "basic_print_test.cairo"
-    )
+    mapping_item = testing_summary.test_suites_mapping.get(datadir / "print_test.cairo")
     assert mapping_item is not None
 
     for item in mapping_item:
