@@ -22,10 +22,12 @@ from protostar.testing import (
 )
 from protostar.io.output import Messenger
 
+
 from protostar.commands.test.test_command_cache import TestCommandCache
 from protostar.commands.test.messages import TestCollectorResultMessage
 from protostar.cairo_testing.cairo1_test_collector import Cairo1TestCollector
 from protostar.cairo_testing.cairo1_test_runner import Cairo1TestRunner
+from .fetch_from_scarb import maybe_fetch_linked_libraries_from_scarb
 
 
 class TestCairo1Command(ProtostarCommand):
@@ -119,7 +121,11 @@ A glob or globs to a directory or a test suite, for example:
         summary = await self.test(
             targets=cache.obtain_targets(args.target, args.last_failed),
             ignored_targets=args.ignore,
-            linked_libraries=args.linked_libraries,
+            linked_libraries=args.linked_libraries
+            + maybe_fetch_linked_libraries_from_scarb(
+                package_root_path=self._project_root_path,
+                linked_libraries=args.linked_libraries,
+            ),
             no_progress_bar=args.no_progress_bar,
             exit_first=args.exit_first,
             slowest_tests_to_report_count=args.report_slowest_tests,
