@@ -96,15 +96,8 @@ class DeclareCairo1Command(ProtostarCommand):
         )
 
         contract_name = args.contract
-        contract_sierra = (
-            self._project_compiler.compile_contract_to_sierra_from_contract_name(
-                contract_name
-            )
-        )
-        contract_casm = (
-            self._project_compiler.compile_contract_to_casm_from_contract_name(
-                contract_name
-            )
+        contract_sierra, contract_casm = self._project_compiler.compile_contract(
+            contract_name
         )
 
         response = await self.declare(

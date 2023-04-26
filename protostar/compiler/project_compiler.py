@@ -1,6 +1,7 @@
 from enum import Enum, auto
 from pathlib import Path
 import json
+from typing import Optional
 
 from starkware.starknet.services.api.contract_class.contract_class import (
     ContractClass,
@@ -47,11 +48,20 @@ class ProjectCompiler:
         self._project_root_path = project_root_path
         self.configuration_file = configuration_file
 
+        self._sierra_file_extension = ".sierra.json"
+        self._casm_file_extension = ".casm.json"
+
     def compile_contract_to_sierra_from_contract_identifier(
-        self, contract_identifier: ContractIdentifier
+        self,
+        contract_identifier: ContractIdentifier,
+        cairo_path: Optional[list[Path]] = None,
+        output_dir: Optional[Path] = None,
     ) -> str:
         return self._compile_cairo1_contract_from_contract_identifier(
-            contract_identifier=contract_identifier, output_type=_OutputType.SIERRA
+            contract_identifier=contract_identifier,
+            output_type=_OutputType.SIERRA,
+            cairo_path=cairo_path,
+            output_dir=output_dir,
         )
 
     def compile_contract_to_sierra_from_contract_name(self, contract_name: str) -> str:
@@ -65,10 +75,16 @@ class ProjectCompiler:
         )
 
     def compile_contract_to_casm_from_contract_identifier(
-        self, contract_identifier: ContractIdentifier
+        self,
+        contract_identifier: ContractIdentifier,
+        cairo_path: Optional[list[Path]] = None,
+        output_dir: Optional[Path] = None,
     ) -> str:
         return self._compile_cairo1_contract_from_contract_identifier(
-            contract_identifier=contract_identifier, output_type=_OutputType.CASM
+            contract_identifier=contract_identifier,
+            output_type=_OutputType.CASM,
+            cairo_path=cairo_path,
+            output_dir=output_dir,
         )
 
     def compile_contract_to_casm_from_contract_name(self, contract_name: str) -> str:
@@ -82,7 +98,11 @@ class ProjectCompiler:
         )
 
     def _compile_cairo1_contract_from_contract_identifier(
-        self, contract_identifier: ContractIdentifier, output_type: _OutputType
+        self,
+        contract_identifier: ContractIdentifier,
+        output_type: _OutputType,
+        cairo_path: Optional[list[Path]] = None,
+        output_dir: Optional[Path] = None,
     ) -> str:
         if isinstance(contract_identifier, str):
             contract_identifier = (
@@ -93,14 +113,24 @@ class ProjectCompiler:
 
         if isinstance(contract_identifier, Path):
             return self._compile_cairo1_contract_from_contract_source_path(
-                contract_path=contract_identifier, output_type=output_type
+                contract_path=contract_identifier,
+                output_type=output_type,
+                cairo_path=cairo_path,
+                output_dir=output_dir,
             )
         return self._compile_cairo1_contract_from_contract_name(
-            contract_name=contract_identifier, output_type=output_type
+            contract_name=contract_identifier,
+            output_type=output_type,
+            cairo_path=cairo_path,
+            output_dir=output_dir,
         )
 
     def _compile_cairo1_contract_from_contract_name(
-        self, contract_name: str, output_type: _OutputType
+        self,
+        contract_name: str,
+        output_type: _OutputType,
+        cairo_path: Optional[list[Path]] = None,
+        output_dir: Optional[Path] = None,
     ) -> str:
         contract_paths = self.configuration_file.get_contract_source_paths(
             contract_name
@@ -113,25 +143,67 @@ class ProjectCompiler:
         assert contract_paths, f"No contract paths found for {contract_name}!"
 
         return self._compile_cairo1_contract_from_contract_source_path(
-            contract_path=contract_paths[0], output_type=output_type
+            contract_path=contract_paths[0],
+            output_type=output_type,
+            cairo_path=cairo_path,
+            output_dir=output_dir,
         )
 
     def _compile_cairo1_contract_from_contract_source_path(
-        self, contract_path: Path, output_type: _OutputType
+        self,
+        contract_path: Path,
+        output_type: _OutputType,
+        cairo_path: Optional[list[Path]] = None,
+        output_dir: Optional[Path] = None,
     ) -> str:
+        contract_name = contract_path.stem
+        output_path = None
+
         if output_type == _OutputType.SIERRA:
-            return self._compile_to_sierra(contract_path)
+            if output_dir:
+                output_path = output_dir / (contract_name + self._sierra_file_extension)
+
+            return self._compile_to_sierra(
+                contract_path,
+                cairo_path=cairo_path,
+                output_path=output_path,
+            )
 
         if output_type == _OutputType.CASM:
-            return self._compile_to_casm(contract_path)
+            if output_dir:
+                output_path = output_dir / (contract_name + self._casm_file_extension)
+
+            return self._compile_to_casm(
+                contract_path,
+                cairo_path=cairo_path,
+                output_path=output_path,
+            )
 
         raise ValueError("Incorrect output_type provided")
 
+    def compile_contract(
+        self,
+        contract_identifier: ContractIdentifier,
+        cairo_path: Optional[list[Path]] = None,
+        output_dir: Optional[Path] = None,
+    ):
+        sierra_compiled = self.compile_contract_to_sierra_from_contract_identifier(
+            contract_identifier, cairo_path, output_dir
+        )
+        casm_compiled = self.compile_contract_to_casm_from_contract_identifier(
+            contract_identifier, cairo_path, output_dir
+        )
+        return sierra_compiled, casm_compiled
+
     @staticmethod
-    def _compile_to_sierra(contract_path: Path) -> str:
+    def _compile_to_sierra(
+        contract_path: Path,
+        cairo_path: Optional[list[Path]] = None,
+        output_path: Optional[Path] = None,
+    ) -> str:
         try:
             compiled = compile_starknet_contract_to_sierra_from_path(
-                input_path=contract_path
+                input_path=contract_path, cairo_path=cairo_path, output_path=output_path
             )
         except CairoBindingException as ex:
             raise CompilationException(contract_name=contract_path.name, err=ex) from ex
@@ -140,10 +212,14 @@ class ProjectCompiler:
         return compiled
 
     @staticmethod
-    def _compile_to_casm(contract_path: Path) -> str:
+    def _compile_to_casm(
+        contract_path: Path,
+        cairo_path: Optional[list[Path]] = None,
+        output_path: Optional[Path] = None,
+    ) -> str:
         try:
             compiled = compile_starknet_contract_to_casm_from_path(
-                input_path=contract_path
+                input_path=contract_path, cairo_path=cairo_path, output_path=output_path
             )
         except CairoBindingException as ex:
             raise CompilationException(contract_name=contract_path.name, err=ex) from ex

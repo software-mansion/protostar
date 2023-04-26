@@ -130,6 +130,7 @@ def create_protostar_fixture(
         configuration_file=cairo0_project_compiler.configuration_file,
         project_root_path=project_root_path,
         messenger_factory=messenger_factory,
+        project_compiler=project_compiler,
     )
 
     transaction_registry = TransactionRegistry()

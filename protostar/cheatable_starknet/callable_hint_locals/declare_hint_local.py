@@ -46,7 +46,7 @@ class DeclareHintLocal(CallableHintLocal):
             contract_identifier = short_string_to_str(contract)
 
             try:
-                compiled_class, contract_class = _compile_contract(
+                compiled_class, contract_class = _get_contract_classes(
                     contract_identifier=contract_identifier,
                 )
             except CompilationException as ex:
@@ -67,17 +67,14 @@ class DeclareHintLocal(CallableHintLocal):
 
             return DeclaredContract(class_hash=declared_class.class_hash)
 
-        def _compile_contract(
+        def _get_contract_classes(
             contract_identifier: ContractIdentifier,
         ) -> Tuple[CompiledClass, ContractClass]:
-            sierra_compiled = self._project_compiler.compile_contract_to_sierra_from_contract_identifier(
+            sierra_compiled, casm_compiled = self._project_compiler.compile_contract(
                 contract_identifier
             )
-            contract_class = make_contract_class(sierra_compiled)
 
-            casm_compiled = self._project_compiler.compile_contract_to_casm_from_contract_identifier(
-                contract_identifier
-            )
+            contract_class = make_contract_class(sierra_compiled)
             compiled_class = make_compiled_class(casm_compiled)
 
             return compiled_class, contract_class

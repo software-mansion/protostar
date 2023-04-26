@@ -16,9 +16,12 @@ from protostar.cli.common_arguments import (
     LINKED_LIBRARIES,
     CONTRACT_NAME,
 )
-from protostar.compiler.project_compiler import make_compiled_class, make_contract_class
+from protostar.compiler.project_compiler import (
+    make_compiled_class,
+    make_contract_class,
+    ProjectCompiler,
+)
 from protostar.configuration_file.configuration_file import ConfigurationFile
-import protostar.cairo.cairo_bindings as cairo1
 from protostar.io import StructuredMessage, LogColorProvider, Messenger
 
 from protostar.commands.cairo1_commands.fetch_from_scarb import (
@@ -49,6 +52,26 @@ def compute_compiled_class_hash_from_path(
             output_file.write(f"{hex(int(compiled_class_hash))}")
 
         return compiled_class_hash
+
+
+def compute_class_hash_from_sierra_code(sierra_compiled: str, output_path: Path):
+    contract_class = make_contract_class(sierra_compiled)
+    class_hash = compute_class_hash(contract_class)
+
+    with open(output_path, mode="w", encoding="utf-8") as output_file:
+        output_file.write(f"{hex(int(class_hash))}")
+
+    return class_hash
+
+
+def compute_compiled_class_hash_from_casm_code(casm_compiled: str, output_path: Path):
+    compiled_class = make_compiled_class(casm_compiled)
+    compiled_class_hash = compute_compiled_class_hash(compiled_class)
+
+    with open(output_path, mode="w", encoding="utf-8") as output_file:
+        output_file.write(f"{hex(int(compiled_class_hash))}")
+
+    return compiled_class_hash
 
 
 @dataclass
@@ -82,11 +105,13 @@ class BuildCairo1Command(ProtostarCommand):
         configuration_file: ConfigurationFile,
         project_root_path: Path,
         messenger_factory: MessengerFactory,
+        project_compiler: ProjectCompiler,
     ):
         super().__init__()
         self._configuration_file = configuration_file
         self._project_root_path = project_root_path
         self._messenger_factory = messenger_factory
+        self._project_compiler = project_compiler
 
     @property
     def example(self) -> Optional[str]:
@@ -134,31 +159,20 @@ class BuildCairo1Command(ProtostarCommand):
             f"only one file per contract is supported in cairo1!"
         )
 
-        try:
-            sierra_compiled_contract_path = output_dir / (contract_name + ".sierra.json")
-            cairo1.compile_starknet_contract_to_sierra_from_path(
-                input_path=contract_paths[0],
-                cairo_path=linked_libraries
-                + maybe_fetch_linked_libraries_from_scarb(
-                    package_root_path=contract_paths[0],
-                    linked_libraries=linked_libraries,
-                ),
-                output_path=sierra_compiled_contract_path,
-            )
-
-            casm_compiled_contract_path = output_dir / (contract_name + ".casm.json")
-            cairo1.compile_starknet_contract_sierra_to_casm_from_path(
-                input_path=sierra_compiled_contract_path,
-                output_path=casm_compiled_contract_path,
-            )
-        except cairo1.CairoBindingException as ex:
-            raise ProtostarException(ex.message) from ex
-
-        class_hash = compute_class_hash_from_path(
-            sierra_compiled_contract_path, output_dir / (contract_name + ".class.hash")
+        cairo_path = linked_libraries + maybe_fetch_linked_libraries_from_scarb(
+            package_root_path=contract_paths[0],
+            linked_libraries=linked_libraries,
         )
-        compiled_class_hash = compute_compiled_class_hash_from_path(
-            casm_compiled_contract_path,
+
+        sierra_compiled, casm_compiled = self._project_compiler.compile_contract(
+            contract_name, cairo_path, output_dir
+        )
+
+        class_hash = compute_class_hash_from_sierra_code(
+            sierra_compiled, output_dir / (contract_name + ".class.hash")
+        )
+        compiled_class_hash = compute_compiled_class_hash_from_casm_code(
+            casm_compiled,
             output_dir / (contract_name + ".compiled.class.hash"),
         )
 
