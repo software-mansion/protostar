@@ -4,7 +4,7 @@
 fn start_prank(caller_address: felt252, target_contract_address: felt252) -> Result::<(), felt252> nopanic;
 ```
 
-Changes a caller address returned by `get_caller_address()` until the prank is stopped
+Changes a caller address returned by `get_caller_address()` for the targeted contract until the prank is stopped
 with [stop_prank](./stop_prank.md).
 
 - `caller_address` address that will start being returned by `get_caller_address()`
