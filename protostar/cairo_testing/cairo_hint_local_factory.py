@@ -22,6 +22,7 @@ from protostar.cheatable_starknet.callable_hint_locals import (
     MockCallHintLocal,
     ExpectCallHintLocal,
     AssertExpectCallHintLocal,
+    PrintHintLocal,
 )
 from protostar.cheatable_starknet.callable_hint_locals.stop_prank_hint_local import (
     StopPrankHintLocal,
@@ -116,6 +117,7 @@ class CairoSharedHintLocalFactory:
             MockCallHintLocal(controller=contracts_controller),
             ExpectCallHintLocal(controller=expect_call_controller),
             AssertExpectCallHintLocal(controller=expect_call_controller),
+            PrintHintLocal(controller=contracts_controller),
         ]
 
 

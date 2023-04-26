@@ -16,3 +16,4 @@ from .load_hint_local import LoadHintLocal
 from .mock_call_hint_local import MockCallHintLocal
 from .expect_call_hint_local import ExpectCallHintLocal
 from .assert_expect_call_hint_local import AssertExpectCallHintLocal
+from .print_hint_local import PrintHintLocal

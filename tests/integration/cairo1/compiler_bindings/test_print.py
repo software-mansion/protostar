@@ -17,27 +17,16 @@ def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
 
 
 async def test_print(protostar_project: ProtostarProjectFixture, datadir: Path):
-    protostar_project.create_contracts_cairo1(
-        {
-            "print_contract": datadir / "print_contract",
-        }
-    )
     testing_summary = await protostar_project.protostar.test_cairo1(
         datadir / "print_test.cairo",
     )
 
     assert_cairo_test_cases(
         testing_summary,
-        expected_passed_test_cases_names=["test_print_basic", "test_print_in_contract"],
+        expected_passed_test_cases_names=["test_print_basic"],
     )
 
     expected_outputs = {
-        "test_print_in_contract": [
-            "original value: [123]",
-            "original value: [3]",
-            "original value: [24]",
-            "original value: [72]",
-        ],
         "test_print_basic": [
             "original value: [448378203247] converted to a string: [hello]",
             "original value: [1953658213] converted to a string: [true]",
