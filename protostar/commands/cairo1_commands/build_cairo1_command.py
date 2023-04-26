@@ -157,11 +157,6 @@ class BuildCairo1Command(ProtostarCommand):
         contract_paths = self._configuration_file.get_contract_source_paths(
             contract_name
         )
-        assert contract_paths, f"No contract paths found for {contract_name}!"
-        assert len(contract_paths) == 1, (
-            f"Multiple files found for contract {contract_name}, "
-            f"only one file per contract is supported in cairo1!"
-        )
 
         cairo_path = linked_libraries + maybe_fetch_linked_libraries_from_scarb(
             package_root_path=contract_paths[0],
