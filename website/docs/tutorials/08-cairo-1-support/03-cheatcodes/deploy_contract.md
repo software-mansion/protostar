@@ -25,7 +25,7 @@ fn my_function() {
 }
 ```
 
-Errors raised by the constructor can be handled in the same way as for [deploy](deploy.md)
+Errors raised by the constructor can be handled in the same way as for [deploy](./deploy.md)
 
 
 :::info
