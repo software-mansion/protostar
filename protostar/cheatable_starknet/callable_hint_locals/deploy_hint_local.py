@@ -24,28 +24,24 @@ class DeployHintLocal(CallableHintLocal):
         return "deploy_impl"
 
     def _build(self) -> Callable[[list[int], int, int], Any]:
-        return self.deploy_prepared_impl
+        return self.deploy
 
-    def deploy_prepared_impl(
+    def deploy(
         self,
         constructor_calldata: list[int],
         contract_address: int,
         class_hash: int,
     ):
-        return self.deploy_prepared(
-            PreparedContract(
-                constructor_calldata=constructor_calldata,
-                contract_address=contract_address,
-                class_hash=class_hash,
-                salt=0,
+        return asyncio.run(
+            self._run_deploy_prepared(
+                PreparedContract(
+                    constructor_calldata=constructor_calldata,
+                    contract_address=contract_address,
+                    class_hash=class_hash,
+                    salt=0,
+                )
             )
         )
-
-    def deploy_prepared(
-        self,
-        prepared: PreparedContract,
-    ):
-        return asyncio.run(self._run_deploy_prepared(prepared))
 
     async def _run_deploy_prepared(self, prepared: PreparedContract):
         try:
