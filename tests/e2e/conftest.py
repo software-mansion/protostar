@@ -197,7 +197,6 @@ Output:
 
 @pytest.fixture(name="devnet_gateway_url", scope="module")
 def devnet_gateway_url_fixture(devnet_port: int, protostar_repo_root: Path):
-
     cairo_submodule_toml_path = (protostar_repo_root / "cairo/Cargo.toml").resolve()
 
     prev_cwd = getcwd()
@@ -288,9 +287,7 @@ def _init(
         )
 
 
-MyPrivateLibsSetupFixture = Tuple[
-    Path,
-]
+MyPrivateLibsSetupFixture = Tuple[Path,]
 
 
 # pylint: disable=unused-argument
