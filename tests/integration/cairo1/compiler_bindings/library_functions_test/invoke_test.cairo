@@ -13,9 +13,7 @@ fn test_invoke() {
    match invoke(123, 'test', arr) {
       Result::Ok(class_hash) => (),
       Result::Err(x) => {
-         let mut data = ArrayTrait::new();
-         data.append(x);
-         panic(data)
+         panic(x.panic_data)
       },
    }
 }
@@ -26,9 +24,7 @@ fn test_invoke_no_args() {
    match invoke(123, 'test', arr) {
       Result::Ok(class_hash) => (),
       Result::Err(x) => {
-         let mut data = ArrayTrait::new();
-         data.append(x);
-         panic(data)
+         panic(x.panic_data)
       },
    }
 }

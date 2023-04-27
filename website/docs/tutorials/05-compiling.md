@@ -49,4 +49,5 @@ Protostar ships with its own version of Cairo-lang and formatter, so you don't n
 $ protostar -v
 Protostar version: X.Y.Z
 Cairo-lang version: A.B.C
+Cairo 1 compiler version: J.K.L
 ```

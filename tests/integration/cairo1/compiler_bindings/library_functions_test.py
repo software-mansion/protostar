@@ -14,9 +14,10 @@ def extract_test_case_name(full_test_case_name: str):
 
 def get_mock_for_lib_func(
     lib_func_name: str,
-    err_code: int,
     cairo_runner_facade: CairoRunnerFacade,
     test_case_name: str,
+    err_code: Optional[int] = None,
+    panic_data: Optional[list[int]] = None,
     args_validator: Optional[Callable] = None,
     return_values_provider: Optional[Callable] = None,
 ):
@@ -42,7 +43,7 @@ def get_mock_for_lib_func(
             },
         )()
         return_value = type(
-            "return_value", (object,), {"err_code": err_code, "ok": ok}
+            "return_value", (object,), {"panic_data": panic_data, "ok": ok}
         )()
     elif lib_func_name == "call":
         assert return_values_provider
@@ -52,7 +53,11 @@ def get_mock_for_lib_func(
             {"return_data": return_values_provider(test_case_name)["return_data"]},
         )()
         return_value = type(
-            "return_value", (object,), {"err_code": err_code, "ok": ok}
+            "return_value", (object,), {"panic_data": panic_data, "ok": ok}
+        )()
+    elif lib_func_name == "invoke":
+        return_value = type(
+            "return_value", (object,), {"panic_data": panic_data, "ok": None}
         )()
     elif lib_func_name == "prepare_tp":
         assert return_values_provider
@@ -99,6 +104,9 @@ def compile_suite(cairo_test_path: Path) -> ProtostarCasm:
     return ProtostarCasm.from_json(protostar_casm_json)
 
 
+REVERTABLE_FUNCTIONS = ["invoke", "call", "deploy_tp"]
+
+
 def check_library_function(
     lib_func_name: str,
     cairo_test_path: Path,
@@ -109,12 +117,20 @@ def check_library_function(
     for mocked_error_code in [0, 1, 50]:
         cairo_runner_facade = CairoRunnerFacade(program=protostar_casm.program)
         for test_case_name, offset in protostar_casm.offset_map.items():
+            err_code = None
+            panic_data = []
+            if lib_func_name in REVERTABLE_FUNCTIONS and mocked_error_code:
+                panic_data.append(mocked_error_code)
+            else:
+                err_code = mocked_error_code
+
             cairo_runner_facade.run_from_offset(
                 offset=offset,
                 hint_locals={
                     lib_func_name: get_mock_for_lib_func(
                         lib_func_name=lib_func_name,
-                        err_code=mocked_error_code,
+                        err_code=err_code,
+                        panic_data=panic_data,
                         cairo_runner_facade=cairo_runner_facade,
                         test_case_name=test_case_name,
                         args_validator=args_validator,

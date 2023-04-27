@@ -1,6 +1,6 @@
-
 use array::ArrayTrait;
 use result::ResultTrait;
+use cheatcodes::RevertedTransactionTrait;
 
 #[test]
 fn test_call_simple() {
@@ -80,4 +80,14 @@ fn test_call_wrong_number_of_args() {
     calldata.append(3);
     calldata.append(2);
     call(deployed_contract_address, 'perform', calldata).unwrap();
+}
+
+#[test]
+fn test_call_exception_handling() {
+    let deployed_contract_address = deploy_contract('panicking_contract', ArrayTrait::new()).unwrap();
+
+    match call(deployed_contract_address, 'go_bonkers', ArrayTrait::new()) {
+        Result::Ok(_) => assert(false, 'bonkers contract did not panic'),
+        Result::Err(x) => assert(x.first() == 'i am bonkers', x.first()),
+    }
 }
