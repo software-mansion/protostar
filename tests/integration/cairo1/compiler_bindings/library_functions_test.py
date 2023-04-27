@@ -31,7 +31,7 @@ def get_mock_for_lib_func(
         return_value = type(
             "return_value", (object,), {"err_code": err_code, "ok": ok}
         )()
-    elif lib_func_name == "deploy_tp":
+    elif lib_func_name == "deploy_impl":
         assert return_values_provider
         ok = type(
             "ok",
@@ -59,7 +59,7 @@ def get_mock_for_lib_func(
         return_value = type(
             "return_value", (object,), {"panic_data": panic_data, "ok": None}
         )()
-    elif lib_func_name == "prepare_tp":
+    elif lib_func_name == "prepare_impl":
         assert return_values_provider
         prepared_contract = type(
             "prepared_contract",
@@ -104,7 +104,7 @@ def compile_suite(cairo_test_path: Path) -> ProtostarCasm:
     return ProtostarCasm.from_json(protostar_casm_json)
 
 
-REVERTABLE_FUNCTIONS = ["invoke", "call", "deploy_tp"]
+REVERTABLE_FUNCTIONS = ["invoke", "call", "deploy_impl"]
 
 
 def check_library_function(
@@ -188,12 +188,12 @@ def test_deploy(datadir: Path):
     expected_calldatas = {
         "test_deploy": [1, 2],
         "test_deploy_no_args": [],
-        "test_deploy_tp": [5, 4, 2],
+        "test_deploy_impl": [5, 4, 2],
     }
     return_values = {
         "test_deploy": {"contract_address": 123},
         "test_deploy_no_args": {"contract_address": 4443},
-        "test_deploy_tp": {"contract_address": 0},
+        "test_deploy_impl": {"contract_address": 0},
     }
 
     def _args_validator(test_case_name: str, *args: Any, **kwargs: Any):
@@ -206,7 +206,7 @@ def test_deploy(datadir: Path):
         return return_values[extract_test_case_name(test_case_name)]
 
     check_library_function(
-        "deploy_tp",
+        "deploy_impl",
         datadir / "deploy_test.cairo",
         args_validator=_args_validator,
         return_values_provider=_return_values_provider,
@@ -233,7 +233,7 @@ def test_invoke(datadir: Path):
 def test_prepare(datadir: Path):
     expected_calldatas = {
         "test_prepare": [101, 202, 613, 721],
-        "test_prepare_tp": [3, 2, 1],
+        "test_prepare_impl": [3, 2, 1],
         "test_prepare_no_args": [],
     }
     return_values = {
@@ -242,7 +242,7 @@ def test_prepare(datadir: Path):
             "contract_address": 111,
             "class_hash": 222,
         },
-        "test_prepare_tp": {
+        "test_prepare_impl": {
             "constructor_calldata": [3, 2, 1],
             "contract_address": 0,
             "class_hash": 444,
@@ -264,7 +264,7 @@ def test_prepare(datadir: Path):
         return return_values[extract_test_case_name(test_case_name)]
 
     check_library_function(
-        "prepare_tp",
+        "prepare_impl",
         datadir / "prepare_test.cairo",
         args_validator=_args_validator,
         return_values_provider=_return_values_provider,
@@ -330,8 +330,8 @@ def test_deploy_contract(datadir: Path):
                     test_case_name=test_case_name,
                     return_values_provider=lambda _: {"class_hash": 123},  # type: ignore
                 ),
-                "prepare_tp": get_mock_for_lib_func(
-                    lib_func_name="prepare_tp",
+                "prepare_impl": get_mock_for_lib_func(
+                    lib_func_name="prepare_impl",
                     err_code=0,
                     cairo_runner_facade=cairo_runner_facade,
                     test_case_name=test_case_name,
@@ -341,8 +341,8 @@ def test_deploy_contract(datadir: Path):
                         "class_hash": 123,
                     },
                 ),
-                "deploy_tp": get_mock_for_lib_func(
-                    lib_func_name="deploy_tp",
+                "deploy_impl": get_mock_for_lib_func(
+                    lib_func_name="deploy_impl",
                     err_code=0,
                     cairo_runner_facade=cairo_runner_facade,
                     test_case_name=test_case_name,
