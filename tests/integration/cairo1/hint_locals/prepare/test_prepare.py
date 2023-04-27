@@ -23,7 +23,6 @@ async def test_prepare_hint_local(
             "minimal_no_ctor": shared_datadir / "minimal_no_ctor",
             "minimal_no_args": shared_datadir / "minimal_no_args",
             "minimal_with_args": shared_datadir / "minimal_with_args",
-            "minimal_custom_structures": shared_datadir / "minimal_custom_structures",
         }
     )
     protostar_project.create_contracts(
@@ -36,7 +35,6 @@ async def test_prepare_hint_local(
 
     testing_summary = await protostar_project.protostar.test_cairo1(
         Path(__file__).parent / "prepare_test.cairo",
-        linked_libraries=[shared_datadir / "minimal_custom_structures"],
     )
 
     assert_cairo_test_cases(
