@@ -29,6 +29,7 @@ async def test_call_hint_local(
             "with_ctor": shared_datadir / "with_ctor",
             "with_storage": shared_datadir / "with_storage",
             "with_ctor_panic": shared_datadir / "with_ctor_panic",
+            "panicking_contract": shared_datadir / "panicking_contract",
         }
     )
 
@@ -42,6 +43,7 @@ async def test_call_hint_local(
             "test_call_simple",
             "test_call_not_mutating_state",
             "test_call_cairo0",
+            "test_call_exception_handling",
         ],
         expected_failed_test_cases_names=[
             "test_call_wrong_name",

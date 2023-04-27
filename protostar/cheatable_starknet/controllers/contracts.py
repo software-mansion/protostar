@@ -275,7 +275,7 @@ class ContractsController:
             await self.invoke_constructor(prepared)
         elif not has_constructor and prepared.constructor_calldata:
             raise ConstructorInvocationException(
-                "Tried to deploy a contract with constructor calldata, but no constructor was found.",
+                "No constructor was found",
             )
 
         return DeployedContract(contract_address=prepared.contract_address)

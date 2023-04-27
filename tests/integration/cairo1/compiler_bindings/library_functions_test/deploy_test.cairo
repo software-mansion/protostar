@@ -11,9 +11,7 @@ fn test_deploy() {
         ()
       },
       Result::Err(x) => {
-         let mut data = ArrayTrait::new();
-         data.append(x);
-         panic(data)
+         panic(x.panic_data)
       },
    }
 }
@@ -27,9 +25,7 @@ fn test_deploy_no_args() {
         ()
       },
       Result::Err(x) => {
-         let mut data = ArrayTrait::new();
-         data.append(x);
-         panic(data)
+         panic(x.panic_data)
       },
    }
 }
@@ -46,9 +42,7 @@ fn test_deploy_tp() {
         ()
       },
       Result::Err(x) => {
-         let mut data = ArrayTrait::new();
-         data.append(x);
-         panic(data)
+         panic(x)
       },
    }
 }
