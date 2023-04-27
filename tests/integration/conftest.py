@@ -29,9 +29,8 @@ def devnet_gateway_url_fixture(
 ):
     cwd = os.getcwd()
 
-    # integration/.. (tests)/.. (protostar)/cairo
     cairo_submodule_toml_path = (
-        Path(__file__).parent.parent / "cairo/Cargo.toml"
+        Path(__file__).parent.parent.parent / "cairo/Cargo.toml"
     ).resolve()
 
     os.chdir(TESTS_ROOT_PATH.parent.resolve())

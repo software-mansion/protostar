@@ -207,7 +207,6 @@ def devnet_gateway_url_fixture(devnet_port: int, protostar_repo_root: Path):
             "poetry",
             "run",
             "starknet-devnet",
-            "starknet-devnet",
             "--cairo-compiler-manifest",
             str(cairo_submodule_toml_path),
         ],
