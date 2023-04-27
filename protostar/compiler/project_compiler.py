@@ -1,7 +1,7 @@
 from enum import Enum, auto
 from pathlib import Path
 import json
-from typing import Optional
+from typing import Optional, Tuple
 
 from starkware.starknet.services.api.contract_class.contract_class import (
     ContractClass,
@@ -56,7 +56,7 @@ class ProjectCompiler:
         contract_identifier: ContractIdentifier,
         cairo_path: Optional[list[Path]] = None,
         output_path: Optional[Path] = None,
-    ):
+    ) -> Tuple[str, str]:
         sierra_compiled = self.compile_contract_to_sierra_from_contract_identifier(
             contract_identifier, cairo_path, output_path
         )
