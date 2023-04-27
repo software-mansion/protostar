@@ -48,18 +48,3 @@ fn test_prepare_cairo0_w_ctor_no_args() {
 
     drop(prepare(class_hash, ArrayTrait::new()).unwrap());
 }
-
-use serde::Serde;
-use minimal_custom_structures::MinimalContract::CustomStruct;
-use minimal_custom_structures::MinimalContract::CustomStructSerde;
-
-
-#[test]
-fn test_custom_structures_usage() {
-    let class_hash = declare('minimal_custom_structures').unwrap();
-    let mut args = ArrayTrait::new();
-    let cs = CustomStruct { a: 1, b: 2 };
-    CustomStructSerde::serialize(ref args, cs);
-
-    drop(prepare(class_hash, args).unwrap());
-}

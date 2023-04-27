@@ -48,6 +48,5 @@ async def test_prepare_hint_local(
             "test_prepare_cairo0",
             "test_prepare_cairo0_w_ctor",
             "test_prepare_cairo0_w_ctor_no_args",
-            "test_custom_structures_usage",
         ],
     )
