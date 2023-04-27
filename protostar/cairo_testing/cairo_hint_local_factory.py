@@ -117,7 +117,7 @@ class CairoSharedHintLocalFactory:
             MockCallHintLocal(controller=contracts_controller),
             ExpectCallHintLocal(controller=expect_call_controller),
             AssertExpectCallHintLocal(controller=expect_call_controller),
-            PrintHintLocal(controller=contracts_controller),
+            PrintHintLocal(),
         ]
 
 
