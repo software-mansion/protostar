@@ -3,7 +3,7 @@ from .declare_hint_local import DeclareHintLocal
 from .declare_cairo0_hint_local import DeclareCairo0HintLocal
 from .deploy_hint_local import DeployHintLocal
 from .invoke_hint_local import InvokeHintLocal
-from .prank_hint_local import PrankHintLocal
+from .start_prank_hint_local import PrankHintLocal
 from .prepare_hint_local import PrepareHintLocal
 from .roll_hint_local import RollHintLocal
 from .store_hint_local import StoreHintLocal
