@@ -1,6 +1,6 @@
 from typing import Callable
 
-from protostar.cheatable_starknet.controllers.io import IOController
+from protostar.cheatable_starknet.controllers.io import protostar_print
 from protostar.starknet.data_transformer import CairoData
 
 from .callable_hint_local import CallableHintLocal
@@ -17,4 +17,4 @@ class PrintHintLocal(CallableHintLocal):
         return self.protostar_print
 
     def protostar_print(self, data: CairoData) -> None:
-        IOController.protostar_print(data=data)
+        protostar_print(data=data)
