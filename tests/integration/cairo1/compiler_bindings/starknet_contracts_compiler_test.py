@@ -6,19 +6,27 @@ import protostar.cairo.cairo_bindings as cairo1
 
 def test_contract_to_casm(datadir: Path):
     assert cairo1.compile_starknet_contract_to_casm_from_path(
-        datadir / "basic_starknet_project"
+        input_path=datadir / "basic_starknet_project"
     )
     assert cairo1.compile_starknet_contract_to_casm_from_path(
-        datadir / "test_starknet_project"
+        input_path=datadir / "test_starknet_project"
+    )
+    assert cairo1.compile_starknet_contract_to_casm_from_path(
+        input_path=datadir / "basic_starknet_project",
+        output_path=datadir / "basic_starknet_project.casm",
+    )
+    assert cairo1.compile_starknet_contract_to_casm_from_path(
+        input_path=datadir / "test_starknet_project",
+        output_path=datadir / "test_starknet_project.casm",
     )
 
 
 def test_contract_to_sierra_to_casm(datadir: Path):
-    cairo1.compile_starknet_contract_to_sierra_from_path(
+    assert cairo1.compile_starknet_contract_to_sierra_from_path(
         input_path=datadir / "basic_starknet_project",
         output_path=datadir / "basic_starknet_project.sierra",
     )
-    cairo1.compile_starknet_contract_to_sierra_from_path(
+    assert cairo1.compile_starknet_contract_to_sierra_from_path(
         input_path=datadir / "test_starknet_project",
         output_path=datadir / "test_starknet_project.sierra",
     )
