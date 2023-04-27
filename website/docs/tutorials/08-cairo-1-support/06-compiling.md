@@ -12,7 +12,7 @@ Each Cairo file that contains an entrypoint function should be listed in the [`c
 An entrypoint is a function decorated with `#[external]` or `#[view]`.
 3. Run the [`protostar build-cairo1`](../../cli-reference.md#build-cairo1) command.
 
-`build-cairo1` command outputs a class hash if the compilation is successful.
+`build-cairo1` command outputs class hash and compiled class hash if the compilation is successful.
 
 ## Output directory
 
