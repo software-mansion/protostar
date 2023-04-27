@@ -46,6 +46,16 @@ def mocked_project_compiler_fixture(datadir: Path) -> ProjectCompiler:
             assert compiled is not None
             return compiled
 
+        def compile_contract(self, *args: Any, **kwargs: Any):
+            sierra_compiled = self.compile_contract_to_sierra_from_contract_name(
+                args, kwargs
+            )
+            casm_compiled = self.compile_contract_to_casm_from_contract_name(
+                args, kwargs
+            )
+
+            return casm_compiled, sierra_compiled
+
     return MockedProjectCompiler()
 
 
