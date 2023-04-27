@@ -54,7 +54,7 @@ def mocked_project_compiler_fixture(datadir: Path) -> ProjectCompiler:
                 args, kwargs
             )
 
-            return casm_compiled, sierra_compiled
+            return sierra_compiled, casm_compiled
 
     return MockedProjectCompiler()
 
