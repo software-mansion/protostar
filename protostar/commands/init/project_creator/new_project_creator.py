@@ -124,5 +124,5 @@ class NewProjectCreator(ProjectCreator):
         pattern = r"^[a-zA-Z_][0-9a-zA-Z_]*$"
         if not re.match(pattern, name):
             raise ProtostarException(
-                f"Provided project name {name} does not match regex {pattern}. Choose a different project name."
+                f"Provided project name {name} does not match the regex {pattern}. Choose a different project name."
             )
