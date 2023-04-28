@@ -7,7 +7,7 @@ fn test_deploy() {
     let class_hash = declare('minimal').unwrap();
     assert(class_hash != 0, 'class_hash != 0');
 
-    let prepare_result = prepare(class_hash, ArrayTrait::new()).unwrap();
+    let prepare_result = prepare(class_hash, @ArrayTrait::new()).unwrap();
 
     assert(prepare_result.contract_address != 0, 'prepared contract_address != 0');
     assert(prepare_result.class_hash != 0, 'prepared class_hash != 0');
@@ -26,7 +26,7 @@ fn test_deploy_cairo0() {
     let class_hash = declare_cairo0('cairo0').unwrap();
     assert(class_hash != 0, 'class_hash != 0');
 
-    let prepare_result = prepare(class_hash, ArrayTrait::new()).unwrap();
+    let prepare_result = prepare(class_hash, @ArrayTrait::new()).unwrap();
 
     assert(prepare_result.contract_address != 0, 'prepared contract_address != 0');
     assert(prepare_result.class_hash != 0, 'prepared class_hash != 0');
@@ -49,12 +49,11 @@ fn test_deploy_with_ctor() {
     let class_hash = declare('with_ctor').unwrap();
     assert(class_hash != 0, 'declared class_hash != 0');
 
-    let prepare_result = prepare(class_hash, constructor_calldata).unwrap();
+    let prepare_result = prepare(class_hash, @constructor_calldata).unwrap();
 
     assert(prepare_result.contract_address != 0, 'prepared contract_address != 0');
     assert(prepare_result.class_hash != 0, 'prepared class_hash != 0');
-    // TODO (1717): check the length of the array, this produces: error: Variable was previously moved
-    // assert(prepare_result.constructor_calldata.len() == 2_u32, 'constructor_calldata size == 2');
+    assert(prepare_result.constructor_calldata.len() == 2_u32, 'constructor_calldata size == 2');
 
     let prepared_contract = PreparedContract {
         contract_address: prepare_result.contract_address,
@@ -70,12 +69,11 @@ fn test_deploy_with_storage() {
     let class_hash = declare('with_storage').unwrap();
     assert(class_hash != 0, 'declared class_hash != 0');
 
-    let prepare_result = prepare(class_hash, ArrayTrait::new()).unwrap();
+    let prepare_result = prepare(class_hash, @ArrayTrait::new()).unwrap();
 
     assert(prepare_result.contract_address != 0, 'prepared contract_address != 0');
     assert(prepare_result.class_hash != 0, 'prepared class_hash != 0');
-    // TODO (1717): check the length of the array, this produces: error: Variable was previously moved
-    // assert(prepare_result.constructor_calldata.len() == 2_u32, 'constructor_calldata size == 2');
+    assert(prepare_result.constructor_calldata.len() == 0_u32, 'constructor_calldata size == 0');
 
     let prepared_contract = PreparedContract {
         contract_address: prepare_result.contract_address,
@@ -94,7 +92,7 @@ fn test_deploy_with_ctor_invalid_calldata() {
     let class_hash = declare('with_ctor').unwrap();
     assert(class_hash != 0, 'declared class_hash != 0');
 
-    let prepare_result = prepare(class_hash, constructor_calldata).unwrap();
+    let prepare_result = prepare(class_hash, @constructor_calldata).unwrap();
 
     let prepared_contract = PreparedContract {
         contract_address: prepare_result.contract_address,
@@ -113,7 +111,7 @@ fn test_deploy_with_ctor_panic() {
     let class_hash = declare('with_ctor_panic').unwrap();
     assert(class_hash != 0, 'declared class_hash != 0');
 
-    let prepare_result = prepare(class_hash, constructor_calldata).unwrap();
+    let prepare_result = prepare(class_hash, @constructor_calldata).unwrap();
 
     let prepared_contract = PreparedContract {
         contract_address: prepare_result.contract_address,
@@ -135,7 +133,7 @@ fn test_deploy_with_ctor_obsolete_calldata() {
     let class_hash = declare('minimal').unwrap();
     assert(class_hash != 0, 'declared class_hash != 0');
 
-    let prepare_result = prepare(class_hash, constructor_calldata).unwrap();
+    let prepare_result = prepare(class_hash, @constructor_calldata).unwrap();
 
     let prepared_contract = PreparedContract {
         contract_address: prepare_result.contract_address,
