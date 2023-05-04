@@ -7,7 +7,12 @@ from contextlib import contextmanager
 import cairo_python_bindings
 from protostar.cairo.cairo_function_runner_facade import RUNNER_BUILTINS_TITLE_CASE
 
-from .cairo_exceptions import CairoBindingException
+
+class CairoBindingException(Exception):
+    def __init__(self, message: str, details: Optional[str] = None):
+        self.message = message
+        self.details = details
+        super().__init__(message)
 
 
 def ensure_output_path(output_path: Optional[Path]):
