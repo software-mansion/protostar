@@ -31,12 +31,12 @@ fn test_deploy_no_args() {
 }
 
 #[test]
-fn test_deploy_tp() {
+fn test_deploy_impl() {
    let mut arr = ArrayTrait::new();
    arr.append(5);
    arr.append(4);
    arr.append(2);
-   match deploy_tp(123, 234, arr) {
+   match deploy_impl(123, 234, arr) {
       Result::Ok(deployed_contract_address) => {
         assert(deployed_contract_address == 0, 'check deployed_contract_address');
         ()
