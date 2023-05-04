@@ -32,34 +32,5 @@ fn test_call() {
     assert(*return_data2.at(0_u32) == 25, 'check call result');
 }
 ```
-## Handling call failures
-```cairo title="Deployed contract"
-#[contract]
-mod MinimalContract {
-    #[view]
-    fn panic_with(panic_data: Array::<felt252>) {
-        panic(panic_data);
-    }
-}
-```
-
-```cairo title="Test"
-use cheatcodes::RevertedTransactionTrait;
-
-#[test]
-fn test_call_errors() {
-    let mut panic_data = ArrayTrait::new();
-    panic_data.append(2); // Array length
-    panic_data.append('error');
-    panic_data.append('data');
-    
-    match call(deployed_contract_address, 'panic_with', panic_data) {
-        Result::Ok(x) => assert(false, 'Shouldnt have succeeded'),
-        Result::Err(x) => {
-            assert(x.first() == 'error', 'first datum doesnt match');
-            assert(*x.panic_data.at(1_u32) == 'data', 'second datum doesnt match');
-        }
-    }
-```
 
 You can find more examples [here](https://github.com/software-mansion/protostar/blob/18959214d46409be8bedd92cc6427c1945b1bcc8/tests/integration/cairo1_hint_locals/call/call_test.cairo).
