@@ -1188,14 +1188,14 @@ test = ["eth-utils (>=1.0.1,<3)", "hypothesis (>=3.44.24,<=6.31.6)", "pytest (>=
 
 [[package]]
 name = "hypothesis"
-version = "6.72.2"
+version = "6.75.1"
 description = "A library for property-based testing"
 category = "main"
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "hypothesis-6.72.2-py3-none-any.whl", hash = "sha256:83224b49c8320fca3fadcd5b6041c5311f59fdf4190d3819a783869f4720b690"},
-    {file = "hypothesis-6.72.2.tar.gz", hash = "sha256:a3c6003c45e825a9c5f7b910c0b4a0522d7e6302f9616b3d723df3f6129a18ca"},
+    {file = "hypothesis-6.75.1-py3-none-any.whl", hash = "sha256:f67e4925e26cbee4561b492e3845f68559b8a51b08cfaef9b6cf6f6c40c5e091"},
+    {file = "hypothesis-6.75.1.tar.gz", hash = "sha256:7940ae975ab48f86d36cedfd0eeccb8e37e99746785f7d6bb17b4a8ec4ec07a8"},
 ]
 
 [package.dependencies]
@@ -1204,7 +1204,7 @@ exceptiongroup = {version = ">=1.0.0", markers = "python_version < \"3.11\""}
 sortedcontainers = ">=2.1.0,<3.0.0"
 
 [package.extras]
-all = ["backports.zoneinfo (>=0.2.1)", "black (>=19.10b0)", "click (>=7.0)", "django (>=3.2)", "dpcontracts (>=0.4)", "importlib-metadata (>=3.6)", "lark (>=0.10.1)", "libcst (>=0.3.16)", "numpy (>=1.9.0)", "pandas (>=1.0)", "pytest (>=4.6)", "python-dateutil (>=1.4)", "pytz (>=2014.1)", "redis (>=3.0.0)", "rich (>=9.0.0)", "tzdata (>=2023.3)"]
+all = ["backports.zoneinfo (>=0.2.1)", "black (>=19.10b0)", "click (>=7.0)", "django (>=3.2)", "dpcontracts (>=0.4)", "importlib-metadata (>=3.6)", "lark (>=0.10.1)", "libcst (>=0.3.16)", "numpy (>=1.16.0)", "pandas (>=1.1)", "pytest (>=4.6)", "python-dateutil (>=1.4)", "pytz (>=2014.1)", "redis (>=3.0.0)", "rich (>=9.0.0)", "tzdata (>=2023.3)"]
 cli = ["black (>=19.10b0)", "click (>=7.0)", "rich (>=9.0.0)"]
 codemods = ["libcst (>=0.3.16)"]
 dateutil = ["python-dateutil (>=1.4)"]
@@ -1212,8 +1212,8 @@ django = ["django (>=3.2)"]
 dpcontracts = ["dpcontracts (>=0.4)"]
 ghostwriter = ["black (>=19.10b0)"]
 lark = ["lark (>=0.10.1)"]
-numpy = ["numpy (>=1.9.0)"]
-pandas = ["pandas (>=1.0)"]
+numpy = ["numpy (>=1.16.0)"]
+pandas = ["pandas (>=1.1)"]
 pytest = ["pytest (>=4.6)"]
 pytz = ["pytz (>=2014.1)"]
 redis = ["redis (>=3.0.0)"]
@@ -3363,4 +3363,4 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.9"
-content-hash = "ed206e2f37571123c44deeb9ac71866873ea989aaea282751a1655bdcc3e2ba6"
+content-hash = "d843b564b28b5e440808aa461016e1da4b1b2c2ae002aded714dbef51487fe1c"
