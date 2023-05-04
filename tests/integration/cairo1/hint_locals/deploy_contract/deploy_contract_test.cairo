@@ -50,3 +50,15 @@ fn test_deploy_contract_cairo0_with_constructor() {
 fn test_deploy_contract_cairo0_using_cairo1() {
     let deployed_contract_address = deploy_contract('cairo0', @ArrayTrait::new()).unwrap();
 }
+
+#[test]
+fn test_deploy_contract_doesnt_move_calldata() {
+    let mut constructor_calldata = ArrayTrait::new();
+    constructor_calldata.append(3);
+    constructor_calldata.append(2);
+
+    let deployed_contract_address = deploy_contract('with_constructor', @constructor_calldata).unwrap();
+
+    // This should work if calldata is not moved to deploy_contract
+    assert(constructor_calldata.len() == 2_u32, 'calldata size == 2');
+}

@@ -91,3 +91,17 @@ fn test_call_exception_handling() {
         Result::Err(x) => assert(x.first() == 'i am bonkers', x.first()),
     }
 }
+
+#[test]
+fn test_call_doesnt_move_calldata() {
+    let deployed_contract_address = deploy_contract('simple', @ArrayTrait::new()).unwrap();
+
+    let mut calldata = ArrayTrait::new();
+    calldata.append(3);
+    calldata.append(2);
+    calldata.append(5);
+    let return_data = call(deployed_contract_address, 'perform', @calldata).unwrap();
+
+    // This should work if calldata is not moved to call
+    assert(calldata.len() == 3_u32, 'calldata size == 3');
+}

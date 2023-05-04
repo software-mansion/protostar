@@ -43,6 +43,7 @@ async def test_invoke_hint_local(
             "test_invoke_with_ctor",
             "test_invoke_vs_call_state_changes",
             "test_invoke_exception_handling",
+            "test_invoke_doesnt_move_calldata",
         ],
         expected_failed_test_cases_names=[
             "test_invoke_wrong_number_of_args",
