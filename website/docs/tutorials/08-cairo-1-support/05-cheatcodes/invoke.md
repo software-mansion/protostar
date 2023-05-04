@@ -1,7 +1,7 @@
 # `invoke`
 
 ```cairo
-fn invoke(contract_address: felt252, function_name: felt252, calldata: Array::<felt252>) -> Result::<(), RevertedTransaction> nopanic;
+fn invoke(contract_address: felt252, function_name: felt252, calldata: @Array::<felt252>) -> Result::<(), RevertedTransaction> nopanic;
 
 struct RevertedTransaction {
     panic_data: Array::<felt252>, 
@@ -28,7 +28,7 @@ fn invoke_test() {
     calldata.append(11);
     calldata.append(12);
 
-    invoke(contract_address, 'function_name', calldata).unwrap();
+    invoke(contract_address, 'function_name', @calldata).unwrap();
 
     // ...
 }
@@ -55,7 +55,7 @@ fn test_invoke_errors() {
     panic_data.append('error');
     panic_data.append('data');
     
-    match invoke(deployed_contract_address, 'panic_with', panic_data) {
+    match invoke(deployed_contract_address, 'panic_with', @panic_data) {
         Result::Ok(x) => assert(false, 'Shouldnt have succeeded'),
         Result::Err(x) => {
             assert(x.first() == 'error', 'first datum doesnt match');
