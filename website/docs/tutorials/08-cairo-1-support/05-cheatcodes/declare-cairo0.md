@@ -10,7 +10,8 @@ Declares a Cairo0 (old syntax) contract given a contract name defined in the [pr
 ```cairo title="Example"
 use result::ResultTrait;
 
-fn my_function() {
+#[test]
+fn test_declare_cairo0() {
     let class_hash = declare_cairo0('myoldcontract').unwrap();
     // ...
 }

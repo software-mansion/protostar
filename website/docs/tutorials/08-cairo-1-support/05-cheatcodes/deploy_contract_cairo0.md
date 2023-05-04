@@ -13,8 +13,8 @@ file.
 use result::ResultTrait;
 use array::ArrayTrait;
 
-fn my_function() {
-
+#[test]
+fn test_deploy_contract_cairo0() {
     let mut calldata = ArrayTrait::new();
     calldata.append(10);
     calldata.append(11);

@@ -19,7 +19,7 @@ use result::ResultTrait;
 use array::ArrayTrait;
 
 #[test]
-fn invoke_test() {
+fn test_invoke() {
 
     let contract_address = 123;
 

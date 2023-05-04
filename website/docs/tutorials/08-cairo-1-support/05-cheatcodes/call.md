@@ -23,7 +23,7 @@ use array::ArrayTrait;
 use result::ResultTrait;
 
 #[test]
-fn test_call_simple() {
+fn test_call() {
     let mut calldata = ArrayTrait::new();
     calldata.append(3);
     calldata.append(2);

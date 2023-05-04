@@ -40,7 +40,7 @@ mod MyContract {
 }
 
 #[test]
-fn my_test() {
+fn test_start_prank() {
     invoke(deployed_contract_address, 'will_be_pranked', @ArrayTrait::new()).unwrap();
     let return_data = call(deployed_contract_address, 'get_stored_value', @ArrayTrait::new()).unwrap();
     // Standard value is set

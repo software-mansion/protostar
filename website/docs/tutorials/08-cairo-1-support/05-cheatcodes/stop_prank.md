@@ -10,7 +10,7 @@ Stops a prank started by [`start_prank`](./start_prank.md).
 
 ```cairo title="Example"
 #[test]
-fn my_test() {
+fn test_stop_prank() {
     stop_prank(pranked_address).unwrap();
     // Address is no longer pranked from here
 }

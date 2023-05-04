@@ -10,7 +10,8 @@ Prepares contract for deployment.
 use result::ResultTrait;
 use array::ArrayTrait;
 
-fn my_function() {
+#[test]
+fn test_prepare() {
     let class_hash = declare('mycontract').unwrap();
 
     let mut calldata = ArrayTrait::new();
