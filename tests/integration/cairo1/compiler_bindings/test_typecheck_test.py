@@ -3,7 +3,7 @@ from pathlib import Path
 import pytest
 
 import protostar.cairo.cairo_bindings as cairo1
-from protostar.cairo.cairo_exceptions import CairoBindingException
+from protostar.cairo.cairo_bindings import CairoBindingException
 
 
 def test_typecheck_basic(datadir: Path):
