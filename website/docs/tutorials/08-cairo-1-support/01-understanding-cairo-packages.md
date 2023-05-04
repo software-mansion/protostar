@@ -128,7 +128,7 @@ You now use your function with `hello_starknet::mod1::functions::returns_three()
 ## Packages and modules names considerations
 
 The names must use only ASCII alphanumeric characters or `_`, and cannot be empty. Additionally, it cannot start with a
-digit. In other words, it must match the following regular expression:
+digit, nor be equal to `_`. In other words, it must match the following regular expression:
 ```regexp copy
-^[a-zA-Z_][0-9a-zA-Z_]*$
+^(?!_$)[a-zA-Z_][0-9a-zA-Z_]*$
 ```
