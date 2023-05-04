@@ -7,6 +7,7 @@ from contextlib import contextmanager
 import cairo_python_bindings
 from protostar.cairo.cairo_function_runner_facade import RUNNER_BUILTINS_TITLE_CASE
 
+
 class CairoBindingException(Exception):
     def __init__(self, message: str, details: Optional[str] = None):
         self.message = message

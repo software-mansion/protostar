@@ -88,7 +88,7 @@ class BuildCairo1Command(ProtostarCommand):
                 output_path=output_dir / (contract_name + ".casm.json"),
             )
         except cairo1.CairoBindingException as ex:
-            raise ProtostarException(ex.message) 
+            raise ProtostarException(ex.message) from ex
 
     async def build(
         self,
