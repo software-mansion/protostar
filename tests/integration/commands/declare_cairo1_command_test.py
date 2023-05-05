@@ -6,7 +6,6 @@ from unittest.mock import MagicMock
 import pytest
 from starknet_py.net.models import StarknetChainId
 
-from protostar.cairo import cairo_bindings
 from protostar.cli import MessengerFactory
 from protostar.commands import DeclareCairo1Command
 from protostar.contract_path_resolver import ContractPathResolver
@@ -26,25 +25,9 @@ def mocked_project_compiler_fixture(datadir: Path) -> ContractPathResolver:
         def __init__(self):
             super().__init__(MagicMock(), MagicMock())
 
-        def compile_contract_to_sierra_from_contract_name(
-            self, *args: Any, **kwargs: Any
-        ):
+        def contract_path_from_contract_name(self, *args: Any, **kwargs: Any) -> Path:
             # pylint: disable=unused-argument
-            compiled = cairo_bindings.compile_starknet_contract_to_sierra_from_path(
-                input_path=datadir,
-            )
-            assert compiled is not None
-            return compiled
-
-        def compile_contract_to_casm_from_contract_name(
-            self, *args: Any, **kwargs: Any
-        ):
-            # pylint: disable=unused-argument
-            compiled = cairo_bindings.compile_starknet_contract_to_casm_from_path(
-                input_path=datadir,
-            )
-            assert compiled is not None
-            return compiled
+            return datadir
 
     return MockedContractPathResolver()
 
