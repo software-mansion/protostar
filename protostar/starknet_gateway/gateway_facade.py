@@ -28,9 +28,6 @@ from protostar.starknet import (
     Selector,
 )
 from protostar.starknet.data_transformer import CairoOrPythonData
-from protostar.starknet_gateway.account_tx_version_detector import (
-    AccountTxVersionDetector,
-)
 from protostar.starknet_gateway.gateway_response import (
     SuccessfulDeclareResponse,
     SuccessfulDeployAccountResponse,
@@ -73,9 +70,6 @@ class GatewayFacade(MulticallClientProtocol):
     ):
         self._project_root_path = project_root_path
         self._gateway_client = gateway_client
-        self._account_tx_version_detector = AccountTxVersionDetector(
-            self._gateway_client
-        )
 
     async def _create_udc_deployment(
         self,
