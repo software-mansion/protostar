@@ -11,6 +11,7 @@ from starkware.starknet.services.api.contract_class.contract_class import (
 from protostar.cairo.cairo_bindings import (
     compile_starknet_contract_to_sierra_from_path,
     compile_starknet_contract_to_casm_from_path,
+    CairoBindingException,
 )
 from protostar.cairo.short_string import short_string_to_str
 from protostar.cheatable_starknet.callable_hint_locals.callable_hint_local import (
@@ -81,13 +82,9 @@ class DeclareHintLocal(CallableHintLocal):
             return compiled_class, contract_class
 
         def _make_contract_class(contract_name: str, contract_path: Path):
-            sierra_compiled = compile_starknet_contract_to_sierra_from_path(
-                contract_path
+            sierra_compiled = self._compile_to_sierra(
+                contract_name=contract_name, contract_path=contract_path
             )
-            if sierra_compiled is None:
-                raise CheatcodeException(
-                    self, f"Compilation of contract {contract_name} to sierra failed"
-                )
 
             sierra_compiled = json.loads(sierra_compiled)
             sierra_compiled.pop("sierra_program_debug_info", None)
@@ -96,12 +93,36 @@ class DeclareHintLocal(CallableHintLocal):
             return ContractClass.load(sierra_compiled)
 
         def _make_compiled_class(contract_name: str, contract_path: Path):
-            casm_compiled = compile_starknet_contract_to_casm_from_path(contract_path)
-            if casm_compiled is None:
-                raise CheatcodeException(
-                    self, f"Compilation of contract {contract_name} to casm failed"
-                )
+            casm_compiled = self._compile_to_casm(
+                contract_name=contract_name, contract_path=contract_path
+            )
 
             return CompiledClass.loads(casm_compiled)
 
         return declare
+
+    def _compile_to_sierra(self, contract_name: str, contract_path: Path):
+        try:
+            sierra_compiled = compile_starknet_contract_to_sierra_from_path(
+                contract_path
+            )
+
+            if sierra_compiled is None:
+                raise TypeError
+        except (CairoBindingException, TypeError) as ex:
+            raise CheatcodeException(
+                self, f"Compilation of contract {contract_name} to sierra failed"
+            ) from ex
+        return sierra_compiled
+
+    def _compile_to_casm(self, contract_name: str, contract_path: Path):
+        try:
+            casm_compiled = compile_starknet_contract_to_casm_from_path(contract_path)
+
+            if casm_compiled is None:
+                raise TypeError
+        except (CairoBindingException, TypeError) as ex:
+            raise CheatcodeException(
+                self, f"Compilation of contract {contract_name} to casm failed"
+            ) from ex
+        return casm_compiled
