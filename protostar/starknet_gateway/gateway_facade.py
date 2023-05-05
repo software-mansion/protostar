@@ -1,6 +1,6 @@
 import dataclasses
 from pathlib import Path
-from typing import Optional, TypeVar, Union, NoReturn
+from typing import Optional, TypeVar, Union
 
 from starknet_py.hash.casm_class_hash import compute_casm_class_hash
 from starknet_py.net.account.account import Account
@@ -28,9 +28,6 @@ from protostar.starknet import (
     Selector,
 )
 from protostar.starknet.data_transformer import CairoOrPythonData
-from protostar.starknet_gateway.account_tx_version_detector import (
-    AccountTxVersionDetector,
-)
 from protostar.starknet_gateway.gateway_response import (
     SuccessfulDeclareResponse,
     SuccessfulDeployAccountResponse,
@@ -73,9 +70,6 @@ class GatewayFacade(MulticallClientProtocol):
     ):
         self._project_root_path = project_root_path
         self._gateway_client = gateway_client
-        self._account_tx_version_detector = AccountTxVersionDetector(
-            self._gateway_client
-        )
 
     async def _create_udc_deployment(
         self,
@@ -200,7 +194,8 @@ class GatewayFacade(MulticallClientProtocol):
             transaction_hash=response.transaction_hash,
         )
 
-    def _load_compiled_contract(self, compiled_contract_path: Path) -> str:
+    @staticmethod
+    def _load_compiled_contract(compiled_contract_path: Path) -> str:
         try:
             return compiled_contract_path.read_text("utf-8")
         except FileNotFoundError as err:
@@ -258,7 +253,7 @@ class GatewayFacade(MulticallClientProtocol):
                 auto_estimate=max_fee == "auto",
             )
         except ClientError as ex:
-            _handle_declare_error(account_address, ex)
+            raise _create_declare_error(account_address, ex) from ex
 
         return await self._declare(
             declare_tx=declare_tx,
@@ -290,7 +285,7 @@ class GatewayFacade(MulticallClientProtocol):
                 auto_estimate=max_fee == "auto",
             )
         except ClientError as ex:
-            _handle_declare_error(account_address, ex)
+            raise _create_declare_error(account_address, ex) from ex
 
         return await self._declare(
             declare_tx=declare_tx,
@@ -377,7 +372,9 @@ class GatewayFacade(MulticallClientProtocol):
         await self._gateway_client.wait_for_tx(tx_hash=tx_hash, wait_for_accept=True)
 
 
-def _handle_declare_error(account_address: Address, ex: ClientError) -> NoReturn:
+def _create_declare_error(
+    account_address: Address, ex: ClientError
+) -> ProtostarException:
     account_address_found_in_message = hex(int(account_address)) in ex.message
     message = (
         "No account associated with provided account address found. Contact your wallet provider."
@@ -385,7 +382,7 @@ def _handle_declare_error(account_address: Address, ex: ClientError) -> NoReturn
         and account_address_found_in_message
         else ex.message
     )
-    raise ProtostarException(message) from ex
+    return ProtostarException(message)
 
 
 class InputValidationException(ProtostarException):
