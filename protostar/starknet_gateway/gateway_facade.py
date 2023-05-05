@@ -1,6 +1,6 @@
 import dataclasses
 from pathlib import Path
-from typing import Optional, TypeVar, Union, NoReturn
+from typing import Optional, TypeVar, Union
 
 from starknet_py.hash.casm_class_hash import compute_casm_class_hash
 from starknet_py.net.account.account import Account
@@ -253,9 +253,8 @@ class GatewayFacade(MulticallClientProtocol):
                 auto_estimate=max_fee == "auto",
             )
         except ClientError as ex:
-            _handle_declare_error(account_address, ex)
+            raise _create_declare_error(account_address, ex) from ex
 
-        # noinspection PyUnboundLocalVariable
         return await self._declare(
             declare_tx=declare_tx,
             account=account,
@@ -286,9 +285,8 @@ class GatewayFacade(MulticallClientProtocol):
                 auto_estimate=max_fee == "auto",
             )
         except ClientError as ex:
-            _handle_declare_error(account_address, ex)
+            raise _create_declare_error(account_address, ex) from ex
 
-        # noinspection PyUnboundLocalVariable
         return await self._declare(
             declare_tx=declare_tx,
             account=account,
@@ -374,7 +372,9 @@ class GatewayFacade(MulticallClientProtocol):
         await self._gateway_client.wait_for_tx(tx_hash=tx_hash, wait_for_accept=True)
 
 
-def _handle_declare_error(account_address: Address, ex: ClientError) -> NoReturn:
+def _create_declare_error(
+    account_address: Address, ex: ClientError
+) -> ProtostarException:
     account_address_found_in_message = hex(int(account_address)) in ex.message
     message = (
         "No account associated with provided account address found. Contact your wallet provider."
@@ -382,7 +382,7 @@ def _handle_declare_error(account_address: Address, ex: ClientError) -> NoReturn
         and account_address_found_in_message
         else ex.message
     )
-    raise ProtostarException(message) from ex
+    return ProtostarException(message)
 
 
 class InputValidationException(ProtostarException):
