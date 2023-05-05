@@ -121,8 +121,9 @@ class NewProjectCreator(ProjectCreator):
     @staticmethod
     def _validate_project_name(name: str):
         # https://github.com/software-mansion/scarb/blob/main/scarb/src/core/package/name.rs#LL42C9
-        pattern = r"^(?!_$)[a-zA-Z_][0-9a-zA-Z_]*$"
-        if not re.match(pattern, name):
+        pattern = r"^[a-zA-Z_][0-9a-zA-Z_]*$"
+        if not re.match(pattern, name) or name == "_":
             raise ProtostarException(
-                f"Provided project name {name} does not match the regex {pattern}. Choose a different project name."
+                f"Provided project name {name} does not match the regex {pattern} or is equal to '_'. "
+                f"Choose a different project name."
             )
