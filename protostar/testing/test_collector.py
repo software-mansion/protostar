@@ -5,7 +5,7 @@ from fnmatch import fnmatch
 from glob import glob
 from pathlib import Path
 from time import time
-from typing import Dict, List, Tuple, Iterable, Optional, Set, Protocol
+from typing import Dict, List, Tuple, Iterable, Optional, Set, Protocol, Union, cast
 
 from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
     LocationError,
@@ -13,7 +13,7 @@ from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
 )
 from protostar.cairo.cairo_bindings import AvailableGas
 
-from protostar.cairo.cairo_exceptions import CairoBindingException
+from protostar.cairo.cairo_bindings import CairoBindingException
 
 from .test_results import BrokenTestSuiteResult
 from .test_suite import TestCase, TestSuite
@@ -77,7 +77,9 @@ TestSuiteInfoDict = Dict[TestSuitePath, TestSuiteInfo]
 
 
 class FunctionNameGetter(Protocol):
-    def __call__(self, file_path: Path) -> List[str]:
+    def __call__(
+        self, file_path: Path
+    ) -> Union[list[str], list[tuple[str, AvailableGas]]]:
         ...
 
 
@@ -275,12 +277,26 @@ class TestCollector:
         test_suite_info: TestSuiteInfo,
     ) -> TestSuite:
         function_names = self._get_suite_function_names(test_suite_info.path)
-        setup_fn_name = self._collect_setup_hook_name(function_names)
+
+        names: list[str] = []
+        gas: list[AvailableGas] = []
+        if len(function_names) == 0:
+            pass
+        elif isinstance(function_names[0], str):
+            function_names = cast(list[str], function_names)
+            names = function_names
+            gas = [None] * len(function_names)
+        else:
+            function_names = cast(list[tuple[str, AvailableGas]], function_names)
+            names = [fn[0] for fn in function_names]
+            gas = [fn[1] for fn in function_names]
+
+        setup_fn_name = self._collect_setup_hook_name(names)
 
         test_cases = list(
             test_suite_info.filter_test_cases(
                 self._collect_test_cases(
-                    function_names=[(fn, None) for fn in function_names],
+                    function_names=list(zip(names, gas)),
                     test_path=test_suite_info.path,
                 )
             )

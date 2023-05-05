@@ -47,7 +47,7 @@ from protostar.testing.test_suite import (
     TestSuite,
     TestCase,
     Cairo1TestSuite,
-    TestCaseWithOffsets,
+    Cairo1TestCase,
 )
 from protostar.testing.testing_seed import Seed
 import protostar.cairo.cairo_bindings as cairo1
@@ -261,18 +261,8 @@ class Cairo1TestRunner:
     ) -> TestResult:
         state: CairoTestExecutionState = initial_state.fork()
         assert isinstance(
-            test_case, TestCaseWithOffsets
+            test_case, Cairo1TestCase
         ), "Cairo 1 runner only supports test cases with offsets!"
-        # TODO #1537: Plug in setups
-        # if test_case.setup_fn_name:
-        #     setup_case_result = await self._run_setup_case(
-        #         test_case=test_case, state=state, program=program
-        #     )
-        #     if isinstance(setup_case_result, BrokenSetupCaseResult):
-        #         return setup_case_result.into_broken_test_case_result()
-
-        # TODO #1283, #1282: Plug in other test modes (fuzzing, parametrized)
-        # state.determine_test_mode(test_case)
 
         test_execution_environment = CairoTestExecutionEnvironment(
             state=state,

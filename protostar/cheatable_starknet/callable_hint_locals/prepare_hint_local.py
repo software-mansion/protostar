@@ -21,7 +21,7 @@ class PrepareHintLocal(CallableHintLocal):
 
     @property
     def name(self) -> str:
-        return "prepare_tp"
+        return "prepare_impl"
 
     def _build(self) -> Callable[[Any], Any]:
         return self.prepare

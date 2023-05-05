@@ -1,6 +1,5 @@
-from pathlib import Path
-
 import os
+from pathlib import Path
 
 import pytest
 
@@ -11,9 +10,12 @@ def test_cairo1_build(protostar: ProtostarFixture, copy_fixture: CopyFixture):
     copy_fixture("cairo1_build", "./cairo_project")
     os.chdir("./cairo_project")
     protostar(["build-cairo1"])
-    compiled_path = Path("build/main.json")
-    assert compiled_path.exists()
-    assert compiled_path.read_text()
+    compiled_sierra_path = Path("build/main.sierra.json")
+    compiled_casm_path = Path("build/main.casm.json")
+    assert compiled_sierra_path.exists()
+    assert compiled_sierra_path.read_text()
+    assert compiled_casm_path.exists()
+    assert compiled_casm_path.read_text()
 
 
 def test_cairo1_build_invalid_contract_path_to_cairo_file(

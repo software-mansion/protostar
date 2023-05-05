@@ -262,7 +262,6 @@ def test_declaring_cairo1_contract(
 
 @pytest.mark.usefixtures("init")
 def test_deploy_account_is_available(protostar: ProtostarFixture):
-    # TODO(mkaput): Write more meaningful test here.
     assert "Sends deploy-account transaction" in protostar(
         ["--no-color", "deploy-account", "--help"]
     )

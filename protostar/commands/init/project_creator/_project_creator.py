@@ -31,28 +31,12 @@ class ProjectCreator(ABC):
                 f"Folder or file named {project_root_path.name} already exists. Choose different project name."
             ) from ex_file_exists
 
-    def save_protostar_toml(
-        self, project_root_path: Path, cairo_version: CairoVersion
+    def _write_protostar_toml_from_config(
+        self, project_root_path: Path, configuration_model: ConfigurationFileV2Model
     ) -> None:
-        configuration_file_content = self._configuration_file_content_factory.create_file_content(
-            ConfigurationFileV2Model(
-                protostar_version=str(self._protostar_version),
-                # TODO(pmagiera): temporary solution
-                #  assume protostar.toml will change when we start supporting contracts
-                contract_name_to_path_strs={}
-                if cairo_version == CairoVersion.cairo1
-                else {"main": ["src/main.cairo"]},
-                project_config={
-                    "lib-path": "lib",
-                    "linked-libraries": ["src"],
-                }
-                if cairo_version == CairoVersion.cairo1
-                else {
-                    "lib-path": "lib",
-                },
-                command_name_to_config={},
-                profile_name_to_project_config={},
-                profile_name_to_commands_config={},
+        configuration_file_content = (
+            self._configuration_file_content_factory.create_file_content(
+                configuration_model
             )
         )
         ext = self._configuration_file_content_factory.get_file_extension()

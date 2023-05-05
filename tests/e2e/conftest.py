@@ -180,7 +180,6 @@ def protostar(
 
         if not ignore_exit_code:
             if completed.returncode != expect_exit_code:
-                # TODO(mkaput): Report this in nicer Pytest assertion-understandable way.
                 raise AssertionError(
                     f"""\
 Proces exited with {completed.returncode} while expected {expect_exit_code}.",

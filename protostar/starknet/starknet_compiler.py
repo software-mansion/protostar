@@ -39,9 +39,7 @@ class StarknetCompiler:
 
     def preprocess_contract(
         self, *cairo_file_paths: Path
-    ) -> Union[
-        StarknetPreprocessedProgram, TestCollectorPreprocessedProgram
-    ]:  # TODO #1280: Cache result
+    ) -> Union[StarknetPreprocessedProgram, TestCollectorPreprocessedProgram]:
         try:
             codes = [
                 (cairo_file_path.read_text("utf-8"), str(cairo_file_path))
@@ -96,7 +94,7 @@ class StarknetCompiler:
         self,
         *sources: Path,
         add_debug_info: bool = False,
-    ) -> DeprecatedCompiledClass:  # TODO #1280: Cache result
+    ) -> DeprecatedCompiledClass:
         preprocessed = self.preprocess_contract(*sources)
         assert isinstance(preprocessed, StarknetPreprocessedProgram)
         assembled = self.compile_preprocessed_contract(preprocessed, add_debug_info)

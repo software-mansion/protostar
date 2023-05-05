@@ -11,7 +11,6 @@ from starkware.starknet.business_logic.execution.objects import (
 from starkware.starknet.business_logic.execution.objects import Event as StarknetEvent
 from starkware.starknet.business_logic.state.state_api import SyncState
 from starkware.starknet.business_logic.transaction.objects import InternalDeclare
-from starkware.starknet.definitions.constants import GasCost
 from starkware.starknet.core.os.contract_class.compiled_class_hash import (
     compute_compiled_class_hash,
 )
@@ -22,9 +21,6 @@ from starkware.starknet.services.api.gateway.transaction import (
 )
 from starkware.starknet.testing.contract import DeclaredClass
 from starkware.starknet.testing.contract_utils import EventManager
-from starkware.starknet.business_logic.execution.execute_entry_point import (
-    ExecuteEntryPoint,
-)
 from starkware.starknet.core.os.contract_address.contract_address import (
     calculate_contract_address_from_hash,
 )
@@ -194,7 +190,9 @@ class ContractsController:
             max_fee=0,
             version=2,
             signature=[],
-            nonce=0,
+            nonce=await self.cheatable_state.get_nonce_at(
+                DEFAULT_DECLARE_SENDER_ADDRESS
+            ),
         )
 
         with self.cheatable_state.copy_and_apply() as state_copy:
@@ -277,7 +275,7 @@ class ContractsController:
             await self.invoke_constructor(prepared)
         elif not has_constructor and prepared.constructor_calldata:
             raise ConstructorInvocationException(
-                "Tried to deploy a contract with constructor calldata, but no constructor was found.",
+                "No constructor was found",
             )
 
         return DeployedContract(contract_address=prepared.contract_address)
@@ -301,15 +299,13 @@ class ContractsController:
         contract_address: int,
     ):
         with self.cheatable_state.copy_and_apply() as state:
-            call_info = await ExecuteEntryPoint.create(
-                contract_address=contract_address,
+            call_info = await self._create_pranked_entry_point(
+                contract_address=Address(contract_address),
                 calldata=constructor_calldata,
-                entry_point_selector=CONSTRUCTOR_ENTRY_POINT_SELECTOR,
-                caller_address=0,
+                entry_point_selector=Selector(CONSTRUCTOR_ENTRY_POINT_SELECTOR),
                 entry_point_type=EntryPointType.CONSTRUCTOR,
                 call_type=CallType.DELEGATE,
                 class_hash=class_hash,
-                initial_gas=GasCost.INITIAL.value,
             ).execute_for_testing(
                 state=self.cheatable_state,
                 general_config=StarknetGeneralConfig(),
@@ -374,12 +370,6 @@ class ContractsController:
         entry_point_selector: Selector,
         calldata: Optional[CairoData] = None,
     ) -> CallResult:
-        # TODO https://github.com/software-mansion/protostar/issues/1754
-        # cairo_calldata = await self._transform_calldata_to_cairo_data_by_addr(
-        #     contract_address=contract_address,
-        #     function_name=str(entry_point_selector),
-        #     calldata=calldata,
-        # )
         cairo_calldata = calldata or []
         entry_point = CheatableExecuteEntryPoint.create_for_protostar(
             contract_address=contract_address,
@@ -407,7 +397,7 @@ class ContractsController:
             function_name=str(entry_point_selector),
             calldata=calldata,
         )
-        entry_point = CheatableExecuteEntryPoint.create_for_protostar(
+        entry_point = self._create_pranked_entry_point(
             contract_address=contract_address,
             calldata=cairo_calldata,
             entry_point_selector=entry_point_selector,
@@ -459,4 +449,23 @@ class ContractsController:
     ):
         return self.cheatable_state.add_mocked_response(
             target_address, entrypoint, response
+        )
+
+    def _create_pranked_entry_point(
+        self,
+        contract_address: Address,
+        calldata: list[int],
+        entry_point_selector: Selector,
+        entry_point_type: EntryPointType = EntryPointType.EXTERNAL,
+        call_type: CallType = CallType.CALL,
+        class_hash: Optional[int] = None,
+    ) -> CheatableExecuteEntryPoint:
+        return CheatableExecuteEntryPoint.create_for_protostar(
+            contract_address=contract_address,
+            calldata=calldata,
+            entry_point_selector=entry_point_selector,
+            entry_point_type=entry_point_type,
+            call_type=call_type,
+            class_hash=class_hash,
+            caller_address=self.cheatable_state.get_pranked_address(contract_address),
         )

@@ -15,8 +15,8 @@ fn test_panic_single_value() {
 #[test]
 fn test_panic_multiple_values() {
     let mut data = ArrayTrait::new();
-    data.append(101);
-    data.append(102);
-    data.append(103);
+    data.append('elaborate');
+    data.append('panic');
+    data.append('data is here');
     panic(data)
 }

@@ -1,0 +1,2 @@
+[crate_roots]
+online_dependencies_project = "src"
