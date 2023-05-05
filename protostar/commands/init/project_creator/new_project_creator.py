@@ -120,7 +120,7 @@ class NewProjectCreator(ProjectCreator):
 
     @staticmethod
     def _validate_project_name(name: str):
-        # https://github.com/software-mansion/scarb/blob/main/scarb/src/core/package/name.rs#L26
+        # https://github.com/software-mansion/scarb/blob/main/scarb/src/core/package/name.rs#LL42C9
         pattern = r"^(?!_$)[a-zA-Z_][0-9a-zA-Z_]*$"
         if not re.match(pattern, name):
             raise ProtostarException(

@@ -127,8 +127,7 @@ You now use your function with `hello_starknet::mod1::functions::returns_three()
 
 ## Packages and modules names considerations
 
-The names must use only ASCII alphanumeric characters or `_`, and cannot be empty. Additionally, it cannot start with a
-digit, nor be equal to `_`. In other words, it must match the following regular expression:
-```regexp copy
-^(?!_$)[a-zA-Z_][0-9a-zA-Z_]*$
-```
+The name must be a valid Cairo identifier. 
+It must use only ASCII alphanumeric characters or `_`, 
+and cannot be empty, nor can it start with a digit.
+It also must not be a valid Cairo keyword or a wildcard pattern (`_`).
