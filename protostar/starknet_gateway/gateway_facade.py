@@ -194,7 +194,8 @@ class GatewayFacade(MulticallClientProtocol):
             transaction_hash=response.transaction_hash,
         )
 
-    def _load_compiled_contract(self, compiled_contract_path: Path) -> str:
+    @staticmethod
+    def _load_compiled_contract(compiled_contract_path: Path) -> str:
         try:
             return compiled_contract_path.read_text("utf-8")
         except FileNotFoundError as err:
@@ -254,6 +255,7 @@ class GatewayFacade(MulticallClientProtocol):
         except ClientError as ex:
             _handle_declare_error(account_address, ex)
 
+        # noinspection PyUnboundLocalVariable
         return await self._declare(
             declare_tx=declare_tx,
             account=account,
@@ -286,6 +288,7 @@ class GatewayFacade(MulticallClientProtocol):
         except ClientError as ex:
             _handle_declare_error(account_address, ex)
 
+        # noinspection PyUnboundLocalVariable
         return await self._declare(
             declare_tx=declare_tx,
             account=account,
