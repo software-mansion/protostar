@@ -78,7 +78,7 @@ class DeclaredSierraClass:
 
 @dataclass(frozen=True)
 class PreparedContract:
-    constructor_calldata: list[int]
+    constructor_calldata: List[int]
     contract_address: int
     class_hash: int
     salt: int
@@ -317,7 +317,7 @@ class ContractsController:
     def _add_emitted_events(
         self,
         cheatable_state: CheatableCachedState,
-        starknet_emitted_events: list[StarknetEvent],
+        starknet_emitted_events: List[StarknetEvent],
     ):
         cheatable_state.emitted_events.extend(
             [
@@ -454,7 +454,7 @@ class ContractsController:
     def _create_pranked_entry_point(
         self,
         contract_address: Address,
-        calldata: list[int],
+        calldata: List[int],
         entry_point_selector: Selector,
         entry_point_type: EntryPointType = EntryPointType.EXTERNAL,
         call_type: CallType = CallType.CALL,
