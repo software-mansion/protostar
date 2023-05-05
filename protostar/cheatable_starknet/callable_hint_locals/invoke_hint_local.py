@@ -51,7 +51,7 @@ class InvokeHintLocal(CallableHintLocal):
                 self._contracts_controller.invoke(
                     contract_address=contract_address,
                     entry_point_selector=entry_point_selector,
-                    calldata=calldata,
+                    calldata=calldata or [],
                 )
             )
         except ContractsCheaterException as exc:

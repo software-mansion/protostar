@@ -390,7 +390,7 @@ class ContractsController:
         self,
         entry_point_selector: Selector,
         contract_address: Address,
-        calldata: Optional[CairoOrPythonData] = None,
+        calldata: Optional[List[int]],
     ):
         cairo_calldata = await self._transform_calldata_to_cairo_data_by_addr(
             contract_address=contract_address,
