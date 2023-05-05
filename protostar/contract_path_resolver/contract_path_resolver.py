@@ -3,7 +3,7 @@ from pathlib import Path
 from protostar.configuration_file.configuration_file import ConfigurationFile
 
 
-class ProjectCompiler:
+class ContractPathResolver:
     def __init__(
         self,
         project_root_path: Path,

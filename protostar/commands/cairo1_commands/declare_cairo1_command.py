@@ -26,7 +26,7 @@ from protostar.cli.common_arguments import (
 )
 
 from protostar.commands.declare.declare_messages import SuccessfulDeclareMessage
-from protostar.compiler import ProjectCompiler
+from protostar.contract_path_resolver import ContractPathResolver
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet import Address
 from protostar.starknet_gateway import (
@@ -40,13 +40,13 @@ from protostar.starknet_gateway import (
 class DeclareCairo1Command(ProtostarCommand):
     def __init__(
         self,
-        project_compiler: ProjectCompiler,
+        contract_path_resolver: ContractPathResolver,
         gateway_facade_factory: GatewayFacadeFactory,
         messenger_factory: MessengerFactory,
     ):
         self._gateway_facade_factory = gateway_facade_factory
         self._messenger_factory = messenger_factory
-        self._project_compiler = project_compiler
+        self._contract_path_resolver = contract_path_resolver
 
     @property
     def name(self) -> str:
@@ -101,7 +101,7 @@ class DeclareCairo1Command(ProtostarCommand):
         )
 
         contract_name = args.contract
-        contract_path = self._project_compiler.contract_path_from_contract_name(
+        contract_path = self._contract_path_resolver.contract_path_from_contract_name(
             contract_name
         )
 

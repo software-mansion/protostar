@@ -21,7 +21,7 @@ from protostar.cheatable_starknet.controllers.contracts import (
     ContractsController,
     DeclaredSierraClass,
 )
-from protostar.compiler.project_compiler import ProjectCompiler
+from protostar.contract_path_resolver import ContractPathResolver
 from protostar.configuration_file.configuration_file import (
     ContractNameNotFoundException,
 )
@@ -32,10 +32,10 @@ class DeclareHintLocal(CallableHintLocal):
     def __init__(
         self,
         contracts_controller: ContractsController,
-        project_compiler: ProjectCompiler,
+        contract_path_resolver: ContractPathResolver,
     ):
-        self._contracts_controller = contracts_controller
-        self._project_compiler = project_compiler
+        self._contract_path_resolver = contracts_controller
+        self._project_compiler = contract_path_resolver
 
     @property
     def name(self) -> str:
@@ -50,7 +50,7 @@ class DeclareHintLocal(CallableHintLocal):
             )
 
             declared_class: DeclaredSierraClass = asyncio.run(
-                self._contracts_controller.declare_sierra_contract(
+                self._contract_path_resolver.declare_sierra_contract(
                     contract_class=contract_class,
                     compiled_class=compiled_class,
                 )

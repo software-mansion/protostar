@@ -9,7 +9,7 @@ from starknet_py.net.models import StarknetChainId
 from protostar.cairo import cairo_bindings
 from protostar.cli import MessengerFactory
 from protostar.commands import DeclareCairo1Command
-from protostar.compiler import ProjectCompiler
+from protostar.contract_path_resolver import ContractPathResolver
 from protostar.io import log_color_provider
 from protostar.starknet_gateway import GatewayFacadeFactory
 from tests.conftest import DevnetAccount, SetPrivateKeyEnvVarFixture
@@ -21,8 +21,8 @@ def compiled_contract_path_fixture() -> Path:
 
 
 @pytest.fixture(name="mocked_project_compiler")
-def mocked_project_compiler_fixture(datadir: Path) -> ProjectCompiler:
-    class MockedProjectCompiler(ProjectCompiler):
+def mocked_project_compiler_fixture(datadir: Path) -> ContractPathResolver:
+    class MockedContractPathResolver(ContractPathResolver):
         def __init__(self):
             super().__init__(MagicMock(), MagicMock())
 
@@ -46,14 +46,14 @@ def mocked_project_compiler_fixture(datadir: Path) -> ProjectCompiler:
             assert compiled is not None
             return compiled
 
-    return MockedProjectCompiler()
+    return MockedContractPathResolver()
 
 
 async def test_declaring_cairo1_contract(
     devnet_gateway_url: str,
     devnet_account: DevnetAccount,
     set_private_key_env_var: SetPrivateKeyEnvVarFixture,
-    mocked_project_compiler: ProjectCompiler,
+    mocked_project_compiler: ContractPathResolver,
 ):
     declare = DeclareCairo1Command(
         gateway_facade_factory=GatewayFacadeFactory(Path("")),
@@ -61,7 +61,7 @@ async def test_declaring_cairo1_contract(
             log_color_provider=log_color_provider,
             activity_indicator=MagicMock(),
         ),
-        project_compiler=mocked_project_compiler,
+        contract_path_resolver=mocked_project_compiler,
     )
 
     args = Namespace(

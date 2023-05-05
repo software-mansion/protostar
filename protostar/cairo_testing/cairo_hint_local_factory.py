@@ -40,7 +40,7 @@ from protostar.cheatable_starknet.controllers.expect_events_controller import (
     ExpectEventsController,
 )
 from protostar.compiler import Cairo0ProjectCompiler
-from protostar.compiler.project_compiler import ProjectCompiler
+from protostar.contract_path_resolver import ContractPathResolver
 from protostar.testing import Hook
 
 
@@ -49,13 +49,13 @@ class CairoSharedHintLocalFactory:
         self,
         cheatable_state: CheatableCachedState,
         cairo0_project_compiler: Cairo0ProjectCompiler,
-        project_compiler: ProjectCompiler,
+        contract_path_resolver: ContractPathResolver,
         test_finish_hook: Hook,
         test_execution_state: CairoTestExecutionState,
     ):
         self.cheatable_state = cheatable_state
         self.cairo0_project_compiler = cairo0_project_compiler
-        self.project_compiler = project_compiler
+        self.contract_path_resolver = contract_path_resolver
         self._test_finish_hook = test_finish_hook
         self._test_execution_state = test_execution_state
 
@@ -68,7 +68,7 @@ class CairoSharedHintLocalFactory:
 
         declare_cheatcode = DeclareHintLocal(
             contracts_controller=contracts_controller,
-            project_compiler=self.project_compiler,
+            contract_path_resolver=self.contract_path_resolver,
         )
         declare_cairo0_cheatcode = DeclareCairo0HintLocal(
             project_compiler=self.cairo0_project_compiler,
