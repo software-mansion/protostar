@@ -1,3 +1,4 @@
+# pyright: reportUnknownLambdaType=false
 from pathlib import Path
 from typing import List
 
@@ -21,7 +22,6 @@ class ReferenceDocsGenerator:
             result += self._generate_args_markdown(self.cli_app.root_args)
 
         if len(self.cli_app.commands) > 0:
-            # pyright: reportUnknownLambdaType=false
             sorted_commands = sorted(self.cli_app.commands, key=(lambda c: c.name))
             result += ["## Commands"]
             for command in sorted_commands:
