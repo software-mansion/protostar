@@ -14,6 +14,7 @@ import protostar.cairo.cairo_bindings as cairo1
 from protostar.commands.cairo1_commands.fetch_from_scarb import (
     maybe_fetch_linked_libraries_from_scarb,
 )
+from protostar.protostar_exception import ProtostarException
 
 
 class BuildCairo1Command(ProtostarCommand):
@@ -72,19 +73,22 @@ class BuildCairo1Command(ProtostarCommand):
             f"only one file per contract is supported in cairo1!"
         )
         sierra_file_path = output_dir / (contract_name + ".sierra.json")
-        cairo1.compile_starknet_contract_to_sierra_from_path(
-            input_path=contract_paths[0],
-            cairo_path=linked_libraries
-            + maybe_fetch_linked_libraries_from_scarb(
-                package_root_path=contract_paths[0],
-                linked_libraries=linked_libraries,
-            ),
-            output_path=sierra_file_path,
-        )
-        cairo1.compile_starknet_contract_sierra_to_casm_from_path(
-            input_path=sierra_file_path,
-            output_path=output_dir / (contract_name + ".casm.json"),
-        )
+        try:
+            cairo1.compile_starknet_contract_to_sierra_from_path(
+                input_path=contract_paths[0],
+                cairo_path=linked_libraries
+                + maybe_fetch_linked_libraries_from_scarb(
+                    package_root_path=contract_paths[0],
+                    linked_libraries=linked_libraries,
+                ),
+                output_path=sierra_file_path,
+            )
+            cairo1.compile_starknet_contract_sierra_to_casm_from_path(
+                input_path=sierra_file_path,
+                output_path=output_dir / (contract_name + ".casm.json"),
+            )
+        except cairo1.CairoBindingException as ex:
+            raise ProtostarException(ex.message) from ex
 
     async def build(
         self,
