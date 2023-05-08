@@ -19,8 +19,8 @@ function install_dev() {
   pushd crates/cairo-lang-python-bindings
   rustup override set nightly-2022-11-03 || return 1;
   maturin develop --release || return 1;
+  popd # crates/cairo-lang-python-bindings
   popd # cairo
-  popd # cairo/crates/cairo_python_bindings
 }
 
 function install_prod() {
@@ -30,12 +30,12 @@ function install_prod() {
   pushd crates/cairo-lang-python-bindings
   rustup override set nightly-2022-11-03 || return 1;
   maturin build || return 1;
-  popd # cairo
+  popd # crates/cairo-lang-python-bindings
 
   pushd target/wheels
   pip install "./$(ls | grep cairo_python_bindings)" || return 1;
+  popd # target/wheels
   popd # cairo
-  popd # cairo/crates/cairo_python_bindings
 }
 
 if [ "$1" == "prod" ]; then

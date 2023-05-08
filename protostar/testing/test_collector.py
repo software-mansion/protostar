@@ -13,7 +13,7 @@ from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
 )
 from protostar.cairo.cairo_bindings import AvailableGas
 
-from protostar.cairo.cairo_exceptions import CairoBindingException
+from protostar.cairo.cairo_bindings import CairoBindingException
 
 from .test_results import BrokenTestSuiteResult
 from .test_suite import TestCase, TestSuite

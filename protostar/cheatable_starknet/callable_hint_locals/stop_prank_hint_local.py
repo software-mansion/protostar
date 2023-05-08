@@ -18,6 +18,6 @@ class StopPrankHintLocal(CallableHintLocal):
     def _build(self) -> Callable:
         return self.stop_prank
 
-    def stop_prank(self, target_address: int):
-        address = Address.from_user_input(target_address)
+    def stop_prank(self, target_contract_address: int):
+        address = Address.from_user_input(target_contract_address)
         self._contracts_controller.cancel_prank(target_address=address)

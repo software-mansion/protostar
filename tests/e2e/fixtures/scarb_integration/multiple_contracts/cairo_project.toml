@@ -1,0 +1,2 @@
+[crate_roots]
+multiple_contracts = "src"
