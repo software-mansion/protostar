@@ -106,10 +106,7 @@ class DeclareHintLocal(CallableHintLocal):
                     contract_path
                 )
             )
-
-            if sierra_compiled is None:
-                raise TypeError
-        except (cairo1_bindings.CairoBindingException, TypeError) as ex:
+        except cairo1_bindings.CairoBindingException as ex:
             raise CheatcodeException(
                 self, f"Compilation of contract {contract_name} to sierra failed"
             ) from ex
@@ -120,10 +117,7 @@ class DeclareHintLocal(CallableHintLocal):
             casm_compiled = cairo1_bindings.compile_starknet_contract_to_casm_from_path(
                 contract_path
             )
-
-            if casm_compiled is None:
-                raise TypeError
-        except (cairo1_bindings.CairoBindingException, TypeError) as ex:
+        except cairo1_bindings.CairoBindingException as ex:
             raise CheatcodeException(
                 self, f"Compilation of contract {contract_name} to casm failed"
             ) from ex

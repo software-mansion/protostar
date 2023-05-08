@@ -102,21 +102,25 @@ class DeclareCairo1Command(ProtostarCommand):
             contract_name
         )
 
-        contract_sierra = cairo1_bindings.compile_starknet_contract_to_sierra_from_path(
-            contract_path
-        )
-        if contract_sierra is None:
+        try:
+            contract_sierra = (
+                cairo1_bindings.compile_starknet_contract_to_sierra_from_path(
+                    contract_path
+                )
+            )
+        except cairo1_bindings.CairoBindingException as ex:
             raise ProtostarException(
                 f"Failed to compile contract {contract_name} to sierra"
-            )
+            ) from ex
 
-        contract_casm = cairo1_bindings.compile_starknet_contract_to_casm_from_path(
-            contract_path
-        )
-        if contract_casm is None:
+        try:
+            contract_casm = cairo1_bindings.compile_starknet_contract_to_casm_from_path(
+                contract_path
+            )
+        except cairo1_bindings.CairoBindingException as ex:
             raise ProtostarException(
                 f"Failed to compile contract {contract_name} to casm"
-            )
+            ) from ex
 
         response = await self.declare(
             compiled_contract_sierra=contract_sierra,
