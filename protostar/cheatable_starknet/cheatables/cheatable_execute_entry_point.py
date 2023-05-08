@@ -246,7 +246,7 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
                 program=program,
                 layout=layout,
                 additional_builtin_factories=dict(
-                    segment_arena=lambda name, included: SegmentArenaBuiltinRunner(
+                    segment_arena=lambda name, included: SegmentArenaBuiltinRunner(  # pyright: ignore
                         included=included
                     )
                 ),
