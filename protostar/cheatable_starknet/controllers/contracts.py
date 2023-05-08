@@ -1,4 +1,3 @@
-import collections
 import copy
 from dataclasses import dataclass
 from typing import List, Optional, cast, Tuple
@@ -43,12 +42,7 @@ from protostar.cheatable_starknet.cheatables.cheatable_cached_state import (
 from protostar.cheatable_starknet.controllers.expect_events_controller import Event
 from protostar.starknet.selector import Selector
 from protostar.starknet.address import Address
-from protostar.starknet.data_transformer import (
-    DataTransformerException,
-    CairoOrPythonData,
-    CairoData,
-    from_python_transformer,
-)
+from protostar.starknet.data_transformer import CairoData
 
 
 class ContractsCheaterException(Exception):
@@ -78,7 +72,7 @@ class DeclaredSierraClass:
 
 @dataclass(frozen=True)
 class PreparedContract:
-    constructor_calldata: list[int]
+    constructor_calldata: List[int]
     contract_address: int
     class_hash: int
     salt: int
@@ -124,48 +118,6 @@ class NonValidatedInternalDeclare(InternalDeclare):
 class ContractsController:
     def __init__(self, cheatable_state: "CheatableCachedState"):
         self.cheatable_state = cheatable_state
-
-    async def _transform_calldata_to_cairo_data_by_addr(
-        self,
-        contract_address: Address,
-        function_name: str,
-        calldata: Optional[CairoOrPythonData] = None,
-    ) -> CairoData:
-        contract_address_int = int(contract_address)
-        class_hash = await self.cheatable_state.get_class_hash_at(contract_address_int)
-        return await self._transform_calldata_to_cairo_data(
-            class_hash=class_hash,
-            function_name=function_name,
-            calldata=calldata,
-        )
-
-    async def _transform_calldata_to_cairo_data(
-        self,
-        class_hash: int,
-        function_name: str,
-        calldata: Optional[CairoOrPythonData] = None,
-    ) -> CairoData:
-        if isinstance(calldata, collections.Mapping):
-            contract_class = await self.cheatable_state.get_contract_class(class_hash)
-
-            assert isinstance(
-                contract_class, DeprecatedCompiledClass
-            ), "New contract classes don't support data transformation yet"
-
-            assert isinstance(contract_class, DeprecatedCompiledClass)
-            assert contract_class.abi, f"No abi found for the contract at {class_hash}"
-
-            transformer = from_python_transformer(
-                contract_class.abi, function_name, "inputs"
-            )
-            try:
-                return transformer(calldata)
-            except DataTransformerException as dt_exc:
-                raise ConstructorInputTransformationException(
-                    f"There was an error while parsing the arguments for the function {function_name}:\n"
-                    + f"{dt_exc.message}",
-                ) from dt_exc
-        return calldata or []
 
     async def declare_sierra_contract(
         self,
@@ -272,7 +224,7 @@ class ContractsController:
             contract_class.entry_points_by_type[EntryPointType.CONSTRUCTOR]
         )
         if has_constructor:
-            await self.invoke_constructor(prepared)
+            await self._invoke_constructor(prepared)
         elif not has_constructor and prepared.constructor_calldata:
             raise ConstructorInvocationException(
                 "No constructor was found",
@@ -280,12 +232,7 @@ class ContractsController:
 
         return DeployedContract(contract_address=prepared.contract_address)
 
-    async def invoke_constructor(self, prepared: PreparedContract):
-        await self._transform_calldata_to_cairo_data(
-            class_hash=prepared.class_hash,
-            function_name="constructor",
-            calldata=prepared.constructor_calldata,
-        )
+    async def _invoke_constructor(self, prepared: PreparedContract):
         await self.execute_constructor_entry_point(
             class_hash=prepared.class_hash,
             constructor_calldata=prepared.constructor_calldata,
@@ -317,7 +264,7 @@ class ContractsController:
     def _add_emitted_events(
         self,
         cheatable_state: CheatableCachedState,
-        starknet_emitted_events: list[StarknetEvent],
+        starknet_emitted_events: List[StarknetEvent],
     ):
         cheatable_state.emitted_events.extend(
             [
@@ -337,15 +284,9 @@ class ContractsController:
     async def prepare(
         self,
         class_hash: int,
-        constructor_calldata: CairoOrPythonData,
+        constructor_calldata: List[int],
         salt: int,
     ) -> PreparedContract:
-        constructor_calldata = await self._transform_calldata_to_cairo_data(
-            class_hash=class_hash,
-            function_name="constructor",
-            calldata=constructor_calldata,
-        )
-
         contract_address = calculate_contract_address_from_hash(
             salt=salt,
             class_hash=class_hash,
@@ -390,16 +331,11 @@ class ContractsController:
         self,
         entry_point_selector: Selector,
         contract_address: Address,
-        calldata: Optional[CairoOrPythonData] = None,
+        calldata: Optional[List[int]],
     ):
-        cairo_calldata = await self._transform_calldata_to_cairo_data_by_addr(
-            contract_address=contract_address,
-            function_name=str(entry_point_selector),
-            calldata=calldata,
-        )
         entry_point = self._create_pranked_entry_point(
             contract_address=contract_address,
-            calldata=cairo_calldata,
+            calldata=calldata or [],
             entry_point_selector=entry_point_selector,
         )
         with self.cheatable_state.copy_and_apply() as state_copy:
@@ -454,7 +390,7 @@ class ContractsController:
     def _create_pranked_entry_point(
         self,
         contract_address: Address,
-        calldata: list[int],
+        calldata: List[int],
         entry_point_selector: Selector,
         entry_point_type: EntryPointType = EntryPointType.EXTERNAL,
         call_type: CallType = CallType.CALL,
