@@ -35,8 +35,8 @@ class DeclareHintLocal(CallableHintLocal):
         contracts_controller: ContractsController,
         contract_path_resolver: ContractPathResolver,
     ):
-        self._contract_path_resolver = contracts_controller
-        self._project_compiler = contract_path_resolver
+        self._contracts_controller = contracts_controller
+        self._contract_path_resolver = contract_path_resolver
 
     @property
     def name(self) -> str:
@@ -51,7 +51,7 @@ class DeclareHintLocal(CallableHintLocal):
             )
 
             declared_class: DeclaredSierraClass = asyncio.run(
-                self._contract_path_resolver.declare_sierra_contract(
+                self._contracts_controller.declare_sierra_contract(
                     contract_class=contract_class,
                     compiled_class=compiled_class,
                 )
@@ -63,8 +63,10 @@ class DeclareHintLocal(CallableHintLocal):
             contract_name: str,
         ) -> Tuple[CompiledClass, ContractClass]:
             try:
-                contract_path = self._project_compiler.contract_path_from_contract_name(
-                    contract_name
+                contract_path = (
+                    self._contract_path_resolver.contract_path_from_contract_name(
+                        contract_name
+                    )
                 )
             except ContractNameNotFoundException as ex:
                 raise CheatcodeException(
