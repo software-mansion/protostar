@@ -1,7 +1,7 @@
 # `warp`
 
 ```cairo
-extern fn warp(blk_timestamp: felt252, target_contract_address: felt252) -> Result::<(), felt252> nopanic
+fn warp(blk_timestamp: felt252, target_contract_address: felt252) -> Result::<(), felt252> nopanic;
 ```
 
 Sets a block timestamp for a [deployed](./deploy.md) contract.
