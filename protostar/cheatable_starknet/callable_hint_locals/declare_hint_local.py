@@ -8,11 +8,7 @@ from starkware.starknet.services.api.contract_class.contract_class import (
     CompiledClass,
 )
 
-from protostar.cairo.cairo_bindings import (
-    compile_starknet_contract_to_sierra_from_path,
-    compile_starknet_contract_to_casm_from_path,
-    CairoBindingException,
-)
+import protostar.cairo.cairo_bindings as cairo1_bindings
 from protostar.cairo.short_string import short_string_to_str
 from protostar.cheatable_starknet.callable_hint_locals.callable_hint_local import (
     CallableHintLocal,
@@ -105,13 +101,15 @@ class DeclareHintLocal(CallableHintLocal):
 
     def _compile_to_sierra(self, contract_name: str, contract_path: Path):
         try:
-            sierra_compiled = compile_starknet_contract_to_sierra_from_path(
-                contract_path
+            sierra_compiled = (
+                cairo1_bindings.compile_starknet_contract_to_sierra_from_path(
+                    contract_path
+                )
             )
 
             if sierra_compiled is None:
                 raise TypeError
-        except (CairoBindingException, TypeError) as ex:
+        except (cairo1_bindings.CairoBindingException, TypeError) as ex:
             raise CheatcodeException(
                 self, f"Compilation of contract {contract_name} to sierra failed"
             ) from ex
@@ -119,11 +117,13 @@ class DeclareHintLocal(CallableHintLocal):
 
     def _compile_to_casm(self, contract_name: str, contract_path: Path):
         try:
-            casm_compiled = compile_starknet_contract_to_casm_from_path(contract_path)
+            casm_compiled = cairo1_bindings.compile_starknet_contract_to_casm_from_path(
+                contract_path
+            )
 
             if casm_compiled is None:
                 raise TypeError
-        except (CairoBindingException, TypeError) as ex:
+        except (cairo1_bindings.CairoBindingException, TypeError) as ex:
             raise CheatcodeException(
                 self, f"Compilation of contract {contract_name} to casm failed"
             ) from ex

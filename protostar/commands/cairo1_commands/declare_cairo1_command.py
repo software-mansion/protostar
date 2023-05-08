@@ -4,10 +4,7 @@ from typing import Optional, Any
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.signer import BaseSigner
 
-from protostar.cairo.cairo_bindings import (
-    compile_starknet_contract_to_sierra_from_path,
-    compile_starknet_contract_to_casm_from_path,
-)
+import protostar.cairo.cairo_bindings as cairo1_bindings
 from protostar.cli import (
     ProtostarCommand,
     NetworkCommandUtil,
@@ -105,13 +102,17 @@ class DeclareCairo1Command(ProtostarCommand):
             contract_name
         )
 
-        contract_sierra = compile_starknet_contract_to_sierra_from_path(contract_path)
+        contract_sierra = cairo1_bindings.compile_starknet_contract_to_sierra_from_path(
+            contract_path
+        )
         if contract_sierra is None:
             raise ProtostarException(
                 f"Failed to compile contract {contract_name} to sierra"
             )
 
-        contract_casm = compile_starknet_contract_to_casm_from_path(contract_path)
+        contract_casm = cairo1_bindings.compile_starknet_contract_to_casm_from_path(
+            contract_path
+        )
         if contract_casm is None:
             raise ProtostarException(
                 f"Failed to compile contract {contract_name} to casm"
