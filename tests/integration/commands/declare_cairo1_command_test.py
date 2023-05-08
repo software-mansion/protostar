@@ -19,8 +19,8 @@ def compiled_contract_path_fixture() -> Path:
     return Path("./build/main.json")
 
 
-@pytest.fixture(name="mocked_project_compiler")
-def mocked_project_compiler_fixture(datadir: Path) -> ContractPathResolver:
+@pytest.fixture(name="mocked_contract_path_resolver")
+def mocked_contract_path_resolver_fixture(datadir: Path) -> ContractPathResolver:
     class MockedContractPathResolver(ContractPathResolver):
         def __init__(self):
             super().__init__(MagicMock(), MagicMock())
@@ -36,7 +36,7 @@ async def test_declaring_cairo1_contract(
     devnet_gateway_url: str,
     devnet_account: DevnetAccount,
     set_private_key_env_var: SetPrivateKeyEnvVarFixture,
-    mocked_project_compiler: ContractPathResolver,
+    mocked_contract_path_resolver: ContractPathResolver,
 ):
     declare = DeclareCairo1Command(
         gateway_facade_factory=GatewayFacadeFactory(Path("")),
@@ -44,7 +44,7 @@ async def test_declaring_cairo1_contract(
             log_color_provider=log_color_provider,
             activity_indicator=MagicMock(),
         ),
-        contract_path_resolver=mocked_project_compiler,
+        contract_path_resolver=mocked_contract_path_resolver,
     )
 
     args = Namespace(
