@@ -7,7 +7,7 @@ extern fn warp(blk_timestamp: felt252, target_contract_address: felt252) -> Resu
 Sets a block timestamp for a [deployed](./deploy.md) contract.
 
 - `blk_timestamp` - value of the timestamp
-- `target_contract_address` - address of the deployed contract, for which the block timestamp will be mocked. 
+- `target_contract_address` - address of the deployed contract, for which the block timestamp will be set. 
 
 ## Usage example
 
