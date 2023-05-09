@@ -1,34 +1,30 @@
 # Declaring new contracts
 
-## Overview
-Starknet provides a distinction between contract class and instance. To deploy a new contract, you need to:
-1. Declare a contract
-2. Use the deploy syscall with the `class_hash` from the declare transaction as an argument
-   ```cairo
-   from starkware.starknet.common.syscalls import deploy
-   ```
+Starknet provides a distinction between contract class and instance. To deploy new contract instance, you need to:
 
-The basic inputs needed for this command are:
-- Path to the compiled contract file
-- Network you want to target (i.e. its name or gateway URL)
+1. Ensure correct path to the contract is defined in `protostar.toml`'s \[contract\] section.
+2. Declare a contract on the network
+3. Deploy an instance of that contract
 
-For detailed API description, see [declare command reference](../../cli-reference.md#declare).
+For detailed API description, see [declare-cairo1 command reference](../../../cli-reference.md#declare-cairo1).
 
-## Usage example   
-To declare a contract from the Protostar CLI you need to build your project and use the `protostar declare` command.
+## Usage example
 
-```console title="protostar declare ./build/main.json --network testnet"
+To declare a contract from the Protostar CLI you need to build your project and use the `protostar declare-cairo1`
+command.
+
+First make sure contract is defined in the `protostar.toml`:
+
+```toml title=protostar.toml
+# ...
+[contracts]
+my_contract = ["src"]
+```
+
+Then run:
+
+```console title="protostar declare my_contract --network testnet"
 Declare transaction was sent.
 Class hash: 0x038cc...
 Transaction hash: 0x3c6c...
-
-https://goerli.voyager.online/contract/0x038cc...
 ```
-
-:::note
-If you need to print machine-readable output in JSON format, you should use `--json` flag.
-
-This may come in handy for writing scripts that include protostar commands.
-
-For more information, go to [this page](./scripting.md)
-:::
