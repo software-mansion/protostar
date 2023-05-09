@@ -15,7 +15,7 @@ def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
         yield protostar_project
 
 
-async def test_warp_hint_local(
+async def test_start_warp_hint_local(
     protostar_project: ProtostarProjectFixture, shared_datadir: Path
 ):
     protostar_project.create_contracts_cairo1(
@@ -25,12 +25,12 @@ async def test_warp_hint_local(
     )
 
     testing_summary = await protostar_project.protostar.test_cairo1(
-        Path(__file__).parent / "warp_test.cairo",
+        Path(__file__).parent / "start_warp_test.cairo",
     )
 
     assert_cairo_test_cases(
         testing_summary,
         expected_passed_test_cases_names=[
-            "test_warp",
+            "test_start_warp",
         ],
     )
