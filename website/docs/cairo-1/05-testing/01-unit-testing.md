@@ -1,5 +1,5 @@
 ---
-sidebar_label: Testing
+sidebar_label: Unit testing
 ---
 
 # Running tests with Cairo 1
@@ -66,9 +66,6 @@ errors.
 
 A `test_` file prefix or `_test` postfix is required as well, to mark the files as test suites.
 
-### 2. Test state
-
-`__setup__` and `<test_name>_setup` from the previous version are not supported for now.
 
 ### 3. Test function type
 
