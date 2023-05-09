@@ -1,5 +1,5 @@
 import asyncio
-from typing import Any, Callable, Optional
+from typing import Any, Callable, Optional, List
 
 from protostar.cheatable_starknet.callable_hint_locals.callable_hint_local import (
     CallableHintLocal,
@@ -10,7 +10,6 @@ from protostar.cheatable_starknet.controllers.contracts import (
     PreparedContract,
 )
 from protostar.starknet import CheatcodeException
-from protostar.starknet.data_transformer import CairoOrPythonData
 
 
 class PrepareHintLocal(CallableHintLocal):
@@ -29,7 +28,7 @@ class PrepareHintLocal(CallableHintLocal):
     def prepare(
         self,
         class_hash: int,
-        calldata: Optional[CairoOrPythonData] = None,
+        calldata: Optional[List[int]] = None,
     ) -> PreparedContract:
         return asyncio.run(
             self._prepare(
@@ -41,7 +40,7 @@ class PrepareHintLocal(CallableHintLocal):
     async def _prepare(
         self,
         class_hash: int,
-        constructor_calldata: Optional[CairoOrPythonData] = None,
+        constructor_calldata: Optional[List[int]] = None,
     ) -> PreparedContract:
         salt = PrepareHintLocal.salt_nonce
         PrepareHintLocal.salt_nonce += 1
