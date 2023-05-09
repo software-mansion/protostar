@@ -23,7 +23,7 @@ my_contract = ["src"]
 
 Then run:
 
-```console title="protostar declare my_contract --network testnet"
+```console title="protostar declare-cairo1 my_contract --network testnet"
 Declare transaction was sent.
 Class hash: 0x038cc...
 Transaction hash: 0x3c6c...

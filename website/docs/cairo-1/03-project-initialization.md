@@ -6,9 +6,8 @@ sidebar_label: Project initialization
 
 ## Creating a project
 
-To create a new Protostar project with cairo 1.0 support, you will need to run the `protostar init-cairo1` command
-followed
-by the name of your project. For example:
+To create a new Protostar project, run `protostar init-cairo1 ` command
+followed by the name of your project. For example:
 
 ```shell
 protostar init-cairo1 my-project
@@ -71,11 +70,11 @@ These files are necessary so that they can be imported in the `lib.cairo` file.
 
 ### `tests`
 
-All [tests](./04-testing.md) should be defined in this directory.
+All [tests](./05-testing.md) should be defined in this directory.
 
 ### `protostar.toml`
 
-This file contains the [configuration for the Protostar project](./03-protostar-toml.md).
+This file contains the [configuration for the Protostar project](./04-protostar-toml.md).
 
 :::info
 Even though `hello_starknet.cairo` file is defined in the nested directory, we use a package
