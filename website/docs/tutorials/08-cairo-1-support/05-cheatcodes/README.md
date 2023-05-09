@@ -7,7 +7,7 @@ Cheatcodes do not require any specific imports or `use` declarations.
 
 ## Error handling in cheatcodes
 
-All cheatcodes return an `Result` enum:
+All cheatcodes return a `Result` enum:
 
 ```cairo title="Result"
 enum Result<T, felt252> {
@@ -16,7 +16,7 @@ enum Result<T, felt252> {
 }
 ```
 
-On successful cheatcode execution, `Ok` is returned - an exact type of `Ok` depends on the cheatcode.
+On successful cheatcode execution, a positive result is returned (`OK`) - its exact type depends on the cheatcode.
 
 On failure, `Err` is returned,
 containing [short string](https://github.com/starkware-libs/cairo/blob/26188d4d3271c327fbbfd09f82c4acc99cb281f5/docs/reference/src/components/cairo/modules/language_constructs/pages/literal-expressions.adoc#short-string-literals)
@@ -24,7 +24,7 @@ with encoded error message.
 
 ### Failing test on cheatcode error
 
-Simplest handling of `Result` is to `unwrap()` them. It either returns a cheatcode success value or causes the test to
+The simplest handling of `Result` is to `unwrap()` them. It either returns a cheatcode success value or causes the test to
 fail entirely:
 
 ```cairo title="Simple handling"
@@ -35,7 +35,7 @@ let prepared_contract = prepare(class_hash, @calldata).unwrap();
 
 ### Matching errors
 
-`Result` can be used inside `match` statement, to handle both `Ok` and `Err` types.
+`Result` can be used inside the `match` statement, to handle both `Ok` and `Err` types.
 
 ```cairo title="Match handling"
 match invoke(deployed_contract_address, 'panic_with', @panic_data) {
