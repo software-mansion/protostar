@@ -10,7 +10,7 @@ To create a new Protostar project, you will need to run the `protostar init` com
 protostar init your-project-name
 ```
 
-This will create a new directory with the specified name, generate a [configuration file named `protostar.toml`](/docs/tutorials/configuration-file), and create example contract and test files in the `src` and `tests` directories, respectively.
+This will create a new directory with the specified name, generate a [configuration file named `protostar.toml`](/docs/legacy/configuration-file), and create example contract and test files in the `src` and `tests` directories, respectively.
 
 The resulting project structure will be as follows:
 ```

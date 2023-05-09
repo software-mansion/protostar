@@ -6,8 +6,8 @@ sidebar_label: Compilation
 
 To compile your Starknet contracts using Protostar, follow these steps:
 
-1. Specify the contracts and their corresponding Cairo source files in the [`protostar.toml` configuration file](/docs/tutorials/configuration-file).
-Each Cairo file that contains an entrypoint function should be listed in the [`contracts` section of the configuration file](/docs/tutorials/configuration-file#contracts).
+1. Specify the contracts and their corresponding Cairo source files in the [`protostar.toml` configuration file](/docs/legacy/configuration-file).
+Each Cairo file that contains an entrypoint function should be listed in the [`contracts` section of the configuration file](/docs/legacy/configuration-file#contracts).
 An entrypoint is a function decorated with [`@constructor`](https://starknet.io/docs/hello_starknet/constructors.html), [`@external`](https://starknet.io/docs/hello_starknet/intro.html), [`@view`](https://starknet.io/docs/hello_starknet/intro.html), or [`@l1_handler`](https://starknet.io/docs/hello_starknet/l1l2.html?highlight=l1_handler).
 If a Cairo file is imported by a file that is already included in the contracts section, it does not need to be listed separately.
 For example: 
