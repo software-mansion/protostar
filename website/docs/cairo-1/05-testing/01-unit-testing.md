@@ -2,24 +2,53 @@
 sidebar_label: Unit testing
 ---
 
-# Running tests with Cairo 1
+# Unit testing
 
-:::info
-This functionality is in the alpha stage, expect rapid iteration
-:::
 
-## Writing your first test
+## Writing your first test (TODO test if the example works)
 
-To make a test function, you need to mark the function with a decorator `#[test]`
-
+First, create a `src/sum.cairo` file.
 ```
-#[test]
-fn test_bool_operators() {
-    assert(1 == 1);
+fn sum(a: felt252, b: felt252) -> felt252 {
+    return a + b;
 }
 ```
 
-To write a test that fails, you will need to use `panic`, here's how you do it:
+Now, let's test this function. Create a file `tests/test_sum.cairo`:
+```
+use your_project_name::sum::sum
+
+#[test]
+fn test_sum() {
+    assert(sum(2, 3) == 5);
+}
+```
+
+Now run your test using command:
+```
+protostar test-cairo1 ./tests
+```
+
+You should see something like this:
+```
+Collected 2 suites, and 3 test cases (10.64)
+[PASS] tests/test_sum.cairo Then (time=0.00s)
+Test suites: 1 passed, 1 total
+Tests:       1 passed, 1 total
+Seed:        2752673895
+17:20:43 [INFO] Execution time: 5.0 s
+```
+
+## Test collecting
+Protostar collects all test suites specified under the path passed as an argument. You can pass either directory or a specific file. Test suite is every `.cairo` file with name starting from `test_` or ending with `_test`. Protostar considers each function, inside a test suite, with `#[test]` attribute as a test case.
+
+:::warning
+Test cases cannot return any values, cannot take any arguments.
+:::
+
+## Failing tests (TODO test if the example works and fix the array syntax)
+
+Your tests fails when code *panics*. To write a test that fails, you will need to use `panic` function, here's how you do it:
 
 ```
 use array::ArrayTrait;
@@ -28,71 +57,7 @@ use array::ArrayTrait;
 #[test]
 fn test_panic_single_value() {
     let mut data = array_new::<felt>();
-    array_append::<felt>(ref data, 21);
-    panic(data)
-}
-
-// Multiple values in the panic payload
-#[test]
-fn test_panic_multiple_values() {
-    let mut data = array_new::();
-    array_append::(ref data, 101);
-    array_append::(ref data, 102);
-    array_append::(ref data, 103);
+    array_append::<felt>(ref data, `this one should fail`);
     panic(data)
 }
 ```
-
-## Running the tests
-
-To run cairo 1 tests, there is a special command called `test-cairo1`.
-It is a sibling command to the `test` command, it will collect all the tests in the given directory/module, run them,
-and print out a summary.
-
-Tests are run on Cairo VM, so no Starknet syscalls are available from the test code.
-
-See [command reference](../../cli-reference.md#test-cairo1) for more details on usage.
-
-## Caveats
-
-### 1. Test collecting
-
-`test-cairo1` will collect all tests ending with `.cairo` since there's no distinction between cairo 0 and cairo 1 files
-in terms of extension right now.
-
-That means that you will either have to specify a regex to match your test names (
-see [command reference](../../cli-reference.md#test-cairo1)), or keep them in a separate directory to avoid syntax
-errors.
-
-A `test_` file prefix or `_test` postfix is required as well, to mark the files as test suites.
-
-
-### 3. Test function type
-
-A test function must not return any values, be panickable, and not have any arguments for correct test result assessment
-
-In case the last statement in the function returns a value, you can add a line with a `;` in order to avoid returning
-any values from the test function.
-
-Example:
-
-```
-fn foo() -> felt {
-    1
-}
-
-// Valid
-#[test]
-fn valid_test() {
-    assert(1 == 1); // Assertion makes function panickable
-    foo(); // Last statement does not return a value now from the test function
-}
-
-// Invalid (not panickable and also last statement returns a value from the test function)
-#[test]
-fn invalid_test() {
-    foo()
-}
-```
-
-If you fail to comply with those rules, the test function will not pass the type check, and test collecting will fail.
