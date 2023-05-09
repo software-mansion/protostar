@@ -21,6 +21,10 @@ async def test_start_warp_hint_local(
     protostar_project.create_contracts_cairo1(
         {
             "simple": shared_datadir / "simple",
+            "proxy": shared_datadir / "proxy",
+            "storing_timestamp": shared_datadir / "storing_timestamp",
+            "storing_constructor_timestamp": shared_datadir
+            / "storing_constructor_timestamp",
         }
     )
 
@@ -32,5 +36,8 @@ async def test_start_warp_hint_local(
         testing_summary,
         expected_passed_test_cases_names=[
             "test_start_warp",
+            "test_start_warp_behind_a_proxy",
+            "test_start_warp_with_invoke",
+            "test_start_warp_constructor",
         ],
     )
