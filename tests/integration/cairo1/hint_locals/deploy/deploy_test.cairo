@@ -110,3 +110,15 @@ fn test_deploy_with_ctor_obsolete_calldata() {
         Result::Err(x) => assert(x.first() == 'No constructor was found', x.first()),
     }
 }
+
+#[test]
+fn test_deploy_doesnt_move_calldata() {
+    let mut constructor_calldata = ArrayTrait::new();
+    constructor_calldata.append(3);
+    constructor_calldata.append(2);
+
+    let deployed_contract_address = deploy_contract('with_ctor', @constructor_calldata).unwrap();
+
+    // This should work if calldata is not moved to deploy_contract
+    assert(constructor_calldata.len() == 2_u32, 'calldata size == 2');
+}
