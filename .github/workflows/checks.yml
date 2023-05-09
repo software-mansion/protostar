@@ -149,6 +149,8 @@ jobs:
           tar -xf scarb.tar.gz
           mv scarb-v0.1.0-x86_64-unknown-linux-gnu scarb
           echo "${GITHUB_WORKSPACE}/scarb/bin" >> $GITHUB_PATH
+      - name: Whats wrong with scarb
+        run: scarb metadata --format-version 1
       - name: E2E tests
         run: |
           poetry run poe test_e2e
