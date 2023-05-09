@@ -12,19 +12,18 @@ All cheatcodes return a `Result` enum:
 ```cairo title="Result"
 enum Result<T, felt252> {
     Ok: T,
-    Err: felt252,
+    Err: E,
 }
 ```
 
 On successful cheatcode execution, a positive result is returned (`OK`) - its exact type depends on the cheatcode.
 
-On failure, `Err` is returned,
-containing [short string](https://github.com/starkware-libs/cairo/blob/26188d4d3271c327fbbfd09f82c4acc99cb281f5/docs/reference/src/components/cairo/modules/language_constructs/pages/literal-expressions.adoc#short-string-literals)
-with encoded error message.
+Depending on cheatcode the type of `Err` may also vary.
 
 ### Failing test on cheatcode error
 
-The simplest handling of `Result` is to `unwrap()` them. It either returns a cheatcode success value or causes the test to
+The simplest handling of `Result` is to `unwrap()` them. It either returns a cheatcode success value or causes the test
+to
 fail entirely:
 
 ```cairo title="Simple handling"
@@ -33,9 +32,26 @@ use result::ResultTrait;
 let prepared_contract = prepare(class_hash, @calldata).unwrap();
 ```
 
-### Matching errors
+### `RevertedTransaction`
 
-`Result` can be used inside the `match` statement, to handle both `Ok` and `Err` types.
+Cheatcodes `invoke`, `deploy`, `deploy_contract`, `deploy_contract_cairo0`, `declare` and `call` return an `Err` of
+type `RevertedTransaction` in case of failure.
+
+```cairo
+struct RevertedTransaction {
+    panic_data: Array::<felt252>, 
+}
+```
+
+It also implements a trait:
+
+```cairo
+trait RevertedTransactionTrait {
+    fn first(self: @RevertedTransaction) -> felt252;
+}
+```
+
+An example handling of `RevertedTransaction` may look like this
 
 ```cairo title="Match handling"
 match invoke(deployed_contract_address, 'panic_with', @panic_data) {
