@@ -6,8 +6,7 @@ sidebar_label: Project initialization
 
 ## Creating a project
 
-To create a new Protostar project, run `protostar init-cairo1 ` command
-followed by the name of your project. For example:
+To create a new Protostar project, run 
 
 ```shell
 protostar init-cairo1 my-project

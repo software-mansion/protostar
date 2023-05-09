@@ -2,5 +2,5 @@
 sidebar_label: Testing
 ---
 
-Protostar provides developers with comprehensive testing environment.
+Protostar provides developers with a comprehensive testing environment.
 

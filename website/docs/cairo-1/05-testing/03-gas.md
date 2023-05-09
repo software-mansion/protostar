@@ -49,3 +49,5 @@ fn test_not_enough_gas() {
     assert(fib(0, 1, 10) == 55, 'invalid result');
 }
 ```
+
+TODO(Add info this only works for unit tests, cheatcodes have 0-cost right now)
