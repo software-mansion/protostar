@@ -7,7 +7,7 @@ sidebar_label: Unit testing
 
 ## Writing your first test (TODO test if the example works)
 
-First, create a `src/sum.cairo` file.
+First, add to the file `src/lib.cairo` following code:
 ```
 fn sum(a: felt252, b: felt252) -> felt252 {
     return a + b;
@@ -16,11 +16,11 @@ fn sum(a: felt252, b: felt252) -> felt252 {
 
 Now, let's test this function. Create a file `tests/test_sum.cairo`:
 ```
-use your_project_name::sum::sum
+use your_project_name::sum
 
 #[test]
 fn test_sum() {
-    assert(sum(2, 3) == 5);
+    assert(sum(2, 3) == 5, 'sum incorrect');
 }
 ```
 
