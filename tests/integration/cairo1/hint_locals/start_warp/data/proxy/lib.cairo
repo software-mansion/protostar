@@ -16,6 +16,7 @@ mod ProxyContract {
     fn check_remote_timestamp(at: ContractAddress) -> felt252 {
         let res = call_contract_syscall(
             at,
+            // selector of 'check_timestamp'
             1629366970795695773070250980946704058198029661891218027632744717191545197319,
             ArrayTrait::new().span()
         ).unwrap_syscall();
