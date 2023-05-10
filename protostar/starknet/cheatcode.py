@@ -10,7 +10,7 @@ from starkware.starknet.business_logic.execution.objects import (
 )
 from starkware.starknet.business_logic.state.state import StateSyncifier
 from starkware.starknet.business_logic.state.state_api import SyncState
-from starkware.starknet.core.os.syscall_handler import (
+from starkware.starknet.core.os.deprecated_syscall_handler import (
     DeprecatedBlSyscallHandler,
 )
 from starkware.starknet.definitions.general_config import StarknetGeneralConfig
