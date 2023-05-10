@@ -44,6 +44,8 @@ fn test_deploy_with_ctor() {
     assert(prepare_result.contract_address != 0, 'prepared contract_address != 0');
     assert(prepare_result.class_hash != 0, 'prepared class_hash != 0');
     assert(prepare_result.constructor_calldata.len() == 2_u32, 'constructor_calldata size == 2');
+    assert(*prepare_result.constructor_calldata.at(0_usize) == 1, 'constructor_calldata contents');
+    assert(*prepare_result.constructor_calldata.at(1_usize) == 2, 'constructor_calldata contents');
 
     let deployed_contract_address = deploy(prepare_result).unwrap();
     assert(deployed_contract_address != 0, 'deployed_contract_address != 0');
