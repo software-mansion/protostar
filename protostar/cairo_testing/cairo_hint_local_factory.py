@@ -9,7 +9,7 @@ from protostar.cheatable_starknet.callable_hint_locals import (
     CallHintLocal,
     PrankHintLocal,
     RollHintLocal,
-    WarpHintLocal,
+    StartWarpHintLocal,
     DeployHintLocal,
     PrepareHintLocal,
     DeclareCairo0HintLocal,
@@ -95,7 +95,7 @@ class CairoSharedHintLocalFactory:
         )
 
         return [
-            WarpHintLocal(block_info_controller=block_info_controller),
+            StartWarpHintLocal(block_info_controller=block_info_controller),
             RollHintLocal(block_info_controller=block_info_controller),
             StopWarpHintLocal(block_info_controller=block_info_controller),
             StopRollHintLocal(block_info_controller=block_info_controller),
