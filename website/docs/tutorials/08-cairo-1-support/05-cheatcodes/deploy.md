@@ -12,7 +12,7 @@ trait RevertedTransactionTrait {
 }
 ```
 
-Deploys a [preapred](./prepare.md) contract.
+Deploys a [prepared](./prepare.md) contract.
 
 - `prepared_contract` - an object of the struct `PreparedContract` that consists of the following fields:
     - `contract_address` - the address of the contract calculated during contract [preparation](./prepare.md)

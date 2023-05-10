@@ -117,7 +117,7 @@ my_project/
     │   ├── mod1/  <------------------- new directory
     │   │   └── functions.cairo  <----- new file
     │   ├── lib.cairo  <--------------- contents updated
-    │   └── mod.cairo
+    │   └── mod1.cairo
     └── cairo_project.toml
 ```
 
@@ -127,5 +127,8 @@ You now use your function with `hello_starknet::mod1::functions::returns_three()
 
 ## Packages and modules names considerations
 
-The names must use only ASCII alphanumeric characters or `_`, and cannot be empty. Additionally, it cannot start with an
-underscore.
+The name must be a valid Cairo identifier which means:
+- it must use only ASCII alphanumeric characters or underscores 
+- it cannot start with a digit
+- it cannot be empty
+- it cannot be a valid Cairo keyword or a single underscore (`_`).
