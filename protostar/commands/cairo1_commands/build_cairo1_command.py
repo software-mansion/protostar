@@ -27,7 +27,6 @@ from protostar.io import StructuredMessage, LogColorProvider, Messenger
 from protostar.commands.cairo1_commands.fetch_from_scarb import (
     maybe_fetch_linked_libraries_from_scarb,
 )
-from protostar.protostar_exception import ProtostarException
 
 
 def compute_class_hash_from_sierra_code(sierra_compiled: str, output_path: Path):
