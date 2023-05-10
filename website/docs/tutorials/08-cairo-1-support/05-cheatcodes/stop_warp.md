@@ -11,7 +11,7 @@ Stops a warp started by [`start_warp`](./start_warp.md).
 ```cairo title="Example"
 #[test]
 fn my_test() {
-    stop_prank(pranked_address).unwrap();
+    stop_warp(warped_address).unwrap();
     // Block timestamp is no longer warped from here (defaults to 0)
 }
 ```
