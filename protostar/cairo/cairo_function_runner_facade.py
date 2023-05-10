@@ -53,7 +53,6 @@ class CairoRunnerFacade:
             )
 
     # pylint: disable=unused-argument
-    # @staticmethod
     def run_as_main(
         self,
         function_runner: CairoFunctionRunner,
