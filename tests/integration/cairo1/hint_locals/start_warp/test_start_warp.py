@@ -43,5 +43,6 @@ async def test_start_warp_hint_local(
             "test_stop_warp_on_non_existent",
             "test_stop_warp_on_not_warped",
             "test_stop_warp_multiple_times",
+            "test_start_warp_last_value_is_used",
         ],
     )

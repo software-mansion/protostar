@@ -77,6 +77,25 @@ fn test_start_stop_warp() {
 }
 
 #[test]
+fn test_start_warp_last_value_is_used() {
+    let deployed_contract_address = deploy_contract('simple', ArrayTrait::new()).unwrap();
+    assert(deployed_contract_address != 0, 'deployed_contract_address != 0');
+
+    let result = call(deployed_contract_address, 'check_timestamp', ArrayTrait::new()).unwrap();
+    assert(*result.at(0_u32) == 0, *result.at(0_u32));
+
+    start_warp(100, deployed_contract_address);
+    start_warp(123, deployed_contract_address);
+
+    let result = call(deployed_contract_address, 'check_timestamp', ArrayTrait::new()).unwrap();
+    assert(*result.at(0_u32) == 123, *result.at(0_u32));
+
+    stop_warp(deployed_contract_address);
+    let result = call(deployed_contract_address, 'check_timestamp', ArrayTrait::new()).unwrap();
+    assert(*result.at(0_u32) == 0, *result.at(0_u32));
+}
+
+#[test]
 fn test_stop_warp_on_non_existent() {
     stop_warp(1234).unwrap();
 }
