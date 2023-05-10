@@ -26,33 +26,20 @@ def mocked_project_compiler_fixture(datadir: Path) -> ProjectCompiler:
         def __init__(self):
             super().__init__(MagicMock(), MagicMock())
 
-        def compile_contract_to_sierra_from_contract_name(
-            self, *args: Any, **kwargs: Any
-        ):
-            # pylint: disable=unused-argument
-            compiled = cairo_bindings.compile_starknet_contract_to_sierra_from_path(
-                input_path=datadir,
-            )
-            assert compiled is not None
-            return compiled
-
-        def compile_contract_to_casm_from_contract_name(
-            self, *args: Any, **kwargs: Any
-        ):
-            # pylint: disable=unused-argument
-            compiled = cairo_bindings.compile_starknet_contract_to_casm_from_path(
-                input_path=datadir,
-            )
-            assert compiled is not None
-            return compiled
-
         def compile_contract(self, *args: Any, **kwargs: Any):
-            sierra_compiled = self.compile_contract_to_sierra_from_contract_name(
-                args, kwargs
+            # pylint: disable=unused-argument
+
+            sierra_compiled = (
+                cairo_bindings.compile_starknet_contract_to_sierra_from_path(
+                    input_path=datadir,
+                )
             )
-            casm_compiled = self.compile_contract_to_casm_from_contract_name(
-                args, kwargs
+            assert sierra_compiled is not None
+
+            casm_compiled = cairo_bindings.compile_starknet_contract_to_casm_from_path(
+                input_path=datadir,
             )
+            assert casm_compiled is not None
 
             return sierra_compiled, casm_compiled
 
