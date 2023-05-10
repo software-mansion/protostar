@@ -6,8 +6,6 @@ import pytest
 from tests.e2e.conftest import ProtostarFixture, CopyFixture
 
 
-# TODO #1767: investigate differences in gas support between quaireaux and protostar ("online_dependencies")
-#  building works for some reason even considering the differences mentioned above...
 @pytest.mark.parametrize(
     "project_directory", ("libraries", "modules", "online_dependencies")
 )
