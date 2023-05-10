@@ -17,7 +17,7 @@ RUNNER_BUILTINS_TITLE_CASE = [
 class CairoRunnerFacade:
     def __init__(self, program: Program):
         self._program: Program = program
-        self.current_runner: Optional[CairoFunctionRunner] = None
+        self.current_runner: CairoFunctionRunner
         self._previous_runner: Optional[CairoFunctionRunner] = None
 
     @contextmanager
@@ -53,8 +53,8 @@ class CairoRunnerFacade:
             )
 
     # pylint: disable=unused-argument
-    @staticmethod
     def run_as_main(
+        self,
         function_runner: CairoFunctionRunner,
         entrypoint: Union[str, int],
         *args,  # type: ignore
@@ -93,6 +93,16 @@ class CairoRunnerFacade:
                 stack += [0]
             else:
                 stack += builtin_runner.initial_stack()
+
+        cost_ptr = function_runner.segments.add()
+        function_runner.segments.write_arg(ptr=cost_ptr, arg=[0, 0, 0, 0, 0])
+        core_program_end_ptr = self.current_runner.program_base + len(
+            self.current_runner.program.data
+        )
+        function_runner.segments.write_arg(
+            ptr=core_program_end_ptr, arg=[0x208B7FFF7FFF7FFE, cost_ptr]
+        )
+
         end = function_runner.initialize_function_entrypoint(
             entrypoint=entrypoint, args=stack
         )
