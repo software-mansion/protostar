@@ -21,7 +21,7 @@ from protostar.compiler import (
     ProjectCairoPathBuilder,
     ProjectCompilerConfig,
 )
-from protostar.compiler.project_compiler import ProjectCompiler
+from protostar.contract_path_resolver import ContractPathResolver
 from protostar.configuration_file import ConfigurationFileFactory
 from protostar.starknet import ReportedException
 from protostar.protostar_exception import ProtostarException
@@ -91,7 +91,7 @@ class Cairo1TestRunner:
             default_config=project_compiler_config,
             project_cairo_path_builder=self.project_cairo_path_builder,
         )
-        self.project_compiler = ProjectCompiler(
+        self.contract_path_resolver = ContractPathResolver(
             project_root_path=project_root_path,
             configuration_file=configuration_file,
         )
@@ -130,7 +130,7 @@ class Cairo1TestRunner:
         return await CairoTestExecutionState.from_test_config(
             test_config=test_config,
             cairo0_project_compiler=self.cairo0_project_compiler,
-            project_compiler=self.project_compiler,
+            contract_path_resolver=self.contract_path_resolver,
         )
 
     async def _run_suite_setup(
