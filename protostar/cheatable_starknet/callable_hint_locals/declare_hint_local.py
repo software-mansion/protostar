@@ -76,6 +76,5 @@ class DeclareHintLocal(CallableHintLocal):
 
             return make_contract_class(sierra_compiled), make_compiled_class(casm_compiled)
 
-            return compiled_class, contract_class
 
         return declare
