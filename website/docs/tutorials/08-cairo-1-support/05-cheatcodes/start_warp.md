@@ -4,7 +4,7 @@
 fn start_warp(block_timestamp: felt252, target_contract_address: felt252) -> Result::<(), felt252> nopanic;
 ```
 
-Sets a block timestamp for a [deployed](./deploy.md) contract.
+Sets a block timestamp for a [deployed](./deploy.md) contract, until [`stop_warp`](./stop_warp.md) is called.
 
 - `block_timestamp` - value of the timestamp
 - `target_contract_address` - address of the deployed contract, for which the block timestamp will be set. 
