@@ -9,6 +9,10 @@ Sets a block timestamp for a [deployed](./deploy.md) contract.
 - `block_timestamp` - value of the timestamp
 - `target_contract_address` - address of the deployed contract, for which the block timestamp will be set. 
 
+:::note
+The default `block_timestamp` value in tests is set to 0 for every contract
+:::
+ 
 ## Usage example
 
 ### Tested contract
