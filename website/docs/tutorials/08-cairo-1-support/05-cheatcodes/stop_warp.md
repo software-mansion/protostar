@@ -1,7 +1,7 @@
 # `stop_warp`
 
 ```cairo
-extern fn stop_warp(target_contract_address: felt252) -> Result::<(), felt252> nopanic;
+fn stop_warp(target_contract_address: felt252) -> Result::<(), felt252> nopanic;
 ```
 
 Stops a warp started by [`start_warp`](./start_warp.md).
