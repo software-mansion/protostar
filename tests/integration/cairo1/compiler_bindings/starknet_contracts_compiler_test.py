@@ -11,14 +11,22 @@ def test_contract_to_casm(datadir: Path):
     assert cairo1.compile_starknet_contract_to_casm_from_path(
         input_path=datadir / "test_starknet_project"
     )
+
+    basic_starknet_project_casm_path = datadir / "basic_starknet_project.casm"
     assert cairo1.compile_starknet_contract_to_casm_from_path(
         input_path=datadir / "basic_starknet_project",
-        output_path=datadir / "basic_starknet_project.casm",
+        output_path=basic_starknet_project_casm_path,
     )
+    assert basic_starknet_project_casm_path.exists()
+    assert basic_starknet_project_casm_path.read_text()
+
+    test_starknet_project_casm_path = datadir / "test_starknet_project.casm"
     assert cairo1.compile_starknet_contract_to_casm_from_path(
         input_path=datadir / "test_starknet_project",
-        output_path=datadir / "test_starknet_project.casm",
+        output_path=test_starknet_project_casm_path,
     )
+    assert test_starknet_project_casm_path.exists()
+    assert test_starknet_project_casm_path.read_text()
 
 
 def test_contract_to_sierra_to_casm(datadir: Path):
