@@ -5,7 +5,7 @@ from protostar.cairo.cairo_bindings import (
     compile_starknet_contract_to_sierra_from_path,
     compile_starknet_contract_to_casm_from_path,
 )
-from protostar.cairo.cairo_exceptions import CairoBindingException
+from protostar.cairo.cairo_bindings import CairoBindingException
 from protostar.compiler.project_compiler_exceptions import (
     CompilationException,
 )
