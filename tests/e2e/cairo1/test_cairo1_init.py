@@ -1,6 +1,8 @@
 import os
 from pathlib import Path
 
+import pytest
+
 from tests.e2e.conftest import ProtostarFixture
 
 
@@ -28,14 +30,22 @@ def test_init(protostar: ProtostarFixture):
     assert "3 passed" in result
 
 
-def test_init_with_invalid_name(protostar: ProtostarFixture):
-    project_name = "invalid-name"
+@pytest.mark.parametrize(
+    "project_name, error_reason",
+    [
+        ("_", "Project name cannot be equal to a single underscore."),
+        ("8invalid", "Project name cannot start with a digit."),
+        (
+            "invalid-name",
+            "Project name must use only ASCII alphanumeric characters or underscores.",
+        ),
+    ],
+)
+def test_init_with_invalid_name(
+    protostar: ProtostarFixture, project_name: str, error_reason: str
+):
     output = protostar(["init-cairo1", project_name], expect_exit_code=1)
-
-    assert (
-        f"Provided project name {project_name} does not match the regex ^[a-zA-Z_][0-9a-zA-Z_]*$ or is equal to '_'. "
-        f"Choose a different project name." in output
-    )
+    assert error_reason + " Choose a different project name." in output
 
 
 def test_init_without_name(protostar: ProtostarFixture):

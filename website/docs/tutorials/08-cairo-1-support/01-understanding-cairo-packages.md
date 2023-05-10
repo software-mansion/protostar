@@ -127,7 +127,8 @@ You now use your function with `hello_starknet::mod1::functions::returns_three()
 
 ## Packages and modules names considerations
 
-The name must be a valid Cairo identifier. 
-It must use only ASCII alphanumeric characters or underscores, 
-and cannot be empty, nor can it start with a digit.
-It also must not be a valid Cairo keyword or a single underscore (`_`).
+The name must be a valid Cairo identifier which means:
+- it must use only ASCII alphanumeric characters or underscores 
+- it cannot start with a digit
+- it cannot be empty
+- it cannot be a valid Cairo keyword or a single underscore (`_`).
