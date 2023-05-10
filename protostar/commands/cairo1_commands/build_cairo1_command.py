@@ -35,7 +35,7 @@ def compute_class_hash_from_sierra_code(sierra_compiled: str, output_path: Path)
     class_hash = compute_class_hash(contract_class)
 
     with open(output_path, mode="w", encoding="utf-8") as output_file:
-        output_file.write(f"{hex(int(class_hash))}")
+        output_file.write(f"{hex(class_hash)}")
 
     return class_hash
 
@@ -45,7 +45,7 @@ def compute_compiled_class_hash_from_casm_code(casm_compiled: str, output_path: 
     compiled_class_hash = compute_compiled_class_hash(compiled_class)
 
     with open(output_path, mode="w", encoding="utf-8") as output_file:
-        output_file.write(f"{hex(int(compiled_class_hash))}")
+        output_file.write(f"{hex(compiled_class_hash)}")
 
     return compiled_class_hash
 
@@ -59,8 +59,8 @@ class SuccessfulBuildCairo1Message(StructuredMessage):
     def format_human(self, fmt: LogColorProvider) -> str:
         lines: list[str] = [
             "Building cairo1 contracts",
-            f'Class hash for contract "{self.contract_name}": {hex(int(self.class_hash))}',
-            f'Compiled class hash for contract "{self.contract_name}": {hex(int(self.compiled_class_hash))}',
+            f'Class hash for contract "{self.contract_name}": {hex(self.class_hash)}',
+            f'Compiled class hash for contract "{self.contract_name}": {hex(self.compiled_class_hash)}',
             "Contracts built successfully",
         ]
 
@@ -69,8 +69,8 @@ class SuccessfulBuildCairo1Message(StructuredMessage):
     def format_dict(self) -> dict:
         return {
             self.contract_name: {
-                "class_hash": hex(int(self.class_hash)),
-                "compiled_class_hash": hex(int(self.compiled_class_hash)),
+                "class_hash": hex(self.class_hash),
+                "compiled_class_hash": hex(self.compiled_class_hash),
             }
         }
 
@@ -99,7 +99,7 @@ class BuildCairo1Command(ProtostarCommand):
 
     @property
     def description(self) -> str:
-        return "Compile cairo1 contracts. Writes `class_hash` and `compiled_class_hash` to the files and to stdout."
+        return "Compile cairo1 contracts."
 
     @property
     def arguments(self):
