@@ -10,7 +10,7 @@ from starkware.starknet.business_logic.state.state_api_objects import BlockInfo
 from starkware.starknet.core.os.contract_address.contract_address import (
     calculate_contract_address_from_hash,
 )
-from starkware.starknet.core.os.syscall_handler import (
+from starkware.starknet.core.os.deprecated_syscall_handler import (
     DeprecatedBlSyscallHandler,
 )
 from starkware.starknet.core.os.syscall_utils import cast_to_int
