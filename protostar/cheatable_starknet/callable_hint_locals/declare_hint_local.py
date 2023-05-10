@@ -74,8 +74,7 @@ class DeclareHintLocal(CallableHintLocal):
                 contract_identifier
             )
 
-            contract_class = make_contract_class(sierra_compiled)
-            compiled_class = make_compiled_class(casm_compiled)
+            return make_contract_class(sierra_compiled), make_compiled_class(casm_compiled)
 
             return compiled_class, contract_class
 
