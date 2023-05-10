@@ -58,3 +58,41 @@ fn test_start_warp_constructor() {
     let result = call(deployed_contract_address, 'retrieve_stored', ArrayTrait::new()).unwrap();
     assert(*result.at(0_u32) == 100, *result.at(0_u32));
 }
+
+#[test]
+fn test_start_stop_warp() {
+    let deployed_contract_address = deploy_contract('simple', ArrayTrait::new()).unwrap();
+    assert(deployed_contract_address != 0, 'deployed_contract_address != 0');
+
+    let result = call(deployed_contract_address, 'check_timestamp', ArrayTrait::new()).unwrap();
+    assert(*result.at(0_u32) == 0, *result.at(0_u32));
+
+    start_warp(100, deployed_contract_address);
+    let result = call(deployed_contract_address, 'check_timestamp', ArrayTrait::new()).unwrap();
+    assert(*result.at(0_u32) == 100, *result.at(0_u32));
+
+    stop_warp(deployed_contract_address);
+    let result = call(deployed_contract_address, 'check_timestamp', ArrayTrait::new()).unwrap();
+    assert(*result.at(0_u32) == 0, *result.at(0_u32));
+}
+
+#[test]
+fn test_stop_warp_on_non_existent() {
+    stop_warp(1234).unwrap();
+}
+
+#[test]
+fn test_stop_warp_on_not_warped() {
+    let deployed_contract_address = deploy_contract('simple', ArrayTrait::new()).unwrap();
+
+    stop_warp(1234).unwrap();
+}
+
+#[test]
+fn test_stop_warp_multiple_times() {
+    let deployed_contract_address = deploy_contract('simple', ArrayTrait::new()).unwrap();
+    start_warp(123, deployed_contract_address).unwrap();
+
+    stop_warp(deployed_contract_address).unwrap();
+    stop_warp(deployed_contract_address).unwrap();
+}

@@ -39,5 +39,9 @@ async def test_start_warp_hint_local(
             "test_start_warp_behind_a_proxy",
             "test_start_warp_with_invoke",
             "test_start_warp_constructor",
+            "test_start_stop_warp",
+            "test_stop_warp_on_non_existent",
+            "test_stop_warp_on_not_warped",
+            "test_stop_warp_multiple_times",
         ],
     )
