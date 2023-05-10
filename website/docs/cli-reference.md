@@ -26,7 +26,7 @@ Print machine-readable output in [NDJSON](https://github.com/ndjson/ndjson-spec)
 ```shell
 $ protostar build-cairo1
 ```
-Compile cairo1 contracts. Writes `class_hash` and `compiled_class_hash` to the files and to stdout.
+Compile cairo1 contracts.
 #### `--compiled-contracts-dir PATH=build`
 An output directory used to put the compiled contracts in.
 #### `--contract-name STRING`
