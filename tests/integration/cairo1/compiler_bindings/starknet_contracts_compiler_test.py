@@ -38,11 +38,17 @@ def test_contract_to_sierra_to_casm(datadir: Path):
         input_path=datadir / "test_starknet_project",
         output_path=datadir / "test_starknet_project.sierra",
     )
-    assert cairo1.compile_starknet_contract_sierra_to_casm_from_path(
+    basic_starknet_casm = cairo1.compile_starknet_contract_sierra_to_casm_from_path(
         datadir / "basic_starknet_project.sierra"
     )
-    assert cairo1.compile_starknet_contract_sierra_to_casm_from_path(
+    test_starknet_casm = cairo1.compile_starknet_contract_sierra_to_casm_from_path(
         datadir / "test_starknet_project.sierra"
+    )
+    assert basic_starknet_casm == cairo1.compile_starknet_contract_to_casm_from_path(
+        datadir / "basic_starknet_project"
+    )
+    assert test_starknet_casm == cairo1.compile_starknet_contract_to_casm_from_path(
+        datadir / "test_starknet_project"
     )
 
 
