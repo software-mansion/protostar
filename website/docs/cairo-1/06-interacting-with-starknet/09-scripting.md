@@ -59,7 +59,7 @@ These two instructions assure that the contract builds properly and all tests pa
 
 #### Declare and deploy the contract
 
-Now, we need to first [declare](./02-declare.md) the contract and then [deploy](./03-deploy.md) it.
+Now, we need to first [declare](./03-declare.md) the contract and then [deploy](./04-deploy.md) it.
 
 Normally, we would start with something like this:
 
