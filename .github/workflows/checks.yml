@@ -37,6 +37,11 @@ jobs:
           path: | 
             ~/.cache/pypoetry
           key: poetry-${{ hashFiles('poetry.lock') }}
+      - name: Install pre-release cairo-lang-0.11.1 #TODO: remove before merge
+        run: |
+          poetry shell
+          pip install --pre https://github.com/starkware-libs/cairo-lang/releases/download/v0.11.1a0/cairo-lang-0.11.1a0.zip
+
 
   lint:
     name: Check formatting, linting and types
