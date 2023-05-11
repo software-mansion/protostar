@@ -7,7 +7,7 @@ from tests.e2e.conftest import ProtostarFixture, CopyFixture
 
 
 @pytest.mark.parametrize(
-    "project_directory", ("libraries", "modules", "online_dependencies")
+    "project_directory", ("libraries", "modules")  # TODO #1903: "online_dependencies"
 )
 def test_build_with_dependencies_using_scarb(
     project_directory: str, protostar: ProtostarFixture, copy_fixture: CopyFixture

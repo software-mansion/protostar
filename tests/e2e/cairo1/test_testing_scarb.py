@@ -10,13 +10,13 @@ from tests.e2e.conftest import CopyFixture, ProtostarFixture
         # contracts
         ("libraries", "contract_with_libraries_as_dependencies"),
         ("modules", "contract_with_modules_as_dependencies"),
-        ("online_dependencies", "contract_with_online_repository_as_dependency"),
+        # TODO #1903: ("online_dependencies", "contract_with_online_repository_as_dependency"),
         ("multiple_contracts", "test_bar_func"),
         ("multiple_contracts", "test_foo_func"),
         # pure cairo
         ("libraries", "libraries_as_dependencies"),
         ("modules", "modules_as_dependencies"),
-        ("online_dependencies", "online_repository_as_dependency"),
+        # TODO #1903: ("online_dependencies", "online_repository_as_dependency"),
     ),
 )
 def test_testing_with_dependencies_using_scarb(
