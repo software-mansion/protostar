@@ -2,15 +2,14 @@
 sidebar_label: Integration testing
 ---
 
-# Integration testing (TODO)
+# Integration testing
 
-Using [unit testing](./01-unit-testing.md) as much as possible is a good practice, as it makes your test suites faster. However, when writing smart contracts you often want your test to cover on-chain state and interactions between multiple contracts.
+Using [unit testing](./01-unit-testing.md) as much as possible is a good practice, as it makes your test suites run faster. However, when writing smart contracts you often want your test to cover on-chain state and interactions between multiple contracts.
 
-In this section you will learn how to deploy and interact with a smart contract in Protostar. 
+In this section you will learn how to deploy and interact with a smart contract in Protostar for testing purposes. 
 
 ## How to test a contract
-
-Protostar comes with a local Starknet instance which you can use to test your contracts. To access it you need to use [cheatcodes](./cheatcodes-refernce/), namely [deploy_contract](./cheatcodes-refernce/deploy_contract.md).
+To test a contract you need to use important Protostar feature, [cheatcodes](./03-cheatcodes.md). Cheatcodes are additional library functions which Protostar exposes to help you with testing.
 
 Let's write a test which deploys and calls a contract. First let's define our contract 
 
@@ -37,13 +36,16 @@ fn test_deploy() {
 ```
 This cheatcode will declare and deploy given contract.
 
-## Complex arguments
-TODO (examples with complex data types)
+## Under the hood
+You may ask, where the contract has been deployed? Protostar comes with a local Starknet instance which you can use to test your contracts. 
+To encourage good testing practices, each test case starts with a fresh Starknet instance. <br> <br>
+
+When Starknet instance is accessed through cheatcodes, it is analogous to accessing real Starknet through gateway. Example consequence of this behavior is that `get_caller_address` will return `0` in the called contract.
 
 ## Transaction reverts
 
 [deploy](./cheatcodes-refernce/deploy.md), [invoke](./cheatcodes-refernce/invoke.md) and [call](./cheatcodes-refernce/call.md) execute code on chain which can be reverted.
-In such case, they return `RevertedTransaction` structure. You can use it, for example, to verify if transaction reverts with a specific error message.
+In such case, they return `RevertedTransaction` structure. You can use it, for example, to verify if your contract reverts transaction in certain scenario.
 
 ```cairo title="Deployed contract"
 #[contract]
@@ -56,9 +58,11 @@ mod MinimalContract {
 ```
 ```cairo title="Test"
 use cheatcodes::RevertedTransactionTrait;
+use array::ArrayTrait;
 
 #[test]
 fn test_invoke_errors() {
+    let deployed_contract_address = deploy_contract('minimal_contract', ArrayTrait::new());
     let mut panic_data = ArrayTrait::new();
     panic_data.append(2); // Array length
     panic_data.append('error');
