@@ -2,19 +2,27 @@
 
 ## Overview
 
-In order to create a new account, you need to deploy an account contract. Starknet expects a certain interface from an
-account
-contract. [OpenZeppelin](https://github.com/OpenZeppelin/cairo-contracts/blob/main/src/openzeppelin/account/presets/Account.cairo)
-and [ArgentX](https://github.com/argentlabs/argent-contracts-starknet/blob/develop/contracts/account/ArgentAccount.cairo)
-provide account contract implementations that you can use.
+In order to create a new account, you need to deploy an account
+contract.
 
-There are three ways of deploying a new account contract:
+There are multiple account contracts to choose from, and it is the end user responsibility to find an account that works
+for them. Some examples of already existing account contracts
+are [OpenZeppelin](https://github.com/OpenZeppelin/cairo-contracts/blob/main/src/openzeppelin/account/presets/Account.cairo)
+and [ArgentX](https://github.com/argentlabs/argent-contracts-starknet/blob/develop/contracts/account/ArgentAccount.cairo).
+
+:::info
+You can read more about accounts in
+Starknet [here](https://docs.starknet.io/documentation/architecture_and_concepts/Account_Abstraction/introduction/).
+:::
+
+There are two ways of deploying a new account contract:
 
 - sending [`DEPLOY_ACCOUNT` transaction](https://github.com/starkware-libs/cairo-lang/releases/tag/v0.10.1)
 - using already deployed account contract and deploying new one
-  via [the Universal Deployer Contract](https://community.starknet.io/t/universal-deployer-contract-proposal/1864)
-- (deprecated)
-  sending [`DEPLOY` transaction](https://docs.starknet.io/documentation/develop/Blocks/transactions/#deploy_transaction)
+  via [the Universal Deployer Contract](https://docs.openzeppelin.com/contracts-cairo/0.6.1/udc)
+
+If you do not have access to any existing account on Starknet, you will most likely have to use the `DEPLOY_ACCOUNT`
+transaction.
 
 ## Sending `DEPLOY_ACCOUNT` transaction
 
@@ -23,16 +31,15 @@ the [`deploy-account` command](/docs/cli-reference#deploy-account).
 However, before you send such transaction you need to:
 
 1. Find the class hash of the account contract compatible with `DEPLOY_ACCOUNT` transaction. The entity that declared
-   the account contract should make the class hash easily available. It's recommended to check the README.md in the
-   repository with the source of the account contract:
-    - [OpenZeppelin/cairo-contracts](https://github.com/OpenZeppelin/cairo-contracts)
-    - [argentlabs/argent-contracts-starknet](https://github.com/argentlabs/argent-contracts-starknet)
+   the account contract should make the class hash easily available. The contract must have been
+   previously [declared](./03-declare.md) on Starknet by another user.
 2. Calculate an account contract address
    with [`protostar calculate-account-address` command](/docs/cli-reference#calculate-account-address)
-3. Prefund the account contract.
+3. Transfer enough funds to the calculated address to cover the cost of the account deployment.
+4. Run the [`deploy-account` command](/docs/cli-reference#deploy-account).
 
-   | Network | Recommended method                                                                               | | ------- | ------------------------------------------------------------------------------------------------ |
-   | devnet  | [Local Faucet](https://shard-labs.github.io/starknet-devnet/docs/guide/mint-token)               |
-   | testnet | [Starknet Faucet](https://faucet.goerli.starknet.io/)                                            |
-   | mainnet | [Token Bridge](https://docs.starknet.io/documentation/develop/L1-L2_Communication/token-bridge/) |
+For Starknet testnet you can use [this faucet](https://faucet.goerli.starknet.io/) to obtain testnet ETH.
+For mainnet, you will have to bridge enough tokens from other networks.
+See [token bridges](https://docs.starknet.io/documentation/architecture_and_concepts/L1-L2_Communication/token-bridge/)
+for more details.
 
