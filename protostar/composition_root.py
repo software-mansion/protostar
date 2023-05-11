@@ -40,7 +40,6 @@ from protostar.commands.init.project_creator import (
 from protostar.compiler import (
     ProjectCairoPathBuilder,
     Cairo0ProjectCompiler,
-    ProjectCompiler,
 )
 from protostar.configuration_file import (
     ConfigurationFileFactory,
@@ -49,6 +48,7 @@ from protostar.configuration_file import (
     ConfigurationFileV2Migrator,
     ConfigurationTOMLContentBuilder,
 )
+from protostar.contract_path_resolver import ContractPathResolver
 from protostar.io import InputRequester, log_color_provider
 from protostar.protostar_cli import ProtostarCLI
 from protostar.self import ProtostarCompatibilityWithProjectChecker
@@ -107,7 +107,7 @@ def build_di_container(
         configuration_file=configuration_file,
     )
 
-    project_compiler = ProjectCompiler(
+    contract_path_resolver = ContractPathResolver(
         project_root_path=project_root_path,
         configuration_file=configuration_file,
     )
@@ -224,7 +224,7 @@ def build_di_container(
             messenger_factory=messenger_factory,
         ),
         DeclareCairo1Command(
-            project_compiler=project_compiler,
+            contract_path_resolver=contract_path_resolver,
             gateway_facade_factory=gateway_facade_factory,
             messenger_factory=messenger_factory,
         ),

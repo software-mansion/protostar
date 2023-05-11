@@ -35,7 +35,7 @@ class CairoSetupCaseExecutionEnvironment(CairoExecutionEnvironment):
             shared_hint_local_factory=CairoSharedHintLocalFactory(
                 cheatable_state=state.cheatable_state,
                 cairo0_project_compiler=state.cairo0_project_compiler,
-                project_compiler=state.project_compiler,
+                contract_path_resolver=state.contract_path_resolver,
                 test_execution_state=state,
                 test_finish_hook=self._finish_hook,
             )
