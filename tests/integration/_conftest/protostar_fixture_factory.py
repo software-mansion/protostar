@@ -31,13 +31,13 @@ from protostar.compiler import (
     ProjectCairoPathBuilder,
     LinkedLibrariesBuilder,
     Cairo0ProjectCompiler,
-    ProjectCompiler,
 )
 from protostar.configuration_file import (
     ConfigurationFileFactory,
     ConfigurationFileV2ContentFactory,
     ConfigurationTOMLContentBuilder,
 )
+from protostar.contract_path_resolver import ContractPathResolver
 from protostar.io import log_color_provider
 from protostar.io.input_requester import InputRequester
 from protostar.self.protostar_compatibility_with_project_checker import (
@@ -78,7 +78,7 @@ def create_protostar_fixture(
         project_cairo_path_builder=project_cairo_path_builder,
         configuration_file=configuration_file,
     )
-    project_compiler = ProjectCompiler(
+    contract_path_resolver = ContractPathResolver(
         project_root_path=project_root_path,
         configuration_file=configuration_file,
     )
@@ -152,7 +152,7 @@ def create_protostar_fixture(
         messenger_factory=messenger_factory,
     )
     declare_cairo1_command = DeclareCairo1Command(
-        project_compiler=project_compiler,
+        contract_path_resolver=contract_path_resolver,
         gateway_facade_factory=gateway_facade_factory,
         messenger_factory=messenger_factory,
     )

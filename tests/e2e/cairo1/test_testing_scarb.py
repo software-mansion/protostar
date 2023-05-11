@@ -4,20 +4,19 @@ import pytest
 from tests.e2e.conftest import CopyFixture, ProtostarFixture
 
 
-# TODO #1767: investigate differences in gas support between quaireaux and protostar ("online_dependencies")
 @pytest.mark.parametrize(
     "project_dir, test_name",
     (
         # contracts
         ("libraries", "contract_with_libraries_as_dependencies"),
         ("modules", "contract_with_modules_as_dependencies"),
-        # ("online_dependencies", "contract_with_online_repo_as_dependency"),
+        ("online_dependencies", "contract_with_online_repository_as_dependency"),
+        ("multiple_contracts", "test_bar_func"),
+        ("multiple_contracts", "test_foo_func"),
         # pure cairo
         ("libraries", "libraries_as_dependencies"),
         ("modules", "modules_as_dependencies"),
-        # ("online_dependencies", "online_repo_as_dependency"),
-        ("multiple_contracts", "test_bar_func"),
-        ("multiple_contracts", "test_foo_func"),
+        ("online_dependencies", "online_repository_as_dependency"),
     ),
 )
 def test_testing_with_dependencies_using_scarb(
