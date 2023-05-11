@@ -26,6 +26,7 @@ jobs:
           pip install poetry==${{ vars.POETRY_VERSION }}
           poetry install
           poetry run pip install --pre https://github.com/starkware-libs/cairo-lang/releases/download/v0.11.1a0/cairo-lang-0.11.1a0.zip
+          poetry run pip list | grep cairo
       - name: Install cairo bindings
         run: |
           poetry run poe install_cairo_bindings prod
