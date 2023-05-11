@@ -49,3 +49,7 @@ fn test_not_enough_gas() {
     assert(fib(0, 1, 10) == 55, 'invalid result');
 }
 ```
+
+:::warning
+All cheatcodes have cost `0` so validating gas cost makes sense only for [unit tests](./01-unit-testing.md).
+:::

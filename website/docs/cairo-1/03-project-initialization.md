@@ -6,9 +6,7 @@ sidebar_label: Project initialization
 
 ## Creating a project
 
-To create a new Protostar project with cairo 1.0 support, you will need to run the `protostar init-cairo1` command
-followed
-by the name of your project. For example:
+To create a new Protostar project, run 
 
 ```shell
 protostar init-cairo1 my-project
@@ -46,8 +44,8 @@ This directory contains our only package in this project - `hello_starknet`.
 
 All Cairo1 packages must define these files.
 
-You can learn about [packages](./01-understanding-cairo-packages.md) and how
-to [add new module to a package](./01-understanding-cairo-packages.md#adding-a-new-module) in
+You can learn about [packages](./02-understanding-cairo-packages.md) and how
+to [add new module to a package](./02-understanding-cairo-packages.md#adding-a-new-module) in
 further sections.
 
 ### `contracts`
@@ -71,11 +69,11 @@ These files are necessary so that they can be imported in the `lib.cairo` file.
 
 ### `tests`
 
-All [tests](./04-testing.md) should be defined in this directory.
+All [tests](./05-testing/README.md) should be defined in this directory.
 
 ### `protostar.toml`
 
-This file contains the [configuration for the Protostar project](./03-protostar-toml.md).
+This file contains the [configuration for the Protostar project](./04-protostar-toml.md).
 
 :::info
 Even though `hello_starknet.cairo` file is defined in the nested directory, we use a package
@@ -165,4 +163,4 @@ fn test_returns_two() {
 
 Make sure that the path::to:the::module is correct for your package structure.
 
-For more details on of how to test contracts, see [this page](./04-testing.md).
+For more details on of how to test contracts, see [this page](./05-testing/README.md).
