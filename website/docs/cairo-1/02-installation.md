@@ -6,9 +6,6 @@ sidebar_label: Installation
 
 Protostar is easy to install on Linux and Mac systems. In this section, we will walk through the process of installing and upgrading Protostar.
 
-## Requirements (TODO add info about scarb)
-
-
 ## Linux and Mac
 1. Open a terminal and run the following command:
 ```console
