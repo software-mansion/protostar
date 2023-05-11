@@ -56,8 +56,8 @@ use array::ArrayTrait;
 // Single value in the panic payload
 #[test]
 fn test_panic_single_value() {
-    let mut data = array_new::<felt>();
-    array_append::<felt>(ref data, `this one should fail`);
+    let mut data = ArrayTrait::new();
+    data.append('this one should fail');
     panic(data)
 }
 ```
