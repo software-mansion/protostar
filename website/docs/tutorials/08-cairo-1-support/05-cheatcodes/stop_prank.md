@@ -1,7 +1,7 @@
 # `stop_prank`
 
 ```cairo
-extern fn stop_prank(target_contract_address: felt252) -> Result::<(), felt252> nopanic;
+fn stop_prank(target_contract_address: felt252) -> Result::<(), felt252> nopanic;
 ```
 
 Stops a prank started by [`start_prank`](./start_prank.md).
