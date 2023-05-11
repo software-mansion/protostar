@@ -25,6 +25,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install poetry==${{ vars.POETRY_VERSION }}
           poetry install
+          poetry run pip install --pre https://github.com/starkware-libs/cairo-lang/releases/download/v0.11.1a0/cairo-lang-0.11.1a0.zip
       - name: Install cairo bindings
         run: |
           poetry run poe install_cairo_bindings prod
@@ -34,10 +35,9 @@ jobs:
           path: | 
             ~/.cache/pypoetry
           key: poetry-${{ hashFiles('poetry.lock') }}
-      - name: Install pre-release cairo-lang-0.11.1
+      - name: Check versions
         run: |
-          poetry shell
-          pip install --pre https://github.com/starkware-libs/cairo-lang/releases/download/v0.11.1a0/cairo-lang-0.11.1a0.zip
+          poetry run pip list
 
   lint:
     name: Check formatting, linting and types
