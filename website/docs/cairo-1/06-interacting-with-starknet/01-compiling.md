@@ -7,8 +7,8 @@ sidebar_label: Compilation
 To compile your Starknet contracts written in Cairo 1 using Protostar, follow these steps:
 
 1. [Prepare your contracts](09-scripting.md).
-2. Specify the contracts in the [`protostar.toml` configuration file](/docs/legacy/configuration-file).
-Each Cairo file that contains an entrypoint function should be listed in the [`contracts` section of the configuration file](/docs/legacy/configuration-file#contracts).
+2. Specify the contracts in the [`protostar.toml` configuration file](../04-protostar-toml.md).
+Each Cairo file that contains an entrypoint function should be listed in the [`contracts` section of the configuration file](/docs/cairo-1/configuration-file#contracts).
 An entrypoint is a function decorated with `#[external]` or `#[view]`.
 3. Run the [`protostar build-cairo1`](../../cli-reference.md#build-cairo1) command.
 

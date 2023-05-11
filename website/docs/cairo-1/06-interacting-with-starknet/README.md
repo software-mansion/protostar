@@ -4,7 +4,7 @@ Protostar provides a couple of commands allowing users to interact with Starknet
 install [`cairo-lang`](https://pypi.org/project/cairo-lang/) Python package locally.
 
 Protostar offers similar CLI to [Starknet's CLI](https://docs.starknet.io/docs/CLI/commands). 
-However, with Protostar you can move deployment configuration to [`protostar.toml`](/docs/legacy/project-initialization#protostartoml) and display help for each command.
+However, with Protostar you can move deployment configuration to [`protostar.toml`](../04-protostar-toml.md) and display help for each command.
 
 ```mdx-code-block
 import DocCardList from '@theme/DocCardList';

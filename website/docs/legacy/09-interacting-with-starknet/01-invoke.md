@@ -17,7 +17,7 @@ For detailed API description, see [invoke command reference](../../cli-reference
 ## Signing
 Credentials for paying the fee are needed, which are:
 
-- Account address (which pays the fee) - - in hex (prefixed with '0x') or decimal representation.
+- Account address (which pays the fee) - in hex (prefixed with '0x') or decimal representation.
 - Private key for that account (from ArgentX, Braavos etc.) - in hex (prefixed with '0x') or decimal representation. This can be provided with `PROTOSTAR_ACCOUNT_PRIVATE_KEY` env variable or with a file on local filesystem containing that key in plaintext, in which case you should use `--private-key-path`.
 
 Custom signing logic is made possible by using custom signers - see details [here](./06-signing.md).
