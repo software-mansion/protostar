@@ -40,12 +40,6 @@ fn test_invoke_errors() {
     }
 ```
 
-## What about the constructors?
-
-What in case you want to prank the constructor code? You can prank your contract before it's deployed! To do that 
-
-TODO add example
-
 ## Other cheatcodes
 
 You can find a list of all available cheatcodes in [cheatcode reference](./cheatcodes-refernce/README.md)

@@ -38,7 +38,7 @@ This cheatcode will declare and deploy given contract.
 
 ## Under the hood
 You may ask, where the contract has been deployed? Protostar comes with a local Starknet instance which you can use to test your contracts. 
-To encourage good testing practices, each test case starts with a fresh Starknet instance. <br> <br>
+To encourage good testing practices, each test case starts with a fresh Starknet instance. 
 
 When Starknet instance is accessed through cheatcodes, it is analogous to accessing real Starknet through gateway. Example consequence of this behavior is that `get_caller_address` will return `0` in the called contract.
 
