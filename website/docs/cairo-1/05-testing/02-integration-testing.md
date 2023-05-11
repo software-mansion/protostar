@@ -6,9 +6,11 @@ sidebar_label: Integration testing
 
 Using [unit testing](./01-unit-testing.md) as much as possible is a good practice, as it makes your test suites faster. However, when writing smart contracts you often want your test to cover on-chain state and interactions between multiple contracts.
 
+In this section you will learn how to deploy and interact with a smart contract in Protostar. 
+
 ## How to test a contract
 
-Protostar comes with a local Starknet instance which you can use to test your contracts. To access it you need to use [cheatcodes](./cheatcodes-refernce/). 
+Protostar comes with a local Starknet instance which you can use to test your contracts. To access it you need to use [cheatcodes](./cheatcodes-refernce/), namely [deploy_contract](./cheatcodes-refernce/deploy_contract.md).
 
 Let's write a test which deploys and calls a contract. First let's define our contract 
 
@@ -29,24 +31,11 @@ use result::ResultTrait;
 
 #[test]
 fn test_deploy() {
-    let class_hash = declare('minimal').unwrap();
-    assert(class_hash != 0, 'class_hash != 0');
-
-    let prepare_result = prepare(class_hash, ArrayTrait::new()).unwrap();
-
-    assert(prepare_result.contract_address != 0, 'prepared contract_address != 0');
-    assert(prepare_result.class_hash != 0, 'prepared class_hash != 0');
-
-    let prepared_contract = PreparedContract {
-        contract_address: prepare_result.contract_address,
-        class_hash: prepare_result.class_hash,
-        constructor_calldata: prepare_result.constructor_calldata
-    };
-    let deployed_contract_address = deploy(prepared_contract).unwrap();
-    assert(deployed_contract_address != 0, 'deployed_contract_address != 0');
+    let deployed_contract_address = deploy_contract('minimal', ArrayTrait::new()).unwrap();
+    TODO (add calling code)
 }
 ```
-
+This cheatcode will declare and deploy given contract.
 
 ## Complex arguments
 TODO (examples with complex data types)
@@ -82,4 +71,8 @@ fn test_invoke_errors() {
             assert(*x.panic_data.at(1_u32) == 'data', 'second datum doesnt match');
         }
     }
+```
 
+## Old cairo contracts
+
+Protostar allows you to test contracts written in old cairo. You can use cheatcode [declare_cairo0](./cheatcodes-refernce/declare-cairo0.md) to declare them.
