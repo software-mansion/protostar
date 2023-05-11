@@ -9,7 +9,7 @@ Often while testing your contract you want to emulate complex scenarios. As an e
 
 ## Let's prank a contract
 
-Assume you want to test a user validation mechanism in your contract. You can leverage [start_prank](./cheatcodes-refernce/start_prank.md) cheatcode to do that.
+Assume you want to test a user validation mechanism in your contract. You can leverage [start_prank](./cheatcodes-reference/start_prank.md) cheatcode to do that.
 
 TODO correct code example
 ```cairo title="Deployed contract"
@@ -42,4 +42,4 @@ fn test_invoke_errors() {
 
 ## Other cheatcodes
 
-You can find a list of all available cheatcodes in [cheatcode reference](./cheatcodes-refernce/README.md)
+You can find a list of all available cheatcodes in [cheatcode reference](./cheatcodes-reference/README.md)

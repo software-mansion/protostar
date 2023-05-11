@@ -31,7 +31,7 @@ export function HomepageHeader() {
         <div className={styles.buttons}>
           <Link
             className='button button--secondary button--lg'
-            to='/docs/legacy/introduction'
+            to='/docs/cairo-1/introduction'
           >
             Get Started
           </Link>

@@ -36,15 +36,9 @@ fn test_deploy() {
 ```
 This cheatcode will declare and deploy given contract.
 
-## Under the hood
-You may ask, where the contract has been deployed? Protostar comes with a local Starknet instance which you can use to test your contracts. 
-To encourage good testing practices, each test case starts with a fresh Starknet instance. 
-
-When Starknet instance is accessed through cheatcodes, it is analogous to accessing real Starknet through gateway. Example consequence of this behavior is that `get_caller_address` will return `0` in the called contract.
-
 ## Transaction reverts
 
-[deploy](./cheatcodes-refernce/deploy.md), [invoke](./cheatcodes-refernce/invoke.md) and [call](./cheatcodes-refernce/call.md) execute code on chain which can be reverted.
+Cheatcodes [deploy](./cheatcodes-reference/deploy.md), [invoke](./cheatcodes-reference/invoke.md) and [call](./cheatcodes-reference/call.md) execute code on chain which can be reverted.
 In such case, they return `RevertedTransaction` structure. You can use it, for example, to verify if your contract reverts transaction in certain scenario.
 
 ```cairo title="Deployed contract"
@@ -77,6 +71,12 @@ fn test_invoke_errors() {
     }
 ```
 
+## Under the hood
+You may ask, where the contract has been deployed? Protostar comes with a local Starknet instance which you can use to test your contracts. 
+To encourage good testing practices, each test case starts with a fresh Starknet instance. 
+
+When Starknet instance is accessed through cheatcodes, it is analogous to accessing real Starknet through gateway. Example consequence of this behavior is that `get_caller_address` will return `0` in the called contract.
+
 ## Old cairo contracts
 
-Protostar allows you to test contracts written in old cairo. You can use cheatcode [declare_cairo0](./cheatcodes-refernce/declare-cairo0.md) to declare them.
+Protostar allows you to test contracts written in old cairo. You can use cheatcode [declare_cairo0](./cheatcodes-reference/declare-cairo0.md) to declare them.

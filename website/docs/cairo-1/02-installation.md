@@ -33,7 +33,7 @@ protostar upgrade
 Protostar will inform you when a new version is available.
 
 
-# How to build Protostar from source code (TODO check if still valid)
+# How to build Protostar from source code
 If you are unable to install Protostar using the instructions above, you can try building it from the [source code](https://github.com/software-mansion/protostar) as follows:
 
 1. [Set up a development environment.](https://github.com/software-mansion/protostar#setting-up-environment)

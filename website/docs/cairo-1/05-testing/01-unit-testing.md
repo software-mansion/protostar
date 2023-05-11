@@ -3,11 +3,11 @@ sidebar_label: Unit testing
 ---
 
 # Unit testing
+Protostar lets you test standalone cairo functions. This technique is referred to as unit testing. You should write as many unit tests as possible as these are **much faster than [integration tests](./02-integration-testing.md)
 
+## Writing your first test
 
-## Writing your first test (TODO test if the example works)
-
-First, add to the file `src/lib.cairo` following code:
+First, add the following code to the `src/lib.cairo` file:
 ```
 fn sum(a: felt252, b: felt252) -> felt252 {
     return a + b;
@@ -46,7 +46,7 @@ Protostar collects all test suites specified under the path passed as an argumen
 Test cases cannot return any values, cannot take any arguments.
 :::
 
-## Failing tests (TODO test if the example works and fix the array syntax)
+## Failing tests
 
 Your tests fails when code *panics*. To write a test that fails, you will need to use `panic` function, here's how you do it:
 
