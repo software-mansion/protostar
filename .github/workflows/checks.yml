@@ -64,7 +64,11 @@ jobs:
       - name: Install cairo bindings
         run: |
           poetry run ./scripts/install_cairo_bindings.sh
-
+          
+      - name: Install cairo-lang 0.11.1
+        run: |
+          poetry run pip install --pre https://github.com/starkware-libs/cairo-lang/releases/download/v0.11.1a0/cairo-lang-0.11.1a0.zip
+      
       - name: Check types
         run: |
           poetry run poe type_check
