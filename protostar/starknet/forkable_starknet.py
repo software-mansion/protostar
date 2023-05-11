@@ -55,6 +55,7 @@ class ForkableStarknet(Starknet):
             class_hash=class_hash,
             contract_address_salt=contract_address_salt,
             constructor_calldata=constructor_calldata,
+            sender_address=sender_address,
         )
 
         self.cheatable_state.cheatable_state.update_event_selector_to_name_map(

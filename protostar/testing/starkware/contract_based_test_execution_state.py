@@ -5,9 +5,6 @@ from pathlib import Path
 from starkware.starknet.services.api.contract_class.contract_class import (
     DeprecatedCompiledClass,
 )
-from starkware.starknet.core.os.contract_class.deprecated_class_hash import (
-    compute_deprecated_class_hash,
-)
 from starkware.starknet.testing.contract import StarknetContract
 from typing_extensions import Self
 
@@ -44,8 +41,14 @@ class ContractBasedTestExecutionState(TestExecutionState):
         )
         starknet = base.starknet
 
-        class_hash = compute_deprecated_class_hash(contract_class=test_suite_definition)
-        contract = await starknet.deploy(class_hash=class_hash)
+        # class_hash = compute_deprecated_class_hash(contract_class=test_suite_definition)
+        sender_address = await starknet.deploy_simple_account()
+        declared_class = await starknet.deprecated_declare(
+            contract_class=test_suite_definition
+        )
+        contract = await starknet.deploy(
+            class_hash=declared_class.class_hash, sender_address=sender_address
+        )
         assert test_suite_definition.abi is not None
         starknet.cheatable_state.cheatable_state.class_hash_to_contract_abi_map[
             0
