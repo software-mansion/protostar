@@ -13,11 +13,11 @@ The basic inputs needed for this command are:
 [Read the CLI reference for the deploy command](../../cli-reference.md#deploy) to learn more about all supported arguments.
 
 :::caution
-Although this command does not require [signing the transaction](./06-signing.md) right now, it is strongly encouraged to do so as it will be required in the future. 
+Although this command does not require [signing the transaction](./08-signing.md) right now, it is strongly encouraged to do so as it will be required in the future. 
 :::
 
 ## Usage example
-After [declaring your contract](./03-declare.md), you can deploy the contract in the following way.
+After [declaring your contract](./02-declare.md), you can deploy the contract in the following way.
 
 ```console title="protostar deploy 0xdeadbeef --network testnet"
 [INFO] Invoke transaction was sent to the Universal Deployer Contract.
@@ -32,5 +32,5 @@ If you need to print machine-readable output in JSON format, you should use `--j
 
 This may come in handy for writing scripts that include protostar commands.
 
-For more information, go to [this page](./scripting.md)
+For more information, go to [this page](./09-scripting.md)
 :::

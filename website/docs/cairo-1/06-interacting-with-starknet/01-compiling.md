@@ -6,7 +6,7 @@ sidebar_label: Compilation
 
 To compile your Starknet contracts written in Cairo 1 using Protostar, follow these steps:
 
-1. [Prepare your contracts](./01-understanding-cairo-packages.md).
+1. [Prepare your contracts](09-scripting.md).
 2. Specify the contracts in the [`protostar.toml` configuration file](/docs/legacy/configuration-file).
 Each Cairo file that contains an entrypoint function should be listed in the [`contracts` section of the configuration file](/docs/legacy/configuration-file#contracts).
 An entrypoint is a function decorated with `#[external]` or `#[view]`.
@@ -52,7 +52,7 @@ protostar-project
 
 ## External libraries
 
-If you want to attach external libraries to the build, you can specify additional paths that will be searched for the cairo libraries (library is just a cairo [package](./01-understanding-cairo-packages.md)). To do that, you need to use the [`--linked-libraries`](../../cli-reference.md#linked-libraries-path) argument like this:
+If you want to attach external libraries to the build, you can specify additional paths that will be searched for the cairo libraries (library is just a cairo [package](../02-understanding-cairo-packages.md)). To do that, you need to use the [`--linked-libraries`](../../cli-reference.md#linked-libraries-path) argument like this:
 
 ```
 $ protostar build-cairo1 --linked-libraries /path/to/the/external/lib

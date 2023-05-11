@@ -48,7 +48,7 @@ trying to use it in tests will cause compilation errors.
 ### `[contracts]` section
 
 Define packages containing contracts to be used by protostar commands
-like [declare-cairo1](../../cli-reference.md#declare-cairo1) and by [cheatcodes](./05-cheatcodes/README.md).
+like [declare-cairo1](../cli-reference.md#declare-cairo1) and by [cheatcodes](./05-testing/03-cheatcodes.md).
 
 ```toml
 [contracts]
@@ -61,7 +61,7 @@ other_contract = ["other_contract"]
 This section of the `protostar.toml` file allows you to specify arguments for a specific
 Protostar command.
 
-For example, you can define a different build dir for the [build-cairo1](../../cli-reference.md#build-cairo1)
+For example, you can define a different build dir for the [build-cairo1](../cli-reference.md#build-cairo1)
 
 ```toml title="Configuration File"
 [build-cairo1]
@@ -78,13 +78,13 @@ specified in the profile.
 
 To create a configuration profile, add a new section to the `protostar.toml`. For example:
 
-- to create a configuration named `mainnet` for the [`declare-cairo1` command](../../cli-reference.md#declare-cairo1),
+- to create a configuration named `mainnet` for the [`declare-cairo1` command](../cli-reference.md#declare-cairo1),
   add `[profile.mainnet.declare]` section
 - to create a shared configuration named `testnet`, add `[profile.testnet.project]` section
 
-To use a profile, add the [-p or --profile argument](../../cli-reference.md#-p---profile-string) followed by the name of
+To use a profile, add the [-p or --profile argument](../cli-reference.md#-p---profile-string) followed by the name of
 the profile.
-For example, to use the [`declare-cairo1` command](../../cli-reference.md#declare-cairo1) with the `testnet` profile,
+For example, to use the [`declare-cairo1` command](../cli-reference.md#declare-cairo1) with the `testnet` profile,
 run:
 
 ```console

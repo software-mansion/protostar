@@ -20,7 +20,7 @@ Credentials for paying the fee are needed, which are:
 - Account address (which pays the fee) - - in hex (prefixed with '0x') or decimal representation.
 - Private key for that account (from ArgentX, Braavos etc.) - in hex (prefixed with '0x') or decimal representation. This can be provided with `PROTOSTAR_ACCOUNT_PRIVATE_KEY` env variable or with a file on local filesystem containing that key in plaintext, in which case you should use `--private-key-path`.
 
-Custom signing logic is made possible by using custom signers - see details [here](./06-signing.md).
+Custom signing logic is made possible by using custom signers - see details [here](./08-signing.md).
 
 ## Usage example
 
@@ -44,5 +44,5 @@ If you need to print machine-readable output in JSON format, you should use `--j
 
 This may come in handy for writing scripts that include protostar commands.
 
-For more information, go to [this page](./scripting.md)
+For more information, go to [this page](./09-scripting.md)
 :::

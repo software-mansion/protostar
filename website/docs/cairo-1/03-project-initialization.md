@@ -44,8 +44,8 @@ This directory contains our only package in this project - `hello_starknet`.
 
 All Cairo1 packages must define these files.
 
-You can learn about [packages](./01-understanding-cairo-packages.md) and how
-to [add new module to a package](./01-understanding-cairo-packages.md#adding-a-new-module) in
+You can learn about [packages](./02-understanding-cairo-packages.md) and how
+to [add new module to a package](./02-understanding-cairo-packages.md#adding-a-new-module) in
 further sections.
 
 ### `contracts`
@@ -69,7 +69,7 @@ These files are necessary so that they can be imported in the `lib.cairo` file.
 
 ### `tests`
 
-All [tests](./05-testing.md) should be defined in this directory.
+All [tests](./05-testing/README.md) should be defined in this directory.
 
 ### `protostar.toml`
 
@@ -163,4 +163,4 @@ fn test_returns_two() {
 
 Make sure that the path::to:the::module is correct for your package structure.
 
-For more details on of how to test contracts, see [this page](./04-testing.md).
+For more details on of how to test contracts, see [this page](./05-testing/README.md).

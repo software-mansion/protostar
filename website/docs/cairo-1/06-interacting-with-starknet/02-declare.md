@@ -6,7 +6,7 @@ Starknet provides a distinction between contract class and instance. To deploy n
 2. Declare a contract on the network
 3. Deploy an instance of that contract
 
-For detailed API description, see [declare-cairo1 command reference](../../../cli-reference.md#declare-cairo1).
+For detailed API description, see [declare-cairo1 command reference](../../cli-reference.md#declare-cairo1).
 
 ## Usage example
 

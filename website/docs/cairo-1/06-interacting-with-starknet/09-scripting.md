@@ -23,7 +23,7 @@ First, let's create a basic protostar file structure. You can generate it by cal
 
 #### protostar.toml file
 
-You can read about how to compose the protostar configuration file [here](../04-configuration-file.md). The point is to keep protostar commands clean and simple and leave such things as the network configuration away from them.
+You can read about how to compose the protostar configuration file [here](../04-protostar-toml.md). The point is to keep protostar commands clean and simple and leave such things as the network configuration away from them.
 
 In this file, you should declare the following sections:
 - `declare`
@@ -59,7 +59,7 @@ These two instructions assure that the contract builds properly and all tests pa
 
 #### Declare and deploy the contract
 
-Now, we need to first [declare](./03-declare.md) the contract and then [deploy](./04-deploy.md) it.
+Now, we need to first [declare](./02-declare.md) the contract and then [deploy](./03-deploy.md) it.
 
 Normally, we would start with something like this:
 
