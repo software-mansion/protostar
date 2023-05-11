@@ -50,4 +50,6 @@ fn test_not_enough_gas() {
 }
 ```
 
-TODO(Add info this only works for unit tests, cheatcodes have 0-cost right now)
+:::warning
+All cheatcodes have cost `0` so validating gas cost makes sense only for [unit tests](./01-unit-testing.md).
+:::
