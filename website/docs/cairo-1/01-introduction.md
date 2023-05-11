@@ -4,7 +4,7 @@ sidebar_label: Introduction
 
 # Introduction
 
-Protostar is a toolchain for developing Starknet smart contracts that helps with writing, [deploying](./06-interacting-with-starknet/README.md) and [testing](./05-testing/README.md) your smart contracts.
+Protostar is a toolchain for developing Starknet smart contracts. It helps with writing, [deploying](./06-interacting-with-starknet/README.md), and [testing](./05-testing/README.md) your smart contracts.
 It is loosely inspired by [Foundry](https://github.com/foundry-rs/foundry).
 
 ## Reference

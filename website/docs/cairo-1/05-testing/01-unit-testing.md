@@ -24,7 +24,7 @@ fn test_sum() {
 }
 ```
 
-Now run your test using command:
+Now run your test using this command:
 ```
 protostar test-cairo1 ./tests
 ```
@@ -40,15 +40,15 @@ Seed:        2752673895
 ```
 
 ## Test collecting
-Protostar collects all test suites specified under the path passed as an argument. You can pass either directory or a specific file. Test suite is every `.cairo` file with name starting from `test_` or ending with `_test`. Protostar considers each function, inside a test suite, with `#[test]` attribute as a test case.
+Protostar collects all test suites specified under the path passed as an argument. You can pass either directory or a specific file. A test suite is every `.cairo` file with a name starting from `test_` or ending with `_test`. Protostar considers each function, inside a test suite, with `#[test]` attribute as a test case.
 
 :::warning
-Test cases cannot return any values, cannot take any arguments.
+Test cases cannot return any values and cannot take any arguments.
 :::
 
 ## Failing tests
 
-Your tests fails when code *panics*. To write a test that fails, you will need to use `panic` function, here's how you do it:
+Your tests fail when code *panics*. To write a test that fails, you will need to use `panic` function, here's how you do it:
 
 ```
 use array::ArrayTrait;

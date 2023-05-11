@@ -62,3 +62,5 @@ fn test_invoke_errors() {
             assert(*x.panic_data.at(1_u32) == 'data', 'second datum doesnt match');
         }
     }
+}
+```
