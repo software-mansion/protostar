@@ -2,7 +2,7 @@
 
 ## Overview
 
-This command allows you to send an invoke transaction with `#[external]` function entrypoint.
+This command allows you to send an invoke transaction to Starknet.
 
 The basic inputs that you need for the commands are:
 
