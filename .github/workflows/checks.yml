@@ -34,10 +34,9 @@ jobs:
           path: | 
             ~/.cache/pypoetry
           key: poetry-${{ hashFiles('poetry.lock') }}
-      - name: Install cairo-lang Check versions
+      - name: Install cairo-lang 0.11.1
         run: |
           poetry run pip install --pre https://github.com/starkware-libs/cairo-lang/releases/download/v0.11.1a0/cairo-lang-0.11.1a0.zip
-          poetry run pip list | grep cairo
 
   lint:
     name: Check formatting, linting and types
