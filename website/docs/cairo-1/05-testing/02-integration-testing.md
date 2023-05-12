@@ -34,12 +34,12 @@ fn test_deploy() {
     invoke(deployed_contract_address, 'hello', ArrayTrait::new()).unwrap();
 }
 ```
-This cheatcode will declare and deploy given contract.
+This cheatcode will declare and deploy the given contract.
 
 ## Transaction reverts
 
 Cheatcodes [deploy](./cheatcodes-reference/deploy.md), [invoke](./cheatcodes-reference/invoke.md) and [call](./cheatcodes-reference/call.md) execute code on chain which can be reverted.
-In such case, they return `RevertedTransaction` structure. You can use it, for example, to verify if your contract reverts transaction in certain scenario.
+In such case, they return `RevertedTransaction` structure. You can use it, for example, to verify if your contract reverts the transaction in a certain scenario.
 
 ```cairo title="Deployed contract"
 #[contract]
@@ -75,7 +75,7 @@ fn test_invoke_errors() {
 You may ask, where the contract has been deployed? Protostar comes with a local Starknet instance which you can use to test your contracts. 
 To encourage good testing practices, each test case starts with a fresh Starknet instance. 
 
-When Starknet instance is accessed through cheatcodes, it is analogous to accessing real Starknet through gateway. Example consequence of this behavior is that `get_caller_address` will return `0` in the called contract.
+When Starknet instance is accessed through cheatcodes, it is analogous to accessing real Starknet through gateway. An example consequence of this behavior is that `get_caller_address` will return `0` in the called contract.
 
 ## Old cairo contracts
 

@@ -4,7 +4,7 @@ sidebar_label: Cheatcodes
 
 # Cheatcodes
 
-Often while testing your contract you want to emulate complex scenarios. As an example, you might want to test how your contract behaves when not-authorized contract calls it. Protostar let's you tests such scenarios with *cheatcodes*. In this section you will learn what cheatcodes are and how to use them to create strong tests for your contracts.
+Often while testing your contract you want to emulate complex scenarios. As an example, you might want to test how your contract behaves when not authorized contract calls it. Protostar lets you tests such scenarios with *cheatcodes*. In this section you will learn what cheatcodes are and how to use them to create strong tests for your contracts.
 
 
 ## Let's prank a contract
