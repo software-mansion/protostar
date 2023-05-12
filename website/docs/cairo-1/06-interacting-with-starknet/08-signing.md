@@ -1,26 +1,38 @@
 # Signing
+
 Protostar offers two ways of providing the signature:
 
-### 1. StarkCurveSigner
+## Default signer
 
-By default, Protostar uses the [StarkCurveSigner class](https://starknetpy.readthedocs.io/en/latest/signer.html#starknet_py.net.signer.stark_curve_signer.StarkCurveSigner) from Starknet.py.
+By default, Protostar uses
+the [StarkCurveSigner class](https://github.com/software-mansion/starknet.py/blob/68df1709c4f7664e317f5c5dbff5e9c220d11727/starknet_py/net/signer/stark_curve_signer.py#L36)
+from Starknet.py to sign transactions.
 
-This way requires you to pass a private key (for signing) and account contract's address (to fetch the nonce).
-You can obtain the key and account address e.g. from [Argentx](https://chrome.google.com/webstore/detail/argent-x/dlcobpjiigpikoobohmabehhmhfoodbb) or [Braavos](https://chrome.google.com/webstore/detail/braavos-wallet/jnlgamecbpmbajjfhmmmlhejkemejdma) wallets. 
+The way of signing used by this class requires providing a private key (for signing) and account contract's address (to
+fetch the nonce).
+Depending on what account you use, these can be obtained in different ways. Refer to your account documentation for more
+details.
 
-2 options are used for this:
-- `private-key-path` - a path to the file containing private key in hex (prefixed with '0x') or decimal representation 
-- `account-address` - your account contract's address on the appropriate network in hex (prefixed with '0x') or decimal representation
+### Providing account details in protostar commands
 
-Alternatively, if you prefer not to store private key in a file, we check for `PROTOSTAR_ACCOUNT_PRIVATE_KEY` environment variable, and use it if it's available.   
-It should be in the same hex (prefixed with '0x') or decimal representation, like all the options above.
+To provide your account details when running protostar commands, these arguments should be used
 
-### 2. Using a custom signer class
+- `--private-key-path` - a path to the file containing private key, either in hex (prefixed with '0x') or decimal
+  format.
+- `--account-address` - your account contract's address on the appropriate network, either in hex (prefixed with '0x')
+  or decimal
+  format.
 
-You can provide a custom signer class which inherits from [BaseSigner](https://starknetpy.readthedocs.io/en/latest/signer.html#starknet_py.net.signer.BaseSigner) abstract class. 
-This way of signing requires you to write a class in Python, which signs the transaction in a way that is suitable to you.
-After writing such class, simply use `signer_class` argument in the CLI for `declare` command to use that class instead of the default one.
-Usage of this way of signing is exclusive with the default signer strategy.
+If you prefer not to store private key in a file, define a `PROTOSTAR_ACCOUNT_PRIVATE_KEY`
+environment variable. Protostar will use that variable for the private key automatically when running commands.
+
+## Using a custom signer class
+
+If your account contract requires a different way of signing, you can create a custom signer class which inherits
+from [BaseSigner](https://github.com/software-mansion/starknet.py/blob/68df1709c4f7664e317f5c5dbff5e9c220d11727/starknet_py/net/signer/base_signer.py#L8)
+abstract class if 
+
+To use a custom signer, provide a `--signer-class` argument when executing protostar commands.
 
 :::caution
 The custom signer class must not take any arguments in the constructor, since we don't pass any args on instantiation.
@@ -28,5 +40,7 @@ The custom signer class must not take any arguments in the constructor, since we
 
 The Python file containing this class can be put next to Cairo source code.
 Protostar synchronizes `PYTHONPATH` with project's `cairo_path`.
-Modules that are dependencies of Protostar (like `starknet_py` or `cairo-lang`) should be available for importing by default.
-If you want to import other custom modules, you should extend `PYTHONPATH` yourself (https://docs.python.org/3/using/cmdline.html#envvar-PYTHONPATH), when running this command.
+Modules that are dependencies of Protostar (like `starknet_py` or `cairo-lang`) should be available for importing by
+default.
+If you want to import other custom modules, you should extend `PYTHONPATH`
+yourself (https://docs.python.org/3/using/cmdline.html#envvar-PYTHONPATH), when running this command.
