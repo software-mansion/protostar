@@ -31,7 +31,7 @@ async def test_invoke_hint_local(
         }
     )
 
-    testing_summary = await protostar_project.protostar.test_cairo1(
+    testing_summary = await protostar_project.protostar.test(
         Path(__file__).parent / "invoke_test.cairo",
     )
 

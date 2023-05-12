@@ -4,7 +4,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
-from protostar.commands.init.project_creator._project_creator import ProjectCreator
+from protostar.commands.legacy_commands.init_cairo0.project_creator import (
+    ProjectCreator,
+)
 from protostar.configuration_file import (
     ConfigurationFileV2ContentFactory,
     ConfigurationFileV2Model,

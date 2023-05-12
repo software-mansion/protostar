@@ -33,7 +33,7 @@ async def test_call_hint_local(
         }
     )
 
-    testing_summary = await protostar_project.protostar.test_cairo1(
+    testing_summary = await protostar_project.protostar.test(
         Path(__file__).parent / "call_test.cairo",
     )
 

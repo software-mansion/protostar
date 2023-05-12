@@ -13,7 +13,7 @@ from protostar.starknet_gateway.gateway_facade import InputValidationException
 def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
     with create_protostar_project() as protostar_project:
         protostar_project.create_files({"./src/main.cairo": CONTRACT_WITH_CONSTRUCTOR})
-        protostar_project.protostar.build_sync()
+        protostar_project.protostar.build_cairo0_sync()
         yield protostar_project.protostar
 
 

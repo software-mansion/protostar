@@ -10,51 +10,51 @@ import pytest
 from tests.e2e.conftest import CopyFixture, MyPrivateLibsSetupFixture, ProtostarFixture
 
 
-@pytest.mark.usefixtures("init")
+@pytest.mark.usefixtures("init_cairo0")
 def test_basic_contract(protostar: ProtostarFixture):
-    result = protostar(["test", "tests"])
+    result = protostar(["test-cairo0", "tests"])
     assert "1 passed" in result
     assert "Seed:" in result
 
 
-@pytest.mark.usefixtures("init")
+@pytest.mark.usefixtures("init_cairo0")
 def test_safe_collecting(protostar: ProtostarFixture):
-    result = protostar(["test", "--safe-collecting"])
+    result = protostar(["test-cairo0", "--safe-collecting"])
     assert "1 passed" in result
 
 
-@pytest.mark.usefixtures("init")
+@pytest.mark.usefixtures("init_cairo0")
 def test_basic_contract_profile(protostar: ProtostarFixture):
     result = protostar(
-        ["test", "--profiling", "tests/test_main.cairo::test_increase_balance"]
+        ["test-cairo0", "--profiling", "tests/test_main.cairo::test_increase_balance"]
     )
     assert "1 passed" in result
     assert "profile.pb.gz" in listdir(".")
 
 
-@pytest.mark.usefixtures("init")
+@pytest.mark.usefixtures("init_cairo0")
 def test_profile_fuzz(protostar: ProtostarFixture, copy_fixture: CopyFixture):
     copy_fixture("fuzz_test.cairo", "./tests")
     result = protostar(
-        ["test", "--profiling", "tests/fuzz_test.cairo"], ignore_exit_code=True
+        ["test-cairo0", "--profiling", "tests/fuzz_test.cairo"], ignore_exit_code=True
     )
     assert "Fuzz tests cannot be profiled" in result
     assert not Path("profile.pb.gz").exists()
 
 
-@pytest.mark.usefixtures("init")
+@pytest.mark.usefixtures("init_cairo0")
 def test_complex(protostar: ProtostarFixture, copy_fixture: CopyFixture):
     copy_fixture("basic.cairo", "./src")
     copy_fixture("proxy_contract.cairo", "./src")
     copy_fixture("test_proxy.cairo", "./tests")
 
-    result = protostar(["test", "tests"])
+    result = protostar(["test-cairo0", "tests"])
 
     assert "Collected 2 suites, and 4 test cases" in result
     assert "4 passed" in result
 
 
-@pytest.mark.usefixtures("init")
+@pytest.mark.usefixtures("init_cairo0")
 def test_expect_revert(protostar_repo_root: Path, protostar: ProtostarFixture):
     shutil.copy(
         protostar_repo_root
@@ -67,7 +67,8 @@ def test_expect_revert(protostar_repo_root: Path, protostar: ProtostarFixture):
     )
 
     result = protostar(
-        ["--no-color", "test", "tests/expect_revert_test.cairo"], ignore_exit_code=True
+        ["--no-color", "test-cairo0", "tests/expect_revert_test.cairo"],
+        ignore_exit_code=True,
     )
 
     assert "[PASS] tests/expect_revert_test.cairo test_error_message" in result
@@ -108,7 +109,7 @@ def test_loading_cairo_path_from_config_file(
 ):
     (my_private_libs_dir,) = my_private_libs_setup
 
-    protostar(["test", "tests"], expect_exit_code=1)
+    protostar(["test-cairo0", "tests"], expect_exit_code=1)
 
     Path("protostar.toml").write_text(
         dedent(
@@ -124,30 +125,32 @@ def test_loading_cairo_path_from_config_file(
         encoding="utf-8",
     )
 
-    result = protostar(["test", "tests"])
+    result = protostar(["test-cairo0", "tests"])
     assert "/my_lib/utils.cairo" not in result
     assert "1 passed" in result
 
 
-@pytest.mark.usefixtures("init")
+@pytest.mark.usefixtures("init_cairo0")
 def test_exit_code_if_any_test_failed(
     protostar: ProtostarFixture, copy_fixture: CopyFixture
 ):
     copy_fixture("test_failed.cairo", "./tests")
-    protostar(["test", "tests"], expect_exit_code=1)
+    protostar(["test-cairo0", "tests"], expect_exit_code=1)
 
 
-@pytest.mark.usefixtures("init")
+@pytest.mark.usefixtures("init_cairo0")
 def test_broken_test_suite_in_collecting_phase(
     protostar: ProtostarFixture, copy_fixture: CopyFixture
 ):
     copy_fixture("test_broken.cairo", "./tests")
 
-    result: str = protostar(["--no-color", "test", "**/test_*"], ignore_exit_code=True)
+    result: str = protostar(
+        ["--no-color", "test-cairo0", "**/test_*"], ignore_exit_code=True
+    )
     assert "1 broken, 1 passed" in result
 
 
-@pytest.mark.usefixtures("init")
+@pytest.mark.usefixtures("init_cairo0")
 def test_disabling_hint_validation(
     protostar: ProtostarFixture, copy_fixture: CopyFixture
 ):
@@ -157,7 +160,7 @@ def test_disabling_hint_validation(
     result_before = protostar(
         [
             "--no-color",
-            "test",
+            "test-cairo0",
             "tests/contract_with_invalid_hint_test.cairo",
         ],
         ignore_exit_code=True,
@@ -167,7 +170,7 @@ def test_disabling_hint_validation(
     result_after = protostar(
         [
             "--no-color",
-            "test",
+            "test-cairo0",
             "tests/contract_with_invalid_hint_test.cairo",
             "--disable-hint-validation",
         ],
@@ -176,58 +179,62 @@ def test_disabling_hint_validation(
     assert "Hint is not whitelisted" not in result_after
 
 
-@pytest.mark.usefixtures("init")
+@pytest.mark.usefixtures("init_cairo0")
 def test_exit_first_failed(protostar: ProtostarFixture, copy_fixture: CopyFixture):
     copy_fixture("basic.cairo", "./src")
     copy_fixture("proxy_contract.cairo", "./src")
     copy_fixture("test_proxy.cairo", "./tests")
     copy_fixture("test_failed.cairo", "./tests")
 
-    assert "skipped" in protostar(["test", "-x", "tests"], ignore_exit_code=True)
-    assert "skipped" not in protostar(["test", "tests"], ignore_exit_code=True)
+    assert "skipped" in protostar(["test-cairo0", "-x", "tests"], ignore_exit_code=True)
+    assert "skipped" not in protostar(["test-cairo0", "tests"], ignore_exit_code=True)
 
 
-@pytest.mark.usefixtures("init")
+@pytest.mark.usefixtures("init_cairo0")
 def test_exit_first_broken(protostar: ProtostarFixture, copy_fixture: CopyFixture):
     copy_fixture("basic.cairo", "./src")
     copy_fixture("proxy_contract.cairo", "./src")
     copy_fixture("test_proxy.cairo", "./tests")
     copy_fixture("test_broken.cairo", "./tests")
 
-    assert "skipped" in protostar(["test", "-x", "tests"], ignore_exit_code=True)
-    assert "skipped" not in protostar(["test", "tests"], ignore_exit_code=True)
+    assert "skipped" in protostar(["test-cairo0", "-x", "tests"], ignore_exit_code=True)
+    assert "skipped" not in protostar(["test-cairo0", "tests"], ignore_exit_code=True)
 
 
-@pytest.mark.usefixtures("init")
+@pytest.mark.usefixtures("init_cairo0")
 def test_print_passed(protostar: ProtostarFixture, copy_fixture: CopyFixture):
     copy_fixture("test_print_passed.cairo", "./tests")
-    assert "captured stdout" in protostar(["test", "tests"], ignore_exit_code=True)
+    assert "captured stdout" in protostar(
+        ["test-cairo0", "tests"], ignore_exit_code=True
+    )
 
 
-@pytest.mark.usefixtures("init")
+@pytest.mark.usefixtures("init_cairo0")
 def test_print_failed(protostar: ProtostarFixture, copy_fixture: CopyFixture):
     copy_fixture("test_print_failed.cairo", "./tests")
-    assert "captured stdout" in protostar(["test", "tests"], ignore_exit_code=True)
+    assert "captured stdout" in protostar(
+        ["test-cairo0", "tests"], ignore_exit_code=True
+    )
 
 
-@pytest.mark.usefixtures("init")
+@pytest.mark.usefixtures("init_cairo0")
 def test_print_both(protostar: ProtostarFixture, copy_fixture: CopyFixture):
     copy_fixture("test_print_failed.cairo", "./tests")
     copy_fixture("test_print_passed.cairo", "./tests")
 
-    result = protostar(["test", "tests"], ignore_exit_code=True)
+    result = protostar(["test-cairo0", "tests"], ignore_exit_code=True)
 
     assert result.count("captured stdout") == 2
     assert "Hello" in result
     assert "bee" in result
 
 
-@pytest.mark.usefixtures("init")
+@pytest.mark.usefixtures("init_cairo0")
 def test_print_setup(protostar: ProtostarFixture, copy_fixture: CopyFixture):
     copy_fixture("test_print_failed.cairo", "./tests")
     copy_fixture("test_print_passed.cairo", "./tests")
 
-    result = protostar(["test", "tests"], ignore_exit_code=True)
+    result = protostar(["test-cairo0", "tests"], ignore_exit_code=True)
 
     assert "P __setup__" in result
     assert "F __setup__" in result
@@ -238,18 +245,18 @@ def test_print_setup(protostar: ProtostarFixture, copy_fixture: CopyFixture):
     assert "[setup case]:" in result
 
 
-@pytest.mark.usefixtures("init")
+@pytest.mark.usefixtures("init_cairo0")
 def test_print_only_setup(protostar: ProtostarFixture, copy_fixture: CopyFixture):
     copy_fixture("test_print_only_setup.cairo", "./tests")
 
-    result = protostar(["test", "tests"], ignore_exit_code=True)
+    result = protostar(["test-cairo0", "tests"], ignore_exit_code=True)
 
     assert "O __setup__" in result
     assert "[test]:" not in result
     assert "[setup]:" in result
 
 
-@pytest.mark.usefixtures("init")
+@pytest.mark.usefixtures("init_cairo0")
 def test_report_slowest(protostar: ProtostarFixture, copy_fixture: CopyFixture):
     copy_fixture("basic.cairo", "./src")
     copy_fixture("proxy_contract.cairo", "./src")
@@ -258,27 +265,28 @@ def test_report_slowest(protostar: ProtostarFixture, copy_fixture: CopyFixture):
     copy_fixture("test_print_passed.cairo", "./tests")
 
     result = protostar(
-        ["test", "tests", "--report-slowest-tests", "999999"], ignore_exit_code=True
+        ["test-cairo0", "tests", "--report-slowest-tests", "999999"],
+        ignore_exit_code=True,
     )
 
     assert "Slowest test cases" in result
 
 
-@pytest.mark.usefixtures("init")
+@pytest.mark.usefixtures("init_cairo0")
 def test_does_collect_in_cwd_by_default(protostar: ProtostarFixture):
-    result = protostar(["test"])
+    result = protostar(["test-cairo0"])
     assert "Collected 1 suite, and 2 test cases" in result
 
 
-@pytest.mark.usefixtures("init")
+@pytest.mark.usefixtures("init_cairo0")
 def test_skipping(protostar: ProtostarFixture, copy_fixture: CopyFixture):
     copy_fixture("test_skip.cairo", "./tests")
-    result = protostar(["test", "tests"])
+    result = protostar(["test-cairo0", "tests"])
     assert "SKIP" in result
     assert "REASON" in result
 
 
-@pytest.mark.usefixtures("init")
+@pytest.mark.usefixtures("init_cairo0")
 def test_structured_output_passed_failed(
     protostar: ProtostarFixture, copy_fixture: CopyFixture
 ):
@@ -287,7 +295,7 @@ def test_structured_output_passed_failed(
     copy_fixture("test_skip.cairo", "./tests")
     result = protostar(
         [
-            "test",
+            "test-cairo0",
             "tests/test_failed.cairo",
             "tests/test_passed.cairo",
             "tests/test_skip.cairo",
@@ -327,13 +335,13 @@ def test_structured_output_passed_failed(
             assert item["test_case_counts"]["skipped"] == 1
 
 
-@pytest.mark.usefixtures("init")
+@pytest.mark.usefixtures("init_cairo0")
 def test_structured_output_broken(
     protostar: ProtostarFixture, copy_fixture: CopyFixture
 ):
     copy_fixture("test_broken.cairo", "./tests")
     result = protostar(
-        ["test", "tests/test_broken.cairo", "--json"], expect_exit_code=1
+        ["test-cairo0", "tests/test_broken.cairo", "--json"], expect_exit_code=1
     )
 
     ndjson_result = []

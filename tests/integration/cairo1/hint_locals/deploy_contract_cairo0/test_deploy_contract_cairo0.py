@@ -26,7 +26,7 @@ async def test_deploy_hint_local(
         }
     )
 
-    testing_summary = await protostar_project.protostar.test_cairo1(
+    testing_summary = await protostar_project.protostar.test(
         Path(__file__).parent / "deploy_contract_cairo0_test.cairo",
     )
 
