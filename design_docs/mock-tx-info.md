@@ -58,8 +58,8 @@ given by `contract_address`.
 `TxInfoMock` accepts `Option`s instead of plain values to allow mocking only parts of `get_tx_info()` response. For
 fields with `None` provided, default values will be used instead of mocking.
 
-Consecutive calls to `start_mock_tx_info` will modify the values of fields where `Some` was provided and leave the
-previous values for fields where `None` was provided.
+Consecutive calls to `start_mock_tx_info` will modify the values of fields where `Some` was cancel (reset to default
+value) mocks for fields where `None` was provided.
 
 Additionally, `TxInfoMockTrait` and its implementation will be defined
 
