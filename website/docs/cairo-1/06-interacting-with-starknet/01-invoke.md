@@ -41,6 +41,9 @@ Invoke transaction was sent.
 Transaction hash: 0x05d2362b9b5a5aba8a02a41d2f1fcbdc06cde89f90cf33c0ea4957846c86aeef
 ```
 
+To avoid having to repeat `--account-address` and `--private-key-path` in every command, they can be included
+in `protostar.toml` configuration profiles. See [this page](./README.md#using-configuration-profiles) for more details.
+
 :::warning
 Setting `max-fee` to `auto` is discouraged as it may cause **very high transaction cost**. Always prefer manually
 specifying the `max-fee`.
