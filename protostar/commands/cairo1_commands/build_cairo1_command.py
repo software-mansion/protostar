@@ -1,6 +1,7 @@
 import logging
 from dataclasses import dataclass
 from pathlib import Path
+from textwrap import dedent
 from typing import Optional, Any
 
 from starkware.starknet.core.os.contract_class.compiled_class_hash import (
@@ -56,14 +57,14 @@ class SuccessfulBuildCairo1Message(StructuredMessage):
     compiled_class_hash: int
 
     def format_human(self, fmt: LogColorProvider) -> str:
-        lines: list[str] = [
-            "Building cairo1 contracts",
-            f'Class hash for contract "{self.contract_name}": {hex(self.class_hash)}',
-            f'Compiled class hash for contract "{self.contract_name}": {hex(self.compiled_class_hash)}',
-            "Contracts built successfully",
-        ]
-
-        return "\n".join(lines)
+        return dedent(
+            f"""
+            Building cairo1 contracts
+            Class hash for contract "{self.contract_name}": {hex(self.class_hash)}
+            Compiled class hash for contract "{self.contract_name}": {hex(self.compiled_class_hash)}
+            Contracts built successfully
+            """
+        )
 
     def format_dict(self) -> dict:
         return {
