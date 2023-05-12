@@ -11,16 +11,23 @@ In this section, you will learn how to deploy and interact with a smart contract
 ## How to test a contract
 To test a contract you need to use an important Protostar feature:  [cheatcodes](./03-cheatcodes.md). Cheatcodes are additional library functions that Protostar exposes to help you with testing.
 
-Let's write a test which deploys and calls a contract. First let's define our contract 
+Let's write a test which deploys and calls a contract. First let's define our contract in the file `src/lib.cairo`
 
 ```cairo title="Deployed contract"
 #[contract]
 mod MinimalContract {
     #[external]
     fn hello() {
-        // ...
+        assert(5 == 5, 'always true');
     }
 }
+```
+
+You need to define contract in [protostar.toml](../../04-protostar-toml.md) configuration
+file. Add it to the `[contracts]` section
+```toml title="Configuration file"
+[contracts]
+minimal = ["your_project_name"]
 ```
 
 We can write a test that deploys and calls this contract. Let's create a file `test_contract.cairo`:
@@ -34,7 +41,7 @@ fn test_deploy() {
     invoke(deployed_contract_address, 'hello', ArrayTrait::new()).unwrap();
 }
 ```
-This cheatcode will declare and deploy the given contract.
+[deploy_contract](./cheatcodes-reference/deploy_contract.md) will declare and deploy the given contract. [invoke](./cheatcodes-reference/invoke.md) will invoke `hello` method.
 
 ## Transaction reverts
 
@@ -53,10 +60,11 @@ mod MinimalContract {
 ```cairo title="Test"
 use cheatcodes::RevertedTransactionTrait;
 use array::ArrayTrait;
+use result::ResultTrait;
 
 #[test]
 fn test_invoke_errors() {
-    let deployed_contract_address = deploy_contract('minimal_contract', ArrayTrait::new());
+    let deployed_contract_address = deploy_contract('minimal', ArrayTrait::new()).unwrap();
     let mut panic_data = ArrayTrait::new();
     panic_data.append(2); // Array length
     panic_data.append('error');
@@ -69,6 +77,7 @@ fn test_invoke_errors() {
             assert(*x.panic_data.at(1_u32) == 'data', 'second datum doesnt match');
         }
     }
+}
 ```
 
 ## Under the hood
