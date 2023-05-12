@@ -14,7 +14,7 @@ import {useCurrentSidebarCategory} from '@docusaurus/theme-common';
 <DocCardList items={useCurrentSidebarCategory().items}/>
 ```
 
-## Using [configuration profiles](../03-project-initialization.md#configuration-profiles)
+## Using [configuration profiles](../04-protostar-toml.md#configuration-profiles)
 
 Configuration profiles allow you to easily reuse configuration for devnet, testnet, and mainnet networks. You can define
 a network configuration in the `protostar.toml` as demonstrated in the snippet below.
@@ -22,7 +22,7 @@ a network configuration in the `protostar.toml` as demonstrated in the snippet b
 ```toml title=protostar.toml
 # ...
 
-# https://github.com/Shard-Labs/starknet-devnet
+# https://github.com/0xSpaceShard/starknet-devnet
 ["profile.devnet.protostar.deploy"]
 gateway-url = "http://127.0.0.1:5050/"
 
