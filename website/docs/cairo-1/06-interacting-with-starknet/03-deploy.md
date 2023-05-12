@@ -17,9 +17,14 @@ arguments.
 
 ## Usage example
 
-After [declaring your contract](./03-declare.md), you can deploy the contract in the following way.
+After [declaring your contract](./02-declare.md), you can deploy the contract in the following way.
 
-```console title="protostar deploy 0xdeadbeef --network testnet"
+```shell title="Example"
+protostar deploy 0xdeadbeef \
+  --network testnet \
+  --account-address 0x0481Eed2e02b1ff19Fd32429801f28a59DEa630d81189E39c80F2F60139b381a \
+  --max-fee auto \
+  --private-key-path ./.pkey
 [INFO] Invoke transaction was sent to the Universal Deployer Contract.
 Contract address: 0x06a5ea9e42c921bd58e24b8da9d1fc91a488df0700b173f1c6bb0e453f68afec
 Transaction hash: 0x1cbba90ba0d1fbfba09b1f7a0f987134dd9a02a845ca89244b3272374d37ede
@@ -29,7 +34,7 @@ https://goerli.voyager.online/contract/0x06a5ea9e42c921bd58e24b8da9d1fc91a488df0
 
 :::info
 Deploying a contract is a transaction must be signed and requires paying a fee, similarly to how invoke transaction does.
-See [signing](./02-invoke.md#signing) for more details.
+See [signing](./01-invoke.md#signing) for more details.
 :::
 
 :::note
@@ -37,5 +42,5 @@ If you need to print machine-readable output in JSON format, you should use `--j
 
 This may come in handy for writing scripts that include protostar commands.
 
-For more information, go to [this page](./09-scripting.md)
+For more information, go to [this page](./08-scripting.md)
 :::

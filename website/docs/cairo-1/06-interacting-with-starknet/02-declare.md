@@ -18,7 +18,7 @@ Building a contract before running `declare-cairo1` is not required. Protostar b
 under the hood.
 :::
 
-First make sure contract is defined in the `protostar.toml`:
+First make sure contract is defined in the [`protostar.toml`](../04-protostar-toml.md):
 
 ```toml title=protostar.toml
 # ...
@@ -28,7 +28,12 @@ my_contract = ["src"]
 
 Then run:
 
-```console title="protostar declare-cairo1 my_contract --network testnet"
+```shell title="Example"
+protostar declare-cairo1 my_contract \
+  --network testnet \
+  --account-address 0x0481Eed2e02b1ff19Fd32429801f28a59DEa630d81189E39c80F2F60139b381a \
+  --max-fee auto \
+  --private-key-path ./.pkey
 Declare transaction was sent.
 Class hash: 0x038cc...
 Transaction hash: 0x3c6c...
@@ -36,5 +41,5 @@ Transaction hash: 0x3c6c...
 
 :::info
 The declare transaction must be signed and requires paying a fee, similarly to how invoke transaction does.
-See [signing](./02-invoke.md#signing) for more details.
+See [signing](./01-invoke.md#signing) for more details.
 :::
