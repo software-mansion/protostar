@@ -14,7 +14,7 @@ For detailed API description, see [declare-cairo1 command reference](../../cli-r
 ## Usage example
 
 :::note
-Building a contract before running `declare-cairo1` is not required. Protostar will build a contract for declaration
+Building a contract before running `declare-cairo1` is not required. Protostar builds a contract during declaration under the hood.
 under the hood.
 :::
 

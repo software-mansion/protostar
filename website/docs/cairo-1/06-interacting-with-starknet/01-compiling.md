@@ -4,7 +4,7 @@ sidebar_label: Compilation
 
 # Compiling a Cairo 1 Project with Protostar
 
-To build your contracts, they must first be defined in [`protostar.toml`](../04-protostar-toml.md#contracts-section)
+To build your contracts, first define them in [`protostar.toml`](../04-protostar-toml.md#contracts-section)
 
 To build run
 
@@ -12,7 +12,7 @@ To build run
 protostar build-cairo1
 ```
 
-[Check CLI docs](../../cli-reference.md#build-cairo1) for more details.
+[Check CLI reference](../../cli-reference.md#build-cairo1) for more details.
 
 ## Output directory
 
@@ -30,7 +30,7 @@ Starknet.
 Read more about
 sierra [here](https://docs.starknet.io/documentation/architecture_and_concepts/Contracts/cairo-1-and-sierra).
 
-`.casm.json` files contain contracts compiled to the casm format which can be executed on the virtual machine. This
+`.casm.json` files contain contracts compiled to the casm format which can be executed on the cairo virtual machine. This
 format is used to calculate `compiled_class_hash` of a contract.
 
 ## Using external dependencies

@@ -7,7 +7,7 @@ Multicall executes multiple calls as a single transaction. If one call fails, th
 ## Usage example
 
 First, create a toml file containing calls defined as [array of tables](https://toml.io/en/v1.0.0#array-of-tables).
-In that file, you can use contract address of a contract to be deployed by using references (`$DEPLOY_CALL_ID`).
+In this file, you can use contract address of a contract to be deployed by using references (`$DEPLOY_CALL_ID`).
 References can be used in `contract-address` and `inputs` attributes as demonstrated in the example below.
 
 ```toml title="calls.toml"
@@ -26,7 +26,7 @@ inputs = [42]
 
 [//]: # (TODO is this still valid? Does it refer to old deploy or new deploy <through UDC>?)
 
-Protostar supports two types of calls — `deploy` and `invoke`, which take similar arguments to [`deploy command`](/docs/cli-reference#deploy) and [`invoke command`](/docs/cli-reference#invoke).
+Protostar supports two types of transactions — `deploy` and `invoke`, which take similar arguments to [`deploy command`](/docs/cli-reference#deploy) and [`invoke command`](/docs/cli-reference#invoke).
 
 
 ```toml title="protostar.toml"
