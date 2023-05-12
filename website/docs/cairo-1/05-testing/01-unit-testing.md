@@ -3,7 +3,7 @@ sidebar_label: Unit testing
 ---
 
 # Unit testing
-Protostar lets you test standalone cairo functions. This technique is referred to as unit testing. You should write as many unit tests as possible as these are **much faster than [integration tests](./02-integration-testing.md)
+Protostar lets you test standalone cairo functions. This technique is referred to as unit testing. You should write as many unit tests as possible as these are **much faster** than [integration tests](./02-integration-testing.md).
 
 ## Writing your first test
 
@@ -16,7 +16,7 @@ fn sum(a: felt252, b: felt252) -> felt252 {
 
 Now, let's test this function. Create a file `tests/test_sum.cairo`:
 ```
-use your_project_name::sum
+use your_project_name::sum;
 
 #[test]
 fn test_sum() {
@@ -32,7 +32,7 @@ protostar test-cairo1 ./tests
 You should see something like this:
 ```
 Collected 2 suites, and 3 test cases (10.64)
-[PASS] tests/test_sum.cairo Then (time=0.00s)
+[PASS] tests/test_sum.cairo test_sum (time=0.00s)
 Test suites: 1 passed, 1 total
 Tests:       1 passed, 1 total
 Seed:        2752673895
@@ -40,7 +40,7 @@ Seed:        2752673895
 ```
 
 ## Test collecting
-Protostar collects all test suites specified under the path passed as an argument. You can pass either directory or a specific file. A test suite is every `.cairo` file with a name starting from `test_` or ending with `_test`. Protostar considers each function, inside a test suite, with `#[test]` attribute as a test case.
+Protostar collects all test suites specified under the path passed as an argument. You can pass either directory or a specific file. A test suite is every `.cairo` file with a name starting from `test_` or ending with `_test`. Protostar considers as a test case each function, inside a test suite, with `#[test]` attribute.
 
 :::warning
 Test cases cannot return any values and cannot take any arguments.
@@ -61,3 +61,5 @@ fn test_panic_single_value() {
     panic(data)
 }
 ```
+
+Of course, if any of the functions you call from tests will *panic*, your test will fail as well.

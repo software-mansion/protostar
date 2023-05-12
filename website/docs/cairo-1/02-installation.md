@@ -6,7 +6,7 @@ sidebar_label: Installation
 
 Protostar is easy to install on Linux and Mac systems. In this section, we will walk through the process of installing and upgrading Protostar.
 
-## Linux and Mac
+### Linux and Mac
 1. Open a terminal and run the following command:
 ```console
 curl -L https://raw.githubusercontent.com/software-mansion/protostar/master/install.sh | bash
@@ -22,10 +22,10 @@ If you want to install a specific version of Protostar, run the following comman
 curl -L https://raw.githubusercontent.com/software-mansion/protostar/master/install.sh | bash -s -- -v 0.3.2
 ```
 
-## Windows Compatibility
+### Windows Compatibility
 Protostar is not currently supported on Windows.
 
-# Upgrading Protostar
+## Upgrading Protostar
 To upgrade Protostar, run:
 ```shell
 protostar upgrade
@@ -33,7 +33,7 @@ protostar upgrade
 Protostar will inform you when a new version is available.
 
 
-# How to build Protostar from source code
+## How to build Protostar from source code
 If you are unable to install Protostar using the instructions above, you can try building it from the [source code](https://github.com/software-mansion/protostar) as follows:
 
 1. [Set up a development environment.](https://github.com/software-mansion/protostar#setting-up-environment)
