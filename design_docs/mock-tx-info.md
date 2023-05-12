@@ -68,15 +68,8 @@ previous values for fields where `None` was provided.
 fn my_test() {
     // ...
     
-    let tx_info = NewTxInfo {
-        version: None,
-        account_contract_address: None,
-        max_fee: None,
-        signature: Some(my_signature),
-        transaction_hash: Some(1234),
-        chain_id: None,
-        nonce: None
-    }
+    let tx_info = MockedTxInfo::default()
+    tx_info.chain_id = 123
     start_mock_tx_info(contract_address, tx_info).unwrap();
     
     // signature == my_signature
