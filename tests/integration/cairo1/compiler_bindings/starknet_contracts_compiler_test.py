@@ -29,7 +29,31 @@ def test_contract_to_casm(datadir: Path):
     assert test_starknet_project_casm_path.read_text()
 
 
-def test_contract_to_sierra_to_casm(datadir: Path):
+def test_contract_to_sierra_to_casm_from_sierra_code(datadir: Path):
+    basic_sierra_compiled = cairo1.compile_starknet_contract_to_sierra_from_path(
+        input_path=datadir / "basic_starknet_project",
+        output_path=datadir / "basic_starknet_project.sierra",
+    )
+    test_sierra_compiled = cairo1.compile_starknet_contract_to_sierra_from_path(
+        input_path=datadir / "test_starknet_project",
+        output_path=datadir / "test_starknet_project.sierra",
+    )
+    basic_casm = cairo1.compile_starknet_contract_sierra_to_casm_from_sierra_code(
+        basic_sierra_compiled
+    )
+    test_casm = cairo1.compile_starknet_contract_sierra_to_casm_from_sierra_code(
+        test_sierra_compiled
+    )
+
+    assert basic_casm == cairo1.compile_starknet_contract_to_casm_from_path(
+        input_path=datadir / "basic_starknet_project"
+    )
+    assert test_casm == cairo1.compile_starknet_contract_to_casm_from_path(
+        input_path=datadir / "test_starknet_project"
+    )
+
+
+def test_contract_to_sierra_to_casm_from_path(datadir: Path):
     assert cairo1.compile_starknet_contract_to_sierra_from_path(
         input_path=datadir / "basic_starknet_project",
         output_path=datadir / "basic_starknet_project.sierra",

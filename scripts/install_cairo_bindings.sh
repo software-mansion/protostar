@@ -13,7 +13,7 @@ if [ "$1" == "--cleanup" ]; then
 fi
 
 function install_dev() {
-  git pull --recurse-submodules
+#  git pull --recurse-submodules
 
   pushd cairo
   pushd crates/cairo-lang-python-bindings
