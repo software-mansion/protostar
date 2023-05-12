@@ -4,9 +4,6 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
 
-from protostar.commands.legacy_commands.init_cairo0.project_creator import (
-    ProjectCreator,
-)
 from protostar.configuration_file import (
     ConfigurationFileV2ContentFactory,
     ConfigurationFileV2Model,
@@ -15,6 +12,9 @@ from protostar.io import InputRequester
 from protostar.protostar_exception import ProtostarException
 from protostar.self import ProtostarVersion
 from protostar.cairo import CairoVersion
+from ._project_creator import (
+    ProjectCreator,
+)
 
 
 class NewProjectCreator(ProjectCreator):

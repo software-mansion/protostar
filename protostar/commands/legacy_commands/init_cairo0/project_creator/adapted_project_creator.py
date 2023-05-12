@@ -1,9 +1,9 @@
 from pathlib import Path
 
-from protostar.commands.legacy_commands.init_cairo0.project_creator import (
+from protostar.configuration_file import ConfigurationFileV2Model
+from ._project_creator import (
     ProjectCreator,
 )
-from protostar.configuration_file import ConfigurationFileV2Model
 
 
 class AdaptedProjectCreator(ProjectCreator):
