@@ -41,5 +41,5 @@ Transaction hash: 0x3c6c...
 
 :::info
 The declare transaction must be signed and requires paying a fee, similarly to how invoke transaction does.
-See [signing](./02-invoke.md#signing) for more details.
+See [signing](./01-invoke.md#signing) for more details.
 :::

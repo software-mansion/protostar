@@ -17,7 +17,7 @@ arguments.
 
 ## Usage example
 
-After [declaring your contract](./03-declare.md), you can deploy the contract in the following way.
+After [declaring your contract](./02-declare.md), you can deploy the contract in the following way.
 
 ```shell title="Example"
 protostar deploy 0xdeadbeef \
@@ -34,7 +34,7 @@ https://goerli.voyager.online/contract/0x06a5ea9e42c921bd58e24b8da9d1fc91a488df0
 
 :::info
 Deploying a contract is a transaction must be signed and requires paying a fee, similarly to how invoke transaction does.
-See [signing](./02-invoke.md#signing) for more details.
+See [signing](./01-invoke.md#signing) for more details.
 :::
 
 :::note
@@ -42,5 +42,5 @@ If you need to print machine-readable output in JSON format, you should use `--j
 
 This may come in handy for writing scripts that include protostar commands.
 
-For more information, go to [this page](./09-scripting.md)
+For more information, go to [this page](./08-scripting.md)
 :::

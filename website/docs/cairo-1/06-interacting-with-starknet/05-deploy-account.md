@@ -32,7 +32,7 @@ However, before you send such transaction you need to:
 
 1. Find the class hash of the account contract compatible with `DEPLOY_ACCOUNT` transaction. The entity that declared
    the account contract should make the class hash easily available. The contract must have been
-   previously [declared](./03-declare.md) on Starknet by another user.
+   previously [declared](./02-declare.md) on Starknet by another user.
 2. Calculate an account contract address
    with [`protostar calculate-account-address` command](/docs/cli-reference#calculate-account-address)
 3. Transfer enough funds to the calculated address to cover the cost of the account deployment.
