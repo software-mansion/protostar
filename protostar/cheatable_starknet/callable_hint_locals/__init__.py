@@ -5,7 +5,7 @@ from .deploy_hint_local import DeployHintLocal
 from .invoke_hint_local import InvokeHintLocal
 from .start_prank_hint_local import PrankHintLocal
 from .prepare_hint_local import PrepareHintLocal
-from .roll_hint_local import RollHintLocal
+from .start_roll_hint_local import StartRollHintLocal
 from .store_hint_local import StoreHintLocal
 from .start_warp_hint_local import StartWarpHintLocal
 from .stop_warp_hint_local import StopWarpHintLocal
