@@ -1,4 +1,3 @@
-import re
 import shutil
 import tempfile
 from dataclasses import dataclass
@@ -120,8 +119,19 @@ class NewProjectCreator(ProjectCreator):
 
     @staticmethod
     def _validate_project_name(name: str):
-        pattern = r"^[a-zA-Z0-9][a-zA-Z0-9_]*$"
-        if not re.match(pattern, name):
+        # https://github.com/software-mansion/scarb/blob/main/scarb/src/core/package/name.rs#LL42C9
+        # the project name is already non-empty - the CLI won't let a user provide empty string
+        if name == "_":
             raise ProtostarException(
-                f"Provided project name {name} does not match regex {pattern}. Choose a different project name."
+                "Project name cannot be equal to a single underscore. Choose a different project name."
             )
+        if name[0].isdigit():
+            raise ProtostarException(
+                "Project name cannot start with a digit. Choose a different project name."
+            )
+        for letter in name:
+            if not (letter.isalnum() or letter == "_"):
+                raise ProtostarException(
+                    "Project name must use only ASCII alphanumeric characters or underscores. "
+                    "Choose a different project name."
+                )
