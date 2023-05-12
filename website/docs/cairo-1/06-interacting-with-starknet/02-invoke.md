@@ -47,14 +47,6 @@ specifying the `max-fee`.
 :::
 
 :::note
-Inputs have to be passed either as a list of felts (integers) (`1 2 3`), like Cairo calldata, or as a dict with
-arguments' names mapped to their values (`a=11 b=12 c=13`).
-If your function requires structures, arrays, or tuples, you should manually serialize it, as
-shown
-in [Cairo documentation](https://www.cairo-lang.org/docs/hello_starknet/more_features.html#array-arguments-in-calldata).
-:::
-
-:::note
 If you need to print machine-readable output in JSON format, you should use `--json` flag.
 
 This may come in handy for writing scripts that include protostar commands.
