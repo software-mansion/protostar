@@ -24,7 +24,7 @@ function = "increase_balance"
 inputs = [42]
 ```
 
-[//]: # (TODO is this still valid? Does it refer to old deploy or new deploy <through UDC>?)
+[//]: # (TODO #1908 is this still valid? Does it refer to old deploy or new deploy <through UDC>?)
 
 Protostar supports two types of transactions — `deploy` and `invoke`, which take similar arguments to [`deploy command`](/docs/cli-reference#deploy) and [`invoke command`](/docs/cli-reference#invoke).
 
