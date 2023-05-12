@@ -33,13 +33,9 @@ def test_cairo1_build(protostar: ProtostarFixture, copy_fixture: CopyFixture):
 def test_cairo1_build_json(protostar: ProtostarFixture, copy_fixture: CopyFixture):
     copy_fixture("cairo1_build", "./cairo_project")
     os.chdir("./cairo_project")
-    result_json = protostar(["build-cairo1", "--json"])
+    result_json = protostar(["build-cairo1", "--json"], ignore_stderr=True)
 
-    output_json_parsed = json.loads(
-        result_json.split("\n")[
-            3 if "This project expects older Protostar" in result_json else 0
-        ]
-    )
+    output_json_parsed = json.loads(result_json.split("\n")[0])
 
     assert output_json_parsed["main"]["class_hash"].startswith("0x")
     assert output_json_parsed["main"]["compiled_class_hash"].startswith("0x")
