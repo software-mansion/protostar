@@ -39,9 +39,9 @@ Propose a solution for mocking contexts of `TxInfo`.
 Introduce a new cheatcode `start_mock_tx_info` (working title) with a following signature
 
 ```cairo
-fn start_mock_tx_info(contract_address: felt252, tx_info: MockedTxInfo) -> Result::<(), felt252> nopanic
+fn start_mock_tx_info(contract_address: felt252, tx_info: TxInfoMock) -> Result::<(), felt252> nopanic
 
-struct MockedTxInfo {
+struct TxInfoMock {
     version: Option<felt252>,
     account_contract_address: Option<felt252>,
     max_fee: Option<u128>,
@@ -55,35 +55,35 @@ struct MockedTxInfo {
 and corresponding `stop_mock_tx_info` cheatcode, that will allow mocking all transactions and calls to the contract
 given by `contract_address`.
 
-`MockedTxInfo` accepts `Option`s instead of plain values to allow mocking only parts of `get_tx_info()` response. For
+`TxInfoMock` accepts `Option`s instead of plain values to allow mocking only parts of `get_tx_info()` response. For
 fields with `None` provided, default values will be used instead of mocking.
 
 Consecutive calls to `start_mock_tx_info` will modify the values of fields where `Some` was provided and leave the
 previous values for fields where `None` was provided.
 
-Additionally, `MockedTxInfoTrait` and its implementation will be defined
+Additionally, `TxInfoMockTrait` and its implementation will be defined
 
 ```cairo
-trait MockedTxInfoTrait {
-    fn default() -> MockedTxInfo;
+trait TxInfoMockTrait {
+    fn default() -> TxInfoMock;
 }
 
-impl MockedTxInfoImpl of MockedTxInfoTrait {
-    fn default() -> MockedTxInfo {
-        MockedTxInfo {
-            version: Option::Some(1),
-            account_contract_address: Option::Some(0),
-            max_fee: Option::Some(0_u128),
-            signature: Option::Some(ArrayTrait::new()),
-            transaction_hash: Option::Some(0),
-            chain_id: Option::Some(0),
-            nonce: Option::Some(0),
+impl TxInfoMockImpl of TxInfoMockTrait {
+    fn default() -> TxInfoMock {
+        TxInfoMock {
+            version: Option::None,
+            account_contract_address: Option::None,
+            max_fee: Option::None,
+            signature: Option::None,
+            transaction_hash: Option::None,
+            chain_id: Option::None,
+            nonce: Option::None,
         }
     }
 }
 ```
 
-This will allow the user to create an instance of `MockedTxInfo` with default values and only modify necessary ones.
+This will allow the user to create an instance of `TxInfoMock` with default values and only modify necessary ones.
 
 ## Example usage
 
@@ -92,7 +92,7 @@ This will allow the user to create an instance of `MockedTxInfo` with default va
 fn my_test() {
     // ...
     
-    let mut tx_info = MockedTxInfo::default();
+    let mut tx_info = TxInfoMock::default();
     tx_info.signature = Option::Some(my_signature);
     tx_info.transaction_hash = Option::Some(1234);
     start_mock_tx_info(contract_address, tx_info).unwrap();
