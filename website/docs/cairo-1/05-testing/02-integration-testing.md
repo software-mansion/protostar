@@ -23,7 +23,7 @@ mod MinimalContract {
 }
 ```
 
-You need to define contract in [protostar.toml](../../04-protostar-toml.md) configuration
+You need to define contract in [protostar.toml](../04-protostar-toml.md) configuration
 file. Add it to the `[contracts]` section
 ```toml title="Configuration file"
 [contracts]
