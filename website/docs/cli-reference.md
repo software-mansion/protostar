@@ -273,7 +273,7 @@ $ protostar init
 Create a Protostar project with cairo1 template.
 #### `name STRING`
 Name of the directory a new project will be placed in.
-### `init_cairo0`
+### `init-cairo0`
 ```shell
 $ protostar init-cairo0
 ```
@@ -448,7 +448,7 @@ Paths to cairo1 modules. Should not be explicitly provided when managing depende
 Disable progress bar.
 #### `--report-slowest-tests INT`
 Print slowest tests at the end.
-### `test_cairo0`
+### `test-cairo0`
 ```shell
 $ protostar test-cairo0
 ```
