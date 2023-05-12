@@ -41,7 +41,6 @@ class ContractBasedTestExecutionState(TestExecutionState):
         )
         starknet = base.starknet
 
-        # class_hash = compute_deprecated_class_hash(contract_class=test_suite_definition)
         sender_address = await starknet.deploy_simple_account()
         declared_class = await starknet.deprecated_declare(
             contract_class=test_suite_definition
