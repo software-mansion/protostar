@@ -20,6 +20,7 @@ curl -L https://raw.githubusercontent.com/software-mansion/protostar/master/inst
 
 
 ## Table of contents <!-- omit in toc -->
+- [Additional resources](#additional-resources)
 - [Installation](#installation)
 - [Development](#development)
   - [Setting up environment](#setting-up-environment)
@@ -31,9 +32,7 @@ curl -L https://raw.githubusercontent.com/software-mansion/protostar/master/inst
 
 
 
-
-
-### Additional resources
+## Additional resources
 - [Testing Starknet contracts made easy with Protostar](https://blog.swmansion.com/testing-starknet-contracts-made-easy-with-protostar-2ecdad3c9133)
 
 ## Installation
@@ -53,7 +52,6 @@ curl -L https://raw.githubusercontent.com/software-mansion/protostar/master/inst
 ---
 
 ## Development
-
 
 ### Setting up environment
 
