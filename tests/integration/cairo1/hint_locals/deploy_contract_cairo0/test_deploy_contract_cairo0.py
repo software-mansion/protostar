@@ -35,6 +35,7 @@ async def test_deploy_hint_local(
         expected_passed_test_cases_names=[
             "test_deploy_contract_cairo0",
             "test_deploy_contract_cairo0_w_ctor",
+            "test_deploy_contract_cairo0_doesnt_move_calldata",
         ],
         expected_failed_test_cases_names=[
             "test_deploy_contract_cairo0_w_ctor_error",
