@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from protostar.cairo import protostar_rust_bindings
+from protostar.cairo.bindings import protostar_rust_bindings
 
 
 async def test_print(datadir: Path):

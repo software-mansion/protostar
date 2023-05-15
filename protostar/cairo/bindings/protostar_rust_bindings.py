@@ -1,14 +1,8 @@
-from typing import Optional
 from contextlib import contextmanager
 
 import rust_test_runner_bindings
 
-
-class CairoBindingException(Exception):
-    def __init__(self, message: str, details: Optional[str] = None):
-        self.message = message
-        self.details = details
-        super().__init__(message)
+from .cairo_bindings_exception import CairoBindingException
 
 
 def run_tests(input_path: str) -> list[str]:

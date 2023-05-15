@@ -1,7 +1,7 @@
 from pathlib import Path
 import pytest
 
-import protostar.cairo.cairo_bindings as cairo1
+import protostar.cairo.bindings.cairo_bindings as cairo1
 
 
 def test_contract_to_casm(datadir: Path):
