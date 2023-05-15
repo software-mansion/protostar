@@ -14,13 +14,14 @@ from protostar.cheatable_starknet.controllers.contracts import (
     DeclaredContract,
     ContractsController,
     DeclaredSierraClass,
+    make_contract_class,
+    make_compiled_class,
 )
 from protostar.compiler import CompilationException
 from protostar.compiler.project_compiler import (
     ProjectCompiler,
-    make_compiled_class,
-    make_contract_class,
 )
+
 from protostar.compiler.project_compiler_types import ContractIdentifier
 from protostar.configuration_file.configuration_file import (
     ContractNameNotFoundException,

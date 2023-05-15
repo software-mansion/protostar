@@ -1,6 +1,7 @@
 import copy
 from dataclasses import dataclass
 from typing import List, Optional, cast, Tuple
+import json
 
 from starkware.starknet.business_logic.execution.objects import (
     CallType,
@@ -43,6 +44,18 @@ from protostar.cheatable_starknet.controllers.expect_events_controller import Ev
 from protostar.starknet.selector import Selector
 from protostar.starknet.address import Address
 from protostar.starknet.data_transformer import CairoData
+
+
+def make_contract_class(sierra_compiled: str):
+    sierra_compiled_dict = json.loads(sierra_compiled)
+    sierra_compiled_dict.pop("sierra_program_debug_info", None)
+    sierra_compiled_dict["abi"] = json.dumps(sierra_compiled_dict["abi"])
+
+    return ContractClass.load(sierra_compiled_dict)
+
+
+def make_compiled_class(casm_compiled: str):
+    return CompiledClass.loads(casm_compiled)
 
 
 class ContractsCheaterException(Exception):

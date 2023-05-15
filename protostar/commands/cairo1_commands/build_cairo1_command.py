@@ -17,9 +17,11 @@ from protostar.cli.common_arguments import (
     LINKED_LIBRARIES,
     CONTRACT_NAME,
 )
-from protostar.compiler.project_compiler import (
-    make_compiled_class,
+from protostar.cheatable_starknet.controllers.contracts import (
     make_contract_class,
+    make_compiled_class,
+)
+from protostar.compiler.project_compiler import (
     ProjectCompiler,
 )
 from protostar.configuration_file.configuration_file import ConfigurationFile
