@@ -22,14 +22,12 @@ curl -L https://raw.githubusercontent.com/software-mansion/protostar/master/inst
 ## Table of contents <!-- omit in toc -->
 - [Installation](#installation)
 - [Development](#development)
-  - [Requirements](#requirements)
   - [Setting up environment](#setting-up-environment)
     - [Bumping cairo bindings version](#bumping-cairo-bindings-version)
       - [Caveats:](#caveats)
     - [Submodules development](#submodules-development)
     - [Git hooks](#git-hooks)
 - [Updating website/docs](#updating-websitedocs)
-- [Deployment](#deployment)
 
 
 
@@ -40,7 +38,7 @@ curl -L https://raw.githubusercontent.com/software-mansion/protostar/master/inst
 
 ## Installation
 
-To install the tool, run:
+To install Protostar, run:
 
 ```shell
 curl -L https://raw.githubusercontent.com/software-mansion/protostar/master/install.sh | bash
@@ -55,12 +53,6 @@ curl -L https://raw.githubusercontent.com/software-mansion/protostar/master/inst
 ---
 
 ## Development
-
-### Requirements
-- good knowledge of [Python](https://www.python.org/)
-- good knowledge of [pytest](https://docs.pytest.org/en/7.1.x/)
-- basic knowledge of [Cairo and Starknet](https://www.cairo-lang.org/docs/index.html)
-- basic knowledge of [mypy](https://mypy.readthedocs.io/en/stable/getting_started.html)
 
 
 ### Setting up environment
@@ -120,10 +112,3 @@ Run the following script to enable lint checks and automatic formatting before c
 
 ## Updating website/docs
 Please read [website/README.md](./website/README.md).
-
-## Deployment
-```
-$ poe deploy
-Current Protostar version: 0.1.0
-Provide the new Protostar version:
-```
