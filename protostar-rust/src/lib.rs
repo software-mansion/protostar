@@ -19,13 +19,12 @@ fn run_result_value_to_string(run_result: RunResultValue) -> String {
     }
 }
 
-fn internal_run_tests(input_path: &str) -> anyhow::Result<Vec<(String, String)>> {
+fn internal_run_tests(input_path: &str) -> anyhow::Result<()> {
     let (sierra_program, test_configs) = collect_tests(&input_path.to_owned(), None, None, None)?;
 
     let runner = SierraCasmRunner::new(sierra_program, None, HashMap::new())
         .with_context(|| "Failed setting up runner.")?;
 
-    let mut results = vec![];
     for config in &test_configs {
         let result = runner
             .run_function(
@@ -38,17 +37,16 @@ fn internal_run_tests(input_path: &str) -> anyhow::Result<Vec<(String, String)>>
         let name = config.name.clone();
         let result_str = run_result_value_to_string(result.value);
         println!("{}: {}", name, result_str);
-        results.push((name, result_str));
     }
-    Ok(results)
+    Ok(())
 }
 
 #[pyfunction]
-fn run_tests(input_path: String) -> PyResult<Vec<(String, String)>> {
-    let results = internal_run_tests(&input_path.to_owned())
+fn run_tests(input_path: String) -> PyResult<()> {
+    internal_run_tests(&input_path.to_owned())
         .map_err(|e| PyErr::new::<RuntimeError, _>(format!("{:?}", e)))?;
 
-    Ok(results)
+    Ok(())
 }
 
 #[pymodule]
