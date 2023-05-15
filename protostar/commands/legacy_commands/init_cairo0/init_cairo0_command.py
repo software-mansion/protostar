@@ -65,8 +65,8 @@ class InitCairo0Command(ProtostarCommand):
         self, force_adapting_existing_project: bool, project_name: Optional[str] = None
     ):
         logger.warning(
-            "Legacy cairo 0 runner is deprecated, and will be removed in future versions. Usage of cairo 1 runner is "
-            "recommended.",
+            "Legacy cairo 0 projects are deprecated, and support for them will be removed in future versions."
+            "Consider using init command instead.",
         )
         should_adapt_existing_project = False
 
