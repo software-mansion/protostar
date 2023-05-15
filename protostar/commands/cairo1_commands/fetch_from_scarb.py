@@ -1,5 +1,5 @@
 # pyright: reportUnknownLambdaType=false
-from typing import Optional, Dict
+from typing import Optional, Dict, Tuple
 from pathlib import Path
 import os
 import json
@@ -56,29 +56,23 @@ def read_scarb_metadata(scarb_toml_path: Path) -> Dict:
         ) from ex
 
 
-def maybe_fetch_linked_libraries_from_scarb(
-    package_root_path: Path, linked_libraries: list[Path]
-) -> list[Path]:
-    if not package_root_path.is_dir() or not has_scarb_toml(package_root_path):
+def fetch_linked_libraries_from_scarb(
+    crate_root_path: Path,
+) -> list[Tuple[Path, str]]:
+    if not crate_root_path.is_dir() or not has_scarb_toml(crate_root_path):
         return []
 
-    if linked_libraries:
-        raise ProtostarException(
-            "Provided linked-libraries (explicitly or in protostar.toml) while Scarb.toml was present. "
-            "Manage all of your dependencies using Scarb."
-        )
-
-    scarb_toml_path = package_root_path / "Scarb.toml"
+    scarb_toml_path = crate_root_path / "Scarb.toml"
     metadata = read_scarb_metadata(scarb_toml_path)
 
     try:
         # assuming we have only one entry in the workspace section
-        current_package_name = metadata["workspace"]["members"][0]
+        current_crate_name = metadata["workspace"]["members"][0]
 
         matching_compilation_units = [
             compilation_unit
             for compilation_unit in metadata["compilation_units"]
-            if compilation_unit["package"] == current_package_name
+            if compilation_unit["package"] == current_crate_name
         ]
 
         matching_contract_units = [
@@ -105,51 +99,33 @@ def maybe_fetch_linked_libraries_from_scarb(
                 unit_with_dependencies["target"]["name"],
             )
 
-        valuable_dependencies = filter(
-            lambda dependency: dependency["name"] != "core",
-            unit_with_dependencies["components_data"],
-        )
+        valuable_dependencies = [
+            dependency
+            for dependency in unit_with_dependencies["components_data"]
+            if dependency["name"] != "core"
+        ]
 
-        paths: list[Path] = list(
-            map(
-                lambda component: validate_path_exists_and_find_directory_with_config(
+        paths_and_crate_names: list[Tuple[Path, str]] = [
+            (
+                validate_path_exists_and_return_source_root(
                     Path(component["source_path"])
                 ),
-                valuable_dependencies,
+                component["name"],
             )
-        )
-
-        if len(paths) != len(set(paths)):
-            raise ProtostarException(
-                "At least one cairo_project.toml is shared between packages. "
-                "Make sure every package has its own cairo_project.toml"
-            )
+            for component in valuable_dependencies
+        ]
 
     except (IndexError, KeyError) as ex:
         raise ScarbMetadataFetchException("Error parsing metadata:\n" + str(ex)) from ex
 
-    return paths
+    return paths_and_crate_names
 
 
-def validate_path_exists_and_find_directory_with_config(lib_cairo_path: Path) -> Path:
+def validate_path_exists_and_return_source_root(lib_cairo_path: Path) -> Path:
     if not lib_cairo_path.exists():
         raise ProtostarException(
             "The file "
             + str(lib_cairo_path)
             + " is expected by Scarb, but it does not exist."
         )
-
-    src_directory_path = lib_cairo_path.parent
-    result = (
-        src_directory_path
-        if "cairo_project.toml" in os.listdir(src_directory_path)
-        else src_directory_path.parent
-    )
-
-    if "cairo_project.toml" not in os.listdir(result):
-        raise ProtostarException(
-            "Missing cairo_project.toml for package located in "
-            + str(src_directory_path.parent)
-        )
-
-    return result
+    return lib_cairo_path.parent

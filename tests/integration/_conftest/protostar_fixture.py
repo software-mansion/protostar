@@ -1,7 +1,7 @@
 import asyncio
 from argparse import Namespace
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Union, ContextManager
+from typing import Any, Callable, Dict, Optional, Union, ContextManager, Tuple
 
 import pytest
 from starknet_py.net.models import StarknetChainId
@@ -40,7 +40,7 @@ from tests.conftest import DevnetAccount
 from .tokenizer import tokenize
 from .transaction_registry import TransactionRegistry
 
-ContractMap = Dict[str, List[str]]
+ContractMap = Dict[str, list[str]]
 
 
 # pylint: disable=too-many-instance-attributes
@@ -234,7 +234,7 @@ class ProtostarFixture:
         return await self._deploy_account_command.run(args)
 
     async def test(
-        self, targets: List[str], last_failed: bool = False, estimate_gas: bool = False
+        self, targets: list[str], last_failed: bool = False, estimate_gas: bool = False
     ) -> TestingSummary:
         args = Namespace()
         args.target = targets
@@ -341,7 +341,7 @@ class ProtostarFixture:
 
     def format(
         self,
-        targets: List[str],
+        targets: list[str],
         check: bool = False,
         verbose: bool = False,
         ignore_broken: bool = False,
@@ -384,7 +384,7 @@ class ProtostarFixture:
     async def run_test_runner(
         self,
         target: Union[str, Path],
-        cairo_path: Optional[List[Path]] = None,
+        cairo_path: Optional[list[Path]] = None,
     ) -> TestingSummary:
         """
         Runs test runner safely, without assertions on state of the summary and cache mechanism
@@ -411,7 +411,7 @@ class ProtostarFixture:
     async def test_cairo1(
         self,
         target: Union[str, Path],
-        linked_libraries: Optional[List[Path]] = None,
+        linked_libraries: Optional[list[Tuple[Path, str]]] = None,
     ) -> TestingSummary:
         """
         Runs test runner safely, without assertions on state of the summary and cache mechanism

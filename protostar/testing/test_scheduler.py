@@ -2,7 +2,7 @@ import multiprocessing
 import signal
 import dataclasses
 from pathlib import Path
-from typing import TYPE_CHECKING, Callable, List, Optional
+from typing import TYPE_CHECKING, Callable, Optional
 
 from .test_results import TestResult
 from .test_collector import TestCollector
@@ -41,7 +41,7 @@ class TestScheduler:
     def run(
         self,
         test_collector_result: "TestCollector.Result",
-        include_paths: List[str],
+        include_paths: list[str],
         disable_hint_validation: bool,
         profiling: bool,
         exit_first: bool,
@@ -57,7 +57,7 @@ class TestScheduler:
             shared_tests_state = SharedTestsState(
                 test_collector_result=test_collector_result, manager=manager
             )
-            setups: List[TestRunner.WorkerArgs] = [
+            setups: list[TestRunner.WorkerArgs] = [
                 TestRunner.WorkerArgs(
                     test_suite,
                     shared_tests_state=shared_tests_state,

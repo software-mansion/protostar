@@ -33,7 +33,7 @@ async def test_cairo_1_runner_with_external_lib(
 ):
     testing_summary = await protostar.test_cairo1(
         datadir / "test_cairo1_ext_lib.cairo",
-        linked_libraries=[datadir / "external_lib_foo"],
+        linked_libraries=[(datadir / "external_lib_foo", "external_lib_foo")],
     )
 
     assert_cairo_test_cases(
@@ -56,7 +56,7 @@ async def test_cairo_1_runner_multiple_suites(
 ):
     testing_summary = await protostar.test_cairo1(
         datadir / "multiple_suites",
-        linked_libraries=[datadir / "external_lib_foo"],
+        linked_libraries=[(datadir / "external_lib_foo", "external_lib_foo")],
     )
 
     assert_cairo_test_cases(

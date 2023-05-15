@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import List, Iterable
+from typing import List, Iterable, Tuple
 
 from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
     PreprocessorError,
@@ -16,7 +16,7 @@ class Cairo1TestCollectionException(Exception):
 
 
 class Cairo1TestCollector(TestCollector):
-    def __init__(self, cairo_path: list[str]):
+    def __init__(self, cairo_path: list[Tuple[Path, str]]):
         super().__init__(
             get_suite_function_names=self.collect_cairo1_tests_and_cache_outputs
         )
@@ -30,7 +30,7 @@ class Cairo1TestCollector(TestCollector):
         try:
             collector_output = cairo1.collect_tests(
                 file_path,
-                cairo_path=[Path(cp) for cp in self._cairo_path],
+                maybe_cairo_paths=self._cairo_path,
             )
         except RuntimeError as rt_err:
             raise PreprocessorError(str(rt_err)) from rt_err

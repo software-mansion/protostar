@@ -39,7 +39,7 @@ def test_contract_with_builtins_to_casm(datadir: Path):
 def test_cairo_path_for_starknet_contract(datadir: Path, shared_datadir: Path):
     assert cairo1.compile_starknet_contract_to_casm_from_path(
         input_path=datadir / "deps_starknet_project",
-        cairo_path=[shared_datadir / "external_lib_foo"],
+        maybe_cairo_paths=[(shared_datadir / "external_lib_foo", "external_lib_foo")],
     )
 
     with pytest.raises(Exception):
@@ -53,9 +53,9 @@ def test_cairo_path_for_starknet_contract_nested_deps(
 ):
     assert cairo1.compile_starknet_contract_to_casm_from_path(
         input_path=datadir / "nested_deps_starknet_project",
-        cairo_path=[
-            shared_datadir / "external_lib_foo",
-            shared_datadir / "external_lib_bar",
+        maybe_cairo_paths=[
+            (shared_datadir / "external_lib_foo", "external_lib_foo"),
+            (shared_datadir / "external_lib_bar", "external_lib_bar"),
         ],
     )
 
@@ -67,5 +67,7 @@ def test_cairo_path_for_starknet_contract_nested_deps(
     with pytest.raises(Exception):
         cairo1.compile_starknet_contract_to_casm_from_path(
             input_path=datadir / "nested_deps_starknet_project",
-            cairo_path=[shared_datadir / "external_lib_bar"],
+            maybe_cairo_paths=[
+                (shared_datadir / "external_lib_bar", "external_lib_bar")
+            ],
         )

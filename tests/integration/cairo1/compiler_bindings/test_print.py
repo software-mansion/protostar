@@ -20,7 +20,6 @@ async def test_print(protostar_project: ProtostarProjectFixture, datadir: Path):
     testing_summary = await protostar_project.protostar.test_cairo1(
         datadir / "print_test.cairo",
     )
-
     assert_cairo_test_cases(
         testing_summary,
         expected_passed_test_cases_names=["test_print_basic"],
