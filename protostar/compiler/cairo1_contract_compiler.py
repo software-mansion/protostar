@@ -42,7 +42,7 @@ class Cairo1ContractCompiler:
         output_path: Optional[Path] = None,
     ) -> str:
         if output_path:
-            output_path.with_suffix(".sierra.json")
+            output_path = output_path.with_suffix(".sierra.json")
 
         try:
             sierra_compiled = (
@@ -69,7 +69,7 @@ class Cairo1ContractCompiler:
         output_path: Optional[Path] = None,
     ) -> str:
         if output_path:
-            output_path.with_suffix(".casm.json")
+            output_path = output_path.with_suffix(".casm.json")
 
         try:
             casm_compiled = cairo1_bindings.compile_starknet_contract_to_casm_from_path(

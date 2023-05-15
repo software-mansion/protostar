@@ -13,7 +13,7 @@ def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
 
 
 def test_cairo1_build(protostar: ProtostarFixture):
-    protostar.build_cairo1_sync()
+    protostar.build_sync()
 
     expected_paths = [
         Path("build/hello_starknet.sierra.json"),
