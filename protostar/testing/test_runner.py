@@ -21,6 +21,7 @@ from protostar.configuration_file.configuration_file_factory import (
 from protostar.protostar_exception import ProtostarException
 from protostar.starknet.pass_managers import TestSuitePassMangerFactory
 from protostar.starknet import StarknetCompiler, StarknetCompilerConfig
+from protostar.contract_path_resolver import ContractPathResolver
 
 from .environments.setup_execution_environment import SetupExecutionEnvironment
 from .starkware.contract_based_test_execution_state import (
@@ -40,7 +41,6 @@ from .test_results import (
 from .test_shared_tests_state import SharedTestsState
 from .test_suite import TestCase, TestSuite
 from .testing_seed import Seed
-from ..compiler.project_compiler import ProjectCompiler
 
 logger = getLogger()
 
@@ -84,7 +84,7 @@ class TestRunner:
                 debugging_info_attached=profiling,
             ),
         )
-        self.project_compiler = ProjectCompiler(
+        self.contract_path_resolver = ContractPathResolver(
             project_root_path=project_root_path,
             configuration_file=configuration_file,
         )
@@ -197,7 +197,7 @@ class TestRunner:
                     test_config=test_config,
                     contract_path=contract_path,
                     cairo0_project_compiler=self.cairo0_project_compiler,
-                    project_compiler=self.project_compiler,
+                    contract_path_resolver=self.contract_path_resolver,
                 )
             )
 
