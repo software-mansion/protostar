@@ -45,6 +45,7 @@ async def test_deploy_hint_local(
             "test_deploy_with_storage",
             "test_deploy_with_ctor_panic",
             "test_deploy_with_ctor_obsolete_calldata",
+            "test_deploy_doesnt_move_calldata",
         ],
         expected_failed_test_cases_names=[
             "test_deploy_with_ctor_invalid_calldata",
