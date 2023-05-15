@@ -7,15 +7,25 @@
 </div>
 
 ---
+Protostar helps with writing, deploying, and testing your smart contracts. It is loosely inspired by [Foundry](https://github.com/foundry-rs/foundry).
+
+Protostar is actively developed :hammer: . We release every two weeks. Our [roadmap is public](https://github.com/orgs/software-mansion-labs/projects/3/views/3), see what is coming soon!
+
+Install with
+```shell
+curl -L https://raw.githubusercontent.com/software-mansion/protostar/master/install.sh | bash
+```
+
+[Documentation :page_facing_up:](https://docs.swmansion.com/protostar/)
+
 
 ## Table of contents <!-- omit in toc -->
-- [About](#about)
-- [Documentation](#documentation)
-  - [Additional resources](#additional-resources)
 - [Installation](#installation)
 - [Development](#development)
   - [Requirements](#requirements)
   - [Setting up environment](#setting-up-environment)
+    - [Bumping cairo bindings version](#bumping-cairo-bindings-version)
+      - [Caveats:](#caveats)
     - [Submodules development](#submodules-development)
     - [Git hooks](#git-hooks)
 - [Updating website/docs](#updating-websitedocs)
@@ -23,11 +33,7 @@
 
 
 
-## About
-Protostar manages your dependencies, compiles your project, and runs tests.
 
-## Documentation
-https://docs.swmansion.com/protostar/
 
 ### Additional resources
 - [Testing Starknet contracts made easy with Protostar](https://blog.swmansion.com/testing-starknet-contracts-made-easy-with-protostar-2ecdad3c9133)
