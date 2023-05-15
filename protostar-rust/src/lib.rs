@@ -14,7 +14,6 @@ fn run_result_value_to_string(run_result: RunResultValue) -> String {
       return format!("Success {:?}", data);
     }
     RunResultValue::Panic(data) => {
-        
       return format!("Panic {:?}", data);
     }
   }
@@ -33,14 +32,17 @@ fn internal_run_tests(input_path: &str) -> anyhow::Result<Vec<(String, String)>>
   let mut results = vec![];
   for config in &test_configs {
     let result = runner
-    .run_function(
-        runner.find_function(&config.name.as_str())?,
-        &[],
-        config.available_gas,
-        Default::default(),
-    )
-    .with_context(|| format!("Failed to run the function `{}`.", config.name.as_str()))?;
-    results.push((config.name.clone(), run_result_value_to_string(result.value)));
+      .run_function(
+          runner.find_function(&config.name.as_str())?,
+          &[],
+          config.available_gas,
+          Default::default(),
+      )
+      .with_context(|| format!("Failed to run the function `{}`.", config.name.as_str()))?;
+    let name = config.name.clone();
+    let result_str = run_result_value_to_string(result.value);
+    println!("{}: {}", name, result_str);
+    results.push((name, result_str));
   }
   Ok(results)
 }
