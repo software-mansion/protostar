@@ -9,7 +9,7 @@ from starkware.starknet.public.abi import AbiType
 from typing_extensions import Protocol
 
 from protostar.cairo import CairoVersion
-from protostar.commands.test.test_command import TestCommand
+from protostar.commands import TestCairo0Command
 from protostar.compiler.project_cairo_path_builder import ProjectCairoPathBuilder
 from protostar.io.log_color_provider import LogColorProvider
 from protostar.testing import TestingSummary
@@ -38,7 +38,7 @@ def devnet_gateway_url_fixture(
     proc.kill()
 
 
-class RunTestRunnerFixture(Protocol):
+class RunCairo0TestRunnerFixture(Protocol):
     async def __call__(
         self,
         path: Path,
@@ -60,11 +60,11 @@ def log_color_provider_fixture() -> LogColorProvider:
     return log_color_provider
 
 
-@pytest.fixture(name="run_test_runner", scope="module")
-def run_test_runner_fixture(
+@pytest.fixture(name="run_cairo0_test_runner", scope="module")
+def run_cairo0_test_runner_fixture(
     session_mocker: MockerFixture, log_color_provider: LogColorProvider
-) -> RunTestRunnerFixture:
-    async def run_test_runner(
+) -> RunCairo0TestRunnerFixture:
+    async def run_cairo0_test_runner(
         path: Path,
         seed: Optional[int] = None,
         max_steps: Optional[int] = None,
@@ -106,7 +106,7 @@ def run_test_runner_fixture(
             activity_indicator=fake_indicator,
         )
 
-        return await TestCommand(
+        return await TestCairo0Command(
             project_root_path=Path(),
             protostar_directory=protostar_directory_mock,
             project_cairo_path_builder=project_cairo_path_builder,
@@ -125,7 +125,7 @@ def run_test_runner_fixture(
             messenger=messenger_factory.human(),
         )
 
-    return run_test_runner
+    return run_cairo0_test_runner
 
 
 class CreateProtostarProjectFixture(Protocol):
@@ -156,7 +156,7 @@ def get_abi_from_contract_fixture(
     def get_abi_from_contract(contract_source_code: str) -> AbiType:
         with create_protostar_project() as protostar_project:
             protostar_project.create_files({"src/main.cairo": contract_source_code})
-            protostar_project.protostar.build_sync()
+            protostar_project.protostar.build_cairo0_sync()
             with open("build/main_abi.json") as f:
                 abi = json.load(f)
                 return abi

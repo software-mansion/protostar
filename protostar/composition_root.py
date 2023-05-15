@@ -12,7 +12,7 @@ from protostar.cli import (
 from protostar.cli.lib_path_resolver import LibPathResolver
 from protostar.commands import (
     BuildCommand,
-    BuildCairo1Command,
+    BuildCairo0Command,
     CalculateAccountAddressCommand,
     CallCommand,
     DeclareCommand,
@@ -20,27 +20,26 @@ from protostar.commands import (
     DeployCommand,
     FormatCommand,
     InitCommand,
-    InitCairo1Command,
+    InitCairo0Command,
     InstallCommand,
     InvokeCommand,
     MigrateConfigurationFileCommand,
     RemoveCommand,
     TestCommand,
-    TestCairo1Command,
+    TestCairo0Command,
     UpdateCommand,
     UpgradeCommand,
     MulticallCommand,
     DeclareCairo1Command,
 )
 from protostar.commands.cairo_migrate_command import CairoMigrateCommand
-from protostar.commands.init.project_creator import (
+from protostar.commands.legacy_commands.init_cairo0.project_creator import (
     AdaptedProjectCreator,
     NewProjectCreator,
 )
 from protostar.compiler import (
     ProjectCairoPathBuilder,
     Cairo0ProjectCompiler,
-    ProjectCompiler,
 )
 from protostar.configuration_file import (
     ConfigurationFileFactory,
@@ -49,6 +48,7 @@ from protostar.configuration_file import (
     ConfigurationFileV2Migrator,
     ConfigurationTOMLContentBuilder,
 )
+from protostar.contract_path_resolver import ContractPathResolver
 from protostar.io import InputRequester, log_color_provider
 from protostar.protostar_cli import ProtostarCLI
 from protostar.self import ProtostarCompatibilityWithProjectChecker
@@ -107,7 +107,7 @@ def build_di_container(
         configuration_file=configuration_file,
     )
 
-    project_compiler = ProjectCompiler(
+    contract_path_resolver = ContractPathResolver(
         project_root_path=project_root_path,
         configuration_file=configuration_file,
     )
@@ -162,23 +162,22 @@ def build_di_container(
         messenger_factory=messenger_factory,
     )
     commands: list[ProtostarCommand] = [
-        InitCommand(
+        InitCairo0Command(
             requester=input_requester,
             new_project_creator=new_project_creator,
             adapted_project_creator=adapted_project_creator,
         ),
-        InitCairo1Command(
+        InitCommand(
             new_project_creator=new_project_creator,
         ),
-        BuildCommand(
+        BuildCairo0Command(
             project_compiler=cairo0_project_compiler,
             messenger_factory=messenger_factory,
         ),
-        BuildCairo1Command(
+        BuildCommand(
             configuration_file=cairo0_project_compiler.configuration_file,
             project_root_path=project_root_path,
             messenger_factory=messenger_factory,
-            project_compiler=project_compiler,
         ),
         InstallCommand(
             log_color_provider=log_color_provider,
@@ -200,7 +199,7 @@ def build_di_container(
                 latest_version_checker=LatestVersionRemoteChecker(),
             ),
         ),
-        TestCommand(
+        TestCairo0Command(
             project_root_path,
             protostar_directory,
             project_cairo_path_builder,
@@ -209,7 +208,7 @@ def build_di_container(
             cwd=cwd,
             messenger_factory=messenger_factory,
         ),
-        TestCairo1Command(
+        TestCommand(
             project_root_path,
             protostar_directory,
             log_color_provider=log_color_provider,
@@ -226,7 +225,7 @@ def build_di_container(
             messenger_factory=messenger_factory,
         ),
         DeclareCairo1Command(
-            project_compiler=project_compiler,
+            contract_path_resolver=contract_path_resolver,
             gateway_facade_factory=gateway_facade_factory,
             messenger_factory=messenger_factory,
         ),

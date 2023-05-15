@@ -1,4 +1,4 @@
-from .build_cairo1_command import BuildCairo1Command
-from .init_cairo1_command import InitCairo1Command
-from .test_cairo1_command import TestCairo1Command
+from .build_command import BuildCommand
+from .init_command import InitCommand
+from .test_command import TestCommand
 from .declare_cairo1_command import DeclareCairo1Command

@@ -5,13 +5,13 @@ from protostar.testing.test_environment_exceptions import (
     ExpectedEventMissingException,
 )
 from tests.integration.conftest import (
-    RunTestRunnerFixture,
+    RunCairo0TestRunnerFixture,
     assert_cairo_test_cases,
 )
 
 
-async def test_expect_events(run_test_runner: RunTestRunnerFixture):
-    testing_summary = await run_test_runner(
+async def test_expect_events(run_cairo0_test_runner: RunCairo0TestRunnerFixture):
+    testing_summary = await run_cairo0_test_runner(
         Path(__file__).parent / "expect_events_test.cairo",
         ignored_test_cases=["test_selector_to_name_mapping"],
     )
@@ -39,9 +39,9 @@ async def test_expect_events(run_test_runner: RunTestRunnerFixture):
 
 
 async def test_event_selector_to_name_mapping(
-    run_test_runner: RunTestRunnerFixture,
+    run_cairo0_test_runner: RunCairo0TestRunnerFixture,
 ):
-    testing_summary = await run_test_runner(
+    testing_summary = await run_cairo0_test_runner(
         Path(__file__).parent
         / "expect_events_test.cairo::test_selector_to_name_mapping"
     )

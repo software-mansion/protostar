@@ -7,7 +7,7 @@ fn test_prepare() {
    arr.append(202);
    arr.append(613);
    arr.append(721);
-   match prepare(123, arr) {
+   match prepare(123, @arr) {
       Result::Ok(PreparedContract{contract_address, class_hash, constructor_calldata}) => {
         assert(constructor_calldata.len() == 4_u32, 'check constructor_calldata');
         assert(*constructor_calldata.at(0_usize) == 101, 'check constructor_calldata[0]');
@@ -32,7 +32,7 @@ fn test_prepare_impl() {
    arr.append(3);
    arr.append(2);
    arr.append(1);
-   match prepare_impl(123, arr) {
+   match prepare_impl(123, @arr) {
       Result::Ok((constructor_calldata, contract_address, class_hash)) => {
         assert(constructor_calldata.len() == 3_u32, 'check constructor_calldata');
         assert(*constructor_calldata.at(0_usize) == 3, 'check constructor_calldata[0]');
@@ -53,7 +53,7 @@ fn test_prepare_impl() {
 #[test]
 fn test_prepare_no_args() {
    let mut arr = ArrayTrait::new();
-   match prepare(123, arr) {
+   match prepare(123, @arr) {
       Result::Ok(PreparedContract{contract_address, class_hash, constructor_calldata}) => {
         assert(constructor_calldata.len() == 0_u32, 'check constructor_calldata');
         assert(contract_address == 999, 'check contract_address');

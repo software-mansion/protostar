@@ -1,15 +1,17 @@
 from pathlib import Path
 
 from tests.integration.conftest import (
-    RunTestRunnerFixture,
+    RunCairo0TestRunnerFixture,
     assert_cairo_test_cases,
 )
 
 
 async def test_skip(
-    run_test_runner: RunTestRunnerFixture,
+    run_cairo0_test_runner: RunCairo0TestRunnerFixture,
 ):
-    testing_summary = await run_test_runner(Path(__file__).parent / "skip_test.cairo")
+    testing_summary = await run_cairo0_test_runner(
+        Path(__file__).parent / "skip_test.cairo"
+    )
 
     assert_cairo_test_cases(
         testing_summary,

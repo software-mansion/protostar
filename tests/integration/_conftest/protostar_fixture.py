@@ -6,27 +6,29 @@ from typing import Any, Callable, Dict, List, Optional, Union, ContextManager
 import pytest
 from starknet_py.net.models import StarknetChainId
 
+from protostar import TestCommand
 from protostar.argument_parser import ArgumentParserFacade, CLIApp
 from protostar.cli import MessengerFactory
 from protostar.cli.signable_command_util import PRIVATE_KEY_ENV_VAR_NAME
 from protostar.commands import (
     BuildCommand,
-    BuildCairo1Command,
     CalculateAccountAddressCommand,
     CallCommand,
     DeclareCommand,
     FormatCommand,
     InitCommand,
-    InitCairo1Command,
     InvokeCommand,
     MulticallCommand,
     DeclareCairo1Command,
+    TestCairo0Command,
+    BuildCairo0Command,
+    InitCairo0Command,
 )
-from protostar.commands.cairo1_commands.test_cairo1_command import TestCairo1Command
 from protostar.commands.deploy_account_command import DeployAccountCommand
 from protostar.commands.deploy_command import DeployCommand
-from protostar.commands.test import TestCommand
-from protostar.commands.test.test_result_formatter import format_test_result
+from protostar.commands.legacy_commands.test_cairo0.test_result_formatter import (
+    format_test_result,
+)
 from protostar.formatter.formatting_result import FormattingResult
 from protostar.formatter.formatting_summary import FormattingSummary
 from protostar.io import log_color_provider
@@ -50,15 +52,15 @@ class ProtostarFixture:
         self,
         project_root_path: Path,
         init_command: InitCommand,
-        init_cairo1_command: InitCairo1Command,
+        init_cairo0_command: InitCairo0Command,
         build_command: BuildCommand,
-        build_cairo1_command: BuildCairo1Command,
+        build_cairo0_command: BuildCairo0Command,
         format_command: FormatCommand,
         declare_command: DeclareCommand,
         declare_cairo1_command: DeclareCairo1Command,
         deploy_command: DeployCommand,
         test_command: TestCommand,
-        test_cairo1_command: TestCairo1Command,
+        test_cairo0_command: TestCairo0Command,
         invoke_command: InvokeCommand,
         call_command: CallCommand,
         deploy_account_command: DeployAccountCommand,
@@ -71,15 +73,15 @@ class ProtostarFixture:
     ) -> None:
         self._project_root_path = project_root_path
         self._init_command = init_command
-        self._init_cairo1_command = init_cairo1_command
+        self._init_cairo0_command = init_cairo0_command
         self._build_command = build_command
-        self._build_cairo1_command = build_cairo1_command
+        self._build_cairo0_command = build_cairo0_command
         self._format_command = format_command
         self._declare_command = declare_command
         self._declare_cairo1_command = declare_cairo1_command
         self._deploy_command = deploy_command
         self._test_command = test_command
-        self._test_cairo1_command = test_cairo1_command
+        self._test_cairo0_command = test_cairo0_command
         self._invoke_command = invoke_command
         self._calculate_account_address_command = calculate_account_address_command
         self._transaction_registry = transaction_registry
@@ -233,7 +235,7 @@ class ProtostarFixture:
 
         return await self._deploy_account_command.run(args)
 
-    async def test(
+    async def test_cairo0(
         self, targets: List[str], last_failed: bool = False, estimate_gas: bool = False
     ) -> TestingSummary:
         args = Namespace()
@@ -251,20 +253,28 @@ class ProtostarFixture:
         args.max_steps = None
         args.estimate_gas = estimate_gas
 
-        return await self._test_command.run(args)
+        return await self._test_cairo0_command.run(args)
+
+    def init_cairo0_sync(self, project_name: str):
+        args = Namespace()
+        args.existing = False
+        args.name = project_name
+        result = asyncio.run(self._init_cairo0_command.run(args))
+        return result
 
     def init_sync(self, project_name: str):
         args = Namespace()
-        args.existing = False
         args.name = project_name
         result = asyncio.run(self._init_command.run(args))
         return result
 
-    def init_cairo1_sync(self, project_name: str):
-        args = Namespace()
-        args.name = project_name
-        result = asyncio.run(self._init_cairo1_command.run(args))
-        return result
+    async def build_cairo0(self):
+        args = self._prepare_build_cairo0_args()
+        return await self._build_cairo0_command.run(args)
+
+    def build_cairo0_sync(self):
+        args = self._prepare_build_cairo0_args()
+        return asyncio.run(self._build_cairo0_command.run(args))
 
     async def build(self):
         args = self._prepare_build_args()
@@ -274,27 +284,19 @@ class ProtostarFixture:
         args = self._prepare_build_args()
         return asyncio.run(self._build_command.run(args))
 
-    async def build_cairo1(self):
-        args = self._prepare_build_cairo1_args()
-        return await self._build_cairo1_command.run(args)
-
-    def build_cairo1_sync(self):
-        args = self._prepare_build_cairo1_args()
-        return asyncio.run(self._build_cairo1_command.run(args))
-
     def _prepare_build_args(self):
         args = Namespace()
         args.compiled_contracts_dir = Path("./build")
         args.disable_hint_validation = False
-        args.cairo_path = None
+        args.linked_libraries = None
         args.json = False
         args.contract_name = ""
         return args
 
-    def _prepare_build_cairo1_args(self):
+    def _prepare_build_cairo0_args(self):
         args = self._prepare_build_args()
-        delattr(args, "cairo_path")
-        args.linked_libraries = None
+        delattr(args, "linked_libraries")
+        args.cairo_path = None
         return args
 
     async def invoke(
@@ -387,7 +389,7 @@ class ProtostarFixture:
 
         return result
 
-    async def run_test_runner(
+    async def run_cairo0_test_runner_cairo0(
         self,
         target: Union[str, Path],
         cairo_path: Optional[List[Path]] = None,
@@ -408,13 +410,13 @@ class ProtostarFixture:
             activity_indicator=fake_indicator,
         )
 
-        return await self._test_command.test(
+        return await self._test_cairo0_command.test(
             targets=targets,
             messenger=messenger_factory.human(),
             cairo_path=cairo_path,
         )
 
-    async def test_cairo1(
+    async def test(
         self,
         target: Union[str, Path],
         linked_libraries: Optional[List[Path]] = None,
@@ -435,7 +437,7 @@ class ProtostarFixture:
             activity_indicator=fake_indicator,
         )
 
-        return await self._test_cairo1_command.test(
+        return await self._test_command.test(
             targets=targets,
             messenger=messenger_factory.human(),
             linked_libraries=linked_libraries,

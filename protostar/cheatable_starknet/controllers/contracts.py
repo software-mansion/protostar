@@ -160,6 +160,8 @@ class ContractsController:
             ),
         )
 
+        self._add_event_abi_to_state(json.loads(contract_class.abi))
+
         with self.cheatable_state.copy_and_apply() as state_copy:
             await tx.apply_state_updates(
                 state=state_copy, general_config=starknet_config
