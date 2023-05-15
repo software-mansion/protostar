@@ -8,7 +8,7 @@ fn test_call() {
    arr.append(721);
    arr.append(508);
    arr.append(405);
-   match call(123, 'test', arr) {
+   match call(123, 'test', @arr) {
       Result::Ok(return_data) => {
         assert(return_data.len() == 3_u32, 'check return_data');
         assert(*return_data.at(0_usize) == 3, 'check return_data[0]');
@@ -25,7 +25,7 @@ fn test_call() {
 #[test]
 fn test_call_no_args() {
    let mut arr = ArrayTrait::new();
-   match call(123, 'test', arr) {
+   match call(123, 'test', @arr) {
       Result::Ok(return_data) => {
         assert(return_data.len() == 0_u32, 'check return_data');
         ()

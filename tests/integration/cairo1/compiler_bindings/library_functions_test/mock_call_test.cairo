@@ -7,7 +7,7 @@ fn test_mock_call() {
    arr.append(122);
    arr.append(123);
    arr.append(124);
-   match mock_call(123, 'test', arr) {
+   match mock_call(123, 'test', @arr) {
       Result::Ok(class_hash) => (),
       Result::Err(x) => {
          let mut data = ArrayTrait::new();
@@ -20,7 +20,7 @@ fn test_mock_call() {
 #[test]
 fn test_mock_call_no_args() {
    let mut arr = ArrayTrait::new();
-   match mock_call(123, 'test', arr) {
+   match mock_call(123, 'test', @arr) {
       Result::Ok(class_hash) => (),
       Result::Err(x) => {
          let mut data = ArrayTrait::new();
