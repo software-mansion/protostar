@@ -53,7 +53,11 @@ class BlockInfoController:
         ] = block_number
 
     def clear_block_number_cheat(self, contract_address: Address):
-        del self.cheatable_state.contract_address_to_block_number[contract_address]
+        if contract_address in self.cheatable_state.contract_address_to_block_number:
+            del self.cheatable_state.contract_address_to_block_number[contract_address]
 
     def clear_block_timestamp_cheat(self, contract_address: Address):
-        del self.cheatable_state.contract_address_to_block_timestamp[contract_address]
+        if contract_address in self.cheatable_state.contract_address_to_block_timestamp:
+            del self.cheatable_state.contract_address_to_block_timestamp[
+                contract_address
+            ]

@@ -8,13 +8,13 @@ from protostar.cairo.cairo_function_runner_facade import CairoRunnerFacade
 
 
 def test_compilator_and_parser(mocker: MockerFixture, datadir: Path):
-    test_collector_output = cairo1.collect_tests(datadir / "roll_test.cairo")
+    test_collector_output = cairo1.collect_tests(datadir / "start_roll_test.cairo")
 
     assert test_collector_output.sierra_output
     assert test_collector_output.collected_tests == [
-        ("roll_test::roll_test::test_cheatcode_caller", None),
-        ("roll_test::roll_test::test_cheatcode_caller_twice", None),
-        ("roll_test::roll_test::test_cheatcode_caller_three", None),
+        ("start_roll_test::start_roll_test::test_cheatcode_caller", None),
+        ("start_roll_test::start_roll_test::test_cheatcode_caller_twice", None),
+        ("start_roll_test::start_roll_test::test_cheatcode_caller_three", None),
     ]
 
     protostar_casm_json = cairo1.compile_protostar_sierra_to_casm(
@@ -28,7 +28,9 @@ def test_compilator_and_parser(mocker: MockerFixture, datadir: Path):
     cheat_mock.return_value = type("return_value", (object,), {"err_code": 0})()
     cairo_runner_facade = CairoRunnerFacade(program=protostar_casm.program)
     for offset in protostar_casm.offset_map.values():
-        cairo_runner_facade.run_from_offset(offset, hint_locals={"roll": cheat_mock})
+        cairo_runner_facade.run_from_offset(
+            offset, hint_locals={"start_roll": cheat_mock}
+        )
 
     assert cheat_mock.call_count == 6
 
