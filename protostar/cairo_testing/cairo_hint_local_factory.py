@@ -8,7 +8,7 @@ from protostar.cheatable_starknet.callable_hint_locals import (
     InvokeHintLocal,
     CallHintLocal,
     PrankHintLocal,
-    RollHintLocal,
+    StartRollHintLocal,
     StartWarpHintLocal,
     DeployHintLocal,
     PrepareHintLocal,
@@ -96,7 +96,7 @@ class CairoSharedHintLocalFactory:
 
         return [
             StartWarpHintLocal(block_info_controller=block_info_controller),
-            RollHintLocal(block_info_controller=block_info_controller),
+            StartRollHintLocal(block_info_controller=block_info_controller),
             StopWarpHintLocal(block_info_controller=block_info_controller),
             StopRollHintLocal(block_info_controller=block_info_controller),
             PrankHintLocal(contracts_controller=contracts_controller),

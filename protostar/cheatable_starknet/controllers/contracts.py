@@ -1,6 +1,7 @@
 import copy
 from dataclasses import dataclass
 from typing import List, Optional, cast, Tuple
+import json
 
 from starkware.starknet.business_logic.execution.objects import (
     CallType,
@@ -146,6 +147,8 @@ class ContractsController:
                 DEFAULT_DECLARE_SENDER_ADDRESS
             ),
         )
+
+        self._add_event_abi_to_state(json.loads(contract_class.abi))
 
         with self.cheatable_state.copy_and_apply() as state_copy:
             await tx.apply_state_updates(
