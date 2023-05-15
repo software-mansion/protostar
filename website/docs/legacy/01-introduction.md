@@ -32,4 +32,4 @@ For detailed information about a specific command and its flags, run:
 ```
 protostar COMMAND --help
 ```
-For example, `protostar test --help`.
+For example, `protostar test-cairo0 --help`.

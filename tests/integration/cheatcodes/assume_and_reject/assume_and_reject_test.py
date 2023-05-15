@@ -6,15 +6,15 @@ from protostar.testing.fuzzing.fuzz_input_exception_metadata import (
     FuzzInputExceptionMetadata,
 )
 from tests.integration.conftest import (
-    RunTestRunnerFixture,
+    RunCairo0TestRunnerFixture,
     assert_cairo_test_cases,
 )
 
 
 async def test_assume_and_reject_cheatcodes(
-    run_test_runner: RunTestRunnerFixture,
+    run_cairo0_test_runner: RunCairo0TestRunnerFixture,
 ):
-    testing_summary = await run_test_runner(
+    testing_summary = await run_cairo0_test_runner(
         Path(__file__).parent / "assume_and_reject_test.cairo"
     )
 
@@ -29,9 +29,9 @@ async def test_assume_and_reject_cheatcodes(
 
 
 async def test_assume_and_reject_cheatcodes_together(
-    run_test_runner: RunTestRunnerFixture,
+    run_cairo0_test_runner: RunCairo0TestRunnerFixture,
 ):
-    testing_summary = await run_test_runner(
+    testing_summary = await run_cairo0_test_runner(
         Path(__file__).parent / "assume_and_reject_together_test.cairo", seed=42
     )
 

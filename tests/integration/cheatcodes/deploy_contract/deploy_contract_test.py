@@ -2,7 +2,7 @@ import asyncio
 from pathlib import Path
 
 from tests.integration.conftest import (
-    RunTestRunnerFixture,
+    RunCairo0TestRunnerFixture,
     assert_cairo_test_cases,
     CreateProtostarProjectFixture,
 )
@@ -10,8 +10,8 @@ from tests.integration.conftest import (
 TEST_CONTRACTS_PATH = Path(__file__).parent
 
 
-async def test_deploy_contract(run_test_runner: RunTestRunnerFixture):
-    testing_summary = await run_test_runner(
+async def test_deploy_contract(run_cairo0_test_runner: RunCairo0TestRunnerFixture):
+    testing_summary = await run_cairo0_test_runner(
         TEST_CONTRACTS_PATH / "deploy_contract_test.cairo",
         cairo_path=[Path() / "tests" / "integration" / "data"],
     )
@@ -49,7 +49,7 @@ def test_deploying_contract_by_name(
                 / "deploying_contract_by_name_test.cairo",
             }
         )
-        result = asyncio.run(protostar_project.protostar.test(["./tests"]))
+        result = asyncio.run(protostar_project.protostar.test_cairo0(["./tests"]))
 
     assert_cairo_test_cases(
         result, expected_passed_test_cases_names=["test_deploy_contract_by_name"]
@@ -57,9 +57,9 @@ def test_deploying_contract_by_name(
 
 
 async def test_contract_deployment_with_incorrect_constructor_args(
-    run_test_runner: RunTestRunnerFixture,
+    run_cairo0_test_runner: RunCairo0TestRunnerFixture,
 ):
-    testing_summary = await run_test_runner(
+    testing_summary = await run_cairo0_test_runner(
         TEST_CONTRACTS_PATH / "deploying_contract_with_incorrect_args_test.cairo",
     )
 

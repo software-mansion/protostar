@@ -18,7 +18,7 @@ async def test_gas_estimation(
     protostar_project: ProtostarProjectFixture,
     capsys: CaptureFixture[str],
 ):
-    await protostar_project.protostar.test(
+    await protostar_project.protostar.test_cairo0(
         targets=["::test_increase_balance"], estimate_gas=True
     )
 
@@ -30,7 +30,7 @@ async def test_gas_estimation_for_empty_function(
     capsys: CaptureFixture[str],
 ):
     protostar_project.create_files({"tests/test_main.cairo": EMPTY_TEST})
-    await protostar_project.protostar.test(
+    await protostar_project.protostar.test_cairo0(
         targets=["::test_nothing"], estimate_gas=True
     )
 

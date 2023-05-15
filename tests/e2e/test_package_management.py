@@ -16,7 +16,9 @@ def project_new_location_fixture() -> Optional[Path]:
 
 
 @pytest.fixture(name="project_relocator")
-def project_relocator_fixture(init: InitFixture, project_new_location: Optional[Path]):
+def project_relocator_fixture(
+    init_cairo0: InitFixture, project_new_location: Optional[Path]
+):
     if not project_new_location:
         return
 
@@ -34,7 +36,7 @@ InstallPackageFixture = Callable
 
 @pytest.fixture(name="install_package")
 def install_package_fixture(
-    init: InitFixture, protostar: ProtostarFixture
+    init_cairo0: InitFixture, protostar: ProtostarFixture
 ) -> InstallPackageFixture:
     def install_package():
         result = protostar(
