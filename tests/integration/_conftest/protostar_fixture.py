@@ -23,6 +23,9 @@ from protostar.commands import (
     DeclareCairo1Command,
 )
 from protostar.commands.cairo1_commands.test_cairo1_command import TestCairo1Command
+from protostar.commands.cairo1_commands.test_rust_cairo1_command import (
+    TestRustCairo1Command,
+)
 from protostar.commands.deploy_account_command import DeployAccountCommand
 from protostar.commands.deploy_command import DeployCommand
 from protostar.commands.test import TestCommand
@@ -59,6 +62,7 @@ class ProtostarFixture:
         deploy_command: DeployCommand,
         test_command: TestCommand,
         test_cairo1_command: TestCairo1Command,
+        test_rust_cairo1_command: TestRustCairo1Command,
         invoke_command: InvokeCommand,
         call_command: CallCommand,
         deploy_account_command: DeployAccountCommand,
@@ -80,6 +84,7 @@ class ProtostarFixture:
         self._deploy_command = deploy_command
         self._test_command = test_command
         self._test_cairo1_command = test_cairo1_command
+        self._test_rust_cairo1_command = test_rust_cairo1_command
         self._invoke_command = invoke_command
         self._calculate_account_address_command = calculate_account_address_command
         self._transaction_registry = transaction_registry

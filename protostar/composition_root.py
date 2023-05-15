@@ -27,6 +27,7 @@ from protostar.commands import (
     RemoveCommand,
     TestCommand,
     TestCairo1Command,
+    TestRustCairo1Command,
     UpdateCommand,
     UpgradeCommand,
     MulticallCommand,
@@ -215,6 +216,7 @@ def build_di_container(
             cwd=cwd,
             messenger_factory=messenger_factory,
         ),
+        TestRustCairo1Command(),
         DeployCommand(
             gateway_facade_factory=gateway_facade_factory,
             messenger_factory=messenger_factory,

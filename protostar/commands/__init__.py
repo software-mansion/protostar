@@ -3,6 +3,7 @@ from .cairo1_commands import (
     DeclareCairo1Command,
     TestCairo1Command,
     InitCairo1Command,
+    TestRustCairo1Command,
 )
 from .build_command import BuildCommand
 from .calculate_account_address_command import CalculateAccountAddressCommand
