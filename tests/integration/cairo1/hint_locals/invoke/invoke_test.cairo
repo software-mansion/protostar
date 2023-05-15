@@ -122,3 +122,16 @@ fn test_invoke_exception_handling() {
         Result::Err(x) => assert(x.first() == 'i am bonkers', x.first()),
     }
 }
+
+#[test]
+fn test_invoke_doesnt_move_calldata() {
+    let deployed_contract_address = deploy_contract('get_set', @ArrayTrait::new()).unwrap();
+
+    let mut calldata = ArrayTrait::new();
+    calldata.append(3);
+
+    invoke(deployed_contract_address, 'set_a', @calldata).unwrap();
+
+    // This should work if calldata is not moved to invoke
+    assert(calldata.len() == 1_u32, 'calldata size == 1');
+}

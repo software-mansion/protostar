@@ -12,12 +12,7 @@ fn test_deploy() {
     assert(prepare_result.contract_address != 0, 'prepared contract_address != 0');
     assert(prepare_result.class_hash != 0, 'prepared class_hash != 0');
 
-    let prepared_contract = PreparedContract {
-        contract_address: prepare_result.contract_address,
-        class_hash: prepare_result.class_hash,
-        constructor_calldata: prepare_result.constructor_calldata
-    };
-    let deployed_contract_address = deploy(prepared_contract).unwrap();
+    let deployed_contract_address = deploy(prepare_result).unwrap();
     assert(deployed_contract_address != 0, 'deployed_contract_address != 0');
 }
 
@@ -31,12 +26,7 @@ fn test_deploy_cairo0() {
     assert(prepare_result.contract_address != 0, 'prepared contract_address != 0');
     assert(prepare_result.class_hash != 0, 'prepared class_hash != 0');
 
-    let prepared_contract = PreparedContract {
-        contract_address: prepare_result.contract_address,
-        class_hash: prepare_result.class_hash,
-        constructor_calldata: prepare_result.constructor_calldata
-    };
-    let deployed_contract_address = deploy(prepared_contract).unwrap();
+    let deployed_contract_address = deploy(prepare_result).unwrap();
     assert(deployed_contract_address != 0, 'deployed_contract_address != 0');
 }
 
@@ -53,15 +43,11 @@ fn test_deploy_with_ctor() {
 
     assert(prepare_result.contract_address != 0, 'prepared contract_address != 0');
     assert(prepare_result.class_hash != 0, 'prepared class_hash != 0');
-    // TODO (1717): check the length of the array, this produces: error: Variable was previously moved
-    // assert(prepare_result.constructor_calldata.len() == 2_u32, 'constructor_calldata size == 2');
+    assert(prepare_result.constructor_calldata.len() == 2_u32, 'constructor_calldata size == 2');
+    assert(*prepare_result.constructor_calldata.at(0_usize) == 1, 'constructor_calldata contents');
+    assert(*prepare_result.constructor_calldata.at(1_usize) == 2, 'constructor_calldata contents');
 
-    let prepared_contract = PreparedContract {
-        contract_address: prepare_result.contract_address,
-        class_hash: prepare_result.class_hash,
-        constructor_calldata: prepare_result.constructor_calldata
-    };
-    let deployed_contract_address = deploy(prepared_contract).unwrap();
+    let deployed_contract_address = deploy(prepare_result).unwrap();
     assert(deployed_contract_address != 0, 'deployed_contract_address != 0');
 }
 
@@ -74,15 +60,9 @@ fn test_deploy_with_storage() {
 
     assert(prepare_result.contract_address != 0, 'prepared contract_address != 0');
     assert(prepare_result.class_hash != 0, 'prepared class_hash != 0');
-    // TODO (1717): check the length of the array, this produces: error: Variable was previously moved
-    // assert(prepare_result.constructor_calldata.len() == 2_u32, 'constructor_calldata size == 2');
+    assert(prepare_result.constructor_calldata.len() == 0_u32, 'constructor_calldata size == 0');
 
-    let prepared_contract = PreparedContract {
-        contract_address: prepare_result.contract_address,
-        class_hash: prepare_result.class_hash,
-        constructor_calldata: prepare_result.constructor_calldata
-    };
-    let deployed_contract_address = deploy(prepared_contract).unwrap();
+    let deployed_contract_address = deploy(prepare_result).unwrap();
     assert(deployed_contract_address != 0, 'deployed_contract_address != 0');
 }
 
@@ -96,12 +76,7 @@ fn test_deploy_with_ctor_invalid_calldata() {
 
     let prepare_result = prepare(class_hash, @constructor_calldata).unwrap();
 
-    let prepared_contract = PreparedContract {
-        contract_address: prepare_result.contract_address,
-        class_hash: prepare_result.class_hash,
-        constructor_calldata: prepare_result.constructor_calldata
-    };
-    deploy(prepared_contract).unwrap();
+    deploy(prepare_result).unwrap();
 }
 
 #[test]
@@ -115,12 +90,7 @@ fn test_deploy_with_ctor_panic() {
 
     let prepare_result = prepare(class_hash, @constructor_calldata).unwrap();
 
-    let prepared_contract = PreparedContract {
-        contract_address: prepare_result.contract_address,
-        class_hash: prepare_result.class_hash,
-        constructor_calldata: prepare_result.constructor_calldata
-    };
-    match deploy(prepared_contract) {
+    match deploy(prepare_result) {
         Result::Ok(_) => assert(false, 'no error was raised'),
         Result::Err(x) => assert(x.first() == 'panic', x.first()),
     }
@@ -137,13 +107,20 @@ fn test_deploy_with_ctor_obsolete_calldata() {
 
     let prepare_result = prepare(class_hash, @constructor_calldata).unwrap();
 
-    let prepared_contract = PreparedContract {
-        contract_address: prepare_result.contract_address,
-        class_hash: prepare_result.class_hash,
-        constructor_calldata: prepare_result.constructor_calldata
-    };
-    match deploy(prepared_contract) {
+    match deploy(prepare_result) {
         Result::Ok(_) => assert(false, 'no error was raised'),
         Result::Err(x) => assert(x.first() == 'No constructor was found', x.first()),
     }
+}
+
+#[test]
+fn test_deploy_doesnt_move_calldata() {
+    let mut constructor_calldata = ArrayTrait::new();
+    constructor_calldata.append(3);
+    constructor_calldata.append(2);
+
+    let deployed_contract_address = deploy_contract('with_ctor', @constructor_calldata).unwrap();
+
+    // This should work if calldata is not moved to deploy_contract
+    assert(constructor_calldata.len() == 2_u32, 'calldata size == 2');
 }

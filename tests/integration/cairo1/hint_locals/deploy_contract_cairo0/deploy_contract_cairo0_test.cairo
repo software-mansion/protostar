@@ -23,3 +23,13 @@ fn test_deploy_contract_cairo0_w_ctor_error() {
     deploy_contract_cairo0('cairo0_w_ctor_error', @args).unwrap();
 }
 
+#[test]
+fn test_deploy_contract_cairo0_doesnt_move_calldata() {
+    let mut args = ArrayTrait::new();
+    args.append(100);
+
+    let contract_address = deploy_contract_cairo0('cairo0_w_ctor', @args).unwrap();
+
+    // This should work if calldata is not moved to deploy_contract_cairo0
+    assert(args.len() == 1_u32, 'args size == 1');
+}

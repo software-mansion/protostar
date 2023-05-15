@@ -40,17 +40,17 @@ mod MyContract {
 }
 
 #[test]
-fn my_test() {
-    invoke(deployed_contract_address, 'will_be_pranked', ArrayTrait::new()).unwrap();
-    let return_data = call(deployed_contract_address, 'get_stored_value', ArrayTrait::new()).unwrap();
+fn test_start_prank() {
+    invoke(deployed_contract_address, 'will_be_pranked', @ArrayTrait::new()).unwrap();
+    let return_data = call(deployed_contract_address, 'get_stored_value', @ArrayTrait::new()).unwrap();
     // Standard value is set
     assert(*return_data.at(0_u32) == 50, 'check call result');
     
     // Pranked the address
     start_prank(123, deployed_contract_address).unwrap();
     
-    invoke(deployed_contract_address, 'will_be_pranked', ArrayTrait::new()).unwrap();
-    let return_data = call(deployed_contract_address, 'get_stored_value', ArrayTrait::new()).unwrap();
+    invoke(deployed_contract_address, 'will_be_pranked', @ArrayTrait::new()).unwrap();
+    let return_data = call(deployed_contract_address, 'get_stored_value', @ArrayTrait::new()).unwrap();
     // Special value (100) is set
     assert(*return_data.at(0_u32) == 100, 'check call result');
 }
