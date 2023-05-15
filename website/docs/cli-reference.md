@@ -33,17 +33,6 @@ Specify a contract name that should be built.
 Disable validation of hints when building the contracts.
 #### `--json`
 Print machine-readable output in [NDJSON](https://github.com/ndjson/ndjson-spec) format.
-### `build-cairo1`
-```shell
-$ protostar build-cairo1
-```
-Compile cairo1 contracts.
-#### `--compiled-contracts-dir PATH=build`
-An output directory used to put the compiled contracts in.
-#### `--contract-name STRING`
-Specify a contract name that should be built.
-#### `--linked-libraries PATH[]`
-Paths to cairo1 modules. Should not be explicitly provided when managing dependencies using Scarb.
 ### `cairo-migrate`
 Migrate project sources to Cairo 0.10.
 #### `targets STRING[]=['.']`
