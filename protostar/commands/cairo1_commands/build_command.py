@@ -22,9 +22,6 @@ from protostar.cheatable_starknet.controllers.contracts import (
     make_compiled_class,
 )
 from protostar.compiler.cairo1_contract_compiler import Cairo1ContractCompiler
-from protostar.compiler.project_compiler import (
-    ProjectCompiler,
-)
 from protostar.configuration_file.configuration_file import ConfigurationFile
 from protostar.io import StructuredMessage, LogColorProvider, Messenger
 
@@ -84,13 +81,11 @@ class BuildCommand(ProtostarCommand):
         configuration_file: ConfigurationFile,
         project_root_path: Path,
         messenger_factory: MessengerFactory,
-        project_compiler: ProjectCompiler,
     ):
         super().__init__()
         self._configuration_file = configuration_file
         self._project_root_path = project_root_path
         self._messenger_factory = messenger_factory
-        self._project_compiler = project_compiler
 
     @property
     def example(self) -> Optional[str]:
