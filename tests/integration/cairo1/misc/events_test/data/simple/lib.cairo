@@ -1,5 +1,5 @@
 #[contract]
-mod MinimalContract {
+mod SimpleContract {
     #[event]
     fn Transfer() {}
 

@@ -20,7 +20,8 @@ async def test_deploy_contract_hint_local(
 ):
     protostar_project.create_contracts_cairo1(
         {
-            "minimal": shared_datadir / "minimal",
+            "simple": shared_datadir / "simple",
+            "with_data": shared_datadir / "with_data",
         }
     )
 
@@ -32,5 +33,6 @@ async def test_deploy_contract_hint_local(
         testing_summary,
         expected_passed_test_cases_names=[
             "test_events_simple",
+            "test_events_with_data",
         ],
     )
