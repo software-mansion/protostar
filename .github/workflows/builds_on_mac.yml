@@ -32,7 +32,7 @@ jobs:
 
       - name: Install cairo bindings
         run: |
-          poe install_cairo_bindings prod
+          poe install_all_bindings prod
           
       - name: Build binary
         run: |

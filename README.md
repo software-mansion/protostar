@@ -72,7 +72,7 @@ curl -L https://raw.githubusercontent.com/software-mansion/protostar/master/inst
     - MacBook M1/M2: `CFLAGS=-I/opt/homebrew/opt/gmp/include LDFLAGS=-L/opt/homebrew/opt/gmp/lib poetry install`
 1. Install bindings for the rust tools used by protostar:
     - [install rust](https://www.rust-lang.org/tools/install)
-    - `poetry run poe install_cairo_bindings`
+    - `poetry run poe install_all_bindings`
 1. Patch the git's config by always allowing file transport: `git config --global protocol.file.allow always` (needed for some tests to pass) 
 1. Verify the setup by running tests: `poe test`
 1. Build Protostar: `poe build`
@@ -87,7 +87,7 @@ poetry run poe bump_cairo_bindings
 
 After this, you can pull & rebuild your local version of bindings by running:
 ```shell
-poetry run poe install_cairo_bindings
+poetry run poe install_all_bindings
 ```
 
 ##### Caveats:
@@ -100,7 +100,7 @@ The command will check if the tracking branch is master, so you don't commit/pus
 You can use submodules from a different branch than main. Run commands
 ```shell
 git submodule set-branch --branch <your-branch>
-poetry run poe install_cairo_bindings
+poetry run poe install_all_bindings
 ```
 Remember to not push those changes to the repository.
 
