@@ -3,5 +3,5 @@ name = "libraries"
 version = "0.1.0"
 
 [dependencies]
-external_lib_foo = { path = "external_lib_foo"}
-external_lib_bar = { path = "external_lib_bar"}
+external_lib_foo = { path = "libraries/external_lib_foo"}
+external_lib_bar = { path = "libraries/external_lib_bar"}
