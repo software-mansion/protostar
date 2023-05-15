@@ -50,6 +50,9 @@ protostar-project
 
 `.compiled.class.hash` files contain compiled class hash of the built contract
 
+:::note
+If you need to print machine-readable output in JSON format, you should use `--json` flag.
+
 ## External libraries
 
 If you want to attach external libraries to the build, you can specify additional paths that will be searched for the cairo libraries (library is just a cairo [package](../02-understanding-cairo-packages.md)). To do that, you need to use the [`--linked-libraries`](../../cli-reference.md#linked-libraries-path) argument like this:
