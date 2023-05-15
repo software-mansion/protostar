@@ -16,7 +16,7 @@ Protostar currently measures:
 If you want to generate profile for a test case, run:
 
 ```shell
-protostar test --profiling test/test_file.cairo::test_case_name 
+protostar test-cairo0 --profiling test/test_file.cairo::test_case_name 
 ```
 :::warning
 You can only run profiling for a single test case.
