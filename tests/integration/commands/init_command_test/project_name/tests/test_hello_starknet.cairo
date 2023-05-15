@@ -10,7 +10,7 @@ fn test_increase_balance() {
 
     let mut invoke_calldata = ArrayTrait::new();
     invoke_calldata.append(42);
-    invoke(contract_address, 'increase_balance', invoke_calldata).unwrap();
+    invoke(contract_address, 'increase_balance', @invoke_calldata).unwrap();
 
     let result_after = call(contract_address, 'get_balance', @ArrayTrait::new()).unwrap();
     assert(*result_after.at(0_u32) == 42, 'Invalid balance');
@@ -25,7 +25,7 @@ fn test_cannot_increase_balance_with_zero_value() {
 
     let mut invoke_calldata = ArrayTrait::new();
     invoke_calldata.append(0);
-    let invoke_result = invoke(contract_address, 'increase_balance', invoke_calldata);
+    let invoke_result = invoke(contract_address, 'increase_balance', @invoke_calldata);
 
     assert(invoke_result.is_err(), 'Invoke should fail');
 }
