@@ -4,6 +4,7 @@ from .declare_cairo0_hint_local import DeclareCairo0HintLocal
 from .deploy_hint_local import DeployHintLocal
 from .invoke_hint_local import InvokeHintLocal
 from .start_prank_hint_local import PrankHintLocal
+from .stop_prank_hint_local import StopPrankHintLocal
 from .prepare_hint_local import PrepareHintLocal
 from .start_roll_hint_local import StartRollHintLocal
 from .store_hint_local import StoreHintLocal
@@ -17,3 +18,4 @@ from .mock_call_hint_local import MockCallHintLocal
 from .expect_call_hint_local import ExpectCallHintLocal
 from .assert_expect_call_hint_local import AssertExpectCallHintLocal
 from .print_hint_local import PrintHintLocal
+from .start_spoof_hint_local import StartSpoofHintLocal

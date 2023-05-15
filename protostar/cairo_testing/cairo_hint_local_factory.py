@@ -23,8 +23,7 @@ from protostar.cheatable_starknet.callable_hint_locals import (
     ExpectCallHintLocal,
     AssertExpectCallHintLocal,
     PrintHintLocal,
-)
-from protostar.cheatable_starknet.callable_hint_locals.stop_prank_hint_local import (
+    StartSpoofHintLocal,
     StopPrankHintLocal,
 )
 from protostar.cheatable_starknet.cheatables.cheatable_cached_state import (
@@ -118,6 +117,7 @@ class CairoSharedHintLocalFactory:
             ExpectCallHintLocal(controller=expect_call_controller),
             AssertExpectCallHintLocal(controller=expect_call_controller),
             PrintHintLocal(),
+            StartSpoofHintLocal(),
         ]
 
 
