@@ -157,7 +157,7 @@ A glob or globs to a directory or a test suite, for example:
             args.json = None
         messenger = self._messenger_factory.from_args(args)
         logger.warning(
-            "Legacy cairo 0 runner is deprecated, and will be removed in future versions. Usage of cairo 1 runner is "
+            "Legacy cairo 0 test runner is deprecated, and will be removed in future versions. Usage of cairo 1 runner is "
             "recommended.",
         )
         cache = TestCommandCache(CacheIO(self._project_root_path))
