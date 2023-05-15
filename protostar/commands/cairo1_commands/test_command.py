@@ -6,10 +6,6 @@ from protostar.cli import ProtostarArgument, ProtostarCommand, MessengerFactory
 from protostar.cli.common_arguments import (
     LINKED_LIBRARIES,
 )
-from protostar.commands.test.messages.testing_summary_message import (
-    TestingSummaryResultMessage,
-)
-from protostar.commands.test.testing_live_logger import TestingLiveLogger
 from protostar.io.log_color_provider import LogColorProvider
 from protostar.self.cache_io import CacheIO
 from protostar.self.protostar_directory import ProtostarDirectory
@@ -21,14 +17,22 @@ from protostar.testing import (
 from protostar.io.output import Messenger
 
 
-from protostar.commands.test.test_command_cache import TestCommandCache
-from protostar.commands.test.messages import TestCollectorResultMessage
 from protostar.cairo_testing.cairo1_test_collector import Cairo1TestCollector
 from protostar.cairo_testing.cairo1_test_runner import Cairo1TestRunner
+from protostar.commands.legacy_commands.test_cairo0 import (
+    TestCollectorResultMessage,
+    TestCommandCache,
+)
+from protostar.commands.legacy_commands.test_cairo0.messages import (
+    TestingSummaryResultMessage,
+)
+from protostar.commands.legacy_commands.test_cairo0.testing_live_logger import (
+    TestingLiveLogger,
+)
 from .fetch_from_scarb import fetch_linked_libraries_from_scarb
 
 
-class TestCairo1Command(ProtostarCommand):
+class TestCommand(ProtostarCommand):
     def __init__(
         self,
         project_root_path: Path,
@@ -48,15 +52,15 @@ class TestCairo1Command(ProtostarCommand):
 
     @property
     def name(self) -> str:
-        return "test-cairo1"
+        return "test"
 
     @property
     def description(self) -> str:
-        return "Executes cairo1 tests."
+        return "Executes tests using cairo 1 runner."
 
     @property
     def example(self) -> Optional[str]:
-        return "$ protostar test-cairo1"
+        return "$ protostar test"
 
     @property
     def arguments(self):

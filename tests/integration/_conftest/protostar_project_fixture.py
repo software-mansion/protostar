@@ -53,9 +53,9 @@ class ProtostarProjectFixture:
 
         project_name = "project_name"
         if cairo_version == CairoVersion.cairo0:
-            self.protostar.init_sync(project_name)
+            self.protostar.init_cairo0_sync(project_name)
         else:
-            self.protostar.init_cairo1_sync(project_name)
+            self.protostar.init_sync(project_name)
 
         self._project_root_path = self._project_root_path / project_name
         os.chdir(self._project_root_path)

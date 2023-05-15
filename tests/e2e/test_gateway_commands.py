@@ -15,7 +15,7 @@ from tests.e2e.conftest import ProtostarFixture
 HASH = Matches(r"0x[0-9a-f]{64}")
 
 
-@pytest.mark.usefixtures("init")
+@pytest.mark.usefixtures("init_cairo0")
 def test_deploying_and_interacting_with_contract(
     protostar: ProtostarFixture,
     devnet_gateway_url: str,
@@ -28,7 +28,7 @@ def test_deploying_and_interacting_with_contract(
         dst="./src/main.cairo",
     )
 
-    protostar(["build"])
+    protostar(["build-cairo0"])
     with set_private_key_env_var(devnet_account.private_key):
         result = protostar(
             [
@@ -122,7 +122,7 @@ def test_deploying_and_interacting_with_contract(
     }
 
 
-@pytest.mark.usefixtures("init")
+@pytest.mark.usefixtures("init_cairo0")
 @pytest.mark.parametrize("protostar_version", ["0.0.0"])
 def test_deploying_contract_with_constructor_and_inputs_defined_in_config_file(
     protostar: ProtostarFixture,
@@ -139,7 +139,7 @@ def test_deploying_contract_with_constructor_and_inputs_defined_in_config_file(
         src=str(datadir / "protostar_toml_with_constructor_args.toml"),
         dst="./protostar.toml",
     )
-    protostar(["build"])
+    protostar(["build-cairo0"])
 
     with set_private_key_env_var(devnet_account.private_key):
         result = protostar(
@@ -186,7 +186,7 @@ def test_deploying_contract_with_constructor_and_inputs_defined_in_config_file(
     } == json.loads(result)
 
 
-@pytest.mark.usefixtures("init")
+@pytest.mark.usefixtures("init_cairo0")
 def test_declaring_contract(
     protostar: ProtostarFixture,
     devnet_gateway_url: str,
@@ -198,7 +198,7 @@ def test_declaring_contract(
         src=str(datadir / "contract_with_constructor.cairo"),
         dst="./src/main.cairo",
     )
-    protostar(["build"])
+    protostar(["build-cairo0"])
     with set_private_key_env_var(devnet_account.private_key):
         result = protostar(
             [
@@ -224,7 +224,6 @@ def test_declaring_contract(
     }
 
 
-@pytest.mark.usefixtures("init")
 def test_declaring_cairo1_contract(
     protostar: ProtostarFixture,
     devnet_gateway_url: str,
@@ -260,14 +259,12 @@ def test_declaring_cairo1_contract(
     }
 
 
-@pytest.mark.usefixtures("init")
 def test_deploy_account_is_available(protostar: ProtostarFixture):
     assert "Sends deploy-account transaction" in protostar(
         ["--no-color", "deploy-account", "--help"]
     )
 
 
-@pytest.mark.usefixtures("init")
 def test_calculate_account_address_is_available(protostar: ProtostarFixture):
     def run(structured_format: bool):
         optionals = []

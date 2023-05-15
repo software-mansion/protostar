@@ -1,6 +1,8 @@
 from typing import Any
 
-from protostar.commands.test.test_result_formatter import format_test_result
+from protostar.commands.legacy_commands.test_cairo0.test_result_formatter import (
+    format_test_result,
+)
 from protostar.io.log_color_provider import LogColorProvider
 from protostar.testing import TestCaseResult, TestingSummary
 

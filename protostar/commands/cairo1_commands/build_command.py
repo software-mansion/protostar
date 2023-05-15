@@ -17,7 +17,7 @@ from protostar.commands.cairo1_commands.fetch_from_scarb import (
 from protostar.protostar_exception import ProtostarException
 
 
-class BuildCairo1Command(ProtostarCommand):
+class BuildCommand(ProtostarCommand):
     def __init__(
         self,
         configuration_file: ConfigurationFile,
@@ -29,15 +29,15 @@ class BuildCairo1Command(ProtostarCommand):
 
     @property
     def example(self) -> Optional[str]:
-        return "$ protostar build-cairo1"
+        return "$ protostar build"
 
     @property
     def name(self) -> str:
-        return "build-cairo1"
+        return "build"
 
     @property
     def description(self) -> str:
-        return "Compile cairo1 contracts."
+        return "Compile cairo 1 contracts."
 
     @property
     def arguments(self):

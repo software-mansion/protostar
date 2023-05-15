@@ -16,7 +16,7 @@ def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
 
 
 async def test_cairo_1_runner(protostar: ProtostarFixture, datadir: Path):
-    testing_summary = await protostar.test_cairo1(
+    testing_summary = await protostar.test(
         datadir / "test_cairo1.cairo",
     )
 
@@ -31,7 +31,7 @@ async def test_cairo_1_runner(protostar: ProtostarFixture, datadir: Path):
 async def test_cairo_1_runner_with_external_lib(
     protostar: ProtostarFixture, datadir: Path
 ):
-    testing_summary = await protostar.test_cairo1(
+    testing_summary = await protostar.test(
         datadir / "test_cairo1_ext_lib.cairo",
         linked_libraries=[(datadir / "external_lib_foo", "external_lib_foo")],
     )
@@ -45,7 +45,7 @@ async def test_cairo_1_runner_with_external_lib(
 
 
 async def test_cairo_1_runner_empty_suite(protostar: ProtostarFixture, datadir: Path):
-    testing_summary = await protostar.test_cairo1(
+    testing_summary = await protostar.test(
         datadir / "test_cairo1_empty_suite.cairo",
     )
     assert testing_summary.test_collector_result.total_test_suites_count == 0
@@ -54,7 +54,7 @@ async def test_cairo_1_runner_empty_suite(protostar: ProtostarFixture, datadir: 
 async def test_cairo_1_runner_multiple_suites(
     protostar: ProtostarFixture, datadir: Path
 ):
-    testing_summary = await protostar.test_cairo1(
+    testing_summary = await protostar.test(
         datadir / "multiple_suites",
         linked_libraries=[(datadir / "external_lib_foo", "external_lib_foo")],
     )
@@ -66,7 +66,7 @@ async def test_cairo_1_runner_multiple_suites(
 
 
 async def test_cairo_1_runner_broken_suite(protostar: ProtostarFixture, datadir: Path):
-    testing_summary = await protostar.test_cairo1(
+    testing_summary = await protostar.test(
         datadir / "broken" / "test_cairo1_broken_suite.cairo",
     )
     assert len(testing_summary.broken_suites) == 1
@@ -75,7 +75,7 @@ async def test_cairo_1_runner_broken_suite(protostar: ProtostarFixture, datadir:
 async def test_cairo_1_runner_skip_unmarked_test(
     protostar: ProtostarFixture, datadir: Path
 ):
-    testing_summary = await protostar.test_cairo1(
+    testing_summary = await protostar.test(
         datadir / "test_cairo1_two_cases.cairo",
     )
 
@@ -90,7 +90,7 @@ async def test_cairo_1_runner_skip_unmarked_test(
 
 async def test_cairo_1_runner_single_case(protostar: ProtostarFixture, datadir: Path):
     test_path_str = str(datadir / "test_cairo1_two_cases.cairo")
-    testing_summary = await protostar.test_cairo1(
+    testing_summary = await protostar.test(
         f"{test_path_str}::second_test",
     )
     assert_cairo_test_cases(
@@ -107,7 +107,7 @@ async def test_cairo_1_failing(
 ):
     test_path_str = str(datadir / "test_cairo1_failing.cairo")
 
-    testing_summary = await protostar.test_cairo1(
+    testing_summary = await protostar.test(
         f"{test_path_str}",
     )
     assert_cairo_test_cases(

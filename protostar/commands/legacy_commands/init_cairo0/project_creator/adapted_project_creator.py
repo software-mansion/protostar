@@ -1,7 +1,9 @@
 from pathlib import Path
 
-from protostar.commands.init.project_creator._project_creator import ProjectCreator
 from protostar.configuration_file import ConfigurationFileV2Model
+from ._project_creator import (
+    ProjectCreator,
+)
 
 
 class AdaptedProjectCreator(ProjectCreator):

@@ -4,13 +4,13 @@ from typing import Set
 
 import pytest
 
-from protostar.io.log_color_provider import LogColorProvider
-from protostar.commands.test.messages.testing_summary_message import (
+from protostar.commands.legacy_commands.test_cairo0.messages.testing_summary_message import (
     _format_slow_test_cases_list,
 )
+from protostar.io.log_color_provider import LogColorProvider
 from protostar.testing import TestingSummary
 
-from tests.integration.conftest import RunTestRunnerFixture
+from tests.integration.conftest import RunCairo0TestRunnerFixture
 
 
 def assert_exec_times_in_desc_order(logs: str) -> None:
@@ -28,9 +28,11 @@ def get_test_indices(logs: str) -> Set[int]:
 
 @pytest.fixture(name="testing_summary")
 async def testing_summary_fixture(
-    run_test_runner: RunTestRunnerFixture,
+    run_cairo0_test_runner: RunCairo0TestRunnerFixture,
 ) -> TestingSummary:
-    return await run_test_runner(Path(__file__).parent / "testing_timing_test.cairo")
+    return await run_cairo0_test_runner(
+        Path(__file__).parent / "testing_timing_test.cairo"
+    )
 
 
 @pytest.fixture(name="no_color_log_color_provider")

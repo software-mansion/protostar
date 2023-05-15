@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING, Any, cast, Optional
 
 from tqdm import tqdm as bar
 
-from protostar.commands.test.test_result_formatter import format_test_result
 from protostar.testing.test_scheduler import make_path_relative_if_possible
 from protostar.testing import (
     AcceptableResult,
@@ -17,6 +16,7 @@ from protostar.io.output import Messenger, HumanMessenger
 from protostar.io.log_color_provider import log_color_provider
 
 from .messages import TestingSummaryResultMessage
+from .test_result_formatter import format_test_result
 
 if TYPE_CHECKING:
     from protostar.testing import TestCollector

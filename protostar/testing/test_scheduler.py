@@ -11,7 +11,9 @@ from .test_shared_tests_state import SharedTestsState
 from .testing_seed import Seed
 
 if TYPE_CHECKING:
-    from protostar.commands.test.testing_live_logger import TestingLiveLogger
+    from protostar.commands.legacy_commands.test_cairo0.testing_live_logger import (
+        TestingLiveLogger,
+    )
 
 
 def make_path_relative_if_possible(test_result: TestResult, path: Path) -> TestResult:

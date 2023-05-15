@@ -1,14 +1,11 @@
 from argparse import Namespace
+from logging import getLogger
 from pathlib import Path
 from typing import List, Optional
 
 from protostar.cli import ProtostarArgument, ProtostarCommand, MessengerFactory
 from protostar.cli.activity_indicator import ActivityIndicator
 from protostar.cli.common_arguments import CAIRO_PATH
-from protostar.commands.test.messages.testing_summary_message import (
-    TestingSummaryResultMessage,
-)
-from protostar.commands.test.testing_live_logger import TestingLiveLogger
 from protostar.compiler import LinkedLibrariesBuilder
 from protostar.io.log_color_provider import LogColorProvider
 from protostar.protostar_exception import ProtostarException
@@ -29,11 +26,14 @@ from protostar.testing import (
 )
 from protostar.io.output import Messenger
 
-from .messages import TestCollectorResultMessage
+from .messages import TestCollectorResultMessage, TestingSummaryResultMessage
 from .test_command_cache import TestCommandCache
+from .testing_live_logger import TestingLiveLogger
+
+logger = getLogger()
 
 
-class TestCommand(ProtostarCommand):
+class TestCairo0Command(ProtostarCommand):
     def __init__(
         self,
         project_root_path: Path,
@@ -55,15 +55,15 @@ class TestCommand(ProtostarCommand):
 
     @property
     def name(self) -> str:
-        return "test"
+        return "test-cairo0"
 
     @property
     def description(self) -> str:
-        return "Execute tests."
+        return "Execute tests with cairo0 runner (legacy)."
 
     @property
     def example(self) -> Optional[str]:
-        return "$ protostar test"
+        return "$ protostar test-cairo0"
 
     @property
     def arguments(self):
@@ -156,6 +156,10 @@ A glob or globs to a directory or a test suite, for example:
         if not vars(args).get("json"):
             args.json = None
         messenger = self._messenger_factory.from_args(args)
+        logger.warning(
+            "Legacy cairo 0 test runner is deprecated, and will be removed in future versions. "
+            "Usage of cairo 1 runner is recommended.",
+        )
         cache = TestCommandCache(CacheIO(self._project_root_path))
         summary = await self.test(
             targets=cache.obtain_targets(args.target, args.last_failed),

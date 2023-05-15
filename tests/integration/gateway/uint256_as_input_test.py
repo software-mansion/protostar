@@ -16,7 +16,7 @@ def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
         protostar_project.create_files(
             {"./src/main.cairo": CONTRACT_WITH_UINT256_CONSTRUCTOR}
         )
-        protostar_project.protostar.build_sync()
+        protostar_project.protostar.build_cairo0_sync()
         yield protostar_project.protostar
 
 

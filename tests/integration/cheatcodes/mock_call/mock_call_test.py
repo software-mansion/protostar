@@ -1,13 +1,13 @@
 from pathlib import Path
 
 from tests.integration.conftest import (
-    RunTestRunnerFixture,
+    RunCairo0TestRunnerFixture,
     assert_cairo_test_cases,
 )
 
 
-async def test_mock_call(run_test_runner: RunTestRunnerFixture):
-    testing_summary = await run_test_runner(
+async def test_mock_call(run_cairo0_test_runner: RunCairo0TestRunnerFixture):
+    testing_summary = await run_cairo0_test_runner(
         Path(__file__).parent / "mock_call_test.cairo"
     )
 
