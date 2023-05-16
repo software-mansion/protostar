@@ -1,19 +1,20 @@
 from argparse import Namespace
 from glob import glob
+from logging import getLogger
 from typing import Optional
 
 from protostar.cli import ProtostarArgument, ProtostarCommand
-from protostar.commands.init.project_creator.adapted_project_creator import (
-    AdaptedProjectCreator,
-)
-from protostar.commands.init.project_creator.new_project_creator import (
+from protostar.commands.legacy_commands.init_cairo0.project_creator import (
     NewProjectCreator,
+    AdaptedProjectCreator,
 )
 from protostar.io.input_requester import InputRequester
 from protostar.cairo import CairoVersion
 
+logger = getLogger()
 
-class InitCommand(ProtostarCommand):
+
+class InitCairo0Command(ProtostarCommand):
     def __init__(
         self,
         requester: InputRequester,
@@ -27,7 +28,7 @@ class InitCommand(ProtostarCommand):
 
     @property
     def name(self) -> str:
-        return "init"
+        return "init-cairo0"
 
     @property
     def description(self) -> str:
@@ -35,7 +36,7 @@ class InitCommand(ProtostarCommand):
 
     @property
     def example(self) -> Optional[str]:
-        return "$ protostar init"
+        return "$ protostar init-cairo0"
 
     @property
     def arguments(self):
@@ -63,6 +64,10 @@ class InitCommand(ProtostarCommand):
     def init(
         self, force_adapting_existing_project: bool, project_name: Optional[str] = None
     ):
+        logger.warning(
+            "Legacy cairo 0 projects are deprecated, and support for them will be removed in future versions."
+            "Consider using init command instead.",
+        )
         should_adapt_existing_project = False
 
         if force_adapting_existing_project:

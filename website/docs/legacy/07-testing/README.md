@@ -1,5 +1,15 @@
 # Testing
 
+:::warning
+Legacy cairo 0 test runner has been deprecated, and will be removed in future releases. 
+Consider migrating your tests to [cairo 1 test runner](../../cairo-1/05-testing/README.md).
+You can still test your cairo 0 contracts using the new cairo 1 test runner.
+:::
+
+:::info
+This command has been recently renamed to `test-cairo0`.
+:::
+
 Protostar provides a flexible testing environment for Cairo smart contracts.
 It allows to write unit/integration tests with a help of [cheatcodes](02-cheatcodes/README.md).
 
@@ -28,11 +38,11 @@ func test_sum{syscall_ptr: felt*, range_check_ptr}() {
 
 Then run your test with
 ```shell
-protostar test ./tests
+protostar test-cairo0 ./tests
 ```
 
 :::info
-In the example above, Protostar will run every test case it manages to find in the `tests` directory. You can read more about specifying where and how Protostar should search for test cases by running `protostar test --help`. 
+In the example above, Protostar will run every test case it manages to find in the `tests` directory. You can read more about specifying where and how Protostar should search for test cases by running `protostar test-cairo0 --help`. 
 :::
 
 :::tip

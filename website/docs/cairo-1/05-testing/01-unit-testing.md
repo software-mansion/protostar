@@ -26,7 +26,7 @@ fn test_sum() {
 
 Now run your test using this command:
 ```
-protostar test-cairo1 ./tests
+protostar test ./tests
 ```
 
 You should see something like this:

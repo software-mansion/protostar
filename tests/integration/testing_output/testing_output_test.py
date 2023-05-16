@@ -1,18 +1,20 @@
 from pathlib import Path
 
-from protostar.commands.test.test_result_formatter import format_test_result
+from protostar.commands.legacy_commands.test_cairo0.test_result_formatter import (
+    format_test_result,
+)
 from protostar.io.log_color_provider import log_color_provider
 
 from tests.integration.conftest import (
-    RunTestRunnerFixture,
+    RunCairo0TestRunnerFixture,
     assert_cairo_test_cases,
 )
 
 
 async def test_testing_output(
-    run_test_runner: RunTestRunnerFixture,
+    run_cairo0_test_runner: RunCairo0TestRunnerFixture,
 ):
-    testing_summary = await run_test_runner(
+    testing_summary = await run_cairo0_test_runner(
         Path(__file__).parent / "testing_output_test.cairo"
     )
 

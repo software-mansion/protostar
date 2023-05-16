@@ -6,7 +6,7 @@ import pytest
 from tests.e2e.conftest import ProtostarFixture
 
 
-@pytest.mark.usefixtures("init")
+@pytest.mark.usefixtures("init_cairo0")
 def test_migrating_file_to_010(protostar: ProtostarFixture, datadir: Path):
     copy_file(
         src=str(datadir / "pre_010_file.cairo09"),
@@ -21,7 +21,7 @@ def test_migrating_file_to_010(protostar: ProtostarFixture, datadir: Path):
     )
 
 
-@pytest.mark.usefixtures("init")
+@pytest.mark.usefixtures("init_cairo0")
 def test_failing_migrate_to_010(protostar: ProtostarFixture, datadir: Path):
     copy_file(
         src=str(datadir / "pre_010_file_unsupported_migrator_syntax.cairo09"),

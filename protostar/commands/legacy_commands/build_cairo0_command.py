@@ -1,3 +1,4 @@
+from logging import getLogger
 from pathlib import Path
 from typing import List, Optional, Any
 from dataclasses import dataclass
@@ -35,7 +36,10 @@ class SuccessfulBuildMessage(StructuredMessage):
         }
 
 
-class BuildCommand(ProtostarCommand):
+logger = getLogger()
+
+
+class BuildCairo0Command(ProtostarCommand):
     def __init__(
         self,
         project_compiler: Cairo0ProjectCompiler,
@@ -47,15 +51,15 @@ class BuildCommand(ProtostarCommand):
 
     @property
     def example(self) -> Optional[str]:
-        return "$ protostar build"
+        return "$ protostar build-cairo0"
 
     @property
     def name(self) -> str:
-        return "build"
+        return "build-cairo0"
 
     @property
     def description(self) -> str:
-        return "Compile contracts."
+        return "Compile cairo 0 contracts."
 
     @property
     def arguments(self):
@@ -73,8 +77,12 @@ class BuildCommand(ProtostarCommand):
 
     async def run(self, args: Any):
         write = self._messenger_factory.from_args(args)
+        logger.warning(
+            "Building cairo 0 contracts is deprecated, and will be removed in future versions. Please consider "
+            "migrating your contracts to cairo 1."
+        )
 
-        class_hashes = await self.build(
+        class_hashes = await self.build_cairo0(
             output_dir=args.compiled_contracts_dir,
             disable_hint_validation=args.disable_hint_validation,
             relative_cairo_path=args.cairo_path,
@@ -83,7 +91,7 @@ class BuildCommand(ProtostarCommand):
 
         write(SuccessfulBuildMessage(class_hashes=class_hashes))
 
-    async def build(
+    async def build_cairo0(
         self,
         output_dir: Path,
         contract_name: str,

@@ -3,6 +3,14 @@ sidebar_label: Compilation
 ---
 
 # Compiling a Project with Protostar
+:::warning
+Compiling cairo 0 contracts is deprecated and will be removed in the future.
+Consider migrating your contracts to [Cairo 1](../cairo-1/01-introduction.md).
+:::
+
+:::info
+Compiling cairo 0 contracts has recently been renamed to `build-cairo0`.
+:::
 
 To compile your Starknet contracts using Protostar, follow these steps:
 
@@ -17,12 +25,12 @@ For example:
 main = ["./src/main.cairo"]
 proxy = ["./src/proxy.cairo"]
 ```
-2. Run the [`protostar build`](/docs/cli-reference#build) command.
+2. Run the [`protostar build-cairo0`](/docs/cli-reference#build-cairo0) command.
 This will generate the compiled contracts in the `build` directory by default.
-You can specify a custom output directory using the [`compiled-contracts-dir`](/docs/cli-reference#--compiled-contracts-dir-pathbuild) argument.
+You can specify a custom output directory using the [`compiled-contracts-dir`](/docs/cli-reference#--compiled-contracts-dir-pathbuild-1) argument.
 
 ```
-$ protostar build --compiled-contracts-dir out
+$ protostar build-cairo0 --compiled-contracts-dir out
 ```
 
 This will create the following files in the `out` directory:

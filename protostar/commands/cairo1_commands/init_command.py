@@ -2,13 +2,13 @@ from argparse import Namespace
 from typing import Optional
 
 from protostar.cli import ProtostarArgument, ProtostarCommand
-from protostar.commands.init.project_creator.new_project_creator import (
+from protostar.cairo import CairoVersion
+from protostar.commands.legacy_commands.init_cairo0.project_creator.new_project_creator import (
     NewProjectCreator,
 )
-from protostar.cairo import CairoVersion
 
 
-class InitCairo1Command(ProtostarCommand):
+class InitCommand(ProtostarCommand):
     def __init__(
         self,
         new_project_creator: NewProjectCreator,
@@ -18,7 +18,7 @@ class InitCairo1Command(ProtostarCommand):
 
     @property
     def name(self) -> str:
-        return "init-cairo1"
+        return "init"
 
     @property
     def description(self) -> str:
@@ -26,7 +26,7 @@ class InitCairo1Command(ProtostarCommand):
 
     @property
     def example(self) -> Optional[str]:
-        return "$ protostar init-cairo1"
+        return "$ protostar init"
 
     @property
     def arguments(self):

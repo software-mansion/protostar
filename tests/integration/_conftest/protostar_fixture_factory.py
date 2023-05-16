@@ -5,31 +5,31 @@ from typing import Generator, cast
 import pytest
 from pytest_mock import MockerFixture
 
+from protostar import TestCommand
 from protostar.argument_parser import ArgumentParserFacade, CLIApp
 from protostar.cli import map_protostar_type_name_to_parser, MessengerFactory
 from protostar.commands import (
     BuildCommand,
-    BuildCairo1Command,
+    BuildCairo0Command,
     CalculateAccountAddressCommand,
     CallCommand,
     DeclareCommand,
     FormatCommand,
     InitCommand,
-    InitCairo1Command,
+    InitCairo0Command,
     InvokeCommand,
     MulticallCommand,
     DeclareCairo1Command,
+    TestCairo0Command,
 )
-from protostar.commands.cairo1_commands.test_cairo1_command import TestCairo1Command
 from protostar.commands.cairo1_commands.test_rust_cairo1_command import (
     TestRustCairo1Command,
 )
 from protostar.commands.deploy_account_command import DeployAccountCommand
 from protostar.commands.deploy_command import DeployCommand
-from protostar.commands.init.project_creator.new_project_creator import (
+from protostar.commands.legacy_commands.init_cairo0.project_creator.new_project_creator import (
     NewProjectCreator,
 )
-from protostar.commands.test import TestCommand
 from protostar.compiler import (
     ProjectCairoPathBuilder,
     LinkedLibrariesBuilder,
@@ -110,13 +110,13 @@ def create_protostar_fixture(
     )
 
     init_command = InitCommand(
+        new_project_creator=new_project_creator,
+    )
+
+    init_cairo0_command = InitCairo0Command(
         input_requester,
         new_project_creator=new_project_creator,
         adapted_project_creator=mocker.MagicMock(),
-    )
-
-    init_cairo1_command = InitCairo1Command(
-        new_project_creator=new_project_creator,
     )
 
     messenger_factory = MessengerFactory(
@@ -124,12 +124,12 @@ def create_protostar_fixture(
         activity_indicator=fake_activity_indicator,
     )
 
-    build_command = BuildCommand(
+    build_cairo0_command = BuildCairo0Command(
         project_compiler=cairo0_project_compiler,
         messenger_factory=messenger_factory,
     )
 
-    build_cairo1_command = BuildCairo1Command(
+    build_command = BuildCommand(
         configuration_file=cairo0_project_compiler.configuration_file,
         project_root_path=project_root_path,
     )
@@ -168,16 +168,16 @@ def create_protostar_fixture(
     test_command = TestCommand(
         project_root_path=project_root_path,
         protostar_directory=ProtostarDirectory(REPOSITORY_ROOT),
-        project_cairo_path_builder=LinkedLibrariesBuilder(),
         log_color_provider=log_color_provider,
         cwd=project_root_path,
         active_profile_name=None,
         messenger_factory=messenger_factory,
     )
 
-    test_cairo1_command = TestCairo1Command(
+    test_cairo0_command = TestCairo0Command(
         project_root_path=project_root_path,
         protostar_directory=ProtostarDirectory(REPOSITORY_ROOT),
+        project_cairo_path_builder=LinkedLibrariesBuilder(),
         log_color_provider=log_color_provider,
         cwd=project_root_path,
         active_profile_name=None,
@@ -217,17 +217,17 @@ def create_protostar_fixture(
     protostar_fixture = ProtostarFixture(
         project_root_path=project_root_path,
         init_command=init_command,
-        init_cairo1_command=init_cairo1_command,
+        init_cairo0_command=init_cairo0_command,
         call_command=call_command,
         build_command=build_command,
-        build_cairo1_command=build_cairo1_command,
+        build_cairo0_command=build_cairo0_command,
         format_command=format_command,
         declare_command=declare_command,
         declare_cairo1_command=declare_cairo1_command,
         deploy_command=deploy_command,
         test_command=test_command,
-        test_cairo1_command=test_cairo1_command,
         test_rust_cairo1_command=test_rust_cairo1_command,
+        test_cairo0_command=test_cairo0_command,
         invoke_command=invoke_command,
         deploy_account_command=deploy_account_command,
         cli_app=cli_app,
