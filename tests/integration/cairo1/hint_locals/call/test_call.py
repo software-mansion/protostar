@@ -33,7 +33,7 @@ async def test_call_hint_local(
         }
     )
 
-    testing_summary = await protostar_project.protostar.test_cairo1(
+    testing_summary = await protostar_project.protostar.test(
         Path(__file__).parent / "call_test.cairo",
     )
 
@@ -44,6 +44,7 @@ async def test_call_hint_local(
             "test_call_not_mutating_state",
             "test_call_cairo0",
             "test_call_exception_handling",
+            "test_call_doesnt_move_calldata",
         ],
         expected_failed_test_cases_names=[
             "test_call_wrong_name",

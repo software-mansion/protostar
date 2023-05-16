@@ -108,7 +108,7 @@ Please refer to ["passing tuples and structs in calldata"](https://www.cairo-lan
 
 Then run your test with
 ```shell
-protostar test ./tests
+protostar test-cairo0 ./tests
 ```
 
 ```console title="expected result"

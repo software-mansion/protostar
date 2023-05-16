@@ -38,7 +38,7 @@ The `[project]` section of the `protostar.toml` file allows you to specify globa
 
 #### `protostar-version`
 
-This attribute is defines what Protostar version should be used with your project.
+This attribute defines which Protostar version should be used with your project.
 
 #### `linked-libraries`
 
@@ -61,10 +61,11 @@ other_contract = ["other_contract"]
 This section of the `protostar.toml` file allows you to specify arguments for a specific
 Protostar command.
 
-For example, you can define a different build directory for the [build-cairo1](../cli-reference.md#build-cairo1)
+
+For example, you can define a different build dir for the [build](../cli-reference.md#build)
 
 ```toml title="Configuration File"
-[build-cairo1]
+[build]
 compiled-contracts-dir = "my_dir"
 ```
 

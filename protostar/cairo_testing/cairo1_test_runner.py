@@ -50,7 +50,7 @@ from protostar.testing.test_suite import (
     Cairo1TestCase,
 )
 from protostar.testing.testing_seed import Seed
-import protostar.cairo.cairo_bindings as cairo1
+import protostar.cairo.bindings.cairo_bindings as cairo1
 
 
 if TYPE_CHECKING:

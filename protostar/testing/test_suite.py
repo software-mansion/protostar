@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import List, Optional, Union
 from typing_extensions import Self
-from protostar.cairo.cairo_bindings import AvailableGas
+from protostar.cairo.bindings.cairo_bindings import AvailableGas
 
 from protostar.cairo.cairo_function_executor import Offset
 

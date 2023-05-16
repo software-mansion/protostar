@@ -5,6 +5,12 @@
 In order to create a new account, you need to deploy an account
 contract.
 
+:::tip
+Instead of manually deploying an account through Protostar, you can consider using
+a [wallet provider](https://www.starknet.io/en/ecosystem/wallets). Please note that the Protostar team doesn't verify
+safety or compatibility of these wallets.
+:::
+
 There are multiple account contracts to choose from, and it is the end user responsibility to find an account that works
 for them. Some examples of already existing account contracts
 are [OpenZeppelin](https://github.com/OpenZeppelin/cairo-contracts/blob/main/src/openzeppelin/account/presets/Account.cairo)

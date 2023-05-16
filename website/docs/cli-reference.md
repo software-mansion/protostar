@@ -11,7 +11,18 @@ Show Protostar, Cairo-lang and Cairo 1 compiler versions.
 ```shell
 $ protostar build
 ```
-Compile contracts.
+Compile cairo 1 contracts.
+#### `--compiled-contracts-dir PATH=build`
+An output directory used to put the compiled contracts in.
+#### `--contract-name STRING`
+Specify a contract name that should be built.
+#### `--linked-libraries PATH[]`
+Paths to cairo1 modules. Should not be explicitly provided when managing dependencies using Scarb.
+### `build-cairo0`
+```shell
+$ protostar build-cairo0
+```
+Compile cairo 0 contracts.
 #### `--cairo-path PATH[]`
 Additional directories to look for sources.
 #### `--compiled-contracts-dir PATH=build`
@@ -22,17 +33,6 @@ Specify a contract name that should be built.
 Disable validation of hints when building the contracts.
 #### `--json`
 Print machine-readable output in [NDJSON](https://github.com/ndjson/ndjson-spec) format.
-### `build-cairo1`
-```shell
-$ protostar build-cairo1
-```
-Compile cairo1 contracts.
-#### `--compiled-contracts-dir PATH=build`
-An output directory used to put the compiled contracts in.
-#### `--contract-name STRING`
-Specify a contract name that should be built.
-#### `--linked-libraries PATH[]`
-Paths to cairo1 modules. Should not be explicitly provided when managing dependencies using Scarb.
 ### `cairo-migrate`
 Migrate project sources to Cairo 0.10.
 #### `targets STRING[]=['.']`
@@ -270,18 +270,18 @@ Log information about already formatted files as well.
 ```shell
 $ protostar init
 ```
+Create a Protostar project with cairo1 template.
+#### `name STRING`
+Name of the directory a new project will be placed in.
+### `init-cairo0`
+```shell
+$ protostar init-cairo0
+```
 Create a Protostar project with cairo0 template.
 #### `name STRING`
 Name of the directory a new project will be placed in.Ignored when `--existing` is passed.
 #### `--existing`
 Adapt current directory to a Protostar project.
-### `init-cairo1`
-```shell
-$ protostar init-cairo1
-```
-Create a Protostar project with cairo1 template.
-#### `name STRING`
-Name of the directory a new project will be placed in.
 ### `install`
 ```shell
 $ protostar install https://github.com/OpenZeppelin/cairo-contracts
@@ -429,7 +429,30 @@ Directory containing project dependencies. This argument is used with the config
 ```shell
 $ protostar test
 ```
-Execute tests.
+Executes tests using cairo 1 runner.
+#### `target STRING[]=['.']`
+A glob or globs to a directory or a test suite, for example:
+- `tests/**/*_main*::*_balance` — find test cases, which names ends with `_balance` in test suites with the `_main` in filenames in the `tests` directory,
+- `::test_increase_balance` — find `test_increase_balance` test_cases in any test suite within the project.
+#### `-x` `--exit-first`
+Exit immediately on first broken or failed test.
+#### `-i` `--ignore STRING[]`
+A glob or globs to a directory or a test suite, which should be ignored.
+#### `--json`
+Print machine-readable output in [NDJSON](https://github.com/ndjson/ndjson-spec) format.
+#### `-lf` `--last-failed`
+Only re-run failed and broken test cases.
+#### `--linked-libraries PATH[]`
+Paths to cairo1 modules. Should not be explicitly provided when managing dependencies using Scarb.
+#### `--no-progress-bar`
+Disable progress bar.
+#### `--report-slowest-tests INT`
+Print slowest tests at the end.
+### `test-cairo0`
+```shell
+$ protostar test-cairo0
+```
+Execute tests with cairo0 runner (legacy).
 #### `target STRING[]=['.']`
 A glob or globs to a directory or a test suite, for example:
 - `tests/**/*_main*::*_balance` — find test cases, which names ends with `_balance` in test suites with the `_main` in filenames in the `tests` directory,
@@ -460,29 +483,6 @@ Print slowest tests at the end.
 Use Cairo compiler for test collection.
 #### `--seed INT`
 Set a seed to use for all fuzz tests.
-### `test-cairo1`
-```shell
-$ protostar test-cairo1
-```
-Executes cairo1 tests.
-#### `target STRING[]=['.']`
-A glob or globs to a directory or a test suite, for example:
-- `tests/**/*_main*::*_balance` — find test cases, which names ends with `_balance` in test suites with the `_main` in filenames in the `tests` directory,
-- `::test_increase_balance` — find `test_increase_balance` test_cases in any test suite within the project.
-#### `-x` `--exit-first`
-Exit immediately on first broken or failed test.
-#### `-i` `--ignore STRING[]`
-A glob or globs to a directory or a test suite, which should be ignored.
-#### `--json`
-Print machine-readable output in [NDJSON](https://github.com/ndjson/ndjson-spec) format.
-#### `-lf` `--last-failed`
-Only re-run failed and broken test cases.
-#### `--linked-libraries PATH[]`
-Paths to cairo1 modules. Should not be explicitly provided when managing dependencies using Scarb.
-#### `--no-progress-bar`
-Disable progress bar.
-#### `--report-slowest-tests INT`
-Print slowest tests at the end.
 ### `update`
 ```shell
 $ protostar update cairo-contracts
