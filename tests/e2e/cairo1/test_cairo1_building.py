@@ -34,7 +34,7 @@ def test_cairo1_build(protostar: ProtostarFixture, copy_fixture: CopyFixture):
 def test_cairo1_build_json(protostar: ProtostarFixture, copy_fixture: CopyFixture):
     copy_fixture("cairo1_build", "./cairo_project")
     os.chdir("./cairo_project")
-    result_json = protostar(["build-cairo1", "--json"], ignore_stderr=True)
+    result_json = protostar(["build", "--json"], ignore_stderr=True)
 
     output_json_parsed = json.loads(result_json.split("\n")[0])
 
