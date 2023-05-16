@@ -46,18 +46,6 @@ from protostar.starknet.address import Address
 from protostar.starknet.data_transformer import CairoData
 
 
-def make_contract_class(sierra_compiled: str) -> ContractClass:
-    sierra_compiled_dict = json.loads(sierra_compiled)
-    sierra_compiled_dict.pop("sierra_program_debug_info", None)
-    sierra_compiled_dict["abi"] = json.dumps(sierra_compiled_dict["abi"])
-
-    return ContractClass.load(sierra_compiled_dict)
-
-
-def make_compiled_class(casm_compiled: str) -> CompiledClass:
-    return CompiledClass.loads(casm_compiled)
-
-
 class ContractsCheaterException(Exception):
     def __init__(self, message: str):
         super().__init__(message)

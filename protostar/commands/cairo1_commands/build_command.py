@@ -4,22 +4,15 @@ from pathlib import Path
 from textwrap import dedent
 from typing import Optional, Any
 
-from starkware.starknet.core.os.contract_class.compiled_class_hash import (
-    compute_compiled_class_hash,
-)
-from starkware.starknet.core.os.contract_class.class_hash import (
-    compute_class_hash,
-)
-
 from protostar.cli import ProtostarCommand, MessengerFactory
 from protostar.cli.common_arguments import (
     COMPILED_CONTRACTS_DIR_ARG,
     LINKED_LIBRARIES,
     CONTRACT_NAME,
 )
-from protostar.cheatable_starknet.controllers.contracts import (
-    make_contract_class,
-    make_compiled_class,
+from protostar.cairo.contract_class import (
+    compute_class_hash_from_sierra_code,
+    compute_compiled_class_hash_from_casm_code,
 )
 from protostar.compiler.cairo1_contract_compiler import Cairo1ContractCompiler
 from protostar.configuration_file.configuration_file import ConfigurationFile
@@ -28,26 +21,6 @@ from protostar.io import StructuredMessage, LogColorProvider, Messenger
 from protostar.commands.cairo1_commands.fetch_from_scarb import (
     maybe_fetch_linked_libraries_from_scarb,
 )
-
-
-def compute_class_hash_from_sierra_code(sierra_compiled: str, output_path: Path):
-    contract_class = make_contract_class(sierra_compiled)
-    class_hash = compute_class_hash(contract_class)
-
-    with open(output_path, mode="w", encoding="utf-8") as output_file:
-        output_file.write(f"{hex(class_hash)}")
-
-    return class_hash
-
-
-def compute_compiled_class_hash_from_casm_code(casm_compiled: str, output_path: Path):
-    compiled_class = make_compiled_class(casm_compiled)
-    compiled_class_hash = compute_compiled_class_hash(compiled_class)
-
-    with open(output_path, mode="w", encoding="utf-8") as output_file:
-        output_file.write(f"{hex(compiled_class_hash)}")
-
-    return compiled_class_hash
 
 
 @dataclass

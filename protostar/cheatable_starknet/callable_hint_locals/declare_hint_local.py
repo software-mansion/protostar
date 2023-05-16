@@ -13,9 +13,8 @@ from protostar.cheatable_starknet.controllers.contracts import (
     DeclaredContract,
     ContractsController,
     DeclaredSierraClass,
-    make_contract_class,
-    make_compiled_class,
 )
+from protostar.cairo.contract_class import make_contract_class, make_compiled_class
 from protostar.compiler.cairo1_contract_compiler import (
     Cairo1ContractCompiler,
     SierraCompilationException,
