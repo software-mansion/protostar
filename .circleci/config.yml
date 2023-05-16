@@ -438,28 +438,6 @@ jobs:
           root: .
           paths: protostar-docs.tar.gz
 
-  # TODO: it seems gh-pages can have problems with already deployed gh-pages branches? to investigate + change email
-  # deploy_docs:
-  #   executor: docs
-  #   steps:
-  #     - checkout
-  #     - attach_workspace:
-  #         at: /tmp/workspace
-  #     - run:
-  #         name: Unpack docs
-  #         command: |
-  #           mv /tmp/workspace/protostar-docs.tar.gz .
-  #           tar -xzvf protostar-docs.tar.gz
-  #     - run:
-  #         name: Install dependencies
-  #         command: |
-  #           npm install -g --silent gh-pages@5.0.0
-  #     - run:
-  #         name: Deploy docs
-  #         command: |
-  #           git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}.git
-  #           gh-pages -d website/build -u "CircleCI[bot] <1898282+github-actions[bot]@users.noreply.github.com>"
-
 workflows:
   version: 2
 
@@ -527,11 +505,3 @@ workflows:
           prerelease: true
           requires:
             - prerelease_approval
-      # - deploy_docs:
-      #     requires:
-      #       - release_approval
-      #       - build_docs
-      #     filters:
-      #       branches:
-      #         only:
-      #           - master
