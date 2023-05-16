@@ -17,7 +17,7 @@ def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
 
 
 async def test_print(protostar_project: ProtostarProjectFixture, datadir: Path):
-    testing_summary = await protostar_project.protostar.test_cairo1(
+    testing_summary = await protostar_project.protostar.test(
         datadir / "print_test.cairo",
     )
 

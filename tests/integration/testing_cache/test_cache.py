@@ -23,7 +23,7 @@ def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
                 "./tests/test_broken.cairo": TEST_BROKEN,
             }
         )
-        protostar_project.protostar.build_sync()
+        protostar_project.protostar.build_cairo0_sync()
         yield protostar_project.protostar
 
 
@@ -31,7 +31,7 @@ async def test_execute_all_tests(
     protostar: ProtostarFixture,
 ):
     try:
-        await protostar.test(
+        await protostar.test_cairo0(
             [
                 "./tests/test_passing.cairo",
                 "./tests/test_partially_passing.cairo",
@@ -66,7 +66,7 @@ async def test_execute_all_tests(
 async def test_execute_only_passing_tests(
     protostar: ProtostarFixture,
 ):
-    await protostar.test(
+    await protostar.test_cairo0(
         [
             "./tests/test_passing.cairo",
         ],
