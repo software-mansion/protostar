@@ -74,7 +74,7 @@ class BuildCommand(ProtostarCommand):
             cairo1.compile_starknet_contract_to_sierra_from_path(
                 input_path=contract_paths[0],
                 maybe_cairo_paths=fetch_linked_libraries_from_scarb(
-                    crate_root_path=contract_paths[0],
+                    crate_root_path=self._project_root_path,
                 ),
                 output_path=sierra_file_path,
             )
