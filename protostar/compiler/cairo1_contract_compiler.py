@@ -1,6 +1,6 @@
 from pathlib import Path
 from typing import Optional, Tuple
-import protostar.cairo.cairo_bindings as cairo1_bindings
+import protostar.cairo.bindings.cairo_bindings as cairo1_bindings
 from protostar.protostar_exception import ProtostarException
 
 
