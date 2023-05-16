@@ -79,7 +79,7 @@ commands:
           command: |
             poetry config installer.modern-installation false
             if [[ << parameters.platform >> == "mac" ]]; then
-              CFLAGS=-I/opt/homebrew/opt/gmp/include LDFLAGS=-L/opt/homebrew/opt/gmp/lib poetry --no-ansi install
+              CFLAGS=-I`brew --prefix gmp`/include LDFLAGS=-L`brew --prefix gmp`/lib poetry --no-ansi install
             else
               poetry --no-ansi install
             fi
