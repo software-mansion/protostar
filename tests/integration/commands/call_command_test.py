@@ -16,7 +16,7 @@ def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
         protostar_project.create_files(
             {"src/main.cairo": Path(__file__).parent / "getter_contract.cairo"}
         )
-        protostar_project.protostar.build_sync()
+        protostar_project.protostar.build_cairo0_sync()
         yield protostar_project
 
 
@@ -186,7 +186,7 @@ async def test_call_failure(
     devnet_account: DevnetAccount,
     set_private_key_env_var: SetPrivateKeyEnvVarFixture,
 ):
-    await protostar_project.protostar.build()
+    await protostar_project.protostar.build_cairo0()
     with set_private_key_env_var(devnet_account.private_key):
         declare_response = await protostar_project.protostar.declare(
             protostar_project.protostar.project_root_path / "build" / "main.json",
@@ -218,7 +218,7 @@ async def test_uint256(
     capsys: pytest.CaptureFixture[str],
 ):
     protostar_project.create_files({"./src/main.cairo": UINT256_IDENTITY_CONTRACT})
-    await protostar_project.protostar.build()
+    await protostar_project.protostar.build_cairo0()
     with set_private_key_env_var(devnet_account.private_key):
         declare_response = await protostar_project.protostar.declare(
             contract=protostar_project.protostar.project_root_path
@@ -256,7 +256,7 @@ async def test_json(
     capsys: pytest.CaptureFixture[str],
 ):
     protostar_project.create_files({"./src/main.cairo": UINT256_IDENTITY_CONTRACT})
-    await protostar_project.protostar.build()
+    await protostar_project.protostar.build_cairo0()
     with set_private_key_env_var(devnet_account.private_key):
         declare_response = await protostar_project.protostar.declare(
             contract=protostar_project.protostar.project_root_path
@@ -313,7 +313,7 @@ async def test_calling_through_proxy(
         protostar_project.create_contracts(
             {"proxy": Path(__file__).parent / "proxy.cairo"}
         )
-        await protostar_project.protostar.build()
+        await protostar_project.protostar.build_cairo0()
 
         declared_proxy = await protostar_project.protostar.declare(
             contract=protostar_project.protostar.project_root_path

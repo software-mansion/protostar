@@ -7,34 +7,37 @@
 </div>
 
 ---
+Protostar helps with writing, deploying, and testing your smart contracts. It is loosely inspired by [Foundry](https://github.com/foundry-rs/foundry).
+
+Protostar is actively developed :hammer: . We release every two weeks. Our [roadmap is public](https://github.com/orgs/software-mansion-labs/projects/3/views/3), see what is coming soon!
+
+Install with
+```shell
+curl -L https://raw.githubusercontent.com/software-mansion/protostar/master/install.sh | bash
+```
+
+[Documentation :page_facing_up:](https://docs.swmansion.com/protostar/)
+
 
 ## Table of contents <!-- omit in toc -->
-- [About](#about)
-- [Documentation](#documentation)
-  - [Additional resources](#additional-resources)
+- [Additional resources](#additional-resources)
 - [Installation](#installation)
 - [Development](#development)
-  - [Requirements](#requirements)
   - [Setting up environment](#setting-up-environment)
+    - [Bumping cairo bindings version](#bumping-cairo-bindings-version)
+      - [Caveats:](#caveats)
     - [Submodules development](#submodules-development)
     - [Git hooks](#git-hooks)
 - [Updating website/docs](#updating-websitedocs)
-- [Deployment](#deployment)
 
 
 
-## About
-Protostar manages your dependencies, compiles your project, and runs tests.
-
-## Documentation
-https://docs.swmansion.com/protostar/
-
-### Additional resources
+## Additional resources
 - [Testing Starknet contracts made easy with Protostar](https://blog.swmansion.com/testing-starknet-contracts-made-easy-with-protostar-2ecdad3c9133)
 
 ## Installation
 
-To install the tool, run:
+To install Protostar, run:
 
 ```shell
 curl -L https://raw.githubusercontent.com/software-mansion/protostar/master/install.sh | bash
@@ -49,13 +52,6 @@ curl -L https://raw.githubusercontent.com/software-mansion/protostar/master/inst
 ---
 
 ## Development
-
-### Requirements
-- good knowledge of [Python](https://www.python.org/)
-- good knowledge of [pytest](https://docs.pytest.org/en/7.1.x/)
-- basic knowledge of [Cairo and Starknet](https://www.cairo-lang.org/docs/index.html)
-- basic knowledge of [mypy](https://mypy.readthedocs.io/en/stable/getting_started.html)
-
 
 ### Setting up environment
 
@@ -72,7 +68,7 @@ curl -L https://raw.githubusercontent.com/software-mansion/protostar/master/inst
     - MacBook M1/M2: `CFLAGS=-I/opt/homebrew/opt/gmp/include LDFLAGS=-L/opt/homebrew/opt/gmp/lib poetry install`
 1. Install bindings for the rust tools used by protostar:
     - [install rust](https://www.rust-lang.org/tools/install)
-    - `poetry run poe install_cairo_bindings`
+    - `poetry run poe install_all_bindings`
 1. Patch the git's config by always allowing file transport: `git config --global protocol.file.allow always` (needed for some tests to pass) 
 1. Verify the setup by running tests: `poe test`
 1. Build Protostar: `poe build`
@@ -87,7 +83,7 @@ poetry run poe bump_cairo_bindings
 
 After this, you can pull & rebuild your local version of bindings by running:
 ```shell
-poetry run poe install_cairo_bindings
+poetry run poe install_all_bindings
 ```
 
 ##### Caveats:
@@ -100,7 +96,7 @@ The command will check if the tracking branch is master, so you don't commit/pus
 You can use submodules from a different branch than main. Run commands
 ```shell
 git submodule set-branch --branch <your-branch>
-poetry run poe install_cairo_bindings
+poetry run poe install_all_bindings
 ```
 Remember to not push those changes to the repository.
 
@@ -114,10 +110,3 @@ Run the following script to enable lint checks and automatic formatting before c
 
 ## Updating website/docs
 Please read [website/README.md](./website/README.md).
-
-## Deployment
-```
-$ poe deploy
-Current Protostar version: 0.1.0
-Provide the new Protostar version:
-```

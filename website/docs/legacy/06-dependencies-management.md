@@ -7,7 +7,8 @@ sidebar_label: Dependencies
  Protostar uses [git submodules](https://git-scm.com/book/en/v2/Git-Tools-Submodules) to manage dependencies in your project. In order to manage dependencies with Protostar, you must have git installed on your system and have the git executable added to the `PATH` environment variable. The `PATH` variable is a list of directories that your system searches for executables.
 
 :::note
-As a temporary solution, Protostar is using git submodules to manage dependencies. A proper package manager unrelated to Protostar is being developed.
+As a temporary solution, Protostar is using git submodules to manage dependencies. 
+We recommend migrating your dependency management to [Scarb](https://github.com/software-mansion/scarb).
 :::
 
 ## Adding a dependency
@@ -49,7 +50,7 @@ Protostar will create a git commit after installing a dependency.
 
 
 If you use a dependency that uses absolute imports, you will need to specify a [`cairo-path`](/docs/cli-reference#--cairo-path-path) to the root directory of that dependency in your project.
-It is recommended to specify the `cairo-path` in the configuration file, as this setting can be reused by the [`build`](/docs/cli-reference#build) and [`test`](/docs/cli-reference#test) commands.
+It is recommended to specify the `cairo-path` in the configuration file, as this setting can be reused by the [`build-cairo0`](/docs/cli-reference#build-cairo0) and [`test-cairo0`](/docs/cli-reference#test-cairo0) commands.
 
 
 For example:

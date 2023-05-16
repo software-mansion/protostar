@@ -9,7 +9,7 @@ from protostar.cli.common_arguments import (
     CONTRACT_NAME,
 )
 from protostar.configuration_file.configuration_file import ConfigurationFile
-import protostar.cairo.cairo_bindings as cairo1
+import protostar.cairo.bindings.cairo_bindings as cairo1
 
 from protostar.commands.cairo1_commands.fetch_from_scarb import (
     maybe_fetch_linked_libraries_from_scarb,
@@ -17,7 +17,7 @@ from protostar.commands.cairo1_commands.fetch_from_scarb import (
 from protostar.protostar_exception import ProtostarException
 
 
-class BuildCairo1Command(ProtostarCommand):
+class BuildCommand(ProtostarCommand):
     def __init__(
         self,
         configuration_file: ConfigurationFile,
@@ -29,15 +29,15 @@ class BuildCairo1Command(ProtostarCommand):
 
     @property
     def example(self) -> Optional[str]:
-        return "$ protostar build-cairo1"
+        return "$ protostar build"
 
     @property
     def name(self) -> str:
-        return "build-cairo1"
+        return "build"
 
     @property
     def description(self) -> str:
-        return "Compile cairo1 contracts."
+        return "Compile cairo 1 contracts."
 
     @property
     def arguments(self):

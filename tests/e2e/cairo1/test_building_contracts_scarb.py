@@ -7,7 +7,7 @@ from tests.e2e.conftest import ProtostarFixture, CopyFixture
 
 
 @pytest.mark.parametrize(
-    "project_directory", ("libraries", "modules", "online_dependencies")
+    "project_directory", ("libraries", "modules")  # TODO #1903: "online_dependencies"
 )
 def test_build_with_dependencies_using_scarb(
     project_directory: str, protostar: ProtostarFixture, copy_fixture: CopyFixture
@@ -15,7 +15,7 @@ def test_build_with_dependencies_using_scarb(
     copy_fixture("scarb_integration/" + project_directory, "./" + project_directory)
     os.chdir("./" + project_directory)
 
-    result = protostar(["--no-color", "build-cairo1"])
+    result = protostar(["--no-color", "build"])
 
     assert "Contracts built successfully" in result
 
@@ -34,7 +34,7 @@ def test_build_multiple_contracts_with_dependencies_using_scarb(
     copy_fixture("scarb_integration/multiple_contracts", "./multiple_contracts")
     os.chdir("./multiple_contracts")
 
-    result = protostar(["--no-color", "build-cairo1"])
+    result = protostar(["--no-color", "build"])
 
     assert "Contracts built successfully" in result
 

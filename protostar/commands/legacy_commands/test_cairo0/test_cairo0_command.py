@@ -1,40 +1,44 @@
 from argparse import Namespace
+from logging import getLogger
 from pathlib import Path
 from typing import List, Optional
 
 from protostar.cli import ProtostarArgument, ProtostarCommand, MessengerFactory
-from protostar.cli.common_arguments import (
-    LINKED_LIBRARIES,
-)
-from protostar.commands.test.messages.testing_summary_message import (
-    TestingSummaryResultMessage,
-)
-from protostar.commands.test.testing_live_logger import TestingLiveLogger
+from protostar.cli.activity_indicator import ActivityIndicator
+from protostar.cli.common_arguments import CAIRO_PATH
 from protostar.compiler import LinkedLibrariesBuilder
 from protostar.io.log_color_provider import LogColorProvider
+from protostar.protostar_exception import ProtostarException
 from protostar.self.cache_io import CacheIO
 from protostar.self.protostar_directory import ProtostarDirectory
+from protostar.starknet.pass_managers import (
+    StarknetPassManagerFactory,
+    TestCollectorPassManagerFactory,
+)
+from protostar.starknet import StarknetCompiler
 from protostar.cairo import CairoCompilerConfig
 from protostar.testing import (
+    TestCollector,
     TestingSummary,
+    TestRunner,
     TestScheduler,
     determine_testing_seed,
 )
 from protostar.io.output import Messenger
 
+from .messages import TestCollectorResultMessage, TestingSummaryResultMessage
+from .test_command_cache import TestCommandCache
+from .testing_live_logger import TestingLiveLogger
 
-from protostar.commands.test.test_command_cache import TestCommandCache
-from protostar.commands.test.messages import TestCollectorResultMessage
-from protostar.cairo_testing.cairo1_test_collector import Cairo1TestCollector
-from protostar.cairo_testing.cairo1_test_runner import Cairo1TestRunner
-from .fetch_from_scarb import maybe_fetch_linked_libraries_from_scarb
+logger = getLogger()
 
 
-class TestCairo1Command(ProtostarCommand):
+class TestCairo0Command(ProtostarCommand):
     def __init__(
         self,
         project_root_path: Path,
         protostar_directory: ProtostarDirectory,
+        project_cairo_path_builder: LinkedLibrariesBuilder,
         log_color_provider: LogColorProvider,
         cwd: Path,
         active_profile_name: Optional[str],
@@ -44,22 +48,22 @@ class TestCairo1Command(ProtostarCommand):
         self._log_color_provider = log_color_provider
         self._project_root_path = project_root_path
         self._protostar_directory = protostar_directory
-        self._project_cairo_path_builder = LinkedLibrariesBuilder()
+        self._project_cairo_path_builder = project_cairo_path_builder
         self._cwd = cwd
         self._active_profile_name = active_profile_name
         self._messenger_factory = messenger_factory
 
     @property
     def name(self) -> str:
-        return "test-cairo1"
+        return "test-cairo0"
 
     @property
     def description(self) -> str:
-        return "Executes cairo1 tests."
+        return "Execute tests with cairo0 runner (legacy)."
 
     @property
     def example(self) -> Optional[str]:
-        return "$ protostar test-cairo1"
+        return "$ protostar test-cairo0"
 
     @property
     def arguments(self):
@@ -86,17 +90,48 @@ A glob or globs to a directory or a test suite, for example:
                 value_parser="list",
                 type="str",
             ),
-            LINKED_LIBRARIES,
+            CAIRO_PATH,
+            ProtostarArgument(
+                name="disable-hint-validation",
+                description=(
+                    "Disable hint validation in contracts declared by the "
+                    "`declare` cheatcode or deployed by `deploy_contract` cheatcode."
+                ),
+                type="bool",
+            ),
+            ProtostarArgument(
+                name="profiling",
+                description=(
+                    "Run profiling for a test contract. Works only for a single test case."
+                    "Protostar generates a file that can be opened with https://github.com/google/pprof"
+                ),
+                type="bool",
+            ),
             ProtostarArgument(
                 name="no-progress-bar",
                 type="bool",
                 description="Disable progress bar.",
             ),
             ProtostarArgument(
+                name="safe-collecting",
+                type="bool",
+                description="Use Cairo compiler for test collection.",
+            ),
+            ProtostarArgument(
                 name="exit-first",
                 short_name="x",
                 type="bool",
                 description="Exit immediately on first broken or failed test.",
+            ),
+            ProtostarArgument(
+                name="seed",
+                type="int",
+                description="Set a seed to use for all fuzz tests.",
+            ),
+            ProtostarArgument(
+                name="max-steps",
+                type="int",
+                description="Set Cairo execution step limit.",
             ),
             ProtostarArgument(
                 name="report-slowest-tests",
@@ -110,25 +145,35 @@ A glob or globs to a directory or a test suite, for example:
                 type="bool",
                 description="Only re-run failed and broken test cases.",
             ),
+            ProtostarArgument(
+                name="estimate-gas",
+                type="bool",
+                description="Show gas estimation for each test case. Estimations might be inaccurate.",
+            ),
         ]
 
     async def run(self, args: Namespace) -> TestingSummary:
         if not vars(args).get("json"):
             args.json = None
         messenger = self._messenger_factory.from_args(args)
+        logger.warning(
+            "Legacy cairo 0 test runner is deprecated, and will be removed in future versions. "
+            "Usage of cairo 1 runner is recommended.",
+        )
         cache = TestCommandCache(CacheIO(self._project_root_path))
-
         summary = await self.test(
             targets=cache.obtain_targets(args.target, args.last_failed),
             ignored_targets=args.ignore,
-            linked_libraries=args.linked_libraries
-            + maybe_fetch_linked_libraries_from_scarb(
-                package_root_path=self._project_root_path,
-                linked_libraries=args.linked_libraries,
-            ),
+            cairo_path=args.cairo_path,
+            disable_hint_validation=args.disable_hint_validation,
+            profiling=args.profiling,
             no_progress_bar=args.no_progress_bar,
+            safe_collecting=args.safe_collecting,
             exit_first=args.exit_first,
+            seed=args.seed,
+            max_steps=args.max_steps,
             slowest_tests_to_report_count=args.report_slowest_tests,
+            gas_estimation_enabled=args.estimate_gas,
             messenger=messenger,
         )
         cache.write_failed_tests_to_cache(summary)
@@ -141,29 +186,62 @@ A glob or globs to a directory or a test suite, for example:
         targets: List[str],
         messenger: Messenger,
         ignored_targets: Optional[List[str]] = None,
-        linked_libraries: Optional[List[Path]] = None,
+        cairo_path: Optional[List[Path]] = None,
+        disable_hint_validation: bool = False,
+        profiling: bool = False,
         no_progress_bar: bool = False,
+        safe_collecting: bool = False,
         exit_first: bool = False,
+        seed: Optional[int] = None,
+        max_steps: Optional[int] = None,
         slowest_tests_to_report_count: int = 0,
+        gas_estimation_enabled: bool = False,
     ) -> TestingSummary:
         include_paths = [
             str(path)
             for path in self._project_cairo_path_builder.build_project_cairo_path_list(
-                linked_libraries or []
+                cairo_path or []
             )
         ]
-        testing_seed = determine_testing_seed(seed=None)
 
-        compiler_config = CairoCompilerConfig(
-            disable_hint_validation=True,
-            include_paths=include_paths,
+        include_paths.append(
+            str(self._protostar_directory.protostar_test_only_cairo_packages_path)
         )
-        test_collector = Cairo1TestCollector(compiler_config.include_paths)
-        test_collector_result = test_collector.collect(
-            targets=targets,
-            ignored_targets=ignored_targets,
-            default_test_suite_glob=str(self._project_root_path),
+
+        factory = (
+            StarknetPassManagerFactory
+            if safe_collecting
+            else TestCollectorPassManagerFactory
         )
+
+        testing_seed = determine_testing_seed(seed)
+
+        with ActivityIndicator(
+            self._log_color_provider.colorize("GRAY", "Collecting tests")
+        ):
+            compiler_config = CairoCompilerConfig(
+                disable_hint_validation=True,
+                include_paths=include_paths,
+            )
+
+            starknet_compiler = StarknetCompiler(
+                config=compiler_config,
+                pass_manager_factory=factory,
+            )
+            test_collector = TestCollector(
+                get_suite_function_names=starknet_compiler.get_function_names
+            )
+
+            test_collector_result = test_collector.collect(
+                targets=targets,
+                ignored_targets=ignored_targets,
+                default_test_suite_glob=str(self._project_root_path),
+            )
+
+        if profiling and test_collector_result.test_cases_count > 1:
+            raise ProtostarException(
+                "Only one test case can be profiled at the time. Please specify path to a single test case."
+            )
 
         messenger(TestCollectorResultMessage(test_collector_result))
 
@@ -182,20 +260,20 @@ A glob or globs to a directory or a test suite, for example:
                 project_root_path=self._project_root_path,
                 write=messenger,
             )
-            worker = Cairo1TestRunner.worker
+            worker = TestRunner.worker
 
             TestScheduler(live_logger=live_logger, worker=worker).run(
                 include_paths=include_paths,
                 test_collector_result=test_collector_result,
-                disable_hint_validation=False,
-                profiling=False,
+                disable_hint_validation=disable_hint_validation,
+                profiling=profiling,
                 exit_first=exit_first,
                 testing_seed=testing_seed,
-                max_steps=None,
+                max_steps=max_steps,
                 project_root_path=self._project_root_path,
                 active_profile_name=self._active_profile_name,
                 cwd=self._cwd,
-                gas_estimation_enabled=False,
+                gas_estimation_enabled=gas_estimation_enabled,
                 on_exit_first=lambda: messenger(
                     TestingSummaryResultMessage(
                         test_collector_result=test_collector_result,

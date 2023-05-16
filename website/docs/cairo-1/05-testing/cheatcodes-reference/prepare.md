@@ -1,7 +1,7 @@
 # `prepare`
 
 ```cairo
-fn prepare(class_hash: felt252, calldata: Array::<felt252>) -> Result::<PreparedContract, felt252> nopanic;
+fn prepare(class_hash: felt252, calldata: @Array::<felt252>) -> Result::<PreparedContract, felt252> nopanic;
 ```
 
 Prepares contract for deployment.
@@ -10,7 +10,8 @@ Prepares contract for deployment.
 use result::ResultTrait;
 use array::ArrayTrait;
 
-fn my_function() {
+#[test]
+fn test_prepare() {
     let class_hash = declare('mycontract').unwrap();
 
     let mut calldata = ArrayTrait::new();
@@ -18,7 +19,7 @@ fn my_function() {
     calldata.append(11);
     calldata.append(12);
 
-    let prepared_contract = prepare(class_hash, calldata).unwrap();
+    let prepared_contract = prepare(class_hash, @calldata).unwrap();
 
     // ...
 }

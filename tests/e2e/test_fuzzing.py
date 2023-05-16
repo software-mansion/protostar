@@ -3,12 +3,12 @@ import pytest
 from tests.e2e.conftest import CopyFixture, ProtostarFixture
 
 
-@pytest.mark.usefixtures("init")
+@pytest.mark.usefixtures("init_cairo0")
 def test_fuzzing(protostar: ProtostarFixture, copy_fixture: CopyFixture):
     copy_fixture("test_fuzz.cairo", "./tests")
 
     result = protostar(
-        ["--no-color", "test", "--seed", "12345678", "tests/test_fuzz.cairo"],
+        ["--no-color", "test-cairo0", "--seed", "12345678", "tests/test_fuzz.cairo"],
         ignore_exit_code=True,
     )
 
@@ -45,14 +45,14 @@ c = 0
     )
 
 
-@pytest.mark.usefixtures("init")
+@pytest.mark.usefixtures("init_cairo0")
 def test_fuzzing_changing_seed(protostar: ProtostarFixture, copy_fixture: CopyFixture):
     seeds = []
     copy_fixture("test_fuzz_single.cairo", "./tests")
 
     for _ in range(0, 2):
         result = protostar(
-            ["--no-color", "test", "tests/test_fuzz_single.cairo"],
+            ["--no-color", "test-cairo0", "tests/test_fuzz_single.cairo"],
             ignore_exit_code=True,
         )
         seed_pattern = "Seed:"

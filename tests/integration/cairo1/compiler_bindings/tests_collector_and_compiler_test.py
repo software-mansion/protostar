@@ -3,7 +3,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 from protostar.cairo.cairo1_test_suite_parser import ProtostarCasm
-import protostar.cairo.cairo_bindings as cairo1
+import protostar.cairo.bindings.cairo_bindings as cairo1
 from protostar.cairo.cairo_function_runner_facade import CairoRunnerFacade
 
 

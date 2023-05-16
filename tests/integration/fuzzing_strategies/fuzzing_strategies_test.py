@@ -1,13 +1,16 @@
 from pathlib import Path
 
 from protostar.testing.test_results import PassedFuzzTestCaseResult
-from tests.integration.conftest import RunTestRunnerFixture, assert_cairo_test_cases
+from tests.integration.conftest import (
+    RunCairo0TestRunnerFixture,
+    assert_cairo_test_cases,
+)
 
 
 async def test_integers(
-    run_test_runner: RunTestRunnerFixture,
+    run_cairo0_test_runner: RunCairo0TestRunnerFixture,
 ):
-    testing_summary = await run_test_runner(
+    testing_summary = await run_cairo0_test_runner(
         Path(__file__).parent / "integers_test.cairo"
     )
 
@@ -23,9 +26,9 @@ async def test_integers(
 
 
 async def test_integers_unbounded(
-    run_test_runner: RunTestRunnerFixture,
+    run_cairo0_test_runner: RunCairo0TestRunnerFixture,
 ):
-    testing_summary = await run_test_runner(
+    testing_summary = await run_cairo0_test_runner(
         Path(__file__).parent / "integers_unbounded_test.cairo"
     )
 
@@ -37,9 +40,11 @@ async def test_integers_unbounded(
 
 
 async def test_felts(
-    run_test_runner: RunTestRunnerFixture,
+    run_cairo0_test_runner: RunCairo0TestRunnerFixture,
 ):
-    testing_summary = await run_test_runner(Path(__file__).parent / "felts_test.cairo")
+    testing_summary = await run_cairo0_test_runner(
+        Path(__file__).parent / "felts_test.cairo"
+    )
 
     assert_cairo_test_cases(
         testing_summary,
@@ -48,9 +53,9 @@ async def test_felts(
 
 
 async def test_edge_cases(
-    run_test_runner: RunTestRunnerFixture,
+    run_cairo0_test_runner: RunCairo0TestRunnerFixture,
 ):
-    testing_summary = await run_test_runner(
+    testing_summary = await run_cairo0_test_runner(
         Path(__file__).parent / "edge_cases_test.cairo"
     )
 
@@ -69,9 +74,9 @@ async def test_edge_cases(
 
 
 async def test_mapping_and_filtering(
-    run_test_runner: RunTestRunnerFixture,
+    run_cairo0_test_runner: RunCairo0TestRunnerFixture,
 ):
-    testing_summary = await run_test_runner(
+    testing_summary = await run_cairo0_test_runner(
         Path(__file__).parent / "map_and_filter_test.cairo"
     )
 
@@ -86,9 +91,11 @@ async def test_mapping_and_filtering(
 
 
 async def test_one_of(
-    run_test_runner: RunTestRunnerFixture,
+    run_cairo0_test_runner: RunCairo0TestRunnerFixture,
 ):
-    testing_summary = await run_test_runner(Path(__file__).parent / "one_of_test.cairo")
+    testing_summary = await run_cairo0_test_runner(
+        Path(__file__).parent / "one_of_test.cairo"
+    )
 
     assert_cairo_test_cases(
         testing_summary,
@@ -102,9 +109,9 @@ async def test_one_of(
 
 
 async def test_short_strings(
-    run_test_runner: RunTestRunnerFixture,
+    run_cairo0_test_runner: RunCairo0TestRunnerFixture,
 ):
-    testing_summary = await run_test_runner(
+    testing_summary = await run_cairo0_test_runner(
         Path(__file__).parent / "short_strings_test.cairo"
     )
 
@@ -116,9 +123,9 @@ async def test_short_strings(
 
 
 async def test_uint256(
-    run_test_runner: RunTestRunnerFixture,
+    run_cairo0_test_runner: RunCairo0TestRunnerFixture,
 ):
-    testing_summary = await run_test_runner(
+    testing_summary = await run_cairo0_test_runner(
         Path(__file__).parent / "uint256_test.cairo", seed=0xBAD_C0DE
     )
 

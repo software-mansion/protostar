@@ -1,4 +1,10 @@
 use array::ArrayTrait;
+use ec::ec_point_try_new;
+use ec::ec_point_is_zero;
+use zeroable::IsZeroResult;
+use ec::ec_state_init;
+use ec::ec_state_add_mul;
+use ec::ec_state_finalize;
 
 extern type Bitwise;
 extern fn bitwise(a: u128, b: u128) -> (u128, u128, u128) implicits(Bitwise) nopanic;

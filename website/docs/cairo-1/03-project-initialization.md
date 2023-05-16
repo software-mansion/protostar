@@ -6,10 +6,10 @@ sidebar_label: Project initialization
 
 ## Creating a project
 
-To create a new Protostar project, run 
+To create a new Protostar project with cairo 1 support, run 
 
 ```shell
-protostar init-cairo1 my-project
+protostar init my-project
 ```
 
 After running the command, the following structure will be generated:
