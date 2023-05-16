@@ -3,7 +3,7 @@ from .cairo1_commands import (
     DeclareCairo1Command,
     TestCommand,
     InitCommand,
-    TestRustCairo1Command,
+    TestRustCommand,
 )
 from .legacy_commands import (
     BuildCairo0Command,

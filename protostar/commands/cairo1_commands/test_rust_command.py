@@ -8,7 +8,7 @@ from protostar.protostar_exception import ProtostarException
 from protostar.cairo.bindings import protostar_rust_bindings
 
 
-class TestRustCairo1Command(ProtostarCommand):
+class TestRustCommand(ProtostarCommand):
     @property
     def name(self) -> str:
         return "test-rust"
