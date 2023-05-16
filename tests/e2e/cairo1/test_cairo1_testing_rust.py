@@ -1,5 +1,4 @@
 import os
-
 import pytest
 
 from tests.e2e.conftest import CopyFixture, ProtostarFixture
@@ -30,8 +29,18 @@ def test_no_tests_found(protostar: ProtostarFixture):
     assert "no such test: tests" in str(ex.value)
 
 
-def test_failing_tests(protostar: ProtostarFixture):
-    result = protostar(["test-cairo1", "tests"])
+def test_failing_tests(protostar: ProtostarFixture, copy_fixture: CopyFixture):
+    copy_fixture("cairo1_project", "./cairo1_project")
+    copy_fixture(
+        "cairo1/failing_test.cairo", "./cairo1_project/tests/failing_test.cairo"
+    )
+    os.chdir("./cairo1_project")
 
-    assert "No test cases found" in result
-    assert result
+    # with pytest.raises(Exception) as ex:
+    result = protostar(["test-rust", "tests/failing_test.cairo"])
+    assert "test_ok: Success" in result
+    assert "test_panic_single_value: Panic [21]" in result
+    assert (
+        "test_panic_multiple_values: Panic [1870930782904301745253, 482670963043, 31066316372818838395891839589]"
+        in result
+    )
