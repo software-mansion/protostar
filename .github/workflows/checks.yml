@@ -30,7 +30,7 @@ jobs:
           poetry install
       - name: Install cairo bindings
         run: |
-          poetry run poe install_cairo_bindings prod
+          poetry run poe install_all_bindings prod
       - name: Populate caches
         uses: actions/cache@v3
         with:
@@ -62,7 +62,7 @@ jobs:
           key: poetry-${{ hashFiles('poetry.lock') }}
       - name: Install cairo bindings
         run: |
-          poetry run ./scripts/install_cairo_bindings.sh
+          poetry run ./scripts/install_all_bindings.sh
 
       - name: Check types
         run: |
@@ -99,7 +99,7 @@ jobs:
           key: poetry-${{ hashFiles('poetry.lock') }}
       - name: Install cairo bindings
         run: |
-          poetry run ./scripts/install_cairo_bindings.sh
+          poetry run ./scripts/install_all_bindings.sh
 
       - name: Patch git config
         run: |
@@ -135,7 +135,7 @@ jobs:
           key: poetry-${{ hashFiles('poetry.lock') }}
       - name: Install cairo bindings
         run: |
-          poetry run ./scripts/install_cairo_bindings.sh
+          poetry run ./scripts/install_all_bindings.sh
         shell: bash
 
       - name: Build

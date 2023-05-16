@@ -5,27 +5,23 @@ set -e
 function install_dev() {
   git pull --recurse-submodules
 
-  pushd cairo
-  pushd crates/cairo-lang-python-bindings
+  pushd protostar-rust
   rustup override set nightly-2022-11-03 || return 1;
   maturin develop --release || return 1;
-  popd # crates/cairo-lang-python-bindings
-  popd # cairo
+  popd # protostar-rust
 }
 
 function install_prod() {
   git pull --recurse-submodules
 
-  pushd cairo
-  pushd crates/cairo-lang-python-bindings
+  pushd protostar-rust
   rustup override set nightly-2022-11-03 || return 1;
   maturin build || return 1;
-  popd # crates/cairo-lang-python-bindings
 
   pushd target/wheels
-  pip install "./$(ls | grep cairo_python_bindings)" || return 1;
+  pip install "./$(ls | grep rust_test_runner_bindings)" || return 1;
   popd # target/wheels
-  popd # cairo
+  popd # protostar-rust
 }
 
 if [ "$1" == "prod" ]; then
