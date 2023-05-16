@@ -17,11 +17,11 @@ function install_prod() {
   pushd cairo/crates/cairo-lang-python-bindings
   rustup override set nightly-2022-11-03 || return 1;
   maturin build || return 1;
-  popd
+  popd # cairo/crates/cairo-lang-python-bindings
 
   pushd cairo/target/wheels
   pip install "./$(ls | grep cairo_python_bindings)" || return 1;
-  popd
+  popd # cairo/target/wheels
 }
 
 if [ "$1" == "prod" ]; then

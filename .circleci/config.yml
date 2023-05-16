@@ -126,15 +126,15 @@ commands:
           name: Get submodule hash
           command: git rev-parse HEAD:./cairo > /tmp/cairo-submodule-hash
       - restore_cache:
-          key: bindings-<< parameters.platform >>-{{ checksum "scripts/install_cairo_bindings.sh" }}-{{ checksum "/tmp/cairo-submodule-hash" }}
+          key: bindings-<< parameters.platform >>-{{ checksum "scripts/install_all_bindings.sh" }}-{{ checksum "scripts/install_cairo_bindings.sh" }}-{{ checksum "scripts/install_protostar_rust_bindings.sh" }}-{{ checksum "/tmp/cairo-submodule-hash" }}
       - run:
           name: Install bindings and compile cairo-compile
           command: |
             if [ -f ./cairo/target/debug/cairo-compile ] && [ -d ./cairo/target/wheels ]; then
               pip install $(find ./cairo/target/wheels -maxdepth 1 -type f -iname "cairo_python_bindings*")
             else
-              poetry run poe install_cairo_bindings prod
-              poetry run poe install_cairo_bindings
+              poetry run poe install_all_bindings prod
+              poetry run poe install_all_bindings
               pushd cairo
               rustup override set nightly-2022-11-03
               cargo build --bin cairo-compile
