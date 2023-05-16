@@ -27,10 +27,17 @@ class Cairo1ContractCompiler:
         output_path: Optional[Path] = None,
     ) -> Tuple[str, str]:
         sierra_compiled = Cairo1ContractCompiler.compile_contract_to_sierra(
-            contract_name, contract_path, cairo_path, output_path
+            contract_name=contract_name,
+            contract_path=contract_path,
+            cairo_path=cairo_path,
+            output_path=output_path,
         )
-        casm_compiled = Cairo1ContractCompiler.compile_contract_to_casm(
-            contract_name, contract_path, cairo_path, output_path
+        casm_compiled = (
+            Cairo1ContractCompiler.compile_contract_to_casm_from_sierra_code(
+                contract_name=contract_name,
+                sierra_compiled=sierra_compiled,
+                output_path=output_path,
+            )
         )
         return sierra_compiled, casm_compiled
 
@@ -60,6 +67,26 @@ class Cairo1ContractCompiler:
 
         assert sierra_compiled is not None
         return sierra_compiled
+
+    @staticmethod
+    def compile_contract_to_casm_from_sierra_code(
+        contract_name: str,
+        sierra_compiled: str,
+        output_path: Optional[Path] = None,
+    ) -> str:
+        if output_path:
+            output_path = output_path.with_suffix(".casm.json")
+
+        try:
+            casm_compiled = cairo1_bindings.compile_starknet_contract_sierra_to_casm_from_sierra_code(
+                sierra_compiled=sierra_compiled, output_path=output_path
+            )
+
+        except cairo1_bindings.CairoBindingException as ex:
+            raise CasmCompilationException(contract_name=contract_name, err=ex) from ex
+
+        assert casm_compiled is not None
+        return casm_compiled
 
     @staticmethod
     def compile_contract_to_casm(
