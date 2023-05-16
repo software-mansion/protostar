@@ -483,6 +483,13 @@ Print slowest tests at the end.
 Use Cairo compiler for test collection.
 #### `--seed INT`
 Set a seed to use for all fuzz tests.
+### `test-rust`
+```shell
+$ protostar test-rust
+```
+Executes cairo1 tests in rust.
+#### `path STRING`
+A path to the tests that will be run
 ### `update`
 ```shell
 $ protostar update cairo-contracts

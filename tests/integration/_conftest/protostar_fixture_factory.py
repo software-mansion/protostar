@@ -21,8 +21,6 @@ from protostar.commands import (
     MulticallCommand,
     DeclareCairo1Command,
     TestCairo0Command,
-)
-from protostar.commands.cairo1_commands.test_rust_command import (
     TestRustCommand,
 )
 from protostar.commands.deploy_account_command import DeployAccountCommand
