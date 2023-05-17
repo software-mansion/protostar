@@ -13,7 +13,9 @@ def test_init_cairo0(create_protostar_project: CreateProtostarProjectFixture):
             "templates", CairoVersion.cairo0.value
         )
 
-        dir_compare_object = dircmp(mocker_project_path, template_project_path)
+        dir_compare_object = dircmp(
+            mocker_project_path, template_project_path, hide=[".DS_Store"]
+        )
         compare_directories(dir_compare_object)
 
 
@@ -24,15 +26,17 @@ def test_init_cairo1(
         mocker_project_path = Path(".")
         template_project_path = datadir / "project_name"
 
-        dir_compare_object = dircmp(mocker_project_path, template_project_path)
+        dir_compare_object = dircmp(
+            mocker_project_path, template_project_path, hide=[".DS_Store"]
+        )
         compare_directories(dir_compare_object)
 
 
 def compare_directories(dcmp: dircmp):
     assert not (dcmp.left_only or dcmp.right_only or dcmp.diff_files), (
-        f"files with different os.stat() (probably different content) signatures: {dcmp.diff_files}\n "
-        f"files not present in real templates directory: {dcmp.left_only}\n"
-        f"files not present in mock templates directory: {dcmp.right_only}"
+        f"files or directories with different os.stat() (probably different content) signatures: {dcmp.diff_files}\n "
+        f"files or directories not present in real templates directory: {dcmp.left_only}\n"
+        f"files or directories not present in mock templates directory: {dcmp.right_only}"
     )
 
     _, diff, errors = cmpfiles(dcmp.left, dcmp.right, dcmp.same_files, shallow=False)

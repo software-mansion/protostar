@@ -5,7 +5,6 @@ from typing import Optional, Any
 from protostar.cli import ProtostarCommand
 from protostar.cli.common_arguments import (
     COMPILED_CONTRACTS_DIR_ARG,
-    LINKED_LIBRARIES,
     CONTRACT_NAME,
 )
 from protostar.configuration_file.configuration_file import ConfigurationFile
@@ -42,7 +41,6 @@ class BuildCommand(ProtostarCommand):
     @property
     def arguments(self):
         return [
-            LINKED_LIBRARIES,
             COMPILED_CONTRACTS_DIR_ARG,
             CONTRACT_NAME,
         ]
@@ -74,7 +72,7 @@ class BuildCommand(ProtostarCommand):
             cairo1.compile_starknet_contract_to_sierra_from_path(
                 input_path=contract_paths[0],
                 maybe_cairo_paths=fetch_linked_libraries_from_scarb(
-                    crate_root_path=self._project_root_path,
+                    package_root_path=self._project_root_path,
                 ),
                 output_path=sierra_file_path,
             )

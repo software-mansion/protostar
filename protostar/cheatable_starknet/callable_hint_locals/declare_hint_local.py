@@ -18,6 +18,9 @@ from protostar.cheatable_starknet.controllers.contracts import (
     ContractsController,
     DeclaredSierraClass,
 )
+from protostar.commands.cairo1_commands.fetch_from_scarb import (
+    fetch_linked_libraries_from_scarb,
+)
 from protostar.contract_path_resolver import ContractPathResolver
 from protostar.configuration_file.configuration_file import (
     ContractNameNotFoundException,
@@ -101,11 +104,13 @@ class DeclareHintLocal(CallableHintLocal):
 
     def _compile_to_sierra(self, contract_name: str, contract_path: Path):
         try:
-            sierra_compiled = (
-                cairo1_bindings.compile_starknet_contract_to_sierra_from_path(
-                    contract_path
-                )
+            sierra_compiled = cairo1_bindings.compile_starknet_contract_to_sierra_from_path(
+                input_path=contract_path,
+                maybe_cairo_paths=fetch_linked_libraries_from_scarb(
+                    package_root_path=self._contract_path_resolver.project_root_path,
+                ),
             )
+
         except cairo1_bindings.CairoBindingException as ex:
             raise CheatcodeException(
                 self, f"Compilation of contract {contract_name} to sierra failed"
@@ -115,7 +120,10 @@ class DeclareHintLocal(CallableHintLocal):
     def _compile_to_casm(self, contract_name: str, contract_path: Path):
         try:
             casm_compiled = cairo1_bindings.compile_starknet_contract_to_casm_from_path(
-                contract_path
+                input_path=contract_path,
+                maybe_cairo_paths=fetch_linked_libraries_from_scarb(
+                    package_root_path=self._contract_path_resolver.project_root_path,
+                ),
             )
         except cairo1_bindings.CairoBindingException as ex:
             raise CheatcodeException(

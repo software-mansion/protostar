@@ -34,7 +34,10 @@ def compile_starknet_contract_to_casm_from_path(
         return cairo_python_bindings.compile_starknet_contract_to_casm_from_path(  # pyright: ignore
             str(input_path),
             str(output_path) if output_path else None,
-            [(str(path), crate_name) for path, crate_name in maybe_cairo_paths]
+            [
+                (str(package_path), package_name)
+                for package_path, package_name in maybe_cairo_paths
+            ]
             if maybe_cairo_paths
             else None,
         )
@@ -50,7 +53,10 @@ def compile_starknet_contract_to_sierra_from_path(
         return cairo_python_bindings.compile_starknet_contract_to_sierra_from_path(  # pyright: ignore
             str(input_path),
             str(output_path) if output_path else None,
-            [(str(path), crate_name) for path, crate_name in maybe_cairo_paths]
+            [
+                (str(package_path), package_name)
+                for package_path, package_name in maybe_cairo_paths
+            ]
             if maybe_cairo_paths
             else None,
         )
@@ -78,7 +84,10 @@ def collect_tests(
         output = cairo_python_bindings.collect_tests(  # pyright: ignore
             str(input_path),
             str(output_path) if output_path else None,
-            [(str(path), project_name) for path, project_name in maybe_cairo_paths]
+            [
+                (str(package_path), package_name)
+                for package_path, package_name in maybe_cairo_paths
+            ]
             if maybe_cairo_paths
             else None,
             RUNNER_BUILTINS_TITLE_CASE + ["GasBuiltin"],

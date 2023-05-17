@@ -2,6 +2,7 @@ from pathlib import Path
 
 import pytest
 
+from protostar.cairo import CairoVersion
 from tests.integration._conftest import ProtostarProjectFixture
 from tests.integration.conftest import (
     CreateProtostarProjectFixture,
@@ -11,7 +12,7 @@ from tests.integration.conftest import (
 
 @pytest.fixture(name="protostar_project", scope="function")
 def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
-    with create_protostar_project() as protostar_project:
+    with create_protostar_project(CairoVersion.cairo1) as protostar_project:
         yield protostar_project
 
 

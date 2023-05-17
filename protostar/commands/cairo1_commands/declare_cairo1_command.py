@@ -21,6 +21,9 @@ from protostar.cli.common_arguments import (
     MAX_FEE_ARG,
     WAIT_FOR_ACCEPTANCE_ARG,
 )
+from protostar.commands.cairo1_commands.fetch_from_scarb import (
+    fetch_linked_libraries_from_scarb,
+)
 
 from protostar.commands.declare.declare_messages import SuccessfulDeclareMessage
 from protostar.contract_path_resolver import ContractPathResolver
@@ -103,10 +106,11 @@ class DeclareCairo1Command(ProtostarCommand):
         )
 
         try:
-            contract_sierra = (
-                cairo1_bindings.compile_starknet_contract_to_sierra_from_path(
-                    contract_path
-                )
+            contract_sierra = cairo1_bindings.compile_starknet_contract_to_sierra_from_path(
+                input_path=contract_path,
+                maybe_cairo_paths=fetch_linked_libraries_from_scarb(
+                    package_root_path=self._contract_path_resolver.project_root_path,
+                ),
             )
         except cairo1_bindings.CairoBindingException as ex:
             raise ProtostarException(
@@ -115,7 +119,10 @@ class DeclareCairo1Command(ProtostarCommand):
 
         try:
             contract_casm = cairo1_bindings.compile_starknet_contract_to_casm_from_path(
-                contract_path
+                input_path=contract_path,
+                maybe_cairo_paths=fetch_linked_libraries_from_scarb(
+                    package_root_path=self._contract_path_resolver.project_root_path,
+                ),
             )
         except cairo1_bindings.CairoBindingException as ex:
             raise ProtostarException(

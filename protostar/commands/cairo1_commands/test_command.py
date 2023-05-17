@@ -3,9 +3,6 @@ from pathlib import Path
 from typing import Optional, Tuple
 
 from protostar.cli import ProtostarArgument, ProtostarCommand, MessengerFactory
-from protostar.cli.common_arguments import (
-    LINKED_LIBRARIES,
-)
 from protostar.io.log_color_provider import LogColorProvider
 from protostar.self.cache_io import CacheIO
 from protostar.self.protostar_directory import ProtostarDirectory
@@ -87,7 +84,6 @@ A glob or globs to a directory or a test suite, for example:
                 value_parser="list",
                 type="str",
             ),
-            LINKED_LIBRARIES,
             ProtostarArgument(
                 name="no-progress-bar",
                 type="bool",
@@ -123,7 +119,7 @@ A glob or globs to a directory or a test suite, for example:
             targets=cache.obtain_targets(args.target, args.last_failed),
             ignored_targets=args.ignore,
             linked_libraries=fetch_linked_libraries_from_scarb(
-                crate_root_path=self._project_root_path,
+                package_root_path=self._project_root_path,
             ),
             no_progress_bar=args.no_progress_bar,
             exit_first=args.exit_first,
@@ -175,7 +171,8 @@ A glob or globs to a directory or a test suite, for example:
 
             TestScheduler(live_logger=live_logger, worker=worker).run(
                 include_paths=[
-                    str(path) for path, crate_name in linked_libraries or []
+                    str(package_path)
+                    for package_path, package_name in linked_libraries or []
                 ],
                 test_collector_result=test_collector_result,
                 disable_hint_validation=False,

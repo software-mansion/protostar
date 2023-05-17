@@ -17,10 +17,6 @@ class ScarbMetadataFetchException(ProtostarException):
         )
 
 
-def has_scarb_toml(package_root_path: Path) -> bool:
-    return "Scarb.toml" in os.listdir(package_root_path)
-
-
 def read_scarb_metadata(scarb_toml_path: Path) -> Dict:
     result = subprocess.run(
         [
@@ -57,22 +53,24 @@ def read_scarb_metadata(scarb_toml_path: Path) -> Dict:
 
 
 def fetch_linked_libraries_from_scarb(
-    crate_root_path: Path,
+    package_root_path: Path,
 ) -> list[Tuple[Path, str]]:
-    if not crate_root_path.is_dir() or not has_scarb_toml(crate_root_path):
-        return []
+    if "Scarb.toml" not in os.listdir(package_root_path):
+        raise ProtostarException(
+            "Scarb.toml not found. Please make sure to manage your dependencies using Scarb."
+        )
 
-    scarb_toml_path = crate_root_path / "Scarb.toml"
+    scarb_toml_path = package_root_path / "Scarb.toml"
     metadata = read_scarb_metadata(scarb_toml_path)
 
     try:
         # assuming we have only one entry in the workspace section
-        current_crate_name = metadata["workspace"]["members"][0]
+        current_package_name = metadata["workspace"]["members"][0]
 
         matching_compilation_units = [
             compilation_unit
             for compilation_unit in metadata["compilation_units"]
-            if compilation_unit["package"] == current_crate_name
+            if compilation_unit["package"] == current_package_name
         ]
 
         matching_contract_units = [
@@ -105,7 +103,7 @@ def fetch_linked_libraries_from_scarb(
             if dependency["name"] != "core"
         ]
 
-        paths_and_crate_names: list[Tuple[Path, str]] = [
+        paths_and_package_names: list[Tuple[Path, str]] = [
             (
                 validate_path_exists_and_return_source_root(
                     Path(component["source_path"])
@@ -118,7 +116,7 @@ def fetch_linked_libraries_from_scarb(
     except (IndexError, KeyError) as ex:
         raise ScarbMetadataFetchException("Error parsing metadata:\n" + str(ex)) from ex
 
-    return paths_and_crate_names
+    return paths_and_package_names
 
 
 def validate_path_exists_and_return_source_root(lib_cairo_path: Path) -> Path:
