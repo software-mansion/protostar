@@ -30,13 +30,17 @@ class Cairo1ContractCompiler:
             contract_name=contract_name,
             contract_path=contract_path,
             cairo_path=cairo_path,
-            output_path=output_path,
+            output_path=output_path.with_suffix(".sierra.json")
+            if output_path
+            else None,
         )
         casm_compiled = (
             Cairo1ContractCompiler.compile_contract_to_casm_from_sierra_code(
                 contract_name=contract_name,
                 sierra_compiled=sierra_compiled,
-                output_path=output_path,
+                output_path=output_path.with_suffix(".casm.json")
+                if output_path
+                else None,
             )
         )
         return sierra_compiled, casm_compiled
@@ -48,9 +52,6 @@ class Cairo1ContractCompiler:
         cairo_path: Optional[list[Path]] = None,
         output_path: Optional[Path] = None,
     ) -> str:
-        if output_path:
-            output_path = output_path.with_suffix(".sierra.json")
-
         try:
             sierra_compiled = (
                 cairo1_bindings.compile_starknet_contract_to_sierra_from_path(
@@ -73,9 +74,6 @@ class Cairo1ContractCompiler:
         sierra_compiled: str,
         output_path: Optional[Path] = None,
     ) -> str:
-        if output_path:
-            output_path = output_path.with_suffix(".casm.json")
-
         try:
             casm_compiled = cairo1_bindings.compile_starknet_contract_sierra_to_casm_from_sierra_code(
                 sierra_compiled=sierra_compiled, output_path=output_path
@@ -93,9 +91,6 @@ class Cairo1ContractCompiler:
         cairo_path: Optional[list[Path]] = None,
         output_path: Optional[Path] = None,
     ) -> str:
-        if output_path:
-            output_path = output_path.with_suffix(".casm.json")
-
         try:
             casm_compiled = cairo1_bindings.compile_starknet_contract_to_casm_from_path(
                 input_path=contract_path, cairo_path=cairo_path, output_path=output_path
