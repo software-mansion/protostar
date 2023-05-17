@@ -18,8 +18,8 @@ def test_cairo1_build(protostar: ProtostarFixture):
     expected_paths = [
         Path("build/hello_starknet.sierra.json"),
         Path("build/hello_starknet.casm.json"),
-        Path("build/hello_starknet.class.hash"),
-        Path("build/hello_starknet.compiled.class.hash"),
+        Path("build/hello_starknet.class_hash"),
+        Path("build/hello_starknet.compiled_class_hash"),
     ]
     for path in expected_paths:
         assert path.exists()

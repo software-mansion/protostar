@@ -124,11 +124,11 @@ class BuildCommand(ProtostarCommand):
         )
 
         class_hash = compute_class_hash_from_sierra_code(
-            sierra_compiled, output_dir / (contract_name + ".class.hash")
+            sierra_compiled, output_dir / (contract_name + ".class_hash")
         )
         compiled_class_hash = compute_compiled_class_hash_from_casm_code(
             casm_compiled,
-            output_dir / (contract_name + ".compiled.class.hash"),
+            output_dir / (contract_name + ".compiled_class_hash"),
         )
 
         messenger(
