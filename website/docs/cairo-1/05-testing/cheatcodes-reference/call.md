@@ -2,14 +2,6 @@
 
 ```cairo
 extern fn call(contract: felt252, function_name: felt252, calldata: @Array::<felt252>) -> Result::<(Array::<felt252>), RevertedTransaction> nopanic;
-
-struct RevertedTransaction {
-    panic_data: Array::<felt252>, 
-}
-
-trait RevertedTransactionTrait {
-    fn first(self: @RevertedTransaction) -> felt252;
-}
 ```
 
 Calls a [deployed](./deploy.md) contract. Unlike [invoke](./invoke.md), it **does not** mutate the blockchain state.
