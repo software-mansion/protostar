@@ -37,8 +37,8 @@ use result::ResultTrait;
 
 #[test]
 fn test_deploy() {
-    let deployed_contract_address = deploy_contract('minimal', ArrayTrait::new()).unwrap();
-    invoke(deployed_contract_address, 'hello', ArrayTrait::new()).unwrap();
+    let deployed_contract_address = deploy_contract('minimal', @ArrayTrait::new()).unwrap();
+    invoke(deployed_contract_address, 'hello', @ArrayTrait::new()).unwrap();
 }
 ```
 [deploy_contract](./cheatcodes-reference/deploy_contract.md) will declare and deploy the given contract. [invoke](./cheatcodes-reference/invoke.md) will invoke `hello` method.
@@ -64,13 +64,13 @@ use result::ResultTrait;
 
 #[test]
 fn test_invoke_errors() {
-    let deployed_contract_address = deploy_contract('minimal', ArrayTrait::new()).unwrap();
+    let deployed_contract_address = deploy_contract('minimal', @ArrayTrait::new()).unwrap();
     let mut panic_data = ArrayTrait::new();
     panic_data.append(2); // Array length
     panic_data.append('error');
     panic_data.append('data');
     
-    match invoke(deployed_contract_address, 'panic_with', panic_data) {
+    match invoke(deployed_contract_address, 'panic_with', @panic_data) {
         Result::Ok(x) => assert(false, 'Shouldnt have succeeded'),
         Result::Err(x) => {
             assert(x.first() == 'error', 'first datum doesnt match');
