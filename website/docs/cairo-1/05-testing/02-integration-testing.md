@@ -48,6 +48,20 @@ fn test_deploy() {
 Cheatcodes [deploy](./cheatcodes-reference/deploy.md), [invoke](./cheatcodes-reference/invoke.md) and [call](./cheatcodes-reference/call.md) execute code on chain which can be reverted.
 In such case, they return `RevertedTransaction` structure. You can use it, for example, to verify if your contract reverts the transaction in a certain scenario.
 
+Here's how the structure looks: 
+
+```#[derive(Drop, Clone)]
+struct RevertedTransaction {
+    panic_data: Array::<felt252>, 
+}
+
+trait RevertedTransactionTrait {
+    fn first(self: @RevertedTransaction) -> felt252; // Gets the first felt of the panic data
+}
+```
+
+### Example usage
+
 ```cairo title="Deployed contract"
 #[contract]
 mod MinimalContract {
