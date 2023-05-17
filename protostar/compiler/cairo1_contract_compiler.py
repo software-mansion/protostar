@@ -65,7 +65,6 @@ class Cairo1ContractCompiler:
                 contract_name=contract_name, err=ex
             ) from ex
 
-        assert sierra_compiled is not None
         return sierra_compiled
 
     @staticmethod
@@ -85,7 +84,6 @@ class Cairo1ContractCompiler:
         except cairo1_bindings.CairoBindingException as ex:
             raise CasmCompilationException(contract_name=contract_name, err=ex) from ex
 
-        assert casm_compiled is not None
         return casm_compiled
 
     @staticmethod
@@ -106,5 +104,4 @@ class Cairo1ContractCompiler:
         except cairo1_bindings.CairoBindingException as ex:
             raise CasmCompilationException(contract_name=contract_name, err=ex) from ex
 
-        assert casm_compiled is not None
         return casm_compiled
