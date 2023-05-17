@@ -25,7 +25,7 @@ inputs = [42]
 ```
 
 
-Protostar supports two types of transactions — `deploy` and `invoke`, which take similar arguments to [`deploy` command](/docs/cli-reference#deploy) and [`invoke` command](/docs/cli-reference#invoke).
+Multicall supports two types of transactions — `deploy` and `invoke`, which take similar arguments to [`deploy` command](/docs/cli-reference#deploy) and [`invoke` command](/docs/cli-reference#invoke).
 
 With the `deploy` transaction type, the deployment happens through the Universal Deployer Contract (UDC), see the [`deploy` command](/docs/cli-reference#deploy) for more information.
 
