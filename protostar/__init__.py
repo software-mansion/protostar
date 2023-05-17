@@ -45,8 +45,8 @@ setattr(CompiledClass, "__deepcopy__", shallow_copy)
 # Python complains about importing `Project`` if the import below is removed
 # pylint: disable=C0413
 from protostar.commands import (
+    BuildCairo0Command,
     BuildCommand,
-    BuildCairo1Command,
     InitCommand,
     InstallCommand,
     RemoveCommand,

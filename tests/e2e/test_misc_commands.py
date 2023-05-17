@@ -37,7 +37,7 @@ def test_init(init_project: ProjectInitializer, project_name: str):
 
 
 def test_init_existing(protostar_bin: Path):
-    child = pexpect.spawn(f"{protostar_bin} init --existing")
+    child = pexpect.spawn(f"{protostar_bin} init-cairo0 --existing")
     child.expect(pexpect.EOF)
     dirs = listdir(".")
 
@@ -47,7 +47,7 @@ def test_init_existing(protostar_bin: Path):
 def test_init_ask_existing(protostar_bin: Path):
     Path("example.cairo").touch()
 
-    child = pexpect.spawn(f"{protostar_bin} init")
+    child = pexpect.spawn(f"{protostar_bin} init-cairo0")
     child.expect("Your current directory.*", timeout=10)
     child.sendline("y")
     child.expect(pexpect.EOF)
@@ -56,7 +56,7 @@ def test_init_ask_existing(protostar_bin: Path):
     assert "protostar.toml" in dirs
 
 
-@pytest.mark.usefixtures("init")
+@pytest.mark.usefixtures("init_cairo0")
 def test_creating_configuration_file_v2():
     configuration_file = ConfigurationFileFactory(cwd=Path().resolve()).create()
 

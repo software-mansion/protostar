@@ -5,7 +5,7 @@ from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
     PreprocessorError,
 )
 
-import protostar.cairo.cairo_bindings as cairo1
+import protostar.cairo.bindings.cairo_bindings as cairo1
 from protostar.testing import TestCollector
 from protostar.testing.test_collector import TestSuiteInfo
 from protostar.testing.test_suite import Cairo1TestSuite, TestSuite, TestCase

@@ -1,15 +1,15 @@
 from pathlib import Path
 
 from tests.integration.conftest import (
-    RunTestRunnerFixture,
+    RunCairo0TestRunnerFixture,
     assert_cairo_test_cases,
 )
 
 
 async def test_testing_steps(
-    run_test_runner: RunTestRunnerFixture,
+    run_cairo0_test_runner: RunCairo0TestRunnerFixture,
 ):
-    testing_summary = await run_test_runner(
+    testing_summary = await run_cairo0_test_runner(
         Path(__file__).parent / "testing_steps_test.cairo", max_steps=10
     )
 
@@ -21,7 +21,7 @@ async def test_testing_steps(
 
     ###
 
-    testing_summary = await run_test_runner(
+    testing_summary = await run_cairo0_test_runner(
         Path(__file__).parent / "testing_steps_test.cairo", max_steps=-1
     )
 
@@ -31,7 +31,7 @@ async def test_testing_steps(
 
     ###
 
-    testing_summary = await run_test_runner(
+    testing_summary = await run_cairo0_test_runner(
         Path(__file__).parent / "testing_steps_test.cairo", max_steps=1000
     )
 

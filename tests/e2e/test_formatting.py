@@ -14,7 +14,7 @@ def assert_contents_not_equal(filepath1: str, filepath2: str):
     assert Path(filepath1).read_text() != Path(filepath2).read_text()
 
 
-@pytest.mark.usefixtures("init")
+@pytest.mark.usefixtures("init_cairo0")
 def test_formatting_basic(protostar: ProtostarFixture, copy_fixture: CopyFixture):
     os.mkdir("./to_format")
     copy_fixture("formatted.cairo", "./to_format")
@@ -31,7 +31,7 @@ def test_formatting_basic(protostar: ProtostarFixture, copy_fixture: CopyFixture
     )
 
 
-@pytest.mark.usefixtures("init")
+@pytest.mark.usefixtures("init_cairo0")
 def test_formatting_check(protostar: ProtostarFixture, copy_fixture: CopyFixture):
     os.mkdir("./to_format")
     copy_fixture("formatted.cairo", "./to_format")

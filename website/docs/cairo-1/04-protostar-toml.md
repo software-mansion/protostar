@@ -38,7 +38,7 @@ The `[project]` section of the `protostar.toml` file allows you to specify globa
 
 #### `protostar-version`
 
-This attribute is defines what Protostar version should be used with your project.
+This attribute defines which Protostar version should be used with your project.
 
 #### `linked-libraries`
 
@@ -61,10 +61,11 @@ other_contract = ["other_contract"]
 This section of the `protostar.toml` file allows you to specify arguments for a specific
 Protostar command.
 
-For example, you can define a different build dir for the [build-cairo1](../cli-reference.md#build-cairo1)
+
+For example, you can define a different build dir for the [build](../cli-reference.md#build)
 
 ```toml title="Configuration File"
-[build-cairo1]
+[build]
 compiled-contracts-dir = "my_dir"
 ```
 
@@ -79,7 +80,7 @@ specified in the profile.
 To create a configuration profile, add a new section to the `protostar.toml`. For example:
 
 - to create a configuration named `mainnet` for the [`declare-cairo1` command](../cli-reference.md#declare-cairo1),
-  add `[profile.mainnet.declare]` section
+  add `[profile.mainnet.declare-cairo1]` section
 - to create a shared configuration named `testnet`, add `[profile.testnet.project]` section
 
 To use a profile, add the [-p or --profile argument](../cli-reference.md#-p---profile-string) followed by the name of
@@ -88,5 +89,5 @@ For example, to use the [`declare-cairo1` command](../cli-reference.md#declare-c
 run:
 
 ```console
-protostar -p devnet declare-cairo1
+protostar -p testnet declare-cairo1
 ```

@@ -27,7 +27,7 @@ async def test_declare_cairo0_hint_local(
             "broken_syntax_contract": shared_datadir / "broken_syntax_contract.cairo",
         },
     )
-    testing_summary = await protostar_project.protostar.test_cairo1(
+    testing_summary = await protostar_project.protostar.test(
         Path(__file__).parent / "declare_cairo0_test.cairo",
     )
 

@@ -3,23 +3,25 @@ from pathlib import Path
 
 import pytest
 
-from protostar.commands.test.test_result_formatter import format_test_result
+from protostar.commands.legacy_commands.test_cairo0.test_result_formatter import (
+    format_test_result,
+)
 from protostar.testing import TestingSummary
 from protostar.testing.test_results import BrokenTestCaseResult
 from protostar.io.log_color_provider import log_color_provider
 
 from tests.integration.conftest import (
-    RunTestRunnerFixture,
+    RunCairo0TestRunnerFixture,
     assert_cairo_test_cases,
 )
 
 
 @pytest.fixture(name="testing_summary", scope="module")
 def testing_summary_fixture(
-    run_test_runner: RunTestRunnerFixture,
+    run_cairo0_test_runner: RunCairo0TestRunnerFixture,
 ) -> TestingSummary:
     return asyncio.run(
-        run_test_runner(Path(__file__).parent / "expect_revert_test.cairo")
+        run_cairo0_test_runner(Path(__file__).parent / "expect_revert_test.cairo")
     )
 
 

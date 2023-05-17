@@ -1,0 +1,21 @@
+[package]
+name = "rust_test_runner_bindings"
+version = "1.0.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anyhow = "1.0.66"
+cairo-lang-protostar = { path = "../cairo/crates/cairo-lang-protostar" }
+cairo-lang-test-runner = { path = "../cairo/crates/cairo-lang-test-runner", version = "1.0.0-alpha.2" }
+cairo-lang-runner = { path = "../cairo/crates/cairo-lang-runner", version = "1.0.0-rc0" }
+cairo-lang-sierra-to-casm = { path = "../cairo/crates/cairo-lang-sierra-to-casm", version = "1.0.0-rc0" }
+
+[lib]
+name = "rust_test_runner_bindings"
+crate-type = ["cdylib"]
+
+[dependencies.pyo3]
+version = "0.10.1"
+features = ["extension-module"]

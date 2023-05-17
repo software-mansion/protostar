@@ -2,40 +2,26 @@
 
 set -e
 
-# clean up
-if [ "$1" == "--cleanup" ]; then
-  poetry env info -p | xargs rm -rf
-  if [[ $(uname -m) == 'arm64' ]]; then
-    CFLAGS=-I/opt/homebrew/opt/gmp/include LDFLAGS=-L/opt/homebrew/opt/gmp/lib poetry install
-  else
-    poetry install
-  fi
-fi
-
 function install_dev() {
-  git pull --recurse-submodules
+  git pull origin $(git rev-parse --abbrev-ref HEAD) --ff-only --recurse-submodules
 
-  pushd cairo
-  pushd crates/cairo-lang-python-bindings
+  pushd cairo/crates/cairo-lang-python-bindings
   rustup override set nightly-2022-11-03 || return 1;
   maturin develop --release || return 1;
-  popd # crates/cairo-lang-python-bindings
-  popd # cairo
+  popd
 }
 
 function install_prod() {
-  git pull --recurse-submodules
+  git pull origin $(git rev-parse --abbrev-ref HEAD) --ff-only --recurse-submodules
 
-  pushd cairo
-  pushd crates/cairo-lang-python-bindings
+  pushd cairo/crates/cairo-lang-python-bindings
   rustup override set nightly-2022-11-03 || return 1;
   maturin build || return 1;
-  popd # crates/cairo-lang-python-bindings
+  popd # cairo/crates/cairo-lang-python-bindings
 
-  pushd target/wheels
+  pushd cairo/target/wheels
   pip install "./$(ls | grep cairo_python_bindings)" || return 1;
-  popd # target/wheels
-  popd # cairo
+  popd # cairo/target/wheels
 }
 
 if [ "$1" == "prod" ]; then
@@ -53,5 +39,3 @@ if [ "$1" == "prod" ]; then
       exit 1
     fi
 fi
-
-

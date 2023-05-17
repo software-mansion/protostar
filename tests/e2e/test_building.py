@@ -8,29 +8,29 @@ import pytest
 from tests.e2e.conftest import MyPrivateLibsSetupFixture, ProtostarFixture
 
 
-@pytest.mark.usefixtures("init")
+@pytest.mark.usefixtures("init_cairo0")
 def test_default_build(protostar: ProtostarFixture):
-    protostar(["build"])
+    protostar(["build-cairo0"])
     dirs = listdir()
     assert "build" in dirs
 
 
-@pytest.mark.usefixtures("init")
+@pytest.mark.usefixtures("init_cairo0")
 def test_class_hash_output(protostar: ProtostarFixture):
-    output = protostar(["build"])
+    output = protostar(["build-cairo0"])
     assert 'Class hash for contract "main": ' in output
     assert output.split('Class hash for contract "main": ')[1].strip().startswith("0x")
     numeric_value = int(
         output.split('Class hash for contract "main": ')[1].strip()[2:], 16
     )
 
-    output_json = protostar(["build", "--json"])
+    output_json = protostar(["build-cairo0", "--json"], ignore_stderr=True)
     output_json_parsed = json.loads(output_json.split("\n")[0])
     assert output_json_parsed["main"].startswith("0x")
     assert numeric_value == int(output_json_parsed["main"][2:], 16)
 
 
-@pytest.mark.usefixtures("init")
+@pytest.mark.usefixtures("init_cairo0")
 def test_non_zero_exit_code_if_fails(protostar: ProtostarFixture):
     Path("./src/main.cairo").write_text(
         dedent(
@@ -43,12 +43,12 @@ def test_non_zero_exit_code_if_fails(protostar: ProtostarFixture):
         encoding="utf-8",
     )
 
-    protostar(["build"], expect_exit_code=1)
+    protostar(["build-cairo0"], expect_exit_code=1)
 
 
-@pytest.mark.usefixtures("init")
+@pytest.mark.usefixtures("init_cairo0")
 def test_output_dir(protostar: ProtostarFixture):
-    protostar(["build", "--compiled-contracts-dir", "out"])
+    protostar(["build-cairo0", "--compiled-contracts-dir", "out"])
     dirs = listdir()
     assert "build" not in dirs
     assert "out" in dirs
@@ -59,7 +59,7 @@ def test_cairo_path_argument(
 ):
     (my_private_libs_dir,) = my_private_libs_setup
 
-    protostar(["build", "--cairo-path", str(my_private_libs_dir)])
+    protostar(["build-cairo0", "--cairo-path", str(my_private_libs_dir)])
 
     dirs = listdir()
     assert "build" in dirs
@@ -72,16 +72,18 @@ def test_cairo_path_loaded_from_command_config_section_in_config_file(
 
     with open("./protostar.toml", "a", encoding="utf-8") as protostar_toml:
         protostar_toml.write(
-            "\n".join(["[build]", f'cairo-path = ["{str(my_private_libs_dir)}"]'])
+            "\n".join(
+                ["[build-cairo0]", f'cairo-path = ["{str(my_private_libs_dir)}"]']
+            )
         )
 
-    protostar(["build"])
+    protostar(["build-cairo0"])
 
     dirs = listdir()
     assert "build" in dirs
 
 
-@pytest.mark.usefixtures("init")
+@pytest.mark.usefixtures("init_cairo0")
 def test_cairo_path_loaded_from_command_shared_section_in_config_file(
     protostar: ProtostarFixture,
     my_private_libs_setup: MyPrivateLibsSetupFixture,
@@ -102,7 +104,7 @@ def test_cairo_path_loaded_from_command_shared_section_in_config_file(
         encoding="utf-8",
     )
 
-    protostar(["build"])
+    protostar(["build-cairo0"])
 
     dirs = listdir()
     assert "build" in dirs
@@ -113,7 +115,7 @@ def test_cairo_path_loaded_from_profile_section(
 ):
     (my_private_libs_dir,) = my_private_libs_setup
 
-    protostar(["build"], expect_exit_code=1)
+    protostar(["build-cairo0"], expect_exit_code=1)
 
     Path("protostar.toml").write_text(
         dedent(
@@ -124,20 +126,20 @@ def test_cairo_path_loaded_from_profile_section(
             [contracts]
             main=["src/main.cairo"]
 
-            [profile.my_profile.build]
+            [profile.my_profile.build-cairo0]
             cairo-path=["{str(my_private_libs_dir)}"]
             """
         ),
         encoding="utf-8",
     )
 
-    protostar(["-p", "my_profile", "build"])
+    protostar(["-p", "my_profile", "build-cairo0"])
 
     dirs = listdir()
     assert "build" in dirs
 
 
-@pytest.mark.usefixtures("init")
+@pytest.mark.usefixtures("init_cairo0")
 def test_disable_hint_validation(protostar: ProtostarFixture):
     Path("./src/main.cairo").write_text(
         dedent(
@@ -160,14 +162,16 @@ def test_disable_hint_validation(protostar: ProtostarFixture):
         encoding="utf-8",
     )
 
-    result = protostar(["build"], ignore_exit_code=True)
+    result = protostar(["build-cairo0"], ignore_exit_code=True)
     assert "Hint is not whitelisted." in result
 
-    result = protostar(["build", "--disable-hint-validation"], ignore_exit_code=True)
+    result = protostar(
+        ["build-cairo0", "--disable-hint-validation"], ignore_exit_code=True
+    )
     assert "Hint is not whitelisted." not in result
 
 
-@pytest.mark.usefixtures("init")
+@pytest.mark.usefixtures("init_cairo0")
 def test_building_account_contract(protostar: ProtostarFixture):
     Path("./src/main.cairo").write_text(
         dedent(
@@ -193,13 +197,13 @@ def test_building_account_contract(protostar: ProtostarFixture):
         encoding="utf-8",
     )
 
-    protostar(["build"])
+    protostar(["build-cairo0"])
 
     dirs = listdir()
     assert "build" in dirs
 
 
-@pytest.mark.usefixtures("init")
+@pytest.mark.usefixtures("init_cairo0")
 @pytest.mark.parametrize("protostar_version", ["0.0.0"])
 def test_building_project_with_modified_protostar_toml(protostar: ProtostarFixture):
     with open("./protostar.toml", mode="w", encoding="utf-8") as protostar_toml:
@@ -221,7 +225,7 @@ def test_building_project_with_modified_protostar_toml(protostar: ProtostarFixtu
             ),
         )
 
-    protostar(["build"])
+    protostar(["build-cairo0"])
 
     build_dir = listdir("./build")
     assert "foo.json" in build_dir

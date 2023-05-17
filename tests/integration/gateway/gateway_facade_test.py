@@ -30,7 +30,7 @@ from tests.integration._conftest import (
 @pytest.fixture(autouse=True, scope="function", name="protostar_project")
 def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
     with create_protostar_project() as protostar_project:
-        protostar_project.protostar.build_sync()
+        protostar_project.protostar.build_cairo0_sync()
         yield protostar_project
 
 
@@ -174,7 +174,7 @@ async def compiled_contract_without_constructor_class_hash_fixture(
     set_private_key_env_var: SetPrivateKeyEnvVarFixture,
 ):
     protostar_project.create_files({"./src/main.cairo": IDENTITY_CONTRACT})
-    await protostar_project.protostar.build()
+    await protostar_project.protostar.build_cairo0()
     with set_private_key_env_var(devnet_account.private_key):
         declare_res = await protostar_project.protostar.declare(
             protostar_project.protostar.project_root_path / "build" / "main.json",
@@ -212,7 +212,7 @@ async def compiled_contract_with_constructor_class_hash_fixture(
     set_private_key_env_var: SetPrivateKeyEnvVarFixture,
 ):
     protostar_project.create_files({"./src/main.cairo": CONTRACT_WITH_CONSTRUCTOR})
-    await protostar_project.protostar.build()
+    await protostar_project.protostar.build_cairo0()
     with set_private_key_env_var(devnet_account.private_key):
         declare_res = await protostar_project.protostar.declare(
             protostar_project.project_root_path / "build" / "main.json",
