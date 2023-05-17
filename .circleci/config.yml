@@ -373,9 +373,11 @@ jobs:
               echo "Canceling workflow to disable releases.."
               curl --fail -X POST "https://circleci.com/api/v2/workflow/$CIRCLE_WORKFLOW_ID/cancel?circle-token=$CIRCLE_TOKEN"
             else
-              ./scripts/notify.sh "good" \
-              "*New release is ready to be published* :protostar:" \
-              "*Version to be released:*\n$VERSION\n\n*Link to workflow:*\nhttps://app.circleci.com/pipelines/workflows/$CIRCLE_WORKFLOW_ID" "$SLACK_URL"
+              if [ "$CIRCLE_BRANCH" = "master" ]; then
+                ./scripts/notify.sh "good" \
+                "*New release is ready to be published* :protostar:" \
+                "*Version to be released:*\n$VERSION\n\n*Link to workflow:*\nhttps://app.circleci.com/pipelines/workflows/$CIRCLE_WORKFLOW_ID" "$SLACK_URL"
+              fi
             fi
       - persist_to_workspace:
           root: /tmp/version

@@ -156,10 +156,19 @@ const config = {
         style: "dark",
         links: [
           {
-            title: "Docs",
+            title: "Cairo 1",
             items: [
               {
-                label: "legacy",
+                label: "Cairo 1",
+                to: "/docs/cairo-1/introduction",
+              },
+            ],
+          },
+          {
+            title: "Legacy test runner",
+            items: [
+              {
+                label: "Legacy test runner",
                 to: "/docs/legacy/introduction",
               },
             ],
