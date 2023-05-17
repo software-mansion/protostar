@@ -367,11 +367,10 @@ jobs:
             released_versions=$(curl -s --fail https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/releases | grep "tag_name" | awk '{print $2}' | tr -d 'v,')
             mkdir -p /tmp/version
             echo "export VERSION=v$built_version" | tr -d '"' > /tmp/version/version
+            echo "export RELEASED_VERSIONS=v$released_versions" | tr -d '"' > /tmp/version/released-versions
             source /tmp/version/version
             if echo "$released_versions" | grep -qF "$built_version"; then
               echo "Version $VERSION already released"
-              echo "Canceling workflow to disable releases.."
-              curl --fail -X POST "https://circleci.com/api/v2/workflow/$CIRCLE_WORKFLOW_ID/cancel?circle-token=$CIRCLE_TOKEN"
             else
               if [ "$CIRCLE_BRANCH" = "master" ]; then
                 ./scripts/notify.sh "good" \
@@ -381,7 +380,9 @@ jobs:
             fi
       - persist_to_workspace:
           root: /tmp/version
-          paths: version
+          paths:
+            - version
+            - released-versions
 
   release:
     parameters:
@@ -396,22 +397,20 @@ jobs:
       - run:
           name: Release new version
           command: |
+            set -x
             source /tmp/workspace/version
+            if grep -qF "$VERSION" /tmp/workspace/released-versions; then
+              echo "Already released, cancelling release"
+              curl --fail -X POST "https://circleci.com/api/v2/workflow/$CIRCLE_WORKFLOW_ID/cancel?circle-token=$CIRCLE_TOKEN"
+              exit 0
+            fi
             if [ << parameters.prerelease >> = true ]; then
               type="--prerelease"
+              name="prerelease"
             fi
             gh release create "$VERSION" /tmp/workspace/*.tar.gz --title "$VERSION" --repo "$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME" $type
-      - run:
-          name: Notify about release
-          command: |
-            if [ << parameters.prerelease >> = true ]; then
-              type="pre-release"
-            else
-              type="release"
-            fi
-            source /tmp/workspace/version
             ./scripts/notify.sh "good" \
-            "*New $type has just been published* :tada:" \
+            "*New ${name:-"release"} has just been published* :tada:" \
             "*Version:*\n$VERSION\n\n*Approver:*\n$CIRCLE_USERNAME" "$SLACK_URL"
 
   build_docs:
@@ -439,6 +438,21 @@ jobs:
       - persist_to_workspace:
           root: .
           paths: protostar-docs.tar.gz
+
+  patch_approval_check:
+    parameters:
+      approval_name:
+        type: string
+    executor: linux
+    steps:
+      - checkout
+      - run:
+          name: Install jq
+          command: |
+            apt update && apt install -y jq
+      - run:
+          name: Mark approval checks as successfull in PRs
+          command: ./scripts/circle_patch_approvals.sh << parameters.approval_name >>
 
 workflows:
   version: 2
@@ -469,6 +483,17 @@ workflows:
             branches:
               ignore:
                 - master
+      - patch_approval_check:
+          name: patch_test_release_approval_status
+          approval_name: send_test_release_approval
+          requires:
+            - code_quality
+            - unit_tests
+            - e2e_tests
+          filters:
+            branches:
+              ignore:
+                - master
       - send_test_release:
           requires:
             - send_test_release_approval
@@ -489,8 +514,22 @@ workflows:
             branches:
               only:
                 - master
+      - patch_approval_check:
+          name: patch_release_approval_status
+          approval_name: release_approval
+          requires:
+            - verify_valid_version
+          filters:
+            branches:
+              only:
+                - master
       - prerelease_approval:
           type: approval
+          requires:
+            - verify_valid_version
+      - patch_approval_check:
+          name: patch_prerelease_approval_status
+          approval_name: prerelease_approval
           requires:
             - verify_valid_version
       - release:
