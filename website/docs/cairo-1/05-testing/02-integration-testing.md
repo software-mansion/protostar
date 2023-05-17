@@ -155,3 +155,69 @@ When Starknet instance is accessed through cheatcodes, it is analogous to access
 ## Old cairo contracts
 
 Protostar allows you to test contracts written in old cairo. You can use cheatcode [declare_cairo0](./cheatcodes-reference/declare-cairo0.md) to declare them.
+
+## Working with complex argument types
+
+Your `#[view]` , `#[external]` or `#[constructor]` might require complex argument types as inputs. 
+
+Given a contract:
+
+
+```cairo title="Tested contract"
+#[contract]
+mod ExampleContract {
+    #[derive(Drop, Serde)]
+    struct NestedStruct {
+        d: felt252,
+    }
+
+    #[derive(Drop, Serde)]
+    struct CustomStruct {
+        a: felt252,
+        b: felt252,
+        c: NestedStruct,
+    }
+
+    #[derive(Drop, Serde)]
+    struct AnotherCustomStruct {
+        e: felt252,
+    }
+
+    #[view]
+    fn add_multiple_parts(custom_struct: CustomStruct, another_struct: AnotherCustomStruct, standalone_arg: felt252) -> felt252 {
+        custom_struct.a + custom_struct.b + custom_struct.c.d + another_struct.e + standalone_arg
+    }
+```
+
+You can test the `#[view]` using `Serde` to serialize the arguments into calldata (just like an external contract call would work)
+
+```cairo title="ExampleContract test"
+use array::ArrayTrait;
+use result::ResultTrait;
+use serde::Serde;
+
+use example::contracts::example::ExampleContract::CustomStruct;
+use example::contracts::example::ExampleContract::NestedStruct;
+use example::contracts::example::ExampleContract::AnotherCustomStruct;
+
+#[test]
+fn test_add_multiple_structs() {
+    let contract_address = deploy_contract('example', @ArrayTrait::new()).unwrap();
+
+    let mut calldata = ArrayTrait::new();
+
+    let ns = NestedStruct { d: 1 };
+    let cs = CustomStruct { a: 2, b: 3, c: ns };
+    let acs = AnotherCustomStruct { e: 4 };
+    let standalone_arg = 5;
+
+    Serde::serialize(@cs, ref calldata);  // First argument
+    Serde::serialize(@acs, ref calldata); // Second argument
+    calldata.append(standalone_arg);      // Third argument (no need for serde call here) 
+
+    let result = call(contract_address, 'add_multiple_parts', @calldata).unwrap();
+    assert(*result.at(0_usize) == 1 + 2 + 3 + 4 + 5, 'Invalid sum');
+}
+```
+
+You would use the same method for passing arguments for `deploy_contract`, `deploy` or `invoke` cheatcodes.
