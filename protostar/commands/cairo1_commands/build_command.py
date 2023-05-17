@@ -120,7 +120,7 @@ class BuildCommand(ProtostarCommand):
             contract_name=contract_name,
             contract_path=contract_paths[0],
             cairo_path=cairo_path,
-            output_path=output_dir / contract_name,
+            output_dir=output_dir,
         )
 
         class_hash = compute_class_hash_from_sierra_code(
