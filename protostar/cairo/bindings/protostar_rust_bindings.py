@@ -5,12 +5,9 @@ import rust_test_runner_bindings
 from .cairo_bindings_exception import CairoBindingException
 
 
-def run_tests(input_path: str) -> list[str]:
+def run_tests(input_path: str):
     with handle_bindings_errors("run_tests"):
-        tests_results = rust_test_runner_bindings.run_tests(  # pyright: ignore
-            input_path
-        )
-        return tests_results
+        rust_test_runner_bindings.run_tests(input_path)  # pyright: ignore
 
 
 @contextmanager

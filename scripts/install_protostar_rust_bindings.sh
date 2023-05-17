@@ -2,16 +2,6 @@
 
 set -e
 
-# clean up
-if [ "$1" == "--cleanup" ]; then
-  poetry env info -p | xargs rm -rf
-  if [[ $(uname -m) == 'arm64' ]]; then
-    CFLAGS=-I/opt/homebrew/opt/gmp/include LDFLAGS=-L/opt/homebrew/opt/gmp/lib poetry install
-  else
-    poetry install
-  fi
-fi
-
 function install_dev() {
   git pull --recurse-submodules
 
