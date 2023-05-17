@@ -96,7 +96,7 @@ func test_withdraw{
 
 So far, so good. Running the test, we see it passes:
 
-```text title="$ protostar test"
+```text title="$ protostar test-cairo0"
 12:14:47 [INFO] Collected 1 suite, and 1 test case (0.077 s)
 [PASS] tests/test_main.cairo test_withdraw (time=1.19s, steps=129)
        range_check_builtin=1
@@ -159,7 +159,7 @@ By default, it tries to apply all possible `felt` values.
 When the test is run now, we can see that it fails for values larger than the amount we stored
 in [`setup_withdraw` hook][setup-case]:
 
-```text title="$ protostar test"
+```text title="$ protostar test-cairo0"
 12:23:55 [INFO] Collected 1 suite, and 1 test case (0.076 s)
 [FAIL] tests/test_main.cairo test_withdraw (time=7.69s, fuzz_runs=77)
 [type] TRANSACTION_FAILED
@@ -226,7 +226,7 @@ func test_withdraw{
 If we run the test now, we can see that Protostar runs a fuzz test, but it fails for high values
 of `amount`:
 
-```text title="$ protostar test"
+```text title="$ protostar test-cairo0"
 12:25:23 [INFO] Collected 1 suite, and 1 test case (0.075 s)
 [FAIL] tests/test_main.cairo test_withdraw (time=3.04s, fuzz_runs=21)
 Expected an exception matching the following error:
@@ -271,7 +271,7 @@ And now, the test passes.
 We can also observe the variance of resources usage, caused by the `if amount == 0:` branch in
 contract code.
 
-```text title="$ protostar test"
+```text title="$ protostar test-cairo0"
 12:27:23 [INFO] Collected 1 suite, and 1 test case (0.075 s)
 [PASS] tests/test_main.cairo test_withdraw (time=9.49s, fuzz_runs=100, steps=μ: 118.84, Md: 131, min: 78, max: 131)
        range_check_builtin=μ: 1, Md: 1, min: 1, max: 1

@@ -11,9 +11,9 @@ from starkware.cairo.lang.compiler.preprocessor.preprocessor_error import (
     LocationError,
     PreprocessorError,
 )
-from protostar.cairo.cairo_bindings import AvailableGas
+from protostar.cairo.bindings.cairo_bindings import AvailableGas
 
-from protostar.cairo.cairo_bindings import CairoBindingException
+from protostar.cairo.bindings.cairo_bindings import CairoBindingException
 
 from .test_results import BrokenTestSuiteResult
 from .test_suite import TestCase, TestSuite

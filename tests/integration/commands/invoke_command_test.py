@@ -15,7 +15,7 @@ from tests.integration._conftest import ProtostarProjectFixture, ProtostarFixtur
 @pytest.fixture(name="protostar_project")
 def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
     with create_protostar_project() as protostar_project:
-        protostar_project.protostar.build_sync()
+        protostar_project.protostar.build_cairo0_sync()
         yield protostar_project
 
 
@@ -90,7 +90,7 @@ async def test_invoke_uint256_(
     protostar_project.create_files(
         {"src/main.cairo": CONTRACT_WITH_UINT256_CONSTRUCTOR}
     )
-    await protostar_project.protostar.build()
+    await protostar_project.protostar.build_cairo0()
     with set_private_key_env_var(devnet_account.private_key):
         declare_response = await protostar_project.protostar.declare(
             contract=protostar_project.project_root_path / "build" / "main.json",
@@ -182,7 +182,7 @@ async def test_handling_invoke_failure(
     set_private_key_env_var: SetPrivateKeyEnvVarFixture,
 ):
     protostar_project.create_files({"./src/main.cairo": RUNTIME_ERROR_CONTRACT})
-    await protostar_project.protostar.build()
+    await protostar_project.protostar.build_cairo0()
     with set_private_key_env_var(devnet_account.private_key):
         declare_response = await protostar_project.protostar.declare(
             contract=protostar_project.protostar.project_root_path

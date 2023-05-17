@@ -1,16 +1,16 @@
 from pathlib import Path
 
 from tests.integration.conftest import (
-    RunTestRunnerFixture,
+    RunCairo0TestRunnerFixture,
     assert_cairo_test_cases,
 )
 
 
 async def test_disabling_hint_validation(
-    run_test_runner: RunTestRunnerFixture,
+    run_cairo0_test_runner: RunCairo0TestRunnerFixture,
 ):
     async def run_test(disable_hint_validation: bool):
-        return await run_test_runner(
+        return await run_cairo0_test_runner(
             Path(__file__).parent / "disabling_hint_validation_test.cairo",
             disable_hint_validation=disable_hint_validation,
         )
