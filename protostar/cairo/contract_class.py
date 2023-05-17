@@ -23,7 +23,7 @@ def make_compiled_class(casm_compiled: str) -> CompiledClass:
     return CompiledClass.loads(casm_compiled)
 
 
-def compute_class_hash_from_sierra_code(sierra_compiled: str, output_path: Path):
+def compute_class_hash_from_sierra_code(sierra_compiled: str, output_path: Path) -> int:
     contract_class = make_contract_class(sierra_compiled)
     class_hash = compute_class_hash(contract_class)
 
@@ -33,7 +33,9 @@ def compute_class_hash_from_sierra_code(sierra_compiled: str, output_path: Path)
     return class_hash
 
 
-def compute_compiled_class_hash_from_casm_code(casm_compiled: str, output_path: Path):
+def compute_compiled_class_hash_from_casm_code(
+    casm_compiled: str, output_path: Path
+) -> int:
     compiled_class = make_compiled_class(casm_compiled)
     compiled_class_hash = compute_compiled_class_hash(compiled_class)
 
