@@ -1,7 +1,7 @@
 from typing import Optional, Callable, Any
 from pathlib import Path
 
-import protostar.cairo.cairo_bindings as cairo1
+import protostar.cairo.bindings.cairo_bindings as cairo1
 from protostar.cairo.cairo1_test_suite_parser import (
     ProtostarCasm,
 )

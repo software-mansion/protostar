@@ -2,8 +2,8 @@ from pathlib import Path
 
 import pytest
 
-import protostar.cairo.cairo_bindings as cairo1
-from protostar.cairo.cairo_bindings import CairoBindingException
+import protostar.cairo.bindings.cairo_bindings as cairo1
+from protostar.cairo.bindings.cairo_bindings import CairoBindingException
 
 
 def test_typecheck_basic(datadir: Path):

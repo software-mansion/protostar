@@ -1,0 +1,509 @@
+version: 2.1
+
+orbs:
+  gh: circleci/github-cli@2.2.0
+
+parameters:
+  poetry_version:
+    type: string
+    default: 1.4.2
+
+  python_version:
+    type: string
+    default: 3.9.14
+
+  # https://circleci.com/docs/using-macos/#supported-xcode-versions-silicon
+  # https://circleci.com/docs/using-macos/#supported-xcode-versions-intel
+  macos_xcode_version:
+    type: string
+    default: 14.2.0
+
+  scarb_version:
+    type: string
+    default: 0.1.0
+
+  node_version:
+    type: string
+    default: "16.20"
+
+executors:
+  linux:
+    docker:
+      - image: python:<< pipeline.parameters.python_version >>
+  mac:
+    macos:
+      xcode: << pipeline.parameters.macos_xcode_version >>
+
+  docs:
+    docker:
+      - image: cimg/node:<< pipeline.parameters.node_version >>
+
+commands:
+  install_python_and_gmp_mac:
+    description: "Install specified python and poetry versions on mac executor"
+    steps:
+      - restore_cache:
+          keys:
+            - mac-python-gmp-<< pipeline.parameters.python_version >>
+      - run:
+          name: Install python and gmp
+          command: |
+            env PYTHON_CONFIGURE_OPTS="--enable-framework" pyenv install -s << pipeline.parameters.python_version >>
+            pyenv global << pipeline.parameters.python_version >>
+            HOMEBREW_NO_AUTO_UPDATE=1 brew install gmp
+      - save_cache:
+          key: mac-python-gmp-<< pipeline.parameters.python_version >>
+          paths:
+            - ~/.pyenv/versions/<< pipeline.parameters.python_version >>
+            - /opt/homebrew/opt/gmp
+
+  ensure_poetry_version:
+    description: "Install poetry"
+    steps:
+      - run:
+          name: Install required poetry version
+          command: |
+            if ! poetry --version &> /dev/null || [[ $(poetry --version | awk '{print $NF}') != << pipeline.parameters.poetry_version >> ]]; then 
+              pip3 install poetry==<< pipeline.parameters.poetry_version >>
+            fi
+
+  install_packages:
+    description: "Install packages from lock file"
+    parameters:
+      platform:
+        type: enum
+        enum: ["linux", "mac"]
+    steps:
+      - run:
+          name: Install packages
+          command: |
+            poetry config installer.modern-installation false
+            if [[ << parameters.platform >> == "mac" ]]; then
+              CFLAGS=-I`brew --prefix gmp`/include LDFLAGS=-L`brew --prefix gmp`/lib poetry --no-ansi install
+            else
+              poetry --no-ansi install
+            fi
+
+  checkout_with_submodules:
+    description: "Checkout code with submodules"
+    steps:
+      - checkout
+      - run:
+          name: Checkout code submodules
+          command: |
+            git submodule sync
+            git submodule update --init
+
+  install_rust:
+    description: "Install rust"
+    steps:
+      - run:
+          name: Install rust
+          command: |
+            curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+            echo 'export PATH="$HOME/.cargo/bin:$PATH"' >> "$BASH_ENV"
+            source "$BASH_ENV"
+
+  install_scarb:
+    description: "Install scarb"
+    steps:
+      - run:
+          name: Install scarb
+          command: |
+            curl --proto '=https' --tlsv1.2 -sSf https://docs.swmansion.com/scarb/install.sh | bash -s -- -v << pipeline.parameters.scarb_version >>
+            echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$BASH_ENV"
+            source "$BASH_ENV"
+
+  cairo_bindings_and_compiler:
+    description: "Install cairo bindings"
+    parameters:
+      platform:
+        default: linux
+        type: enum
+        enum: ["linux", "mac"]
+    steps:
+      - run:
+          name: Get submodule hash
+          command: git rev-parse HEAD:./cairo > /tmp/cairo-submodule-hash
+      - restore_cache:
+          key: bindings-<< parameters.platform >>-{{ checksum "scripts/install_all_bindings.sh" }}-{{ checksum "scripts/install_cairo_bindings.sh" }}-{{ checksum "scripts/install_protostar_rust_bindings.sh" }}-{{ checksum "/tmp/cairo-submodule-hash" }}
+      - run:
+          name: Install bindings and compile cairo-compile
+          command: |
+            if [ -f ./cairo/target/debug/cairo-compile ] && [ -d ./cairo/target/wheels ]; then
+              pip install $(find ./cairo/target/wheels -maxdepth 1 -type f -iname "cairo_python_bindings*")
+            else
+              poetry run poe install_all_bindings prod
+              poetry run poe install_all_bindings
+              pushd cairo
+              rustup override set nightly-2022-11-03
+              cargo build --bin cairo-compile
+              popd
+            fi
+      - save_cache:
+          key: bindings-<< parameters.platform >>-{{ checksum "scripts/install_all_bindings.sh" }}-{{ checksum "scripts/install_cairo_bindings.sh" }}-{{ checksum "scripts/install_protostar_rust_bindings.sh" }}-{{ checksum "/tmp/cairo-submodule-hash" }}
+          paths:
+            - ./cairo/target/debug/cairo-compile
+            - ./cairo/target/wheels
+      - patch_cairo_compiler
+
+  patch_cairo_compiler:
+    description: "Replace cairo_lang cairo compiler"
+    steps:
+      - run:
+          name: Replace cairo_lang compiler
+          command: |
+            PY_VER=$(echo << pipeline.parameters.python_version >> | awk 'BEGIN{FS=OFS="."} NF--')
+            cp cairo/target/debug/cairo-compile $(poetry env info -p)/lib/python$PY_VER/site-packages/starkware/starknet/compiler/v1/bin/starknet-sierra-compile
+            chmod +x $(poetry env info -p)/lib/python$PY_VER/site-packages/starkware/starknet/compiler/v1/bin/starknet-sierra-compile
+
+  setup:
+    description: "Set up poetry, install deps and cairo bindings"
+    parameters:
+      platform:
+        default: linux
+        type: enum
+        enum: ["linux", "mac"]
+    steps:
+      - when:
+          condition:
+            equal: ["mac", << parameters.platform >>]
+          steps:
+            - install_python_and_gmp_mac
+      - ensure_poetry_version
+      - install_rust
+      - checkout_with_submodules
+      - restore_poetry_cache:
+          platform: << parameters.platform >>
+      - install_packages:
+          platform: << parameters.platform >>
+      - cairo_bindings_and_compiler:
+          platform: << parameters.platform >>
+      - save_poetry_cache:
+          platform: << parameters.platform >>
+
+  restore_poetry_cache:
+    parameters:
+      platform:
+        type: enum
+        enum: ["linux", "mac"]
+    steps:
+      - restore_cache:
+          key: poetry-<< pipeline.parameters.poetry_version >>-py<< pipeline.parameters.python_version >>-<< parameters.platform >>-{{ checksum "poetry.lock" }}
+
+  save_poetry_cache:
+    parameters:
+      platform:
+        type: enum
+        enum: ["linux", "mac"]
+    steps:
+      - save_cache:
+          key: poetry-<< pipeline.parameters.poetry_version >>-py<< pipeline.parameters.python_version >>-<< parameters.platform >>-{{ checksum "poetry.lock" }}
+          paths:
+            - ~/.cache/pypoetry
+            - ~/Library/Caches/pypoetry
+
+  lint:
+    description: "Type checks, formatting and linting"
+    steps:
+      - run:
+          name: Run type check
+          command: poetry run poe type_check
+      - run:
+          name: Run Format check
+          command: poetry run poe format_check
+      - run:
+          name: Run linter
+          command: poetry run poe lint
+
+  build:
+    description: "Build protostar"
+    steps:
+      - run:
+          name: Build protostar
+          command: poetry run poe build
+
+  run_unit_tests:
+    description: "Run unit tests"
+    steps:
+      - run:
+          command: poetry run pytest -n4 protostar/*
+
+  run_integration_tests:
+    description: "Run integration tests"
+    steps:
+      - run:
+          name: Run integration tests
+          command: |
+            TESTS=$(circleci tests glob "tests/integration/**/*.py" | circleci tests split --split-by=timings)
+            # auto OR $(getconf _NPROCESSORS_ONLN) does not return physical cpus in docker
+            # so the number is inflated and tests fail; hence fixed number of cpus
+            poetry run pytest -n4 --random-order scripts $TESTS
+
+  run_e2e_tests:
+    description: "Run unit tests"
+    parameters:
+      platform:
+        type: enum
+        enum: ["linux", "mac"]
+    steps:
+      - build
+      - install_scarb
+      - run:
+          name: Run e2e tests
+          command: |
+            poetry run pytest -n4 tests/e2e
+      - run:
+          name: Pack protostar
+          command: tar -czvf protostar-<< parameters.platform >>.tar.gz ./dist/protostar
+
+  notify_about_failed_test:
+    description: "Send slack notification about failed test on master"
+    parameters:
+      message:
+        type: string
+    steps:
+      - when:
+          condition:
+            equal: [master, << pipeline.git.branch >>]
+          steps:
+            - run:
+                name: Notify about failed test
+                command: |
+                  ./scripts/notify.sh "danger" \
+                  "<< parameters.message >>" \
+                  "*Committed by:*\n$CIRCLE_USERNAME\n\n*Url to failed test:*\n$CIRCLE_BUILD_URL" \
+                  "$SLACK_URL"
+                when: on_fail
+
+jobs:
+  code_quality:
+    executor: linux
+    steps:
+      - setup
+      - lint
+      - notify_about_failed_test:
+          message: "*Code quality checks have failed* :rotating_light:"
+
+  unit_tests:
+    parameters:
+      platform:
+        type: enum
+        enum: ["linux", "mac"]
+    executor: << parameters.platform >>
+    #parallelism: 4
+    steps:
+      - setup:
+          platform: << parameters.platform >>
+      - run:
+          name: Set git config
+          command: git config --global protocol.file.allow always
+      - run_unit_tests
+      - run_integration_tests
+      - notify_about_failed_test:
+          message: "*Unit tests have failed* :rotating_light:"
+
+  e2e_tests:
+    parameters:
+      platform:
+        type: enum
+        enum: ["linux", "mac"]
+    executor: << parameters.platform >>
+    steps:
+      - setup:
+          platform: << parameters.platform >>
+      - run:
+          name: Set git config
+          command: git config --global protocol.file.allow always
+      - run_e2e_tests:
+          platform: << parameters.platform >>
+      - run:
+          name: Prepare workspace
+          command: |
+            mkdir -p /tmp/workspace
+            if [[ << parameters.platform >> == 'mac' ]]; then
+              SYSTEM_NAME="macOS"
+            else
+              SYSTEM_NAME="Linux"
+            fi
+            mv protostar-<< parameters.platform >>.tar.gz /tmp/workspace/protostar-$SYSTEM_NAME.tar.gz
+      - persist_to_workspace:
+          root: /tmp/workspace
+          paths:
+            - protostar*
+      - notify_about_failed_test:
+          message: "*End to end tests have failed* :rotating_light:"
+
+  send_test_release:
+    executor: linux
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - store_artifacts:
+          path: /tmp/workspace
+          destination: protostar
+      - checkout
+      - run:
+          name: Notify about ready test releases
+          command: |
+            links=$(curl -H "Circle-Token: $CIRCLE_TOKEN" \
+            https://circleci.com/api/v1.1/project/github/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/$CIRCLE_BUILD_NUM/artifacts | \
+            grep "circle-artifacts" | awk -F '"' '{print $4}')
+            ./scripts/notify.sh "warning" \
+            "*New test release has just been published* :sunglasses:" \
+            "*Requestor:*\n$CIRCLE_USERNAME\n\n*Download links:*\n$links" "$SLACK_URL"
+
+  verify_valid_version:
+    executor: linux
+    steps:
+      - checkout
+      - attach_workspace:
+          at: /tmp/workspace
+      - run:
+          name: Verify versions
+          command: |
+            tar -xzvf /tmp/workspace/protostar-Linux.tar.gz ./dist/protostar/info/constants.json
+            built_version=$(grep dist/protostar/info/constants.json -e "PROTOSTAR_VERSION\":" | awk '{print $2}' | tr -d ',')
+            released_versions=$(curl -s --fail https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/releases | grep "tag_name" | awk '{print $2}' | tr -d 'v,')
+            mkdir -p /tmp/version
+            echo "export VERSION=v$built_version" | tr -d '"' > /tmp/version/version
+            source /tmp/version/version
+            if echo "$released_versions" | grep -qF "$built_version"; then
+              echo "Version $VERSION already released"
+              echo "Canceling workflow to disable releases.."
+              curl --fail -X POST "https://circleci.com/api/v2/workflow/$CIRCLE_WORKFLOW_ID/cancel?circle-token=$CIRCLE_TOKEN"
+            else
+              if [ "$CIRCLE_BRANCH" = "master" ]; then
+                ./scripts/notify.sh "good" \
+                "*New release is ready to be published* :protostar:" \
+                "*Version to be released:*\n$VERSION\n\n*Link to workflow:*\nhttps://app.circleci.com/pipelines/workflows/$CIRCLE_WORKFLOW_ID" "$SLACK_URL"
+              fi
+            fi
+      - persist_to_workspace:
+          root: /tmp/version
+          paths: version
+
+  release:
+    parameters:
+      prerelease:
+        type: boolean
+    executor: linux
+    steps:
+      - attach_workspace:
+          at: /tmp/workspace
+      - checkout
+      - gh/setup
+      - run:
+          name: Release new version
+          command: |
+            source /tmp/workspace/version
+            if [ << parameters.prerelease >> = true ]; then
+              type="--prerelease"
+            fi
+            gh release create "$VERSION" /tmp/workspace/*.tar.gz --title "$VERSION" --repo "$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME" $type
+      - run:
+          name: Notify about release
+          command: |
+            if [ << parameters.prerelease >> = true ]; then
+              type="pre-release"
+            else
+              type="release"
+            fi
+            source /tmp/workspace/version
+            ./scripts/notify.sh "good" \
+            "*New $type has just been published* :tada:" \
+            "*Version:*\n$VERSION\n\n*Approver:*\n$CIRCLE_USERNAME" "$SLACK_URL"
+
+  build_docs:
+    executor: docs
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - yarn-docs-{{ checksum "website/yarn.lock" }}
+      - run:
+          name: Install dependencies
+          command: yarn install
+          working_directory: ./website
+      - run:
+          name: Build docs
+          command: yarn build
+          working_directory: ./website
+      - save_cache:
+          key: yarn-docs-{{ checksum "website/yarn.lock" }}
+          paths:
+            - ~/.cache/yarn
+      - run:
+          name: Pack docs
+          command: tar -czvf protostar-docs.tar.gz website/build
+      - persist_to_workspace:
+          root: .
+          paths: protostar-docs.tar.gz
+
+workflows:
+  version: 2
+
+  protostar:
+    jobs:
+      - code_quality
+      - unit_tests:
+          matrix:
+            parameters:
+              platform: [linux, mac]
+      - e2e_tests:
+          matrix:
+            parameters:
+              platform: [linux, mac]
+      - build_docs:
+          filters:
+            branches:
+              only:
+                - master
+      - send_test_release_approval:
+          type: approval
+          requires:
+            - code_quality
+            - unit_tests
+            - e2e_tests
+          filters:
+            branches:
+              ignore:
+                - master
+      - send_test_release:
+          requires:
+            - send_test_release_approval
+          filters:
+            branches:
+              ignore:
+                - master
+      - verify_valid_version:
+          requires:
+            - code_quality
+            - unit_tests
+            - e2e_tests
+      - release_approval:
+          type: approval
+          requires:
+            - verify_valid_version
+          filters:
+            branches:
+              only:
+                - master
+      - prerelease_approval:
+          type: approval
+          requires:
+            - verify_valid_version
+      - release:
+          name: make_release
+          prerelease: false
+          requires:
+            - release_approval
+          filters:
+            branches:
+              only:
+                - master
+      - release:
+          name: make_prerelease
+          prerelease: true
+          requires:
+            - prerelease_approval

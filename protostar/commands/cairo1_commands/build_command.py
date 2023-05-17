@@ -9,7 +9,7 @@ from protostar.cli.common_arguments import (
     CONTRACT_NAME,
 )
 from protostar.configuration_file.configuration_file import ConfigurationFile
-import protostar.cairo.cairo_bindings as cairo1
+import protostar.cairo.bindings.cairo_bindings as cairo1
 
 from protostar.commands.cairo1_commands.fetch_from_scarb import (
     fetch_linked_libraries_from_scarb,

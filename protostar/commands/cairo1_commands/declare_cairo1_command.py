@@ -4,7 +4,7 @@ from typing import Optional, Any
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.signer import BaseSigner
 
-import protostar.cairo.cairo_bindings as cairo1_bindings
+import protostar.cairo.bindings.cairo_bindings as cairo1_bindings
 from protostar.cli import (
     ProtostarCommand,
     NetworkCommandUtil,

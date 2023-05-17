@@ -2,6 +2,8 @@
 sidebar_label: Debugging
 ---
 
+# Debugging 
+
 Currently, Cairo does not support a debugging mechanism per se, but we can print variables' values to the standard output.
 
 # Printing to stdout

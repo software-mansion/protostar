@@ -8,7 +8,7 @@ from starkware.starknet.services.api.contract_class.contract_class import (
     CompiledClass,
 )
 
-import protostar.cairo.cairo_bindings as cairo1_bindings
+import protostar.cairo.bindings.cairo_bindings as cairo1_bindings
 from protostar.cairo.short_string import short_string_to_str
 from protostar.cheatable_starknet.callable_hint_locals.callable_hint_local import (
     CallableHintLocal,

@@ -2,14 +2,6 @@
 
 ```cairo
 fn invoke(contract_address: felt252, function_name: felt252, calldata: @Array::<felt252>) -> Result::<(), RevertedTransaction> nopanic;
-
-struct RevertedTransaction {
-    panic_data: Array::<felt252>, 
-}
-
-trait RevertedTransactionTrait {
-    fn first(self: @RevertedTransaction) -> felt252;
-}
 ```
 
 Invokes a contract's function. `function_name` parameter should be provided as a short string. `invoke` can mutate the

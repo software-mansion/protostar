@@ -61,6 +61,7 @@ other_contract = ["other_contract"]
 This section of the `protostar.toml` file allows you to specify arguments for a specific
 Protostar command.
 
+
 For example, you can define a different build dir for the [build](../cli-reference.md#build)
 
 ```toml title="Configuration File"
