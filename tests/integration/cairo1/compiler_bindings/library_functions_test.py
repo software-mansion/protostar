@@ -177,7 +177,7 @@ def test_start_prank(datadir: Path):
 
 
 def test_start_spoof(datadir: Path):
-    check_library_function("start_spoof", datadir / "start_spoof_test.cairo")
+    check_library_function("start_spoof_impl", datadir / "start_spoof_test.cairo")
 
 
 def test_stop_prank(datadir: Path):

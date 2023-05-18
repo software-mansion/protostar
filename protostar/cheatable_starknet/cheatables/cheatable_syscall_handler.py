@@ -8,6 +8,10 @@ from starkware.starknet.core.os.syscall_handler import BusinessLogicSyscallHandl
 from protostar.cheatable_starknet.cheatables.cheatable_cached_state import (
     CheatableCachedState,
 )
+from protostar.cheatable_starknet.controllers.transaction_info import (
+    TransactionInfoController,
+)
+from protostar.starknet import Address
 
 
 class CheatableSyscallHandler(BusinessLogicSyscallHandler):
@@ -25,19 +29,29 @@ class CheatableSyscallHandler(BusinessLogicSyscallHandler):
             block_timestamp=python_block_info.block_timestamp,
             sequencer_address=as_non_optional(python_block_info.sequencer_address),
         )
+        # region: Modified starknet code
         # Prepare transaction info.
-        signature = self.tx_execution_context.signature
+        transaction_info_controller = TransactionInfoController(
+            cheatable_state=cheatable_state
+        )
+        tx_info = transaction_info_controller.get_for_contract(
+            Address(self.entry_point.contract_address)
+        )
+
+        signature = tx_info.signature
         signature_start = self.allocate_segment(data=signature)
+
         tx_info = self.structs.TxInfo(
-            version=self.tx_execution_context.version,
-            account_contract_address=self.tx_execution_context.account_contract_address,
+            version=tx_info.version,
+            account_contract_address=tx_info.account_contract_address,
             max_fee=self.tx_execution_context.max_fee,
             signature_start=signature_start,
             signature_end=signature_start + len(signature),
-            transaction_hash=self.tx_execution_context.transaction_hash,
-            chain_id=self.general_config.chain_id.value,
-            nonce=self.tx_execution_context.nonce,
+            transaction_hash=tx_info.transaction_hash,
+            chain_id=tx_info.chain_id,
+            nonce=tx_info.nonce,
         )
+        # endregion
         # Gather all info.
         execution_info = self.structs.ExecutionInfo(
             block_info=self.allocate_segment(data=block_info),

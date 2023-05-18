@@ -1,4 +1,5 @@
 use cheatcodes::TxInfoMockTrait;
+use array::ArrayTrait;
 
 #[test]
 fn test_start_spoof() {
