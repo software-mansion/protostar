@@ -34,9 +34,6 @@ jobs:
           path: | 
             ~/.cache/pypoetry
           key: poetry-${{ hashFiles('poetry.lock') }}
-      - name: Install cairo-lang 0.11.1
-        run: |
-          poetry run pip install --pre https://github.com/starkware-libs/cairo-lang/releases/download/v0.11.1a0/cairo-lang-0.11.1a0.zip
 
   lint:
     name: Check formatting, linting and types
@@ -63,11 +60,7 @@ jobs:
       - name: Install cairo bindings
         run: |
           poetry run ./scripts/install_cairo_bindings.sh
-          
-      - name: Install cairo-lang 0.11.1
-        run: |
-          poetry run pip install --pre https://github.com/starkware-libs/cairo-lang/releases/download/v0.11.1a0/cairo-lang-0.11.1a0.zip
-      
+
       - name: Check types
         run: |
           poetry run poe type_check
@@ -108,11 +101,7 @@ jobs:
       - name: Patch git config
         run: |
           git config --global protocol.file.allow always
-          
-      - name: Install cairo-lang 0.11.1
-        run: |
-          poetry run pip install --pre https://github.com/starkware-libs/cairo-lang/releases/download/v0.11.1a0/cairo-lang-0.11.1a0.zip
-      
+
       - name: Unit tests
         run: |
           poetry run poe test_unit
@@ -146,10 +135,6 @@ jobs:
         run: |
           poetry run ./scripts/install_cairo_bindings.sh
         shell: bash
-      
-      - name: Install cairo-lang 0.11.1
-        run: |
-          poetry run pip install --pre https://github.com/starkware-libs/cairo-lang/releases/download/v0.11.1a0/cairo-lang-0.11.1a0.zip
       
       - name: Build
         run: |
