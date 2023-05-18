@@ -28,7 +28,7 @@ def test_testing_with_dependencies_using_scarb(
     copy_fixture("scarb_integration/" + project_dir, "./" + project_dir)
     os.chdir("./" + project_dir)
 
-    result = protostar(["--no-color", "test-cairo1", "::" + test_name])
+    result = protostar(["--no-color", "test", "::" + test_name])
 
     assert "Collected 1 suite, and 1 test case" in result
     assert test_name in result

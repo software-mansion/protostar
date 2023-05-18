@@ -9,7 +9,7 @@ from starkware.starknet.testing.contract import StarknetContract
 from typing_extensions import Self
 
 from protostar.compiler import Cairo0ProjectCompiler
-from protostar.compiler.project_compiler import ProjectCompiler
+from protostar.contract_path_resolver import ContractPathResolver
 from protostar.starknet import Address
 from protostar.testing.starkware.test_execution_state import TestExecutionState
 from protostar.testing.test_config import TestConfig
@@ -34,10 +34,10 @@ class ContractBasedTestExecutionState(TestExecutionState):
         test_suite_definition: DeprecatedCompiledClass,
         test_config: TestConfig,
         cairo0_project_compiler: Cairo0ProjectCompiler,
-        project_compiler: ProjectCompiler,
+        contract_path_resolver: ContractPathResolver,
     ) -> Self:
         base = await TestExecutionState.from_test_config(
-            test_config, cairo0_project_compiler, project_compiler
+            test_config, cairo0_project_compiler, contract_path_resolver
         )
         starknet = base.starknet
 
@@ -67,7 +67,7 @@ class ContractBasedTestExecutionState(TestExecutionState):
             context=base.context,
             config=base.config,
             cairo0_project_compiler=base.cairo0_project_compiler,
-            project_compiler=base.project_compiler,
+            contract_path_resolver=base.contract_path_resolver,
         )
 
     def determine_test_mode(self, test_case: TestCase):

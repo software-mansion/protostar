@@ -19,7 +19,7 @@ from tests.conftest import DevnetFixture, SetPrivateKeyEnvVarFixture
 @pytest.fixture(name="protostar")
 def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
     with create_protostar_project() as protostar_project:
-        protostar_project.protostar.build_sync()
+        protostar_project.protostar.build_cairo0_sync()
         yield protostar_project.protostar
 
 

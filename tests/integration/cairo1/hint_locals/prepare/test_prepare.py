@@ -33,7 +33,7 @@ async def test_prepare_hint_local(
         }
     )
 
-    testing_summary = await protostar_project.protostar.test_cairo1(
+    testing_summary = await protostar_project.protostar.test(
         Path(__file__).parent / "prepare_test.cairo",
     )
 
@@ -46,5 +46,6 @@ async def test_prepare_hint_local(
             "test_prepare_cairo0",
             "test_prepare_cairo0_w_ctor",
             "test_prepare_cairo0_w_ctor_no_args",
+            "test_prepare_doesnt_move_calldata",
         ],
     )

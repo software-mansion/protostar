@@ -130,8 +130,14 @@ const config = {
           {
             type: "docSidebar",
             position: "left",
-            sidebarId: "tutorials",
-            label: "Tutorials",
+            sidebarId: "cairo1",
+            label: "Cairo 1",
+          },
+          {
+            type: "docSidebar",
+            position: "left",
+            sidebarId: "legacy",
+            label: "Legacy test runner",
           },
           {
             type: "doc",
@@ -150,11 +156,20 @@ const config = {
         style: "dark",
         links: [
           {
-            title: "Docs",
+            title: "Cairo 1",
             items: [
               {
-                label: "Tutorials",
-                to: "/docs/tutorials/introduction",
+                label: "Cairo 1",
+                to: "/docs/cairo-1/introduction",
+              },
+            ],
+          },
+          {
+            title: "Legacy test runner",
+            items: [
+              {
+                label: "Legacy test runner",
+                to: "/docs/legacy/introduction",
               },
             ],
           },
@@ -194,37 +209,37 @@ const config = {
         //   To test, check if links in this blog post work:
         //   https://mirror.xyz/onlydust.eth/uhKk_3p34mE0oFUxkIYlCsjkE7ZvUfSFWU83UM9_w-w
         {
-          to: '/docs/tutorials/compiling',
-          from: '/docs/tutorials/guides/compiling',
+          to: '/docs/legacy/compiling',
+          from: '/docs/legacy/guides/compiling',
         },
         {
-          to: '/docs/tutorials/dependencies-management',
-          from: '/docs/tutorials/guides/dependencies-management',
+          to: '/docs/legacy/dependencies-management',
+          from: '/docs/legacy/guides/dependencies-management',
         },
         {
-          to: '/docs/tutorials/interacting-with-starknet/deploy/',
-          from: '/docs/tutorials/guides/deploying',
+          to: '/docs/legacy/interacting-with-starknet/deploy/',
+          from: '/docs/legacy/guides/deploying',
         },
         {
-          to: '/docs/tutorials/testing',
-          from: '/docs/tutorials/guides/testing',
+          to: '/docs/legacy/testing',
+          from: '/docs/legacy/guides/testing',
         },
         {
-          to: '/docs/tutorials/migrations',
-          from: '/docs/tutorials/deploying/migrations',
+          to: '/docs/legacy/migrations',
+          from: '/docs/legacy/deploying/migrations',
         },
         {
-          to: '/docs/tutorials/interacting-with-starknet',
-          from: '/docs/tutorials/deploying/cli'
+          to: '/docs/legacy/interacting-with-starknet',
+          from: '/docs/legacy/deploying/cli'
         },
         {
-          to: '/docs/tutorials/migrations/',
+          to: '/docs/legacy/migrations/',
           from: [
-              '/docs/tutorials/migrations/call',
-              '/docs/tutorials/migrations/declare',
-              '/docs/tutorials/migrations/deploy-contract',
-              '/docs/tutorials/migrations/invoke',
-              '/docs/tutorials/migrations/network-config'
+              '/docs/legacy/migrations/call',
+              '/docs/legacy/migrations/declare',
+              '/docs/legacy/migrations/deploy-contract',
+              '/docs/legacy/migrations/invoke',
+              '/docs/legacy/migrations/network-config'
           ]
         }
       ]

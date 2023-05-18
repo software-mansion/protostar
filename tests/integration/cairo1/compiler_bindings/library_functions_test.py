@@ -1,7 +1,7 @@
 from typing import Optional, Callable, Any
 from pathlib import Path
 
-import protostar.cairo.cairo_bindings as cairo1
+import protostar.cairo.bindings.cairo_bindings as cairo1
 from protostar.cairo.cairo1_test_suite_parser import (
     ProtostarCasm,
 )
@@ -142,8 +142,8 @@ def check_library_function(
             assert cairo_runner_facade.did_panic() == bool(mocked_error_code)
 
 
-def test_roll(datadir: Path):
-    check_library_function("roll", datadir / "roll_test.cairo")
+def test_start_roll(datadir: Path):
+    check_library_function("start_roll", datadir / "start_roll_test.cairo")
 
 
 def test_declare(datadir: Path):
@@ -180,8 +180,8 @@ def test_stop_prank(datadir: Path):
     check_library_function("stop_prank", datadir / "stop_prank_test.cairo")
 
 
-def test_warp(datadir: Path):
-    check_library_function("warp", datadir / "warp_test.cairo")
+def test_start_warp(datadir: Path):
+    check_library_function("start_warp", datadir / "start_warp_test.cairo")
 
 
 def test_deploy(datadir: Path):

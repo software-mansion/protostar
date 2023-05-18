@@ -32,7 +32,7 @@ async def test_deploy_contract_hint_local(
         }
     )
 
-    testing_summary = await protostar_project.protostar.test_cairo1(
+    testing_summary = await protostar_project.protostar.test(
         Path(__file__).parent / "deploy_contract_test.cairo",
     )
 
@@ -43,6 +43,7 @@ async def test_deploy_contract_hint_local(
             "test_deploy_contract_with_constructor",
             "test_deploy_contract_cairo0",
             "test_deploy_contract_cairo0_with_constructor",
+            "test_deploy_contract_doesnt_move_calldata",
         ],
         expected_failed_test_cases_names=[
             "test_deploy_contract_with_constructor_panic",

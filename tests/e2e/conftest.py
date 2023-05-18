@@ -98,7 +98,7 @@ def init_project(
         else:
             real_project_name = override_project_name
         init_command = "init" + (
-            "-cairo1" if cairo_version == CairoVersion.cairo1 else ""
+            "-cairo0" if cairo_version == CairoVersion.cairo0 else ""
         )
         child = pexpect.spawn(f"{protostar_bin} { init_command } {real_project_name}")
         child.expect(pexpect.EOF, timeout=30)
@@ -208,7 +208,7 @@ InitFixture = Generator[None, None, None]
 
 
 @pytest.fixture
-def init(
+def init_cairo0(
     protostar_repo_root: Path,
     project_name: str,
     protostar_toml_protostar_version: str,
@@ -226,7 +226,7 @@ def init(
 
 
 @pytest.fixture
-def init_cairo1(
+def init(
     protostar_repo_root: Path,
     project_name: str,
     protostar_toml_protostar_version: str,
@@ -281,7 +281,7 @@ MyPrivateLibsSetupFixture = Tuple[Path,]
 # pylint: disable=unused-argument
 @pytest.fixture(name="my_private_libs_setup")
 def my_private_libs_setup_fixture(
-    init: InitFixture, tmp_path: Path, copy_fixture: CopyFixture
+    init_cairo0: InitFixture, tmp_path: Path, copy_fixture: CopyFixture
 ) -> MyPrivateLibsSetupFixture:
     my_private_libs_dir = tmp_path / "my_private_libs"
     mkdir(my_private_libs_dir)

@@ -21,7 +21,7 @@ from protostar.compiler import Cairo0ProjectCompiler
 from protostar.cheatable_starknet.cheatables.cheatable_cached_state import (
     CheatableCachedState,
 )
-from protostar.compiler.project_compiler import ProjectCompiler
+from protostar.contract_path_resolver import ContractPathResolver
 from protostar.testing.stopwatch import Stopwatch
 from protostar.testing.test_config import TestConfig
 from protostar.testing.test_context import TestContext
@@ -37,7 +37,7 @@ class CairoTestExecutionState:
     context: TestContext
     config: TestConfig
     cairo0_project_compiler: Cairo0ProjectCompiler
-    project_compiler: ProjectCompiler
+    contract_path_resolver: ContractPathResolver
     expected_events_list: list[list[Event]] = field(default_factory=list)
 
     @property
@@ -60,7 +60,7 @@ class CairoTestExecutionState:
         cls,
         test_config: TestConfig,
         cairo0_project_compiler: Cairo0ProjectCompiler,
-        project_compiler: ProjectCompiler,
+        contract_path_resolver: ContractPathResolver,
     ):
         general_config = StarknetGeneralConfig()
         ffc = FactFetchingContext(storage=DictStorage(), hash_func=pedersen_hash_func)
@@ -93,5 +93,5 @@ class CairoTestExecutionState:
             context=TestContext(),
             config=test_config,
             cairo0_project_compiler=cairo0_project_compiler,
-            project_compiler=project_compiler,
+            contract_path_resolver=contract_path_resolver,
         )
