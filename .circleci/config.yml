@@ -126,7 +126,7 @@ commands:
           name: Get submodule hash
           command: git rev-parse HEAD:./cairo > /tmp/cairo-submodule-hash
       - restore_cache:
-          key: bindings-<< parameters.platform >>-{{ checksum "scripts/install_all_bindings.sh" }}-{{ checksum "scripts/install_cairo_bindings.sh" }}-{{ checksum "scripts/install_protostar_rust_bindings.sh" }}-{{ checksum "/tmp/cairo-submodule-hash" }}
+          key: bindings-<< parameters.platform >>-{{ checksum "scripts/install_all_bindings.sh" }}-{{ checksum "scripts/install_cairo_bindings.sh" }}-{{ checksum "scripts/install_protostar_rust_bindings.sh" }}-{{ checksum "/tmp/cairo-submodule-hash" }}NEW_CACHE
       - run:
           name: Install bindings and compile cairo-compile
           command: |
@@ -141,7 +141,7 @@ commands:
               popd
             fi
       - save_cache:
-          key: bindings-<< parameters.platform >>-{{ checksum "scripts/install_all_bindings.sh" }}-{{ checksum "scripts/install_cairo_bindings.sh" }}-{{ checksum "scripts/install_protostar_rust_bindings.sh" }}-{{ checksum "/tmp/cairo-submodule-hash" }}
+          key: bindings-<< parameters.platform >>-{{ checksum "scripts/install_all_bindings.sh" }}-{{ checksum "scripts/install_cairo_bindings.sh" }}-{{ checksum "scripts/install_protostar_rust_bindings.sh" }}-{{ checksum "/tmp/cairo-submodule-hash" }}NEW_CACHE
           paths:
             - ./cairo/target/debug/cairo-compile
             - ./cairo/target/wheels
