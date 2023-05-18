@@ -36,14 +36,14 @@ use result::ResultTrait;
 
 #[test]
 fn test_start_roll() {
-    let deployed_contract_address = deploy_contract('simple', ArrayTrait::new()).unwrap();
+    let deployed_contract_address = deploy_contract('simple', @ArrayTrait::new()).unwrap();
     assert(deployed_contract_address != 0, 'deployed_contract_address != 0');
 
-    let result = call(deployed_contract_address, 'check_block_number', ArrayTrait::new()).unwrap();
+    let result = call(deployed_contract_address, 'check_block_number', @ArrayTrait::new()).unwrap();
     assert(*result.at(0_u32) == -1, *result.at(0_u32));
 
     start_roll(100, deployed_contract_address);
-    let result = call(deployed_contract_address, 'check_block_number', ArrayTrait::new()).unwrap();
+    let result = call(deployed_contract_address, 'check_block_number', @ArrayTrait::new()).unwrap();
     assert(*result.at(0_u32) == 100, *result.at(0_u32));
 }
 ```
