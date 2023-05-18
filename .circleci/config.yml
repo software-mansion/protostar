@@ -114,6 +114,18 @@ commands:
             echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$BASH_ENV"
             source "$BASH_ENV"
 
+  get_bindings_hashes:
+    description: "Get submodule and protostar-rust hashes"
+    steps:
+      - run:
+          name: Get submodule and protostar-rust hashes
+          command: |
+            git rev-parse HEAD:./cairo > /tmp/cairo-submodule-hash
+            shasum scripts/install_all_bindings.sh > /tmp/scripts-hash
+            shasum scripts/install_cairo_bindings.sh >> /tmp/scripts-hash
+            shasum scripts/install_protostar_rust_bindings.sh >> /tmp/scripts-hash
+            find protostar-rust -type f -exec shasum {} \; | sort -k 2 > /tmp/protostar-rust-hashes
+
   cairo_bindings_and_compiler:
     description: "Install cairo bindings"
     parameters:
@@ -122,13 +134,8 @@ commands:
         type: enum
         enum: ["linux", "mac"]
     steps:
-      - run:
-          name: Get submodule and protostar-rust hashes
-          command: |
-            git rev-parse HEAD:./cairo > /tmp/cairo-submodule-hash
-            find protostar-rust -type f -exec sha1sum {} \; | sort -k 2 > /tmp/protostar-rust-hashes
       - restore_cache:
-          key: bindings-<< parameters.platform >>-{{ checksum "scripts/install_all_bindings.sh" }}-{{ checksum "scripts/install_cairo_bindings.sh" }}-{{ checksum "scripts/install_protostar_rust_bindings.sh" }}-{{ checksum "/tmp/cairo-submodule-hash" }}-{{ checksum "/tmp/protostar-rust-hashes" }}
+          key: bindings-<< parameters.platform >>-{{ checksum "/tmp/scripts-hash" }}-{{ checksum "/tmp/cairo-submodule-hash" }}-{{ checksum "/tmp/protostar-rust-hashes" }}-<< pipeline.parameters.poetry_version >>-py<< pipeline.parameters.python_version >>-{{ checksum "poetry.lock" }}
       - run:
           name: Install bindings and compile cairo-compile
           command: |
@@ -144,7 +151,7 @@ commands:
               popd
             fi
       - save_cache:
-          key: bindings-<< parameters.platform >>-{{ checksum "scripts/install_all_bindings.sh" }}-{{ checksum "scripts/install_cairo_bindings.sh" }}-{{ checksum "scripts/install_protostar_rust_bindings.sh" }}-{{ checksum "/tmp/cairo-submodule-hash" }}-{{ checksum "/tmp/protostar-rust-hashes" }}
+          key: bindings-<< parameters.platform >>-{{ checksum "/tmp/scripts-hash" }}-{{ checksum "/tmp/cairo-submodule-hash" }}-{{ checksum "/tmp/protostar-rust-hashes" }}-<< pipeline.parameters.poetry_version >>-py<< pipeline.parameters.python_version >>-{{ checksum "poetry.lock" }}
           paths:
             - ./cairo/target/debug/cairo-compile
             - ./cairo/target/wheels
@@ -178,6 +185,7 @@ commands:
       - install_rust
       - install_scarb
       - checkout_with_submodules
+      - get_bindings_hashes
       - restore_poetry_cache:
           platform: << parameters.platform >>
       - install_packages:
@@ -194,7 +202,7 @@ commands:
         enum: ["linux", "mac"]
     steps:
       - restore_cache:
-          key: poetry-<< pipeline.parameters.poetry_version >>-py<< pipeline.parameters.python_version >>-<< parameters.platform >>-{{ checksum "poetry.lock" }}
+          key: poetry-<< pipeline.parameters.poetry_version >>-py<< pipeline.parameters.python_version >>-<< parameters.platform >>-{{ checksum "poetry.lock" }}-{{ checksum "/tmp/scripts-hash" }}-{{ checksum "/tmp/cairo-submodule-hash" }}-{{ checksum "/tmp/protostar-rust-hashes" }}
 
   save_poetry_cache:
     parameters:
@@ -203,7 +211,7 @@ commands:
         enum: ["linux", "mac"]
     steps:
       - save_cache:
-          key: poetry-<< pipeline.parameters.poetry_version >>-py<< pipeline.parameters.python_version >>-<< parameters.platform >>-{{ checksum "poetry.lock" }}
+          key: poetry-<< pipeline.parameters.poetry_version >>-py<< pipeline.parameters.python_version >>-<< parameters.platform >>-{{ checksum "poetry.lock" }}-{{ checksum "/tmp/scripts-hash" }}-{{ checksum "/tmp/cairo-submodule-hash" }}-{{ checksum "/tmp/protostar-rust-hashes" }}
           paths:
             - ~/.cache/pypoetry
             - ~/Library/Caches/pypoetry
