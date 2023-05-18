@@ -123,15 +123,18 @@ commands:
         enum: ["linux", "mac"]
     steps:
       - run:
-          name: Get submodule hash
-          command: git rev-parse HEAD:./cairo > /tmp/cairo-submodule-hash
+          name: Get submodule and protostar-rust hashes
+          command: |
+            git rev-parse HEAD:./cairo > /tmp/cairo-submodule-hash
+            find protostar-rust -type f -exec sha1sum {} \; | sort -k 2 > /tmp/protostar-rust-hashes
       - restore_cache:
-          key: bindings-<< parameters.platform >>-{{ checksum "scripts/install_all_bindings.sh" }}-{{ checksum "scripts/install_cairo_bindings.sh" }}-{{ checksum "scripts/install_protostar_rust_bindings.sh" }}-{{ checksum "/tmp/cairo-submodule-hash" }}
+          key: bindings-<< parameters.platform >>-{{ checksum "scripts/install_all_bindings.sh" }}-{{ checksum "scripts/install_cairo_bindings.sh" }}-{{ checksum "scripts/install_protostar_rust_bindings.sh" }}-{{ checksum "/tmp/cairo-submodule-hash" }}-{{ checksum "/tmp/protostar-rust-hashes" }}
       - run:
           name: Install bindings and compile cairo-compile
           command: |
-            if [ -f ./cairo/target/debug/cairo-compile ] && [ -d ./cairo/target/wheels ]; then
+            if [ -f ./cairo/target/debug/cairo-compile ] && [ -d ./cairo/target/wheels ] && [ -d ./protostar-rust/target/wheels ]; then
               pip install $(find ./cairo/target/wheels -maxdepth 1 -type f -iname "cairo_python_bindings*")
+              pip install $(find ./protostar-rust/target/wheels -maxdepth 1 -type f -iname "rust_test_runner_bindings*")
             else
               poetry run poe install_all_bindings prod
               poetry run poe install_all_bindings
@@ -141,10 +144,11 @@ commands:
               popd
             fi
       - save_cache:
-          key: bindings-<< parameters.platform >>-{{ checksum "scripts/install_all_bindings.sh" }}-{{ checksum "scripts/install_cairo_bindings.sh" }}-{{ checksum "scripts/install_protostar_rust_bindings.sh" }}-{{ checksum "/tmp/cairo-submodule-hash" }}
+          key: bindings-<< parameters.platform >>-{{ checksum "scripts/install_all_bindings.sh" }}-{{ checksum "scripts/install_cairo_bindings.sh" }}-{{ checksum "scripts/install_protostar_rust_bindings.sh" }}-{{ checksum "/tmp/cairo-submodule-hash" }}-{{ checksum "/tmp/protostar-rust-hashes" }}
           paths:
             - ./cairo/target/debug/cairo-compile
             - ./cairo/target/wheels
+            - ./protostar-rust/target/wheels
       - patch_cairo_compiler
 
   patch_cairo_compiler:
@@ -172,6 +176,7 @@ commands:
             - install_python_and_gmp_mac
       - ensure_poetry_version
       - install_rust
+      - install_scarb
       - checkout_with_submodules
       - restore_poetry_cache:
           platform: << parameters.platform >>
@@ -223,6 +228,17 @@ commands:
           name: Build protostar
           command: poetry run poe build
 
+  pack:
+    description: "Pack protostar for release"
+    parameters:
+      platform:
+        type: enum
+        enum: ["linux", "mac"]
+    steps:
+      - run:
+          name: Pack protostar
+          command: tar -czvf protostar-<< parameters.platform >>.tar.gz ./dist/protostar
+
   run_unit_tests:
     description: "Run unit tests"
     steps:
@@ -235,27 +251,16 @@ commands:
       - run:
           name: Run integration tests
           command: |
-            TESTS=$(circleci tests glob "tests/integration/**/*.py" | circleci tests split --split-by=timings)
-            # auto OR $(getconf _NPROCESSORS_ONLN) does not return physical cpus in docker
-            # so the number is inflated and tests fail; hence fixed number of cpus
-            poetry run pytest -n4 --random-order scripts $TESTS
+            poetry run pytest -n4 --random-order scripts tests/integration
 
   run_e2e_tests:
     description: "Run unit tests"
-    parameters:
-      platform:
-        type: enum
-        enum: ["linux", "mac"]
     steps:
       - build
-      - install_scarb
       - run:
           name: Run e2e tests
           command: |
             poetry run pytest -n4 tests/e2e
-      - run:
-          name: Pack protostar
-          command: tar -czvf protostar-<< parameters.platform >>.tar.gz ./dist/protostar
 
   notify_about_failed_test:
     description: "Send slack notification about failed test on master"
@@ -291,7 +296,6 @@ jobs:
         type: enum
         enum: ["linux", "mac"]
     executor: << parameters.platform >>
-    #parallelism: 4
     steps:
       - setup:
           platform: << parameters.platform >>
@@ -315,7 +319,21 @@ jobs:
       - run:
           name: Set git config
           command: git config --global protocol.file.allow always
-      - run_e2e_tests:
+      - run_e2e_tests
+      - notify_about_failed_test:
+          message: "*End to end tests have failed* :rotating_light:"
+
+  build:
+    parameters:
+      platform:
+        type: enum
+        enum: ["linux", "mac"]
+    executor: << parameters.platform >>
+    steps:
+      - setup:
+          platform: << parameters.platform >>
+      - build
+      - pack:
           platform: << parameters.platform >>
       - run:
           name: Prepare workspace
@@ -331,8 +349,6 @@ jobs:
           root: /tmp/workspace
           paths:
             - protostar*
-      - notify_about_failed_test:
-          message: "*End to end tests have failed* :rotating_light:"
 
   send_test_release:
     executor: linux
@@ -397,7 +413,6 @@ jobs:
       - run:
           name: Release new version
           command: |
-            set -x
             source /tmp/workspace/version
             if grep -qF "$VERSION" /tmp/workspace/released-versions; then
               echo "Already released, cancelling release"
@@ -461,10 +476,26 @@ workflows:
     jobs:
       - code_quality
       - unit_tests:
-          matrix:
-            parameters:
-              platform: [linux, mac]
+          name: unit_tests-linux
+          platform: linux
+      - unit_tests:
+          name: unit_tests-mac
+          platform: mac
+          filters:
+            branches:
+              only:
+                - master
       - e2e_tests:
+          name: e2e_tests-linux
+          platform: linux
+      - e2e_tests:
+          name: e2e_tests-mac
+          platform: mac
+          filters:
+            branches:
+              only:
+                - master
+      - build:
           matrix:
             parameters:
               platform: [linux, mac]
@@ -477,8 +508,9 @@ workflows:
           type: approval
           requires:
             - code_quality
-            - unit_tests
-            - e2e_tests
+            - unit_tests-linux
+            - e2e_tests-linux
+            - build
           filters:
             branches:
               ignore:
@@ -488,8 +520,9 @@ workflows:
           approval_name: send_test_release_approval
           requires:
             - code_quality
-            - unit_tests
-            - e2e_tests
+            - unit_tests-linux
+            - e2e_tests-linux
+            - build
           filters:
             branches:
               ignore:
@@ -502,14 +535,33 @@ workflows:
               ignore:
                 - master
       - verify_valid_version:
+          name: verify_valid_version_branch
           requires:
             - code_quality
-            - unit_tests
-            - e2e_tests
+            - unit_tests-linux
+            - e2e_tests-linux
+            - build
+          filters:
+            branches:
+              ignore:
+                - master
+      - verify_valid_version:
+          name: verify_valid_version_master
+          requires:
+            - code_quality
+            - unit_tests-linux
+            - e2e_tests-linux
+            - unit_tests-mac
+            - e2e_tests-mac
+            - build
+          filters:
+            branches:
+              only:
+                - master
       - release_approval:
           type: approval
           requires:
-            - verify_valid_version
+            - verify_valid_version_master
           filters:
             branches:
               only:
@@ -518,7 +570,7 @@ workflows:
           name: patch_release_approval_status
           approval_name: release_approval
           requires:
-            - verify_valid_version
+            - verify_valid_version_master
           filters:
             branches:
               only:
@@ -526,12 +578,29 @@ workflows:
       - prerelease_approval:
           type: approval
           requires:
-            - verify_valid_version
+            - verify_valid_version_master
+          filters:
+            branches:
+              only:
+                - master
+      - prerelease_from_branch_approval:
+          type: approval
+          requires:
+            - verify_valid_version_branch
+          filters:
+            branches:
+              ignore:
+                - master
       - patch_approval_check:
-          name: patch_prerelease_approval_status
+          name: patch_prerelease_branch_approval_status
+          approval_name: prerelease_from_branch_approval
+          requires:
+            - verify_valid_version_branch
+      - patch_approval_check:
+          name: patch_prerelease_master_approval_status
           approval_name: prerelease_approval
           requires:
-            - verify_valid_version
+            - verify_valid_version_master
       - release:
           name: make_release
           prerelease: false
@@ -546,3 +615,8 @@ workflows:
           prerelease: true
           requires:
             - prerelease_approval
+      - release:
+          name: make_prerelease_from_branch
+          prerelease: true
+          requires:
+            - prerelease_from_branch_approval
