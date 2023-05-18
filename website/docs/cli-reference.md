@@ -83,10 +83,10 @@ Supported Starknet networks:
 - `testnet2`
 ### `declare`
 Sends a declare transaction to Starknet.
-#### `contract PATH`
+#### `contract STRING`
 Required.
 
-Path to compiled contract.
+Name of the contract defined in the protostar.toml
 #### `--account-address ADDRESS`
 Required.
 
@@ -123,12 +123,12 @@ Custom signer class module path.
 Used by whitelisted users for deploying contracts in Alpha MainNet.
 #### `--wait-for-acceptance`
 Waits for transaction to be accepted on chain.
-### `declare-cairo1`
-Sends a declare transaction to Starknet.
-#### `contract STRING`
+### `declare-cairo0`
+Sends a declare transaction of cairo 0 contract to Starknet.
+#### `contract PATH`
 Required.
 
-Name of the contract defined in the protostar.toml
+Path to compiled contract.
 #### `--account-address ADDRESS`
 Required.
 

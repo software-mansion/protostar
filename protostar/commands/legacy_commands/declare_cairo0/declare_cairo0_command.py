@@ -1,14 +1,15 @@
 from argparse import Namespace
-from typing import Optional, Any
+from logging import getLogger
+from pathlib import Path
+from typing import Optional
 
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.signer import BaseSigner
 
-import protostar.cairo.bindings.cairo_bindings as cairo1_bindings
 from protostar.cli import (
     ProtostarCommand,
-    NetworkCommandUtil,
     MessengerFactory,
+    NetworkCommandUtil,
     ProtostarArgument,
     get_signer,
 )
@@ -21,37 +22,38 @@ from protostar.cli.common_arguments import (
     MAX_FEE_ARG,
     WAIT_FOR_ACCEPTANCE_ARG,
 )
+from protostar.commands.legacy_commands.declare_cairo0.declare_messages import (
+    SuccessfulDeclareMessage,
+)
 
-from protostar.commands.declare.declare_messages import SuccessfulDeclareMessage
-from protostar.contract_path_resolver import ContractPathResolver
-from protostar.protostar_exception import ProtostarException
 from protostar.starknet import Address
 from protostar.starknet_gateway import (
     SuccessfulDeclareResponse,
+    GatewayFacadeFactory,
     create_block_explorer,
     Fee,
-    GatewayFacadeFactory,
 )
 
 
-class DeclareCairo1Command(ProtostarCommand):
+logger = getLogger()
+
+
+class DeclareCairo0Command(ProtostarCommand):
     def __init__(
         self,
-        contract_path_resolver: ContractPathResolver,
         gateway_facade_factory: GatewayFacadeFactory,
         messenger_factory: MessengerFactory,
     ):
         self._gateway_facade_factory = gateway_facade_factory
         self._messenger_factory = messenger_factory
-        self._contract_path_resolver = contract_path_resolver
 
     @property
     def name(self) -> str:
-        return "declare-cairo1"
+        return "declare-cairo0"
 
     @property
     def description(self) -> str:
-        return "Sends a declare transaction to Starknet."
+        return "Sends a declare transaction of cairo 0 contract to Starknet."
 
     @property
     def example(self) -> Optional[str]:
@@ -68,8 +70,8 @@ class DeclareCairo1Command(ProtostarCommand):
             BLOCK_EXPLORER_ARG,
             ProtostarArgument(
                 name="contract",
-                description="Name of the contract defined in the protostar.toml",
-                type="str",
+                description="Path to compiled contract.",
+                type="path",
                 is_positional=True,
                 is_required=True,
             ),
@@ -78,10 +80,14 @@ class DeclareCairo1Command(ProtostarCommand):
             WAIT_FOR_ACCEPTANCE_ARG,
         ]
 
-    async def run(self, args: Namespace) -> Any:
+    async def run(self, args: Namespace) -> SuccessfulDeclareResponse:
+        logger.warning(
+            "Declaring cairo 0 contracts is deprecated and won't be supported in the future. "
+            "Please consider migrating your project to cairo 1."
+        )
         write = self._messenger_factory.from_args(args)
 
-        assert isinstance(args.contract, str)
+        assert isinstance(args.contract, Path)
         assert args.gateway_url is None or isinstance(args.gateway_url, str)
         assert args.network is None or isinstance(args.network, str)
         assert args.token is None or isinstance(args.token, str)
@@ -97,34 +103,8 @@ class DeclareCairo1Command(ProtostarCommand):
             network=network_config.network_name,
         )
 
-        contract_name = args.contract
-        contract_path = self._contract_path_resolver.contract_path_from_contract_name(
-            contract_name
-        )
-
-        try:
-            contract_sierra = (
-                cairo1_bindings.compile_starknet_contract_to_sierra_from_path(
-                    contract_path
-                )
-            )
-        except cairo1_bindings.CairoBindingException as ex:
-            raise ProtostarException(
-                f"Failed to compile contract {contract_name} to sierra"
-            ) from ex
-
-        try:
-            contract_casm = cairo1_bindings.compile_starknet_contract_to_casm_from_path(
-                contract_path
-            )
-        except cairo1_bindings.CairoBindingException as ex:
-            raise ProtostarException(
-                f"Failed to compile contract {contract_name} to casm"
-            ) from ex
-
         response = await self.declare(
-            compiled_contract_sierra=contract_sierra,
-            compiled_contract_casm=contract_casm,
+            compiled_contract_path=args.contract,
             signer=signer,
             account_address=args.account_address,
             gateway_client=gateway_client,
@@ -147,8 +127,7 @@ class DeclareCairo1Command(ProtostarCommand):
 
     async def declare(
         self,
-        compiled_contract_sierra: str,
-        compiled_contract_casm: str,
+        compiled_contract_path: Path,
         max_fee: Fee,
         signer: BaseSigner,
         gateway_client: GatewayClient,
@@ -157,9 +136,8 @@ class DeclareCairo1Command(ProtostarCommand):
         wait_for_acceptance: bool = False,
     ) -> SuccessfulDeclareResponse:
         gateway_facade = self._gateway_facade_factory.create(gateway_client)
-        return await gateway_facade.declare_cairo1(
-            compiled_contract_sierra=compiled_contract_sierra,
-            compiled_contract_casm=compiled_contract_casm,
+        return await gateway_facade.declare_cairo0(
+            compiled_contract_path=compiled_contract_path,
             signer=signer,
             account_address=account_address,
             wait_for_acceptance=wait_for_acceptance,

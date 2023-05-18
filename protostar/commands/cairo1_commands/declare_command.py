@@ -1,14 +1,14 @@
 from argparse import Namespace
-from pathlib import Path
-from typing import Optional
+from typing import Optional, Any
 
 from starknet_py.net.gateway_client import GatewayClient
 from starknet_py.net.signer import BaseSigner
 
+import protostar.cairo.bindings.cairo_bindings as cairo1_bindings
 from protostar.cli import (
     ProtostarCommand,
-    MessengerFactory,
     NetworkCommandUtil,
+    MessengerFactory,
     ProtostarArgument,
     get_signer,
 )
@@ -21,25 +21,31 @@ from protostar.cli.common_arguments import (
     MAX_FEE_ARG,
     WAIT_FOR_ACCEPTANCE_ARG,
 )
-from protostar.commands.declare.declare_messages import SuccessfulDeclareMessage
+from protostar.commands.legacy_commands.declare_cairo0.declare_messages import (
+    SuccessfulDeclareMessage,
+)
 
+from protostar.contract_path_resolver import ContractPathResolver
+from protostar.protostar_exception import ProtostarException
 from protostar.starknet import Address
 from protostar.starknet_gateway import (
     SuccessfulDeclareResponse,
-    GatewayFacadeFactory,
     create_block_explorer,
     Fee,
+    GatewayFacadeFactory,
 )
 
 
 class DeclareCommand(ProtostarCommand):
     def __init__(
         self,
+        contract_path_resolver: ContractPathResolver,
         gateway_facade_factory: GatewayFacadeFactory,
         messenger_factory: MessengerFactory,
     ):
         self._gateway_facade_factory = gateway_facade_factory
         self._messenger_factory = messenger_factory
+        self._contract_path_resolver = contract_path_resolver
 
     @property
     def name(self) -> str:
@@ -64,8 +70,8 @@ class DeclareCommand(ProtostarCommand):
             BLOCK_EXPLORER_ARG,
             ProtostarArgument(
                 name="contract",
-                description="Path to compiled contract.",
-                type="path",
+                description="Name of the contract defined in the protostar.toml",
+                type="str",
                 is_positional=True,
                 is_required=True,
             ),
@@ -74,10 +80,10 @@ class DeclareCommand(ProtostarCommand):
             WAIT_FOR_ACCEPTANCE_ARG,
         ]
 
-    async def run(self, args: Namespace) -> SuccessfulDeclareResponse:
+    async def run(self, args: Namespace) -> Any:
         write = self._messenger_factory.from_args(args)
 
-        assert isinstance(args.contract, Path)
+        assert isinstance(args.contract, str)
         assert args.gateway_url is None or isinstance(args.gateway_url, str)
         assert args.network is None or isinstance(args.network, str)
         assert args.token is None or isinstance(args.token, str)
@@ -93,8 +99,34 @@ class DeclareCommand(ProtostarCommand):
             network=network_config.network_name,
         )
 
+        contract_name = args.contract
+        contract_path = self._contract_path_resolver.contract_path_from_contract_name(
+            contract_name
+        )
+
+        try:
+            contract_sierra = (
+                cairo1_bindings.compile_starknet_contract_to_sierra_from_path(
+                    contract_path
+                )
+            )
+        except cairo1_bindings.CairoBindingException as ex:
+            raise ProtostarException(
+                f"Failed to compile contract {contract_name} to sierra"
+            ) from ex
+
+        try:
+            contract_casm = cairo1_bindings.compile_starknet_contract_to_casm_from_path(
+                contract_path
+            )
+        except cairo1_bindings.CairoBindingException as ex:
+            raise ProtostarException(
+                f"Failed to compile contract {contract_name} to casm"
+            ) from ex
+
         response = await self.declare(
-            compiled_contract_path=args.contract,
+            compiled_contract_sierra=contract_sierra,
+            compiled_contract_casm=contract_casm,
             signer=signer,
             account_address=args.account_address,
             gateway_client=gateway_client,
@@ -117,7 +149,8 @@ class DeclareCommand(ProtostarCommand):
 
     async def declare(
         self,
-        compiled_contract_path: Path,
+        compiled_contract_sierra: str,
+        compiled_contract_casm: str,
         max_fee: Fee,
         signer: BaseSigner,
         gateway_client: GatewayClient,
@@ -126,8 +159,9 @@ class DeclareCommand(ProtostarCommand):
         wait_for_acceptance: bool = False,
     ) -> SuccessfulDeclareResponse:
         gateway_facade = self._gateway_facade_factory.create(gateway_client)
-        return await gateway_facade.declare(
-            compiled_contract_path=compiled_contract_path,
+        return await gateway_facade.declare_cairo1(
+            compiled_contract_sierra=compiled_contract_sierra,
+            compiled_contract_casm=compiled_contract_casm,
             signer=signer,
             account_address=account_address,
             wait_for_acceptance=wait_for_acceptance,
