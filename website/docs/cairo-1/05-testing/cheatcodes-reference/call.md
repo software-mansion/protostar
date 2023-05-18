@@ -1,7 +1,7 @@
 # `call`
 
 ```cairo
-extern fn call(contract: felt252, function_name: felt252, calldata: Array::<felt252>) -> Result::<(Array::<felt252>), RevertedTransaction> nopanic;
+extern fn call(contract: felt252, function_name: felt252, calldata: @Array::<felt252>) -> Result::<(Array::<felt252>), RevertedTransaction> nopanic;
 ```
 
 Calls a [deployed](./deploy.md) contract. Unlike [invoke](./invoke.md), it **does not** mutate the blockchain state.
@@ -20,7 +20,7 @@ fn test_call() {
     calldata.append(3);
     calldata.append(2);
     calldata.append(5);
-    let return_data2 = call(deployed_contract_address, 'foo', calldata).unwrap();
+    let return_data2 = call(deployed_contract_address, 'foo', @calldata).unwrap();
     assert(*return_data2.at(0_u32) == 25, 'check call result');
 }
 ```
