@@ -123,13 +123,20 @@ class BuildCommand(ProtostarCommand):
             output_dir=output_dir,
         )
 
-        class_hash = compute_class_hash_from_sierra_code(
-            sierra_compiled, output_dir / (contract_name + ".class_hash")
-        )
-        compiled_class_hash = compute_compiled_class_hash_from_casm_code(
-            casm_compiled,
+        class_hash = compute_class_hash_from_sierra_code(sierra_compiled)
+        compiled_class_hash = compute_compiled_class_hash_from_casm_code(casm_compiled)
+
+        with open(
+            output_dir / (contract_name + ".class_hash"), mode="w", encoding="utf-8"
+        ) as output_file:
+            output_file.write(f"{hex(class_hash)}")
+
+        with open(
             output_dir / (contract_name + ".compiled_class_hash"),
-        )
+            mode="w",
+            encoding="utf-8",
+        ) as output_file:
+            output_file.write(f"{hex(compiled_class_hash)}")
 
         messenger(
             SuccessfulBuildCairo1Message(contract_name, class_hash, compiled_class_hash)
