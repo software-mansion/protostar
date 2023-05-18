@@ -132,7 +132,7 @@ commands:
       - run:
           name: Install bindings and compile cairo-compile
           command: |
-            if [ -f ./cairo/target/debug/cairo-compile ] && [ -d ./cairo/target/wheels ]; then
+            if [ -f ./cairo/target/debug/cairo-compile ] && [ -d ./cairo/target/wheels ] && [ -d ./protostar-rust/target/wheels ]; then
               pip install $(find ./cairo/target/wheels -maxdepth 1 -type f -iname "cairo_python_bindings*")
               pip install $(find ./protostar-rust/target/wheels -maxdepth 1 -type f -iname "rust_test_runner_bindings*")
             else
