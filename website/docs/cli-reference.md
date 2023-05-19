@@ -16,13 +16,8 @@ Compile cairo 1 contracts.
 An output directory used to put the compiled contracts in.
 #### `--contract-name STRING`
 Specify a contract name that should be built.
-<<<<<<< HEAD
-=======
 #### `--json`
 Print machine-readable output in [NDJSON](https://github.com/ndjson/ndjson-spec) format.
-#### `--linked-libraries PATH[]`
-Paths to cairo1 modules. Should not be explicitly provided when managing dependencies using Scarb.
->>>>>>> master
 ### `build-cairo0`
 ```shell
 $ protostar build-cairo0
