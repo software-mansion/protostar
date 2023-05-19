@@ -44,7 +44,7 @@ class NewProjectCreator(ProjectCreator):
         self,
         cairo_version: CairoVersion,
         project_name: Optional[str] = None,
-        minimal: Optional[bool] = None,
+        minimal: bool = False,
     ):
         project_config = (
             self.NewProjectConfig(project_name)
@@ -58,7 +58,7 @@ class NewProjectCreator(ProjectCreator):
         self._create_project(
             project_config=project_config,
             cairo_version=cairo_version,
-            minimal=minimal or False,
+            minimal=minimal,
         )
 
     def _gather_input(self) -> "NewProjectCreator.NewProjectConfig":
