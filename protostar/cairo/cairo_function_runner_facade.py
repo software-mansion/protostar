@@ -30,7 +30,7 @@ class CairoRunnerFacade:
             program=self._program,
             layout="starknet",
             additional_builtin_factories={
-                "segment_arena": lambda name, included: SegmentArenaBuiltinRunner(
+                "segment_arena": lambda name, included: SegmentArenaBuiltinRunner(  # pyright: ignore
                     included=included
                 )
             },
