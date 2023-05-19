@@ -37,12 +37,19 @@ class InitCommand(ProtostarCommand):
                 type="str",
                 is_positional=True,
             ),
+            ProtostarArgument(
+                name="minimal",
+                type="bool",
+                description="Create a minimal project structure.",
+            ),
         ]
 
     async def run(self, args: Namespace):
-        self.init(project_name=args.name)
+        self.init(project_name=args.name, minimal=args.minimal)
 
-    def init(self, project_name: Optional[str] = None):
+    def init(self, project_name: Optional[str] = None, minimal: Optional[bool] = False):
         self._new_project_creator.run(
-            cairo_version=CairoVersion.cairo1, project_name=project_name
+            cairo_version=CairoVersion.cairo1,
+            project_name=project_name,
+            minimal=minimal or False,
         )
