@@ -5,6 +5,7 @@ use zeroable::IsZeroResult;
 use ec::ec_state_init;
 use ec::ec_state_add_mul;
 use ec::ec_state_finalize;
+use dict::Felt252DictTrait;
 
 extern type Bitwise;
 extern fn bitwise(a: u128, b: u128) -> (u128, u128, u128) implicits(Bitwise) nopanic;
@@ -66,3 +67,10 @@ fn test_ec_op() {
     assert(1 == 1, 'simple check');
 }
 
+#[test]
+fn test_new_dict() {
+    let mut dict = Felt252DictTrait::new();
+    dict.insert(0, 1);
+
+    assert(dict.get(0) == 1, 'Okay');
+}

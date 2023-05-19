@@ -6,9 +6,11 @@ from starkware.cairo.lang.compiler.program import Program
 from starkware.cairo.lang.vm.utils import RunResources
 from starkware.cairo.lang.vm.relocatable import MaybeRelocatable
 from starkware.cairo.lang.vm.security import verify_secure_runner
+from starkware.starknet.builtins.segment_arena.segment_arena_builtin_runner import (
+    SegmentArenaBuiltinRunner,
+)
 
-
-RUNNER_BUILTINS = ["pedersen", "range_check", "bitwise", "ec_op"]
+RUNNER_BUILTINS = ["pedersen", "range_check", "bitwise", "ec_op", "segment_arena"]
 RUNNER_BUILTINS_TITLE_CASE = [
     "".join(x.title() for x in builtin.split("_")[:]) for builtin in RUNNER_BUILTINS
 ]
@@ -23,7 +25,17 @@ class CairoRunnerFacade:
     @contextmanager
     def new_runner(self) -> Generator[CairoFunctionRunner, None, None]:
         self._previous_runner = None
-        runner = CairoFunctionRunner(program=self._program, layout="starknet")
+
+        runner = CairoFunctionRunner(
+            program=self._program,
+            layout="starknet",
+            additional_builtin_factories={
+                "segment_arena": lambda name, included: SegmentArenaBuiltinRunner(
+                    included=included
+                )
+            },
+            allow_missing_builtins=True,
+        )
         self.current_runner = runner
         yield runner
         self._previous_runner = runner
