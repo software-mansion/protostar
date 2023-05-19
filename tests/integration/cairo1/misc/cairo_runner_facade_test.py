@@ -10,7 +10,7 @@ from protostar.cairo.cairo_function_runner_facade import CairoRunnerFacade
 def test_return_value(datadir: Path):
     test_collector_output = cairo1.collect_tests(
         input_path=datadir / "test.cairo",
-        maybe_cairo_paths=[(datadir / "test.cairo", "test")],
+        linked_libraries=[(datadir / "test.cairo", "test")],
     )
     assert test_collector_output.sierra_output
     protostar_casm_json = cairo1.compile_protostar_sierra_to_casm(

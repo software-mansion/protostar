@@ -27,7 +27,7 @@ class TestCollectorOutput:
 def compile_starknet_contract_to_casm_from_path(
     input_path: Path,
     output_path: Optional[Path] = None,
-    maybe_cairo_paths: Optional[list[Tuple[Path, str]]] = None,
+    linked_libraries: Optional[list[Tuple[Path, str]]] = None,
 ) -> str:
     ensure_output_path(output_path=output_path)
     with handle_bindings_errors("compile_starknet_contract_to_casm_from_path"):
@@ -36,9 +36,9 @@ def compile_starknet_contract_to_casm_from_path(
             str(output_path) if output_path else None,
             [
                 (str(package_path), package_name)
-                for package_path, package_name in maybe_cairo_paths
+                for package_path, package_name in linked_libraries
             ]
-            if maybe_cairo_paths
+            if linked_libraries
             else None,
         )
 
@@ -46,7 +46,7 @@ def compile_starknet_contract_to_casm_from_path(
 def compile_starknet_contract_to_sierra_from_path(
     input_path: Path,
     output_path: Optional[Path] = None,
-    maybe_cairo_paths: Optional[list[Tuple[Path, str]]] = None,
+    linked_libraries: Optional[list[Tuple[Path, str]]] = None,
 ) -> str:
     ensure_output_path(output_path=output_path)
     with handle_bindings_errors("compile_starknet_contract_to_sierra_from_path"):
@@ -55,9 +55,9 @@ def compile_starknet_contract_to_sierra_from_path(
             str(output_path) if output_path else None,
             [
                 (str(package_path), package_name)
-                for package_path, package_name in maybe_cairo_paths
+                for package_path, package_name in linked_libraries
             ]
-            if maybe_cairo_paths
+            if linked_libraries
             else None,
         )
 
@@ -74,10 +74,22 @@ def compile_starknet_contract_sierra_to_casm_from_path(
         )
 
 
+def compile_starknet_contract_sierra_to_casm_from_sierra_code(
+    sierra_compiled: str,
+    output_path: Optional[Path] = None,
+) -> str:
+    ensure_output_path(output_path=output_path)
+    with handle_bindings_errors("compile_starknet_contract_to_sierra_from_path"):
+        return cairo_python_bindings.compile_starknet_contract_sierra_to_casm_from_sierra_code(  # pyright: ignore
+            sierra_compiled,
+            str(output_path) if output_path else None,
+        )
+
+
 def collect_tests(
     input_path: Path,
     output_path: Optional[Path] = None,
-    maybe_cairo_paths: Optional[list[Tuple[Path, str]]] = None,
+    linked_libraries: Optional[list[Tuple[Path, str]]] = None,
 ) -> TestCollectorOutput:
     ensure_output_path(output_path=output_path)
     with handle_bindings_errors("collect_tests"):
@@ -86,9 +98,9 @@ def collect_tests(
             str(output_path) if output_path else None,
             [
                 (str(package_path), package_name)
-                for package_path, package_name in maybe_cairo_paths
+                for package_path, package_name in linked_libraries
             ]
-            if maybe_cairo_paths
+            if linked_libraries
             else None,
             RUNNER_BUILTINS_TITLE_CASE + ["GasBuiltin"],
         )

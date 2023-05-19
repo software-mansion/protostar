@@ -10,7 +10,7 @@ from protostar.cairo.cairo_function_runner_facade import CairoRunnerFacade
 def test_compilator_and_parser(mocker: MockerFixture, datadir: Path):
     test_collector_output = cairo1.collect_tests(
         input_path=datadir / "start_roll_test.cairo",
-        maybe_cairo_paths=[(datadir / "start_roll_test.cairo", "start_roll_test")],
+        linked_libraries=[(datadir / "start_roll_test.cairo", "start_roll_test")],
     )
 
     assert test_collector_output.sierra_output
@@ -42,20 +42,20 @@ def test_cairo_path_for_tests(datadir: Path, shared_datadir: Path):
     with pytest.raises(Exception):
         cairo1.collect_tests(
             input_path=datadir / "test_with_deps.cairo",
-            maybe_cairo_paths=[(Path("no-dir"), "no-name")],
+            linked_libraries=[(Path("no-dir"), "no-name")],
         )
 
     with pytest.raises(Exception):
         cairo1.collect_tests(
             input_path=datadir / "test_with_deps.cairo",
-            maybe_cairo_paths=[
+            linked_libraries=[
                 (shared_datadir / "external_lib_foo", "external_lib_foo")
             ],
         )
 
     result = cairo1.collect_tests(
         input_path=datadir / "test_with_deps.cairo",
-        maybe_cairo_paths=[
+        linked_libraries=[
             (shared_datadir / "external_lib_foo", "external_lib_foo"),
             (shared_datadir / "external_lib_bar", "external_lib_bar"),
         ],
@@ -75,7 +75,7 @@ def test_cairo_path_for_tests(datadir: Path, shared_datadir: Path):
 def test_importing_from_contract(datadir: Path, shared_datadir: Path):
     result = cairo1.collect_tests(
         input_path=datadir / "test_with_contract_deps.cairo",
-        maybe_cairo_paths=[
+        linked_libraries=[
             (shared_datadir / "external_contract", "external_contract"),
         ],
     )

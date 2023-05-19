@@ -16,11 +16,11 @@ class Cairo1TestCollectionException(Exception):
 
 
 class Cairo1TestCollector(TestCollector):
-    def __init__(self, cairo_paths: list[Tuple[Path, str]]):
+    def __init__(self, linked_libraries: list[Tuple[Path, str]]):
         super().__init__(
             get_suite_function_names=self.collect_cairo1_tests_and_cache_outputs
         )
-        self._cairo_paths = cairo_paths
+        self.linked_libraries = linked_libraries
         self._cairo_1_test_path_to_sierra_output: dict[Path, str] = {}
 
     def collect_cairo1_tests_and_cache_outputs(
@@ -30,7 +30,7 @@ class Cairo1TestCollector(TestCollector):
         try:
             collector_output = cairo1.collect_tests(
                 file_path,
-                maybe_cairo_paths=self._cairo_paths,
+                linked_libraries=self.linked_libraries,
             )
         except RuntimeError as rt_err:
             raise PreprocessorError(str(rt_err)) from rt_err
