@@ -1098,6 +1098,7 @@ dependencies = [
  "num-integer",
  "num-traits 0.2.15",
  "salsa",
+ "serde_json",
  "starknet-rs",
  "thiserror",
 ]
