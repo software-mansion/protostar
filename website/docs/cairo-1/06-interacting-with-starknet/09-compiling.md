@@ -8,21 +8,21 @@ To build your contracts, first define them in [`protostar.toml`](../04-protostar
 
 To build run
 
-```shell title="build-cairo1"
-protostar build-cairo1
+```shell title="build"
+protostar build
 ```
 
-[Check CLI reference](../../cli-reference.md#build-cairo1) for more details.
+[Check CLI reference](../../cli-reference.md#build) for more details.
 
 ## Output directory
 
-Running [`protostar build-cairo1`](../../cli-reference.md#build-cairo1) command will generate the compiled contracts in
+Running [`protostar build`](../../cli-reference.md#build) command will generate the compiled contracts in
 the `build` directory by default.
 You can specify a custom output directory using
 the [`--compiled-contracts-dir`](../../cli-reference#compiled-contracts-dir-pathbuild-1) argument.
 
 ```shell title="Example"
-$ protostar build-cairo1 --compiled-contracts-dir out
+$ protostar build --compiled-contracts-dir out
 ```
 
 `.sierra.json` files contain contracts compiled to the sierra format. This format is used to declare contracts on
@@ -33,13 +33,20 @@ sierra [here](https://docs.starknet.io/documentation/architecture_and_concepts/C
 `.casm.json` files contain contracts compiled to the casm format which can be executed on the cairo virtual machine. This
 format is used to calculate `compiled_class_hash` of a contract.
 
+`.class_hash` files contain class hash of the built contract
+
+`.compiled_class_hash` files contain compiled class hash of the built contract
+
+:::note
+If you need to print machine-readable output in JSON format, you should use `--json` flag.
+
 ## Using external dependencies
 
-If your build requires using external dependencies, you can specify additional paths in the `build-cairo1` command. To
+If your build requires using external dependencies, you can specify additional paths in the `build` command. To
 do that, you need to use the [`--linked-libraries`](../../cli-reference.md#linked-libraries-path) argument like this:
 
 ```
-$ protostar build-cairo1 --linked-libraries /path/to/the/external/lib
+$ protostar build --linked-libraries /path/to/the/external/lib
 ```
 
 :::note
@@ -52,5 +59,5 @@ If your `protostar.toml` file defines multiple contracts and you wish to compile
 the [`--contract-name`](../../cli-reference.md#--contract-name-string-1) argument:
 
 ```
-$ protostar build-cairo1 --contract-name my_contract
+$ protostar build --contract-name my_contract
 ```

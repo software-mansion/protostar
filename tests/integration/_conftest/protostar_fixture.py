@@ -269,11 +269,11 @@ class ProtostarFixture:
         return result
 
     async def build_cairo0(self):
-        args = self._prepare_build_args()
+        args = self._prepare_build_cairo0_args()
         return await self._build_cairo0_command.run(args)
 
     def build_cairo0_sync(self):
-        args = self._prepare_build_args()
+        args = self._prepare_build_cairo0_args()
         return asyncio.run(self._build_cairo0_command.run(args))
 
     async def build(self):
@@ -288,9 +288,15 @@ class ProtostarFixture:
         args = Namespace()
         args.compiled_contracts_dir = Path("./build")
         args.disable_hint_validation = False
-        args.cairo_path = None
+        args.linked_libraries = None
         args.json = False
         args.contract_name = ""
+        return args
+
+    def _prepare_build_cairo0_args(self):
+        args = self._prepare_build_args()
+        delattr(args, "linked_libraries")
+        args.cairo_path = None
         return args
 
     async def invoke(
