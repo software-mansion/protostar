@@ -36,9 +36,9 @@ use array::ArrayTrait;
 
 #[test]
 fn test_invoke_errors() {
-    let contract_address = deploy_contract('minimal', ArrayTrait::new()).unwrap();
+    let contract_address = deploy_contract('minimal', @ArrayTrait::new()).unwrap();
     start_prank(123, contract_address);
-    invoke(contract_address, 'is_expected_user', ArrayTrait::new()).unwrap();
+    invoke(contract_address, 'is_expected_user', @ArrayTrait::new()).unwrap();
 }
 ```
 
