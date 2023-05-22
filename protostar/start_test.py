@@ -1,5 +1,5 @@
-import asyncio
 from pathlib import Path
+from typing import Any
 from unittest.mock import MagicMock
 
 import pytest
@@ -33,7 +33,11 @@ def argument_parser_facade_patch(mocker: MockerFixture):
 @pytest.fixture(name="protostar_cli_run")
 def protostar_cli_run_fixture(mocker: MockerFixture, protostar_cli: ProtostarCLI):
     protostar_cli_run_mock = mocker.MagicMock()
-    protostar_cli.run = asyncio.coroutine(protostar_cli_run_mock)
+
+    async def async_protostar_cli_run_mock(args: Any):
+        protostar_cli_run_mock(args)
+
+    protostar_cli.run = async_protostar_cli_run_mock
     return protostar_cli_run_mock
 
 

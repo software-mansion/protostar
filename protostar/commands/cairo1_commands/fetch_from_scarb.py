@@ -1,13 +1,15 @@
 # pyright: reportUnknownLambdaType=false
-from typing import Optional, Dict
+from typing import Optional, Dict, Tuple
 from pathlib import Path
 import os
 import json
+import shutil
 import subprocess
 
 import logging
 
 from protostar.protostar_exception import ProtostarException
+from protostar.cairo.bindings.cairo_bindings import PackageName
 
 
 class ScarbMetadataFetchException(ProtostarException):
@@ -17,11 +19,16 @@ class ScarbMetadataFetchException(ProtostarException):
         )
 
 
-def has_scarb_toml(package_root_path: Path) -> bool:
-    return "Scarb.toml" in os.listdir(package_root_path)
-
-
 def read_scarb_metadata(scarb_toml_path: Path) -> Dict:
+    scarb_path = shutil.which("scarb")
+    if not scarb_path:
+        raise ProtostarException(
+            "Scarb not found. "
+            "Install Scarb from https://docs.swmansion.com/scarb/download "
+            "and use it to manage your dependencies."
+            # TODO #1957
+        )
+
     result = subprocess.run(
         [
             "scarb",
@@ -56,16 +63,13 @@ def read_scarb_metadata(scarb_toml_path: Path) -> Dict:
         ) from ex
 
 
-def maybe_fetch_linked_libraries_from_scarb(
-    package_root_path: Path, linked_libraries: list[Path]
-) -> list[Path]:
-    if not package_root_path.is_dir() or not has_scarb_toml(package_root_path):
-        return []
-
-    if linked_libraries:
+def fetch_linked_libraries_from_scarb(
+    package_root_path: Path,
+) -> list[Tuple[Path, PackageName]]:
+    if "Scarb.toml" not in os.listdir(package_root_path):
         raise ProtostarException(
-            "Provided linked-libraries (explicitly or in protostar.toml) while Scarb.toml was present. "
-            "Manage all of your dependencies using Scarb."
+            "Scarb.toml not found. Please make sure to manage your dependencies using Scarb."
+            # TODO #1957
         )
 
     scarb_toml_path = package_root_path / "Scarb.toml"
@@ -105,51 +109,34 @@ def maybe_fetch_linked_libraries_from_scarb(
                 unit_with_dependencies["target"]["name"],
             )
 
-        valuable_dependencies = filter(
-            lambda dependency: dependency["name"] != "core",
-            unit_with_dependencies["components_data"],
-        )
+        valuable_dependencies = [
+            dependency
+            for dependency in unit_with_dependencies["components_data"]
+            if dependency["name"] != "core"
+        ]
 
-        paths: list[Path] = list(
-            map(
-                lambda component: validate_path_exists_and_find_directory_with_config(
+        paths_and_package_names: list[Tuple[Path, PackageName]] = [
+            (
+                validate_path_exists_and_return_source_root(
                     Path(component["source_path"])
                 ),
-                valuable_dependencies,
+                component["name"],
             )
-        )
-
-        if len(paths) != len(set(paths)):
-            raise ProtostarException(
-                "At least one cairo_project.toml is shared between packages. "
-                "Make sure every package has its own cairo_project.toml"
-            )
+            for component in valuable_dependencies
+        ]
 
     except (IndexError, KeyError) as ex:
         raise ScarbMetadataFetchException("Error parsing metadata:\n" + str(ex)) from ex
 
-    return paths
+    return paths_and_package_names
 
 
-def validate_path_exists_and_find_directory_with_config(lib_cairo_path: Path) -> Path:
+def validate_path_exists_and_return_source_root(lib_cairo_path: Path) -> Path:
     if not lib_cairo_path.exists():
         raise ProtostarException(
             "The file "
             + str(lib_cairo_path)
             + " is expected by Scarb, but it does not exist."
+            # TODO #1957
         )
-
-    src_directory_path = lib_cairo_path.parent
-    result = (
-        src_directory_path
-        if "cairo_project.toml" in os.listdir(src_directory_path)
-        else src_directory_path.parent
-    )
-
-    if "cairo_project.toml" not in os.listdir(result):
-        raise ProtostarException(
-            "Missing cairo_project.toml for package located in "
-            + str(src_directory_path.parent)
-        )
-
-    return result
+    return lib_cairo_path.parent
