@@ -3041,34 +3041,30 @@ test = ["pytest"]
 
 [[package]]
 name = "starknet-devnet"
-version = "0.5.1"
+version = "0.5.2"
 description = "A local testnet for Starknet"
 category = "dev"
 optional = false
 python-versions = ">=3.9,<3.10"
-files = []
-develop = false
+files = [
+    {file = "starknet_devnet-0.5.2-py3-none-any.whl", hash = "sha256:244cab5add2d3dd89d92b816c4325f21da58c31ce34041f5aaea6fa9ac571acb"},
+    {file = "starknet_devnet-0.5.2.tar.gz", hash = "sha256:644fc88a3caeae422e1ca318d214e7910a7b5a5c26c81232cee9c5982bf4b4df"},
+]
 
 [package.dependencies]
 cairo-lang = "0.11.1.1"
-cloudpickle = "~2.1.0"
-crypto-cpp-py = "~1.4.0"
-Flask = {version = "~2.0.3", extras = ["async"]}
-flask-cors = "~3.0.10"
-gunicorn = "~20.1.0"
-jsonschema = "~4.17.0"
-marshmallow = "~3.17.0"
-marshmallow-dataclass = "~8.4"
-poseidon-py = "~0.1.3"
-typing-extensions = "~4.3.0"
-web3 = "~6.0.0"
-Werkzeug = "~2.0.3"
-
-[package.source]
-type = "git"
-url = "https://github.com/0xSpaceShard/starknet-devnet.git"
-reference = "adapt-0.11.1"
-resolved_reference = "bbb8be7c6e73f8eb55148e5f596c093f420109ce"
+cloudpickle = ">=2.1.0,<2.2.0"
+crypto-cpp-py = ">=1.4.0,<1.5.0"
+Flask = {version = ">=2.0.3,<2.1.0", extras = ["async"]}
+flask-cors = ">=3.0.10,<3.1.0"
+gunicorn = ">=20.1.0,<20.2.0"
+jsonschema = ">=4.17.0,<4.18.0"
+marshmallow = ">=3.17.0,<3.18.0"
+marshmallow-dataclass = ">=8.4,<8.5"
+poseidon-py = ">=0.1.3,<0.2.0"
+typing-extensions = ">=4.3.0,<4.4.0"
+web3 = ">=6.0.0,<6.1.0"
+Werkzeug = ">=2.0.3,<2.1.0"
 
 [[package]]
 name = "starknet-py"
@@ -3584,4 +3580,4 @@ testing = ["big-O", "flake8 (<5)", "jaraco.functools", "jaraco.itertools", "more
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9.14, <3.10"
-content-hash = "1ba4deda44505118dbdc176f75b3e9ba654b579303028340dcade47bb2fb69ea"
+content-hash = "5a075c994de4e8d3b9af00f13f41ca12bcfe228d92716d3932878e3456692441"
