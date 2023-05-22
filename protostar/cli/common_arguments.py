@@ -167,11 +167,3 @@ CONTRACT_NAME = ProtostarArgument(
     type="str",
     default="",
 )
-
-LINKED_LIBRARIES = ProtostarArgument(
-    name="linked-libraries",
-    value_parser="list",
-    description="Paths to cairo1 modules. "
-    "Should not be explicitly provided when managing dependencies using Scarb.",
-    type="path",
-)

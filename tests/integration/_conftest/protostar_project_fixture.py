@@ -43,9 +43,7 @@ class ProtostarProjectFixture:
         self._project_root_path = tmp_path
 
         self.cwd = None
-        self.protostar = self.create_protostar_fixture(
-            self._mocker, self._project_root_path
-        )
+        self.protostar = create_protostar_fixture(self._mocker, self._project_root_path)
         self._create_protostar_project(cairo_version)
 
     def _create_protostar_project(self, cairo_version: CairoVersion):
@@ -60,9 +58,7 @@ class ProtostarProjectFixture:
         self._project_root_path = self._project_root_path / project_name
         os.chdir(self._project_root_path)
         # rebuilding protostar fixture to reload configuration file
-        self.protostar = self.create_protostar_fixture(
-            self._mocker, self._project_root_path
-        )
+        self.protostar = create_protostar_fixture(self._mocker, self._project_root_path)
 
     def __enter__(self):
         return self
@@ -70,9 +66,6 @@ class ProtostarProjectFixture:
     def __exit__(self, *args: Any, **kwargs: Any):
         assert self.cwd
         os.chdir(self.cwd)
-
-    def create_protostar_fixture(self, mocker: MockerFixture, project_root_path: Path):
-        return create_protostar_fixture(mocker, project_root_path)
 
     @property
     def project_root_path(self) -> Path:
@@ -95,9 +88,7 @@ class ProtostarProjectFixture:
         }
         self.create_files(relative_path_str_to_file)
         self._add_contracts_to_protostar_toml(contract_name_to_file)
-        self.protostar = self.create_protostar_fixture(
-            self._mocker, self._project_root_path
-        )
+        self.protostar = create_protostar_fixture(self._mocker, self._project_root_path)
 
     def create_contracts_cairo1(
         self, contract_name_to_contract_dir: Dict[str, Union[str, Path]]
@@ -109,9 +100,7 @@ class ProtostarProjectFixture:
             relative_path = f"src/{contract_name}"
             shutil.copytree(contract_dir, self._project_root_path / relative_path)
         self._add_contracts_to_protostar_toml(contract_name_to_contract_dir)
-        self.protostar = self.create_protostar_fixture(
-            self._mocker, self._project_root_path
-        )
+        self.protostar = create_protostar_fixture(self._mocker, self._project_root_path)
 
     def _add_contracts_to_protostar_toml(
         self, contract_name_to_file: Dict[str, Union[str, Path]]
