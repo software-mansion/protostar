@@ -16,7 +16,7 @@ class Cairo1TestCollectionException(Exception):
 
 
 class Cairo1TestCollector(TestCollector):
-    def __init__(self, linked_libraries: list[Tuple[Path, str]]):
+    def __init__(self, linked_libraries: list[Tuple[Path, cairo1.PackageName]]):
         super().__init__(
             get_suite_function_names=self.collect_cairo1_tests_and_cache_outputs
         )

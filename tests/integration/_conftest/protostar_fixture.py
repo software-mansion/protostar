@@ -37,6 +37,7 @@ from protostar.testing import TestingSummary
 from protostar.starknet import Address
 from protostar.starknet.data_transformer import CairoOrPythonData
 from protostar.testing.test_results import TestResult
+from protostar.cairo.bindings.cairo_bindings import PackageName
 from tests.conftest import DevnetAccount
 
 from .tokenizer import tokenize
@@ -419,7 +420,7 @@ class ProtostarFixture:
     async def test(
         self,
         target: Union[str, Path],
-        linked_libraries: Optional[list[Tuple[Path, str]]] = None,
+        linked_libraries: Optional[list[Tuple[Path, PackageName]]] = None,
     ) -> TestingSummary:
         """
         Runs test runner safely, without assertions on state of the summary and cache mechanism

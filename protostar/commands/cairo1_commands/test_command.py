@@ -26,6 +26,7 @@ from protostar.commands.legacy_commands.test_cairo0.messages import (
 from protostar.commands.legacy_commands.test_cairo0.testing_live_logger import (
     TestingLiveLogger,
 )
+from protostar.cairo.bindings.cairo_bindings import PackageName
 from .fetch_from_scarb import fetch_linked_libraries_from_scarb
 
 
@@ -136,7 +137,7 @@ A glob or globs to a directory or a test suite, for example:
         targets: list[str],
         messenger: Messenger,
         ignored_targets: Optional[list[str]] = None,
-        linked_libraries: Optional[list[Tuple[Path, str]]] = None,
+        linked_libraries: Optional[list[Tuple[Path, PackageName]]] = None,
         no_progress_bar: bool = False,
         exit_first: bool = False,
         slowest_tests_to_report_count: int = 0,

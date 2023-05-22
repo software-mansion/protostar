@@ -9,6 +9,7 @@ import subprocess
 import logging
 
 from protostar.protostar_exception import ProtostarException
+from protostar.cairo.bindings.cairo_bindings import PackageName
 
 
 class ScarbMetadataFetchException(ProtostarException):
@@ -64,7 +65,7 @@ def read_scarb_metadata(scarb_toml_path: Path) -> Dict:
 
 def fetch_linked_libraries_from_scarb(
     package_root_path: Path,
-) -> list[Tuple[Path, str]]:
+) -> list[Tuple[Path, PackageName]]:
     if "Scarb.toml" not in os.listdir(package_root_path):
         raise ProtostarException(
             "Scarb.toml not found. Please make sure to manage your dependencies using Scarb."
@@ -114,7 +115,7 @@ def fetch_linked_libraries_from_scarb(
             if dependency["name"] != "core"
         ]
 
-        paths_and_package_names: list[Tuple[Path, str]] = [
+        paths_and_package_names: list[Tuple[Path, PackageName]] = [
             (
                 validate_path_exists_and_return_source_root(
                     Path(component["source_path"])
