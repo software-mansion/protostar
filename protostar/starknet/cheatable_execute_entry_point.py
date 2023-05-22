@@ -211,7 +211,8 @@ class CheatableExecuteEntryPoint(ExecuteEntryPoint):
             self.append_runtime_profile(runner, state.get_compiled_class(class_hash))
             self.pop_contract_callstack()
             if not CheatableExecuteEntryPoint.contract_callstack:
-                merge_and_save(CheatableExecuteEntryPoint.samples)
+                # merge_and_save(CheatableExecuteEntryPoint.samples)
+                pass
         # endregion
 
         # Build and return the call info.

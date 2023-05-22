@@ -1,8 +1,14 @@
 # pylint: disable=no-member
 import gzip
 import time
-from starkware.cairo.lang.tracer.third_party.profile_pb2 import Profile
+
+# from starkware.cairo.lang.tracer.third_party.profile_pb2 import Profile
 from protostar.profiler.transaction_profiler import TransactionProfile
+
+
+class Profile:
+    def __init__(self):
+        self.time_nanos = None
 
 
 class StringIDGenerator:
