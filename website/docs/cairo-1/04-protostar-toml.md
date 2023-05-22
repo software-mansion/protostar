@@ -12,7 +12,6 @@ protostar-version = "PROTOSTAR_VERSION"
 # Shared Configuration (affects all commands)
 
 lib-path = "lib"
-linked-libraries = ["hello_starknet"]
 
 # Defines contract names for the use with cheatcodes and commands
 [contracts]
@@ -39,11 +38,6 @@ The `[project]` section of the `protostar.toml` file allows you to specify globa
 #### `protostar-version`
 
 This attribute defines which Protostar version should be used with your project.
-
-#### `linked-libraries`
-
-It defines packages to be used when running tests and other commands. If a package is not included in `linked-libraries`
-trying to use it in tests will cause compilation errors.
 
 ### `[contracts]` section
 

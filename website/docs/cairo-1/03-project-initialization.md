@@ -9,44 +9,51 @@ sidebar_label: Project initialization
 To create a new Protostar project with cairo 1 support, run 
 
 ```shell
-protostar init my-project
+protostar init my-package
 ```
 
 After running the command, the following structure will be generated:
 
 ```
-my_project/
-├── hello_starknet/
-│   ├── src/
-│   │   ├── business_logic/
-│   │   │   └── utils.cairo
-│   │   ├── contracts/
-│   │   │   └── hello_starknet.cairo
-│   │   ├── business_logic.cairo
-│   │   ├── contracts.cairo
-│   │   └── lib.cairo
-│   └── cairo_project.toml
+my_package/
+├── src/
+│   ├── business_logic/
+│   │   └── utils.cairo
+│   ├── contracts/
+│   │   └── hello_starknet.cairo
+│   ├── business_logic.cairo
+│   ├── contracts.cairo
+│   └── lib.cairo
+└── Scarb.toml
 ├── tests/
 │   ├── test_hello_starknet.cairo
 │   └── test_utils.cairo
 └── protostar.toml
 ```
 
-:::warning
-This template will be changed in future versions, but the old one will still be usable with newer protostar versions
-:::
+### `Scarb.toml` and `lib.cairo`
 
-### `hello_starknet`
-
-This directory contains our only package in this project - `hello_starknet`.
-
-### `cairo_project.toml` and `lib.cairo`
-
-All Cairo1 packages must define these files.
+All Cairo 1 packages must define these files.
 
 You can learn about [packages](./02-understanding-cairo-packages.md) and how
 to [add new module to a package](./02-understanding-cairo-packages.md#adding-a-new-module) in
 further sections.
+
+```toml title="Scarb.toml"
+[package]
+name = "my_package"
+version = "0.1.0"
+
+[dependencies]
+```
+:::info 
+The name of the package is always the value
+of the `name` key in the `[package]` section of your `Scarb.toml`. 
+:::
+
+### `src`
+
+This directory contains the source code of the package named `my_package`. 
 
 ### `contracts`
 
@@ -60,8 +67,8 @@ use multiple contracts in your project see [this section](#using-multiple-contra
 
 ### `business_logic`
 
-This directory contains standalone cairo1 methods that can be imported and used in the contract definition. We recommend
-writing business logic in this directory to simplify writing unit tests.
+This directory contains standalone Cairo 1 methods that can be imported and used in the contract definition. We recommend
+putting business logic in this directory to simplify writing unit tests.
 
 ### `contracts.cairo` and `business_logic.cairo`
 
@@ -75,9 +82,18 @@ All [tests](./05-testing/README.md) should be defined in this directory.
 
 This file contains the [configuration for the Protostar project](./04-protostar-toml.md).
 
+```toml title="protostar.toml"
+[project]
+protostar-version = "0.0.0"
+lib-path = "lib"
+
+[contracts]
+hello_starknet = ["src"]
+```
+
 :::info
 Even though `hello_starknet.cairo` file is defined in the nested directory, we use a package
-directory `"hello_starknet"` as path to the contract. This is necessary for the imports from modules within package
+directory `src` as path to the contract. This is necessary for the imports from modules within package
 containing the contract (like `business_logic`) to work.
 :::
 
@@ -90,11 +106,11 @@ the `protostar build` command and other commands to fail.
 
 ### Multi-contract project structure
 
-Each contract must be defined in the separate package: A different directory with separate `cairo_project.toml`
-and `lib.cairo` files defined.
+Each contract must be defined in the separate package: a different directory with separate `Scarb.toml`
+and `src/lib.cairo` files defined.
 
 ```
-my_project/
+my_package/
 ├── package1/
 │   ├── src/
 │   │   ├── contracts/
@@ -102,7 +118,7 @@ my_project/
 │   │  ...
 │   │   ├── contracts.cairo
 │   │   └── lib.cairo
-│   └── cairo_project.toml
+│   └── Scarb.toml
 ├── package2/
 │   ├── src/
 │   │   ├── contracts/
@@ -110,30 +126,28 @@ my_project/
 │   │  ...
 │   │   ├── contracts.cairo
 │   │   └── lib.cairo
-│   └── cairo_project.toml
+│   └── Scarb.toml
 ...
+├── src/
+│   └── lib.cairo
+├── Scarb.toml
 └── protostar.toml
 ```
 
-Make sure `[crate_roots]` are correctly defined.
+Notice that the whole project itself is a package too.
+This is due to the fact that [Scarb](https://docs.swmansion.com/scarb/), which Protostar uses 
+to manage dependencies, does not support workspaces yet. If you do not
+need to include any code in the top level package, just leave the `my_package/src/lib.cairo` file empty.
 
-```toml title="package1/cairo_project.toml"
-[crate_roots]
-package1 = "src"
-```
+:::info 
+Even though `package1` and `package2` **directories** are inside `my_package` **directory**
+it does not make `package1` and `package2` **packages** parts of `my_package` **package**. 
+Therefore, you should refer to them using `package1::` and `package2::`.
+:::
 
-```toml title="package2/cairo_project.toml"
-[crate_roots]
-package2 = "src"
-```
-
-Define each contract in the `[contracts]` section of the protostar.toml and each package
-in the `linked-librares`
-
+Define each contract in the `[contracts]` section of the protostar.toml.
 ```toml title="protostar.toml"
 # ...
-linked-libraries = ["package1", "package2"]
-
 [contracts]
 hello_starknet = ["package1"]
 other_contract = ["package2"]

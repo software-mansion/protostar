@@ -6,7 +6,7 @@ choice.
 This tutorial shows a simple example of how to do such a thing using scripting in bash.
 
 We are going to write a script that builds, tests, declares, deploys, and, in the end, calls the contract. We are also
-going to make use of the protostar's structured output so we can use previous' commands outputs in the following ones.
+going to make use of the protostar's structured output, so we can use previous' commands outputs in the following ones.
 
 ### File Structure
 
@@ -14,17 +14,16 @@ First, let's create a basic protostar file structure. You can generate it by
 calling [`protostar init`](../03-project-initialization.md). It looks like this:
 
 ```
-my_project/
-├── hello_starknet/
-│   ├── src/
-│   │   ├── business_logic/
-│   │   │   └── utils.cairo
-│   │   ├── contracts/
-│   │   │   └── hello_starknet.cairo
-│   │   ├── business_logic.cairo
-│   │   ├── contracts.cairo
-│   │   └── lib.cairo
-│   └── cairo_project.toml
+my_package/
+├── src/
+│   ├── business_logic/
+│   │   └── utils.cairo
+│   ├── contracts/
+│   │   └── hello_starknet.cairo
+│   ├── business_logic.cairo
+│   ├── contracts.cairo
+│   └── lib.cairo
+└── Scarb.toml
 ├── tests/
 │   ├── test_hello_starknet.cairo
 │   └── test_utils.cairo

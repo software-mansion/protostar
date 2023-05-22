@@ -3,7 +3,10 @@
 There are several requirements that Cairo packages have to follow. These are explained in the following sections.
 
 You can refer to [official Cairo documentation](https://github.com/starkware-libs/cairo/tree/main/docs/reference) for
-more details.
+more details. 
+
+Keep in mind that Protostar does not use `cairo_project.toml`. 
+It uses [Scarb](https://docs.swmansion.com/scarb) - a powerful package manager -  and its [manifest files](https://docs.swmansion.com/scarb/docs/reference/manifest) instead.
 
 ## Modules
 
@@ -36,7 +39,7 @@ mod my_module {
 
 ## Packages
 
-Package consist of multiple modules and must define `cairo_project.toml` and `lib.cairo` files.
+Package consist of multiple modules and must define `Scarb.toml` and `src/lib.cairo`.
 
 :::info
 Some other tools and resources,
@@ -44,23 +47,24 @@ including [official Cairo documentation](https://github.com/starkware-libs/cairo
 term "crates" for packages.
 :::
 
-### `cairo_project.toml`
+### `Scarb.toml`
 
-It is a required part of the package definition. It contains `[crate_roots]` parameter, which is the path to
-the `lib.cairo` file.
+It is a [Scarb's manifest files](https://docs.swmansion.com/scarb/docs/reference/manifest) used by Protostar to manage your dependencies with the help of Scarb.
+This way you can manage your [dependencies](https://docs.swmansion.com/scarb/docs/reference/specifying-dependencies) as if you were using Scarb directly - you will not notice any difference!
 
-It is good practice for the package name defined here to match the top-level directory name.
+Example content of this file:
 
-As an example we can define:
+```toml title="Scarb.toml"
+[package]
+name = "my_package"
+version = "0.1.0"
 
-```toml title="cairo_project.toml"
-[crate_roots]
-my_package = "src"
+[dependencies]
 ```
 
 ### `lib.cairo`
 
-It is the root of the package tree. Here you can define functions, declare used modules, etc.
+It is the root of the package tree and ***must*** be placed inside `src` folder. Here you can define functions, declare used modules, etc.
 
 ```cairo title="lib.cairo"
 mod my_module;
@@ -81,11 +85,10 @@ fn returns_three() -> felt252 {
 Here is our initial file structure
 
 ```
-my_project/
-└── hello_starknet/
-    ├── src/
-    │   └── lib.cairo
-    └── cairo_project.toml
+my_package/
+├── src/
+│   └── lib.cairo
+└── Scarb.toml
 ```
 
 #### Adding a new module
@@ -111,19 +114,23 @@ mod mod1;
 If you followed the steps correctly, your new project structure should look like this
 
 ```
-my_project/
-└── hello_starknet/
-    ├── src/
-    │   ├── mod1/  <------------------- new directory
-    │   │   └── functions.cairo  <----- new file
-    │   ├── lib.cairo  <--------------- contents updated
-    │   └── mod1.cairo
-    └── cairo_project.toml
+my_package/
+├── src/
+│   ├── mod1/  <------------------- new directory
+│   │   └── functions.cairo  <----- new file
+│   ├── lib.cairo  <--------------- contents updated
+│   └── mod1.cairo
+└── Scarb.toml
 ```
 
 #### Using added module
 
-You now use your function with `hello_starknet::mod1::functions::returns_three()`.
+You can now use your function with `my_package::mod1::functions::returns_three()`.
+
+:::info
+The name `my_package` is the value of the `name` key in the `[package]` section of your `Scarb.toml`, 
+**not** the name of the directory.
+:::
 
 ## Packages and modules names considerations
 

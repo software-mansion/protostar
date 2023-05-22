@@ -11,7 +11,7 @@ Show Protostar, Cairo-lang and Cairo 1 compiler versions.
 ```shell
 $ protostar build
 ```
-Compile cairo 1 contracts.
+Compile Cairo 1 contracts.
 #### `--compiled-contracts-dir PATH=build`
 An output directory used to put the compiled contracts in.
 #### `--contract-name STRING`
@@ -270,14 +270,14 @@ Log information about already formatted files as well.
 ```shell
 $ protostar init
 ```
-Create a Protostar project with cairo1 template.
+Create a Protostar project with Cairo 1 template.
 #### `name STRING`
 Name of the directory a new project will be placed in.
 ### `init-cairo0`
 ```shell
 $ protostar init-cairo0
 ```
-Create a Protostar project with cairo0 template.
+Create a Protostar project with Cairo 0 template.
 #### `name STRING`
 Name of the directory a new project will be placed in.Ignored when `--existing` is passed.
 #### `--existing`
@@ -429,7 +429,7 @@ Directory containing project dependencies. This argument is used with the config
 ```shell
 $ protostar test
 ```
-Executes tests using cairo 1 runner.
+Executes tests using Cairo 1 runner.
 #### `target STRING[]=['.']`
 A glob or globs to a directory or a test suite, for example:
 - `tests/**/*_main*::*_balance` — find test cases, which names ends with `_balance` in test suites with the `_main` in filenames in the `tests` directory,

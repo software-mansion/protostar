@@ -54,7 +54,7 @@ class TestCommand(ProtostarCommand):
 
     @property
     def description(self) -> str:
-        return "Executes tests using cairo 1 runner."
+        return "Executes tests using Cairo 1 runner."
 
     @property
     def example(self) -> Optional[str]:
