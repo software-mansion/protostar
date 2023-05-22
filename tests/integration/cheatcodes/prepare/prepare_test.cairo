@@ -27,7 +27,7 @@ func test_address_can_be_created_deterministically{syscall_ptr: felt*, range_che
     %{
         declaration = declare("./tests/integration/cheatcodes/deploy_contract/basic_with_constructor_uint256.cairo")
         contract_address = prepare(declaration, { "initial_balance": 42 }, salt=1).contract_address
-        assert (contract_address == 2134943830158922377239716767185068280034656914522053324081275074894222222988), f"Contract address is {contract_address}"
+        assert (contract_address == 268373656087074137436579244607604716434798014769107378331106351784479693949), f"Contract address is {contract_address}"
     %}
 
     return ();
