@@ -22,10 +22,10 @@ def read_scarb_metadata(scarb_toml_path: Path) -> Dict:
     scarb_path = shutil.which("scarb")
     if not scarb_path:
         raise ProtostarException(
-            "Scarb binary not found. "
-            "Make sure to install Scarb from https://docs.swmansion.com/scarb/download "
+            "Scarb not found. "
+            "Install Scarb from https://docs.swmansion.com/scarb/download "
             "and use it to manage your dependencies."
-            # TODO #1956
+            # TODO #1957
         )
 
     result = subprocess.run(
@@ -68,7 +68,7 @@ def fetch_linked_libraries_from_scarb(
     if "Scarb.toml" not in os.listdir(package_root_path):
         raise ProtostarException(
             "Scarb.toml not found. Please make sure to manage your dependencies using Scarb."
-            # TODO #1956
+            # TODO #1957
         )
 
     scarb_toml_path = package_root_path / "Scarb.toml"
@@ -136,6 +136,6 @@ def validate_path_exists_and_return_source_root(lib_cairo_path: Path) -> Path:
             "The file "
             + str(lib_cairo_path)
             + " is expected by Scarb, but it does not exist."
-            # TODO #1956
+            # TODO #1957
         )
     return lib_cairo_path.parent

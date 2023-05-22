@@ -114,7 +114,7 @@ class NewProjectCreator(ProjectCreator):
     @staticmethod
     def _validate_project_name(name: str):
         # https://github.com/software-mansion/scarb/blob/main/scarb/src/core/package/name.rs#LL42C9
-        # the project name is already non-empty - the CLI won't let a user provide an empty string
+        assert name
         if name == "_":
             raise ProtostarException(
                 "Project name cannot be equal to a single underscore. Choose a different project name."
