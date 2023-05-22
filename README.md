@@ -58,7 +58,7 @@ curl -L https://raw.githubusercontent.com/software-mansion/protostar/master/inst
 1. Install Python version management tool: [pyenv](https://github.com/pyenv/pyenv) or [asdf](https://github.com/asdf-vm/asdf)
 1. Install `Python 3.9.14` using the Python version management tool and activate that version
    - To be able to build Protostar, set the following environmental variable before installing Python: `PYTHON_CONFIGURE_OPTS="--enable-shared"`
-1. Clone this repository
+1. Clone this repository with submodules. Use `git clone --recurse-submodules https://github.com/software-mansion/protostar.git`
 1. Verify the active Python version: `python -V`
 1. [Install Poetry](https://python-poetry.org/docs/#installation) — a dependency manager
 1. Create Python virtual environment in the project directory: `poetry env use 3.9`
