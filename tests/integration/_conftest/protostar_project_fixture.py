@@ -35,9 +35,11 @@ class ProtostarProjectFixture:
         mocker: MockerFixture,
         tmp_path_factory: ProtostarTmpPathFactory,
         cairo_version: CairoVersion = CairoVersion.cairo0,
+        minimal: bool = False,
     ) -> None:
         self._mocker = mocker
         self._tmp_path_factory = tmp_path_factory
+        self._minimal = minimal
 
         tmp_path = self._tmp_path_factory()
         self._project_root_path = tmp_path
@@ -55,7 +57,7 @@ class ProtostarProjectFixture:
         if cairo_version == CairoVersion.cairo0:
             self.protostar.init_cairo0_sync(project_name)
         else:
-            self.protostar.init_sync(project_name)
+            self.protostar.init_sync(project_name, self._minimal)
 
         self._project_root_path = self._project_root_path / project_name
         os.chdir(self._project_root_path)

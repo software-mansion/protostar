@@ -262,9 +262,10 @@ class ProtostarFixture:
         result = asyncio.run(self._init_cairo0_command.run(args))
         return result
 
-    def init_sync(self, project_name: str):
+    def init_sync(self, project_name: str, minimal: bool = False):
         args = Namespace()
         args.name = project_name
+        args.minimal = minimal
         result = asyncio.run(self._init_command.run(args))
         return result
 

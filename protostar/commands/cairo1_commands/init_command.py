@@ -47,7 +47,7 @@ class InitCommand(ProtostarCommand):
     async def run(self, args: Namespace):
         minimal = False
         if vars(args).get("minimal"):
-            args.minimal = bool(args.minimal)
+            minimal = bool(args.minimal)
         self.init(project_name=args.name, minimal=minimal)
 
     def init(self, project_name: Optional[str] = None, minimal: bool = False):
