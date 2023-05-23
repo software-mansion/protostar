@@ -25,8 +25,9 @@ def read_scarb_metadata(scarb_toml_path: Path) -> Dict:
         raise ProtostarException(
             "Scarb not found. "
             "Install Scarb from https://docs.swmansion.com/scarb/download "
-            "and use it to manage your dependencies."
-            # TODO #1957
+            "and use it to manage your dependencies. "
+            "In case of any doubts, check the documentation "
+            "https://docs.swmansion.com/protostar/docs/cairo-1/understanding-cairo-packages#packages"
         )
 
     result = subprocess.run(
@@ -69,7 +70,8 @@ def fetch_linked_libraries_from_scarb(
     if "Scarb.toml" not in os.listdir(package_root_path):
         raise ProtostarException(
             "Scarb.toml not found. Please make sure to manage your dependencies using Scarb."
-            # TODO #1957
+            "In case of any doubts, check the documentation "
+            "https://docs.swmansion.com/protostar/docs/cairo-1/understanding-cairo-packages#packages"
         )
 
     scarb_toml_path = package_root_path / "Scarb.toml"
@@ -137,6 +139,7 @@ def validate_path_exists_and_return_source_root(lib_cairo_path: Path) -> Path:
             "The file "
             + str(lib_cairo_path)
             + " is expected by Scarb, but it does not exist."
-            # TODO #1957
+            "In case of any doubts, check the documentation "
+            "https://docs.swmansion.com/protostar/docs/cairo-1/understanding-cairo-packages#packages"
         )
     return lib_cairo_path.parent

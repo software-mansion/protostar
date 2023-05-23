@@ -194,7 +194,7 @@ For more details on of how to test contracts, see [this page](./06-testing/READM
 If you don't plan to develop a complex project and you just want to quickly setup the easiest possible one, you can use the `--minimal` flag like this:
 
 ```shell
-protostar init --minimal
+protostar init --minimal my_project
 ```
 
 This will generate the following file structure:
