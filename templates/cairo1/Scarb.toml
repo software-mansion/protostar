@@ -1,5 +1,5 @@
 [package]
-name = "my_package"
+name = "hello_starknet"
 version = "0.1.0"
 
 [dependencies]

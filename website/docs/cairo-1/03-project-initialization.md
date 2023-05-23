@@ -9,7 +9,7 @@ sidebar_label: Project initialization
 To create a new Protostar project with cairo 1 support, run 
 
 ```shell
-protostar init my-package
+protostar init my_package
 ```
 
 After running the command, the following structure will be generated:
@@ -41,7 +41,7 @@ further sections.
 
 ```toml title="Scarb.toml"
 [package]
-name = "my_package"
+name = "hello_starknet"
 version = "0.1.0"
 
 [dependencies]
@@ -53,7 +53,7 @@ of the `name` key in the `[package]` section of your `Scarb.toml`.
 
 ### `src`
 
-This directory contains the source code of the package named `my_package`. 
+This directory contains the source code of the package named `hello_starknet`. 
 
 ### `contracts`
 
