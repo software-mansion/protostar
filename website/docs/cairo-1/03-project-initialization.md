@@ -167,7 +167,7 @@ For more details on of how to test contracts, see [this page](./05-testing/READM
 
 ### Minimal project template
 
-If you don't plan to develop a complex, multi-contract project and you just want to quickly setup the easiest possible project, you can use the `--minimal` flag like this:
+If you don't plan to develop a complex project and you just want to quickly setup the easiest possible one, you can use the `--minimal` flag like this:
 
 ```shell
 protostar init --minimal
@@ -184,5 +184,3 @@ my_project
 └── tests
     └── test_hello_starknet.cairo
 ```
-
-This is way simpler than the standard structure but doesn't make it easy to develop a multi-contract project.
