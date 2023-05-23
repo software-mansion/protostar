@@ -187,4 +187,24 @@ fn test_returns_two() {
 
 Make sure that the path::to:the::module is correct for your package structure.
 
-For more details on of how to test contracts, see [this page](06-testing/README.md).
+For more details on of how to test contracts, see [this page](./06-testing/README.md).
+
+### Minimal project template
+
+If you don't plan to develop a complex project and you just want to quickly setup the easiest possible one, you can use the `--minimal` flag like this:
+
+```shell
+protostar init --minimal
+```
+
+This will generate the following file structure:
+
+```
+my_project/
+├── Scarb.toml
+├── protostar.toml
+├── src/
+│   └── lib.cairo
+└── tests/
+    └── test_hello_starknet.cairo
+```

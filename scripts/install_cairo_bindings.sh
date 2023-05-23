@@ -3,6 +3,7 @@
 set -e
 
 function install_dev() {
+  git submodule update --init --recursive
   git pull origin $(git rev-parse --abbrev-ref HEAD) --ff-only --recurse-submodules
 
   pushd cairo/crates/cairo-lang-python-bindings
@@ -12,6 +13,7 @@ function install_dev() {
 }
 
 function install_prod() {
+  git submodule update --init --recursive
   git pull origin $(git rev-parse --abbrev-ref HEAD) --ff-only --recurse-submodules
 
   pushd cairo/crates/cairo-lang-python-bindings
