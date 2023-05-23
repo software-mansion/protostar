@@ -42,7 +42,7 @@ This attribute defines which Protostar version should be used with your project.
 ### `[contracts]` section
 
 Define packages containing contracts to be used by protostar commands
-like [declare-cairo1](../cli-reference.md#declare-cairo1) and by [cheatcodes](./05-testing/03-cheatcodes.md).
+like [declare-cairo1](../cli-reference.md#declare-cairo1) and by [cheatcodes](06-testing/03-cheatcodes.md).
 
 ```toml
 [contracts]

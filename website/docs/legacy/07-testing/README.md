@@ -2,7 +2,7 @@
 
 :::warning
 Legacy cairo 0 test runner has been deprecated, and will be removed in future releases. 
-Consider migrating your tests to [cairo 1 test runner](../../cairo-1/05-testing/README.md).
+Consider migrating your tests to [cairo 1 test runner](../../cairo-1/06-testing/README.md).
 You can still test your cairo 0 contracts using the new cairo 1 test runner.
 :::
 

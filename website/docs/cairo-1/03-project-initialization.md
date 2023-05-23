@@ -76,7 +76,7 @@ These files are necessary so that they can be imported in the `lib.cairo` file.
 
 ### `tests`
 
-All [tests](./05-testing/README.md) should be defined in this directory.
+All [tests](06-testing/README.md) should be defined in this directory.
 
 ### `protostar.toml`
 
@@ -177,4 +177,4 @@ fn test_returns_two() {
 
 Make sure that the path::to:the::module is correct for your package structure.
 
-For more details on of how to test contracts, see [this page](./05-testing/README.md).
+For more details on of how to test contracts, see [this page](06-testing/README.md).
