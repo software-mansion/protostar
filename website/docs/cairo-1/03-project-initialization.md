@@ -176,11 +176,11 @@ protostar init --minimal
 This will generate the following file structure:
 
 ```
-my_project
-├── hello_starknet
-│   ├── cairo_project.toml
-│   └── lib.cairo
+my_project_name
+├── Scarb.toml
 ├── protostar.toml
+├── src
+│   └── lib.cairo
 └── tests
     └── test_hello_starknet.cairo
 ```
