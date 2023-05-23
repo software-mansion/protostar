@@ -30,20 +30,18 @@ pub fn run_tests(input_path: &str) -> Result<()> {
         &input_path.to_owned(),
         None,
         Some(
-            vec![
-                "/Users/arturmichalek/Coding/protostar/protostar-rust/pkg"
-                    .to_string(),
-            ]
-            .iter()
-            .collect(),
+            vec!["/Users/arturmichalek/Coding/protostar/protostar-rust/pkg".to_string()]
+                .iter()
+                .collect(),
         ),
         Some(builtins),
     )?;
 
     println!("Test configs = {:?}", test_configs);
 
-    let runner = SierraCasmRunner::new(sierra_program, Some(Default::default()), Default::default())
-        .with_context(|| "Failed setting up runner.")?;
+    let runner =
+        SierraCasmRunner::new(sierra_program, Some(Default::default()), Default::default())
+            .with_context(|| "Failed setting up runner.")?;
 
     for config in &test_configs {
         let result = runner
