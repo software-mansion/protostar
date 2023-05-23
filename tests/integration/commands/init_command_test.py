@@ -22,6 +22,15 @@ def test_init(
         compare_directories(dir_compare_object)
 
 
+def test_init_cairo1_minimal(create_protostar_project: CreateProtostarProjectFixture):
+    with create_protostar_project(CairoVersion.cairo1, True):
+        mocker_project_path = Path(".")
+        template_project_path = PROJECT_ROOT / "templates" / "cairo1_minimal"
+
+        dir_compare_object = dircmp(mocker_project_path, template_project_path)
+        compare_directories(dir_compare_object)
+
+
 def compare_directories(dcmp: dircmp):
     assert not (dcmp.left_only or dcmp.right_only or dcmp.diff_files), (
         f"files or directories with different os.stat() (probably different content) signatures: {dcmp.diff_files}\n "

@@ -273,6 +273,8 @@ $ protostar init
 Create a Protostar project with cairo1 template.
 #### `name STRING`
 Name of the directory a new project will be placed in.
+#### `--minimal`
+Create a minimal project structure.
 ### `init-cairo0`
 ```shell
 $ protostar init-cairo0
