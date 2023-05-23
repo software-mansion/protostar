@@ -14,7 +14,7 @@ First, let's create a basic protostar file structure. You can generate it by
 calling [`protostar init`](../03-project-initialization.md). It looks like this:
 
 ```
-my_package/
+my_project/
 ├── src/
 │   ├── business_logic/
 │   │   └── utils.cairo

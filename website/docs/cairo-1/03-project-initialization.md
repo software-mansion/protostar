@@ -9,13 +9,13 @@ sidebar_label: Project initialization
 To create a new Protostar project with cairo 1 support, run 
 
 ```shell
-protostar init my_package
+protostar init my_project
 ```
 
 After running the command, the following structure will be generated:
 
 ```
-my_package/
+my_project/
 ├── src/
 │   ├── business_logic/
 │   │   └── utils.cairo
@@ -110,7 +110,7 @@ Each contract must be defined in the separate package: a different directory wit
 and `src/lib.cairo` files defined.
 
 ```
-my_package/
+my_project/
 ├── package1/
 │   ├── src/
 │   │   ├── contracts/
@@ -137,11 +137,11 @@ my_package/
 Notice that the whole project itself is a package too.
 This is due to the fact that [Scarb](https://docs.swmansion.com/scarb/), which Protostar uses 
 to manage dependencies, does not support workspaces yet. If you do not
-need to include any code in the top level package, just leave the `my_package/src/lib.cairo` file empty.
+need to include any code in the top level package, just leave the `my_project/src/lib.cairo` file empty.
 
 :::info 
-Even though `package1` and `package2` **directories** are inside `my_package` **directory**
-it does not make `package1` and `package2` **packages** parts of `my_package` **package**. 
+Even though `package1` and `package2` **directories** are inside `my_project` **directory**
+it does not make `package1` and `package2` **packages** parts of `my_project` **package**. 
 Therefore, you should refer to them using `package1::` and `package2::`.
 :::
 

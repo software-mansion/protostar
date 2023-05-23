@@ -56,7 +56,7 @@ Example content of this file:
 
 ```toml title="Scarb.toml"
 [package]
-name = "my_package"
+name = "my_project"
 version = "0.1.0"
 
 [dependencies]
@@ -85,7 +85,7 @@ fn returns_three() -> felt252 {
 Here is our initial file structure
 
 ```
-my_package/
+my_project/
 ├── src/
 │   └── lib.cairo
 └── Scarb.toml
@@ -114,7 +114,7 @@ mod mod1;
 If you followed the steps correctly, your new project structure should look like this
 
 ```
-my_package/
+my_project/
 ├── src/
 │   ├── mod1/  <------------------- new directory
 │   │   └── functions.cairo  <----- new file
@@ -125,10 +125,10 @@ my_package/
 
 #### Using added module
 
-You can now use your function with `my_package::mod1::functions::returns_three()`.
+You can now use your function with `my_project::mod1::functions::returns_three()`.
 
 :::info
-The name `my_package` is the value of the `name` key in the `[package]` section of your `Scarb.toml`, 
+The name `my_project` is the value of the `name` key in the `[package]` section of your `Scarb.toml`, 
 **not** the name of the directory.
 :::
 
