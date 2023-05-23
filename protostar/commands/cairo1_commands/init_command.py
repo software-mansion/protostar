@@ -45,12 +45,9 @@ class InitCommand(ProtostarCommand):
         ]
 
     async def run(self, args: Namespace):
-        minimal = False
-        if vars(args).get("minimal"):
-            minimal = bool(args.minimal)
-        self.init(project_name=args.name, minimal=minimal)
+        self.init(project_name=args.name, minimal=args.minimal)
 
-    def init(self, project_name: Optional[str] = None, minimal: bool = False):
+    def init(self, minimal: bool, project_name: Optional[str] = None):
         self._new_project_creator.run(
             cairo_version=CairoVersion.cairo1,
             project_name=project_name,
