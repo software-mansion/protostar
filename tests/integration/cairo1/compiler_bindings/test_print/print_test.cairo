@@ -17,6 +17,7 @@ fn test_print_basic() {
   (1 == 2).print();
 
   true.print();
+  128.print();
 
   assert(1 == 1, 'xxx');
 }
