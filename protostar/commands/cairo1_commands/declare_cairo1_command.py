@@ -20,6 +20,9 @@ from protostar.cli.common_arguments import (
     MAX_FEE_ARG,
     WAIT_FOR_ACCEPTANCE_ARG,
 )
+from protostar.commands.cairo1_commands.fetch_from_scarb import (
+    fetch_linked_libraries_from_scarb,
+)
 
 from protostar.commands.declare.declare_messages import SuccessfulDeclareMessage
 from protostar.compiler.cairo1_contract_compiler import Cairo1ContractCompiler
@@ -103,7 +106,11 @@ class DeclareCairo1Command(ProtostarCommand):
         )
 
         contract_sierra, contract_casm = Cairo1ContractCompiler.compile_contract(
-            contract_name=contract_name, contract_path=contract_path
+            contract_name=contract_name,
+            contract_path=contract_path,
+            linked_libraries=fetch_linked_libraries_from_scarb(
+                package_root_path=self._contract_path_resolver.project_root_path,
+            ),
         )
 
         response = await self.declare(

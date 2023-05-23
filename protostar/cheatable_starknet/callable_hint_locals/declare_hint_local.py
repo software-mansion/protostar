@@ -14,13 +14,15 @@ from protostar.cheatable_starknet.controllers.contracts import (
     ContractsController,
     DeclaredSierraClass,
 )
+from protostar.commands.cairo1_commands.fetch_from_scarb import (
+    fetch_linked_libraries_from_scarb,
+)
 from protostar.cairo.contract_class import make_contract_class, make_compiled_class
 from protostar.compiler.cairo1_contract_compiler import (
     Cairo1ContractCompiler,
     SierraCompilationException,
     CasmCompilationException,
 )
-
 from protostar.contract_path_resolver import ContractPathResolver
 from protostar.configuration_file.configuration_file import (
     ContractNameNotFoundException,
@@ -77,7 +79,11 @@ class DeclareHintLocal(CallableHintLocal):
                     sierra_compiled,
                     casm_compiled,
                 ) = Cairo1ContractCompiler.compile_contract(
-                    contract_name, contract_path
+                    contract_name,
+                    contract_path,
+                    linked_libraries=fetch_linked_libraries_from_scarb(
+                        self._contract_path_resolver.project_root_path
+                    ),
                 )
             except SierraCompilationException as ex:
                 raise CheatcodeException(

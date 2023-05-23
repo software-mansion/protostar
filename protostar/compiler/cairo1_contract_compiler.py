@@ -2,6 +2,7 @@ from pathlib import Path
 from typing import Optional, Tuple
 import protostar.cairo.bindings.cairo_bindings as cairo1_bindings
 from protostar.protostar_exception import ProtostarException
+from protostar.cairo.bindings.cairo_bindings import PackageName
 
 
 class SierraCompilationException(ProtostarException):
@@ -23,13 +24,13 @@ class Cairo1ContractCompiler:
     def compile_contract(
         contract_name: str,
         contract_path: Path,
-        cairo_path: Optional[list[Path]] = None,
+        linked_libraries: Optional[list[Tuple[Path, PackageName]]] = None,
         output_dir: Optional[Path] = None,
     ) -> Tuple[str, str]:
         sierra_compiled = Cairo1ContractCompiler.compile_contract_to_sierra(
             contract_name=contract_name,
             contract_path=contract_path,
-            cairo_path=cairo_path,
+            linked_libraries=linked_libraries,
             output_path=(output_dir / contract_name).with_suffix(".sierra.json")
             if output_dir
             else None,
@@ -49,15 +50,15 @@ class Cairo1ContractCompiler:
     def compile_contract_to_sierra(
         contract_name: str,
         contract_path: Path,
-        cairo_path: Optional[list[Path]] = None,
+        linked_libraries: Optional[list[Tuple[Path, PackageName]]] = None,
         output_path: Optional[Path] = None,
     ) -> str:
         try:
             sierra_compiled = (
                 cairo1_bindings.compile_starknet_contract_to_sierra_from_path(
                     input_path=contract_path,
-                    cairo_path=cairo_path,
                     output_path=output_path,
+                    linked_libraries=linked_libraries,
                 )
             )
 
@@ -88,12 +89,14 @@ class Cairo1ContractCompiler:
     def compile_contract_to_casm(
         contract_name: str,
         contract_path: Path,
-        cairo_path: Optional[list[Path]] = None,
+        linked_libraries: Optional[list[Tuple[Path, PackageName]]] = None,
         output_path: Optional[Path] = None,
     ) -> str:
         try:
             casm_compiled = cairo1_bindings.compile_starknet_contract_to_casm_from_path(
-                input_path=contract_path, cairo_path=cairo_path, output_path=output_path
+                input_path=contract_path,
+                output_path=output_path,
+                linked_libraries=linked_libraries,
             )
 
         except cairo1_bindings.CairoBindingException as ex:
