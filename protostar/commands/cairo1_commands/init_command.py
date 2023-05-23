@@ -40,6 +40,7 @@ class InitCommand(ProtostarCommand):
             ProtostarArgument(
                 name="minimal",
                 type="bool",
+                default=False,
                 description="Create a minimal project structure.",
             ),
         ]
