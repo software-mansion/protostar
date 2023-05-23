@@ -19,10 +19,10 @@ my_project/
 ├── src/
 │   ├── business_logic/
 │   │   └── utils.cairo
-│   ├── contracts/
+│   ├── contract/
 │   │   └── hello_starknet.cairo
 │   ├── business_logic.cairo
-│   ├── contracts.cairo
+│   ├── contract.cairo
 │   └── lib.cairo
 └── Scarb.toml
 ├── tests/
@@ -70,7 +70,7 @@ use multiple contracts in your project see [this section](#using-multiple-contra
 This directory contains standalone Cairo 1 methods that can be imported and used in the contract definition. We recommend
 putting business logic in this directory to simplify writing unit tests.
 
-### `contracts.cairo` and `business_logic.cairo`
+### `contract.cairo` and `business_logic.cairo`
 
 These files are necessary so that they can be imported in the `lib.cairo` file.
 
@@ -85,7 +85,6 @@ This file contains the [configuration for the Protostar project](./04-protostar-
 ```toml title="protostar.toml"
 [project]
 protostar-version = "0.0.0"
-lib-path = "lib"
 
 [contracts]
 hello_starknet = ["src"]
@@ -113,18 +112,18 @@ and `src/lib.cairo` files defined.
 my_project/
 ├── package1/
 │   ├── src/
-│   │   ├── contracts/
+│   │   ├── contract/
 │   │   │   └── hello_starknet.cairo
 │   │  ...
-│   │   ├── contracts.cairo
+│   │   ├── contract.cairo
 │   │   └── lib.cairo
 │   └── Scarb.toml
 ├── package2/
 │   ├── src/
-│   │   ├── contracts/
+│   │   ├── contract/
 │   │   │   └── other_contract.cairo
 │   │  ...
-│   │   ├── contracts.cairo
+│   │   ├── contract.cairo
 │   │   └── lib.cairo
 │   └── Scarb.toml
 ...
@@ -153,11 +152,22 @@ hello_starknet = ["package1"]
 other_contract = ["package2"]
 ```
 
+Remember to include the packages as [dependencies](https://docs.swmansion.com/scarb/docs/reference/specifying-dependencies) in `my_project/Scarb.toml`.
+```toml title="my_project/Scarb.toml"
+[package]
+name = "my_package"
+version = "0.1.0"
+
+[dependencies]
+package1 = { path = "package1" }
+package2 = { path = "package2" }
+```
+
 ### Testing multi-contract projects
 
 For example, to test function `returns_two` defined in the `package1/business_logic/utils.cairo` write
 
-```cairo title="Example test"
+```cairo title="my_project/test_package1.cairo"
 #[test]
 fn test_returns_two() {
     assert(package1::business_logic::utils::returns_two() == 2, 'Should return 2');
@@ -166,7 +176,7 @@ fn test_returns_two() {
 
 Or using the `use path:to::mod` syntax
 
-```cairo title="Example test
+```cairo title="my_project/test_package2.cairo"
 use package1::business_logic::utils::returns_two;
 
 #[test]

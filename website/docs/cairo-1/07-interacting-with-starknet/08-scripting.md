@@ -18,10 +18,10 @@ my_project/
 ├── src/
 │   ├── business_logic/
 │   │   └── utils.cairo
-│   ├── contracts/
+│   ├── contract/
 │   │   └── hello_starknet.cairo
 │   ├── business_logic.cairo
-│   ├── contracts.cairo
+│   ├── contract.cairo
 │   └── lib.cairo
 └── Scarb.toml
 ├── tests/

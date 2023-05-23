@@ -9,10 +9,6 @@ Here is an example `protostar.toml` file:
 [project]
 protostar-version = "PROTOSTAR_VERSION"
 
-# Shared Configuration (affects all commands)
-
-lib-path = "lib"
-
 # Defines contract names for the use with cheatcodes and commands
 [contracts]
 hello_starknet = ["hello_starknet"]

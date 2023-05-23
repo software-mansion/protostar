@@ -1,4 +1,4 @@
-# Creating an account through protostar
+# Creating an account
 
 ## Overview
 

@@ -39,7 +39,7 @@ mod my_module {
 
 ## Packages
 
-Package consist of multiple modules and must define `Scarb.toml` and `src/lib.cairo`.
+Package consist of multiple modules and must define `Scarb.toml` and `src/lib.cairo` files.
 
 :::info
 Some other tools and resources,
@@ -56,7 +56,7 @@ Example content of this file:
 
 ```toml title="Scarb.toml"
 [package]
-name = "my_project"
+name = "my_package"
 version = "0.1.0"
 
 [dependencies]
@@ -71,9 +71,9 @@ mod my_module;
 mod my_other_module;
 ```
 
-### Creating and using a new modules
+### Creating and using new modules
 
-Suppose we wanted to create a module called `mod1` inside the `hello_starknet` package and use it in tests.
+Suppose we wanted to create a module called `mod1` inside the `my_package` package and use it in tests.
 We want this module to only have one file `functions.cairo` containing one function defined like:
 
 ```cairo title="functions.cairo"
@@ -82,7 +82,7 @@ fn returns_three() -> felt252 {
 }
 ```
 
-Here is our initial file structure
+Here is our initial file structure:
 
 ```
 my_project/
@@ -96,14 +96,14 @@ my_project/
 Here are the steps we need to take:
 
 1. Create a `mod1` subdirectory inside `src`.
-2. Create file `functions.cairo` inside `mod1` subdirectory and define your code there
+2. Create file `functions.cairo` inside `mod1` subdirectory and define your code there.
 3. Create `mod1.cairo` file **in the `src` directory**, with the contents of
 
 ```cairo title="mod1.cairo"
 mod functions;
 ```
 
-4. Update the `lib.cairo` file to include `mod1`. It's contents should now look like this
+4. Update the `lib.cairo` file to include `mod1`. It's contents should now look like this:
 
 ```cairo title="lib.cairo"
 // previous code stays
@@ -111,7 +111,7 @@ mod functions;
 mod mod1;
 ```
 
-If you followed the steps correctly, your new project structure should look like this
+If you followed the steps correctly, your new project structure should look like this:
 
 ```
 my_project/
@@ -119,23 +119,22 @@ my_project/
 │   ├── mod1/  <------------------- new directory
 │   │   └── functions.cairo  <----- new file
 │   ├── lib.cairo  <--------------- contents updated
-│   └── mod1.cairo
+│   └── mod1.cairo <--------------- new file
 └── Scarb.toml
 ```
 
-#### Using added module
+#### Using the added module
 
-You can now use your function with `my_project::mod1::functions::returns_three()`.
+You can now use your function with `my_package::mod1::functions::returns_three()`.
 
 :::info
-The name `my_project` is the value of the `name` key in the `[package]` section of your `Scarb.toml`, 
-**not** the name of the directory.
+The name `my_package` is the value of the `name` key in the `[package]` section of your `Scarb.toml`.
 :::
 
 ## Packages and modules names considerations
 
 The name must be a valid Cairo identifier which means:
-- it must use only ASCII alphanumeric characters or underscores 
+- it must use only ASCII alphanumeric characters or underscores
 - it cannot start with a digit
 - it cannot be empty
-- it cannot be a valid Cairo keyword or a single underscore (`_`).
+- it cannot be a valid Cairo keyword or a single underscore (`_`)
