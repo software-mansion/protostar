@@ -6,7 +6,7 @@ You can refer to [official Cairo documentation](https://github.com/starkware-lib
 more details. 
 
 Keep in mind that Protostar does not support `cairo_project.toml`. 
-It uses [Scarb](https://docs.swmansion.com/scarb) - a powerful package manager -  and its [manifest files](https://docs.swmansion.com/scarb/docs/reference/manifest) instead.
+It uses [Scarb](https://docs.swmansion.com/scarb) and its [manifest files](https://docs.swmansion.com/scarb/docs/reference/manifest) instead.
 
 ## Modules
 
@@ -51,7 +51,6 @@ term "crates" for packages.
 
 It is a [Scarb's manifest files](https://docs.swmansion.com/scarb/docs/reference/manifest). 
 It defines dependencies for you packages. Protostar uses Scarb to manage dependencies.
-This way you can manage your [dependencies](https://docs.swmansion.com/scarb/docs/reference/specifying-dependencies) as if you were using Scarb directly - you will not notice any difference!
 
 Example content of this file:
 
@@ -65,7 +64,7 @@ version = "0.1.0"
 
 ### `lib.cairo`
 
-It is the root of the package tree and ***must*** be placed inside `src` folder. Here you can define functions, declare used modules, etc.
+It is the root of the package tree, and it ***must*** be placed inside `src` folder. Here you can define functions, declare used modules, etc.
 
 ```cairo title="lib.cairo"
 mod my_module;
@@ -104,7 +103,7 @@ Here are the steps we need to take:
 mod functions;
 ```
 
-4. Update the `lib.cairo` file to include `mod1`. It's contents should now look like this:
+4. Update the `lib.cairo` file to include `mod1`. Its contents should now look like this:
 
 ```cairo title="lib.cairo"
 // previous code stays
