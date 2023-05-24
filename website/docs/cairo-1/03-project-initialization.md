@@ -20,7 +20,7 @@ my_project/
 │   ├── src/
 │   │   ├── business_logic/
 │   │   │   └── utils.cairo
-│   │   ├── contracts/
+│   │   ├── contract/
 │   │   │   └── hello_starknet.cairo
 │   │   ├── business_logic.cairo
 │   │   ├── contracts.cairo
@@ -105,7 +105,7 @@ my_project/
 │   └── cairo_project.toml
 ├── package2/
 │   ├── src/
-│   │   ├── contracts/
+│   │   ├── contract/
 │   │   │   └── other_contract.cairo
 │   │  ...
 │   │   ├── contracts.cairo
