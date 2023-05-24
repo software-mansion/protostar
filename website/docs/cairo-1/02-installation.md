@@ -7,7 +7,7 @@ sidebar_label: Installation
 Protostar is easy to install on Linux and Mac systems. In this section, we will walk through the process of installing and upgrading Protostar.
 
 ### Requirements
-To use Protostar with Cairo 1, you have to have [Scarb](https://docs.swmansion.com/scarb/docs/install) installed and added to your `PATH` environment variable. 
+To use Protostar with Cairo 1, you need [Scarb](https://docs.swmansion.com/scarb/docs/install) installed and added to your `PATH` environment variable. 
 
 ### Linux and Mac
 1. Open a terminal and run the following command:

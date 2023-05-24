@@ -5,7 +5,7 @@ There are several requirements that Cairo packages have to follow. These are exp
 You can refer to [official Cairo documentation](https://github.com/starkware-libs/cairo/tree/main/docs/reference) for
 more details. 
 
-Keep in mind that Protostar does not use `cairo_project.toml`. 
+Keep in mind that Protostar does not support `cairo_project.toml`. 
 It uses [Scarb](https://docs.swmansion.com/scarb) - a powerful package manager -  and its [manifest files](https://docs.swmansion.com/scarb/docs/reference/manifest) instead.
 
 ## Modules
@@ -49,7 +49,8 @@ term "crates" for packages.
 
 ### `Scarb.toml`
 
-It is a [Scarb's manifest files](https://docs.swmansion.com/scarb/docs/reference/manifest) used by Protostar to manage your dependencies with the help of Scarb.
+It is a [Scarb's manifest files](https://docs.swmansion.com/scarb/docs/reference/manifest). 
+It defines dependencies for you packages. Protostar uses Scarb to manage dependencies.
 This way you can manage your [dependencies](https://docs.swmansion.com/scarb/docs/reference/specifying-dependencies) as if you were using Scarb directly - you will not notice any difference!
 
 Example content of this file:

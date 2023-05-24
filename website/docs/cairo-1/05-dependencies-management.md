@@ -1,8 +1,8 @@
 ---
-sidebar_label: Dependencies
+sidebar_label: Managing dependencies
 ---
 
-# Dependencies
+# Managing dependencies
 
 Protostar uses [Scarb](https://github.com/software-mansion/scarb) and its [manifest files](https://docs.swmansion.com/scarb/docs/reference/manifest) to manage dependencies in your project.
 In order to use Protostar with Cairo 1 you must have Scarb executable added to the `PATH` environment variable. 
