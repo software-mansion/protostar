@@ -1,7 +1,6 @@
 [project]
-protostar-version = "0.9.1"
+protostar-version = "0.0.0"
 lib-path = "lib"
-linked-libraries = ["src"]
 
 [contracts]
 calculate_cairo1 = ["src/calculate_cairo1.cairo"]

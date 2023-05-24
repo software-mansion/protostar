@@ -27,6 +27,10 @@ def mocked_contract_path_resolver_fixture(datadir: Path) -> ContractPathResolver
 
         def contract_path_from_contract_name(self, *args: Any, **kwargs: Any) -> Path:
             # pylint: disable=unused-argument
+            return datadir / "src"
+
+        @property
+        def project_root_path(self):
             return datadir
 
     return MockedContractPathResolver()
