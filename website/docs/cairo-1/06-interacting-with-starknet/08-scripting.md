@@ -43,7 +43,7 @@ protostar commands clean and simple and leave such things as the network configu
 
 In this file, you should create the following sections:
 
-- `declare-cairo1`
+- `declare`
 - `deploy`
 - `call`
 
@@ -83,16 +83,16 @@ Now, we need to first [declare](./02-declare.md) the contract and then [deploy](
 Normally, we would start with something like this:
 
 ```shell
-protostar declare-cairo1 hello_starknet
+protostar declare hello_starknet
 ```
 
-But the `deploy` command needs the contract's class hash that comes from the `declare-cairo1` command output. Therefore,
+But the `deploy` command needs the contract's class hash that comes from the `declare` command output. Therefore,
 we need to get this output in a standardized way. That's when the `--json` flag comes into play.
 
 By doing:
 
 ```shell
-protostar declare-cairo1 hello_starknet --json
+protostar declare hello_starknet --json
 ```
 
 we get an output like this:
@@ -115,7 +115,7 @@ supported.
 We could do something like this in our bash script:
 
 ```shell title="automate_protostar_operations.sh"
-OUTPUT=$(protostar declare ./build/main.json --json)
+OUTPUT=$(protostar declare-cairo0 ./build/main.json --json)
 CLASS_HASH=$(python -c "import sys, json; print(json.loads(sys.argv[1])['class_hash'])" $OUTPUT)
 protostar deploy $CLASS_HASH --inputs 100
 ```
@@ -124,7 +124,7 @@ You can use any alternative to python that will parse the json for you. This is 
 with [jq](https://stedolan.github.io/jq/):
 
 ``` title="automate_protostar_operations.sh"
-OUTPUT=$(protostar declare-cairo1 hello_starknet --json)
+OUTPUT=$(protostar declare hello_starknet --json)
 CLASS_HASH=$(echo $OUT | jq -r ".class_hash")
 protostar deploy $CLASS_HASH --inputs 100
 ```
@@ -152,7 +152,7 @@ set -e
 protostar build
 protostar test
 
-DECLARE_OUTPUT=$(protostar declare-cairo1 hello_starknet --json)
+DECLARE_OUTPUT=$(protostar declare hello_starknet --json)
 CLASS_HASH=$(python -c "import sys, json; print(json.loads(sys.argv[1])['class_hash'])" $DECLARE_OUTPUT)
 
 DEPLOY_OUTPUT=$(protostar deploy $CLASS_HASH --inputs 100 --json)
@@ -186,7 +186,7 @@ run_command("./protostar build")
 print("TEST")
 run_command("./protostar test")
 print("DECLARE")
-out = run_command("./protostar declare-cairo1 hello_starknet --json")
+out = run_command("./protostar declare hello_starknet --json")
 print("DEPLOY")
 class_hash = json.loads(out)['class_hash']
 out = run_command(f"./protostar deploy {class_hash} --inputs 100 --json")
