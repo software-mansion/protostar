@@ -1,8 +1,0 @@
-[project]
-protostar-version = "0.0.0"
-lib-path = "lib"
-linked-libraries = ["hello_starknet"]
-
-[contracts]
-hello_starknet = ["hello_starknet"]
-

@@ -24,3 +24,7 @@ class ContractPathResolver:
         assert contract_paths, f"No contract paths found for {contract_name}!"
 
         return contract_paths[0]
+
+    @property
+    def project_root_path(self):
+        return self._project_root_path

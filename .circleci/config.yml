@@ -20,7 +20,7 @@ parameters:
 
   scarb_version:
     type: string
-    default: 0.1.0
+    default: 0.2.0
 
   node_version:
     type: string
@@ -331,6 +331,12 @@ jobs:
       - notify_about_failed_test:
           message: "*End to end tests have failed* :rotating_light:"
 
+  pre_cache_mac_bindings_and_compiler:
+    executor: mac
+    steps:
+      - setup:
+          platform: mac
+
   build:
     parameters:
       platform:
@@ -381,19 +387,16 @@ jobs:
     executor: linux
     steps:
       - checkout
-      - attach_workspace:
-          at: /tmp/workspace
       - run:
           name: Verify versions
           command: |
-            tar -xzvf /tmp/workspace/protostar-Linux.tar.gz ./dist/protostar/info/constants.json
-            built_version=$(grep dist/protostar/info/constants.json -e "PROTOSTAR_VERSION\":" | awk '{print $2}' | tr -d ',')
+            build_version=$(grep pyproject.toml -e "^version =" | awk '{print $3}')
             released_versions=$(curl -s --fail https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/releases | grep "tag_name" | awk '{print $2}' | tr -d 'v,')
             mkdir -p /tmp/version
-            echo "export VERSION=v$built_version" | tr -d '"' > /tmp/version/version
+            echo "export VERSION=v$build_version" | tr -d '"' > /tmp/version/version
             echo "export RELEASED_VERSIONS=v$released_versions" | tr -d '"' > /tmp/version/released-versions
             source /tmp/version/version
-            if echo "$released_versions" | grep -qF "$built_version"; then
+            if echo "$released_versions" | grep -qF "$build_version"; then
               echo "Version $VERSION already released"
             else
               if [ "$CIRCLE_BRANCH" = "master" ]; then
@@ -460,7 +463,8 @@ jobs:
           command: tar -czvf protostar-docs.tar.gz website/build
       - persist_to_workspace:
           root: .
-          paths: protostar-docs.tar.gz
+          paths:
+            - protostar-docs.tar.gz
 
   patch_approval_check:
     parameters:
@@ -483,12 +487,21 @@ workflows:
   protostar:
     jobs:
       - code_quality
+      - pre_cache_mac_bindings_and_compiler:
+          filters:
+            branches:
+              only:
+                - master
       - unit_tests:
           name: unit_tests-linux
           platform: linux
+          requires:
+            - code_quality
       - unit_tests:
           name: unit_tests-mac
           platform: mac
+          requires:
+            - pre_cache_mac_bindings_and_compiler
           filters:
             branches:
               only:
@@ -496,17 +509,17 @@ workflows:
       - e2e_tests:
           name: e2e_tests-linux
           platform: linux
+          requires:
+            - code_quality
       - e2e_tests:
           name: e2e_tests-mac
           platform: mac
+          requires:
+            - pre_cache_mac_bindings_and_compiler
           filters:
             branches:
               only:
                 - master
-      - build:
-          matrix:
-            parameters:
-              platform: [linux, mac]
       - build_docs:
           filters:
             branches:
@@ -518,7 +531,6 @@ workflows:
             - code_quality
             - unit_tests-linux
             - e2e_tests-linux
-            - build
           filters:
             branches:
               ignore:
@@ -530,14 +542,32 @@ workflows:
             - code_quality
             - unit_tests-linux
             - e2e_tests-linux
-            - build
+          filters:
+            branches:
+              ignore:
+                - master
+      - build:
+          name: build_test_release-linux
+          platform: linux
+          requires:
+            - send_test_release_approval
+          filters:
+            branches:
+              ignore:
+                - master
+      - build:
+          name: build_test_release-mac
+          platform: mac
+          requires:
+            - send_test_release_approval
           filters:
             branches:
               ignore:
                 - master
       - send_test_release:
           requires:
-            - send_test_release_approval
+            - build_test_release-linux
+            - build_test_release-mac
           filters:
             branches:
               ignore:
@@ -548,7 +578,6 @@ workflows:
             - code_quality
             - unit_tests-linux
             - e2e_tests-linux
-            - build
           filters:
             branches:
               ignore:
@@ -561,7 +590,6 @@ workflows:
             - e2e_tests-linux
             - unit_tests-mac
             - e2e_tests-mac
-            - build
           filters:
             branches:
               only:
@@ -579,6 +607,24 @@ workflows:
           approval_name: release_approval
           requires:
             - verify_valid_version_master
+          filters:
+            branches:
+              only:
+                - master
+      - build:
+          name: build_release-linux
+          platform: linux
+          requires:
+            - release_approval
+          filters:
+            branches:
+              only:
+                - master
+      - build:
+          name: build_release-mac
+          platform: mac
+          requires:
+            - release_approval
           filters:
             branches:
               only:
@@ -609,11 +655,48 @@ workflows:
           approval_name: prerelease_approval
           requires:
             - verify_valid_version_master
+      - build:
+          name: build_prerelease_from_branch-linux
+          platform: linux
+          requires:
+            - prerelease_from_branch_approval
+          filters:
+            branches:
+              ignore:
+                - master
+      - build:
+          name: build_prerelease_from_branch-mac
+          platform: mac
+          requires:
+            - prerelease_from_branch_approval
+          filters:
+            branches:
+              ignore:
+                - master
+      - build:
+          name: build_prerelease-linux
+          platform: linux
+          requires:
+            - prerelease_approval
+          filters:
+            branches:
+              only:
+                - master
+      - build:
+          name: build_prerelease-mac
+          platform: mac
+          requires:
+            - prerelease_approval
+          filters:
+            branches:
+              only:
+                - master
       - release:
           name: make_release
           prerelease: false
           requires:
-            - release_approval
+            - build_release-linux
+            - build_release-mac
           filters:
             branches:
               only:
@@ -622,9 +705,11 @@ workflows:
           name: make_prerelease
           prerelease: true
           requires:
-            - prerelease_approval
+            - build_prerelease-linux
+            - build_prerelease-mac
       - release:
           name: make_prerelease_from_branch
           prerelease: true
           requires:
-            - prerelease_from_branch_approval
+            - build_prerelease_from_branch-linux
+            - build_prerelease_from_branch-mac

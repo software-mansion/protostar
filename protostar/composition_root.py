@@ -178,6 +178,7 @@ def build_di_container(
         BuildCommand(
             configuration_file=cairo0_project_compiler.configuration_file,
             project_root_path=project_root_path,
+            messenger_factory=messenger_factory,
         ),
         InstallCommand(
             log_color_provider=log_color_provider,

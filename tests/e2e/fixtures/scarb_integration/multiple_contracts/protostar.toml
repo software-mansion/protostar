@@ -1,7 +1,7 @@
 [project]
-protostar-version = "0.9.1"
+protostar-version = "0.0.0"
 lib-path = "lib"
 
 [contracts]
-contract_foo = ["foo_contract"]
-contract_bar = ["bar_contract"]
+contract_foo = ["foo_contract/src"]
+contract_bar = ["bar_contract/src"]

@@ -16,8 +16,8 @@ Compile cairo 1 contracts.
 An output directory used to put the compiled contracts in.
 #### `--contract-name STRING`
 Specify a contract name that should be built.
-#### `--linked-libraries PATH[]`
-Paths to cairo1 modules. Should not be explicitly provided when managing dependencies using Scarb.
+#### `--json`
+Print machine-readable output in [NDJSON](https://github.com/ndjson/ndjson-spec) format.
 ### `build-cairo0`
 ```shell
 $ protostar build-cairo0
@@ -273,6 +273,8 @@ $ protostar init
 Create a Protostar project with cairo1 template.
 #### `name STRING`
 Name of the directory a new project will be placed in.
+#### `--minimal`
+Create a minimal project structure.
 ### `init-cairo0`
 ```shell
 $ protostar init-cairo0
@@ -442,8 +444,6 @@ A glob or globs to a directory or a test suite, which should be ignored.
 Print machine-readable output in [NDJSON](https://github.com/ndjson/ndjson-spec) format.
 #### `-lf` `--last-failed`
 Only re-run failed and broken test cases.
-#### `--linked-libraries PATH[]`
-Paths to cairo1 modules. Should not be explicitly provided when managing dependencies using Scarb.
 #### `--no-progress-bar`
 Disable progress bar.
 #### `--report-slowest-tests INT`

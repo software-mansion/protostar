@@ -1,5 +1,4 @@
 [project]
-protostar-version = "0.9.1"
+protostar-version = "0.0.0"
 
 lib-path = "lib"
-linked-libraries = ["libraries/external_lib_bar", "libraries/external_lib_foo"]

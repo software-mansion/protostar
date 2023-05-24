@@ -1,5 +1,4 @@
 import shutil
-import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Optional
@@ -40,7 +39,12 @@ class NewProjectCreator(ProjectCreator):
         self._output_dir_path = output_dir_path or Path()
         self._configuration_file_content_factory = configuration_file_content_factory
 
-    def run(self, cairo_version: CairoVersion, project_name: Optional[str] = None):
+    def run(
+        self,
+        cairo_version: CairoVersion,
+        project_name: Optional[str] = None,
+        minimal: bool = False,
+    ):
         project_config = (
             self.NewProjectConfig(project_name)
             if project_name
@@ -53,6 +57,7 @@ class NewProjectCreator(ProjectCreator):
         self._create_project(
             project_config=project_config,
             cairo_version=cairo_version,
+            minimal=minimal,
         )
 
     def _gather_input(self) -> "NewProjectCreator.NewProjectConfig":
@@ -68,12 +73,14 @@ class NewProjectCreator(ProjectCreator):
         self,
         project_config: "NewProjectCreator.NewProjectConfig",
         cairo_version: CairoVersion,
+        minimal: bool,
     ) -> None:
         project_root_path = self._output_dir_path / project_config.project_dirname
 
         self._create_project_directory_from_template(
             cairo_version=cairo_version,
             project_root_path=project_root_path,
+            minimal=minimal,
         )
         self._write_protostar_toml_from_config(
             project_root_path=project_root_path,
@@ -81,22 +88,20 @@ class NewProjectCreator(ProjectCreator):
         )
 
     def _create_project_directory_from_template(
-        self, cairo_version: CairoVersion, project_root_path: Path
+        self, cairo_version: CairoVersion, project_root_path: Path, minimal: bool
     ):
-        template_path = self.script_root / "templates" / cairo_version.value
+        cairo_version_value = cairo_version.value
+        if minimal:
+            cairo_version_value += "_minimal"
 
-        with tempfile.TemporaryDirectory() as temp_dir:
-            temp_dir = Path(temp_dir)
-            new_template_path = Path(temp_dir) / "template"
+        template_path = self.script_root / "templates" / cairo_version_value
 
-            shutil.copytree(template_path, new_template_path)
-
-            try:
-                shutil.copytree(new_template_path, project_root_path)
-            except FileExistsError as ex_file_exists:
-                raise ProtostarException(
-                    f"Folder or file named {project_root_path.name} already exists. Choose different project name."
-                ) from ex_file_exists
+        try:
+            shutil.copytree(template_path, project_root_path)
+        except FileExistsError as ex_file_exists:
+            raise ProtostarException(
+                f"Folder or file named {project_root_path.name} already exists. Choose different project name."
+            ) from ex_file_exists
 
     def _new_project_config(
         self, cairo_version: CairoVersion
@@ -112,17 +117,16 @@ class NewProjectCreator(ProjectCreator):
 
         return ConfigurationFileV2Model(
             protostar_version=str(self._protostar_version),
-            contract_name_to_path_strs={"hello_starknet": ["hello_starknet"]},
+            contract_name_to_path_strs={"hello_starknet": ["src"]},
             project_config={
                 "lib-path": "lib",
-                "linked-libraries": ["hello_starknet"],
             },
         )
 
     @staticmethod
     def _validate_project_name(name: str):
         # https://github.com/software-mansion/scarb/blob/main/scarb/src/core/package/name.rs#LL42C9
-        # the project name is already non-empty - the CLI won't let a user provide empty string
+        assert name
         if name == "_":
             raise ProtostarException(
                 "Project name cannot be equal to a single underscore. Choose a different project name."

@@ -35,6 +35,7 @@ async def test_print(protostar_project: ProtostarProjectFixture, datadir: Path):
             "original value: [1986358889] converted to a string: [veni]",
             "original value: [1986618473] converted to a string: [vidi]",
             "original value: [1986618217] converted to a string: [vici]",
+            "original value: [128]",
         ],
     }
 
