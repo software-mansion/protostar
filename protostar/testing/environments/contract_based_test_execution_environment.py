@@ -66,7 +66,6 @@ class ContractBasedTestExecutionEnvironment(
             self.state.contract.abi, function_identifier
         ), f"{self.__class__.__name__} expects no function parameters."
 
-        self.set_profile_flag(self.state.config.profiling)
         self.set_cheatcodes(
             TestCaseCheatcodeFactory(
                 state=self.state,
@@ -142,10 +141,6 @@ class ContractBasedTestExecutionEnvironment(
     @staticmethod
     def set_cheatcodes(cheatcode_factory: CheatcodeFactory):
         CheatableExecuteEntryPoint.cheatcode_factory = cheatcode_factory
-
-    @staticmethod
-    def set_profile_flag(value: bool):
-        CheatableExecuteEntryPoint.profiling = value
 
     @staticmethod
     def set_max_steps(value: Optional[int]):
