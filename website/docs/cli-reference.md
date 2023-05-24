@@ -82,7 +82,7 @@ Supported Starknet networks:
 - `mainnet`
 - `testnet2`
 ### `declare`
-Sends a declare transaction to Starknet.
+Sends a declare transaction of Cairo 1 contract to Starknet.
 #### `contract STRING`
 Required.
 

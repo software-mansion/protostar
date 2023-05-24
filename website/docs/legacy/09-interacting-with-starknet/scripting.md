@@ -97,7 +97,7 @@ protostar deploy $CLASS_HASH --inputs 100
 
 You can use any alternative to python that will parse the json for you. This is how it would work with [jq](https://stedolan.github.io/jq/):
 
-``` title="automate_protostar_operations.sh"
+```shell title="automate_protostar_operations.sh"
 OUTPUT=$(protostar declare-cairo0 ./build/main.json --json)
 CLASS_HASH=$(echo $OUT | jq -r ".class_hash")
 protostar deploy $CLASS_HASH --inputs 100

@@ -90,9 +90,9 @@ To create a configuration profile, add a new section to the `protostar.toml`. Fo
 - to create a [Shared Configuration](#shared-configuration) named `testnet`, add `[profile.testnet.project]` section
 
 To use a profile, add the [-p or --profile argument](/docs/cli-reference#-p---profile-string) followed by the name of the profile.
-For example, to use the [`declare` command](/docs/cli-reference#declare) with the `testnet` profile, run:
+For example, to use the [`declare-cairo0` command](/docs/cli-reference#declare) with the `testnet` profile, run:
 ```console
-protostar -p devnet declare
+protostar -p testnet declare-cairo0
 ```
 
 
