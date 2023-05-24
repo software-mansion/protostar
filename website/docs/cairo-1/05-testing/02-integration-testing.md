@@ -196,9 +196,9 @@ use array::ArrayTrait;
 use result::ResultTrait;
 use serde::Serde;
 
-use example::contracts::example::ExampleContract::CustomStruct;
-use example::contracts::example::ExampleContract::NestedStruct;
-use example::contracts::example::ExampleContract::AnotherCustomStruct;
+use example::contract::example::ExampleContract::CustomStruct;
+use example::contract::example::ExampleContract::NestedStruct;
+use example::contract::example::ExampleContract::AnotherCustomStruct;
 
 #[test]
 fn test_add_multiple_structs() {
