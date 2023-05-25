@@ -24,8 +24,7 @@ of the `name` key in the `[package]` section of your `Scarb.toml`.
 ## Modules
 
 A module consists of one or more Cairo files, usually organized in a single directory. To define a module, create
-a `.cairo`
-file named like the module and define components of this module with the `mod` keyword.
+a `.cairo` file named like the module and define components of this module with the `mod` keyword.
 
 ```
 my_module/
@@ -77,15 +76,18 @@ version = "0.1.0"
 
 ### `lib.cairo`
 
-It is the root of the package tree, and it ***must*** be placed inside `src` folder. Here you can define functions, declare used modules, etc.
+It is the root of the package tree, and it ***must*** be placed inside `src` folder. 
+Here you can define functions, declare used modules, etc.
 
 ```cairo title="lib.cairo"
 mod my_module;
 mod my_other_module;
 ```
 
-### Creating and using new modules
+### Package with multiple modules
 
+The module system in Cairo is inspired by 
+[Rust's](https://doc.rust-lang.org/rust-by-example/mod/split.html) one. 
 An example package with multiple modules:
 
 ```
@@ -93,21 +95,35 @@ my_project/
 ├── src/
 │   ├── mod1/
 │   │   └── functions.cairo
-│   ├── lib.cairo
-│   └── mod1.cairo
+│   ├── mod1.cairo
+│   ├── utils.cairo
+│   └── lib.cairo
 └── Scarb.toml
+```
+
+```cairo title="lib.cairo"
+mod mod1;
+mod utils;
 ```
 
 ```cairo title="mod1.cairo"
 mod functions;
 ```
 
-```cairo title="lib.cairo"
-
-mod mod1;
+```cairo title="utils.cairo"
+fn returns_two() -> felt252 {
+    2
+}
 ```
 
-You can now use your function with `my_package::mod1::functions::returns_three()`.
+```cairo title="mod1/functions.cairo"
+fn returns_three() -> felt252 {
+    3
+}
+```
+
+You can now use the defined functions with
+`my_package::mod1::functions::returns_three()` and `my_package::utils::returns_two()`.
 
 ## Project with multiple contracts
 
