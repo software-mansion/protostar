@@ -37,7 +37,7 @@ example contract is sufficient for us, and it is not important for this tutorial
 
 #### protostar.toml file
 
-You can read about how to compose the protostar configuration file [here](../04-protostar-toml.md). The point is to keep
+You can read about how to compose the protostar configuration file [here](../05-protostar-toml.md). The point is to keep
 protostar commands clean and simple and leave such things as the network configuration away from them.
 
 In this file, you should create the following sections:

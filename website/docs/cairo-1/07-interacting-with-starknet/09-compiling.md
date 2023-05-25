@@ -4,7 +4,7 @@ sidebar_label: Compilation
 
 # Compiling a Cairo 1 Project with Protostar
 
-To build your contracts, first define them in [`protostar.toml`](../04-protostar-toml.md#contracts-section)
+To build your contracts, first define them in [`protostar.toml`](../05-protostar-toml.md#contracts-section)
 
 To build run
 

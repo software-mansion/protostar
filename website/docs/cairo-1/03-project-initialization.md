@@ -33,11 +33,7 @@ my_project/
 
 ### `Scarb.toml` and `lib.cairo`
 
-All Cairo 1 packages must define these files.
-
-You can learn about [packages](./02-understanding-cairo-packages.md) and how
-to [add new module to a package](./02-understanding-cairo-packages.md#adding-a-new-module) in
-further sections.
+These files define a Cairo package, you can learn more about it [here](./04-understanding-cairo-packages.md).
 
 ```toml title="Scarb.toml"
 [package]
@@ -58,11 +54,11 @@ This directory contains the source code of the package named `hello_starknet`.
 ### `contracts`
 
 This directory contains the code of our contract - `HelloStarknet`. As a good practice, we recommend this directory
-contains only the contract definition, business logic should be kept in other modules.
+contains only the contract definition; business logic should be kept in other modules.
 
 :::danger
-Currently protostar only supports having one contract per package. You cannot add more contracts to this directory. To
-use multiple contracts in your project see [this section](#using-multiple-contracts-in-project).
+Currently Protostar only supports having one contract per package. You cannot add more contracts to this directory. To
+use multiple contracts in your project, see [this section](#using-multiple-contracts-in-project).
 :::
 
 ### `business_logic`
@@ -80,7 +76,7 @@ All [tests](06-testing/README.md) should be defined in this directory.
 
 ### `protostar.toml`
 
-This file contains the [configuration for the Protostar project](./04-protostar-toml.md).
+This file contains the [configuration for the Protostar project](./05-protostar-toml.md).
 
 ```toml title="protostar.toml"
 [project]
@@ -92,106 +88,13 @@ hello_starknet = ["src"]
 
 :::info
 Even though `hello_starknet.cairo` file is defined in the nested directory, we use a package
-directory `src` as path to the contract. This is necessary for the imports from modules within package
+directory `src` as a path to the contract. This is necessary for the imports from modules within package
 containing the contract (like `business_logic`) to work.
 :::
 
-## Using multiple contracts in project
-
-Due to limitations of the Cairo 1 compiler, having multiple contracts defined in the package will cause
-the `protostar build` command and other commands to fail.
-
-**That is, having projects structured like this is not valid and will not work correctly.**
-
-### Multi-contract project structure
-
-Each contract must be defined in the separate package: a different directory with separate `Scarb.toml`
-and `src/lib.cairo` files defined.
-
-```
-my_project/
-├── package1/
-│   ├── src/
-│   │   ├── contract/
-│   │   │   └── hello_starknet.cairo
-│   │  ...
-│   │   ├── contract.cairo
-│   │   └── lib.cairo
-│   └── Scarb.toml
-├── package2/
-│   ├── src/
-│   │   ├── contract/
-│   │   │   └── other_contract.cairo
-│   │  ...
-│   │   ├── contract.cairo
-│   │   └── lib.cairo
-│   └── Scarb.toml
-...
-├── src/
-│   └── lib.cairo
-├── Scarb.toml
-└── protostar.toml
-```
-
-Notice that the whole project itself is a package too.
-This is due to the fact that [Scarb](https://docs.swmansion.com/scarb/), which Protostar uses 
-to manage dependencies, does not support workspaces yet. If you do not
-need to include any code in the top level package, just leave the `my_project/src/lib.cairo` file empty.
-
-:::info 
-Even though `package1` and `package2` **directories** are inside `my_project` **directory**
-it does not make `package1` and `package2` **packages** parts of `my_project` **package**. 
-Therefore, you should refer to them using `package1::` and `package2::`.
-:::
-
-Define each contract in the `[contracts]` section of the protostar.toml.
-```toml title="protostar.toml"
-# ...
-[contracts]
-hello_starknet = ["package1"]
-other_contract = ["package2"]
-```
-
-Remember to include the packages as [dependencies](https://docs.swmansion.com/scarb/docs/reference/specifying-dependencies) in `my_project/Scarb.toml`.
-```toml title="my_project/Scarb.toml"
-[package]
-name = "my_package"
-version = "0.1.0"
-
-[dependencies]
-package1 = { path = "package1" }
-package2 = { path = "package2" }
-```
-
-### Testing multi-contract projects
-
-For example, to test function `returns_two` defined in the `package1/business_logic/utils.cairo` write
-
-```cairo title="my_project/test_package1.cairo"
-#[test]
-fn test_returns_two() {
-    assert(package1::business_logic::utils::returns_two() == 2, 'Should return 2');
-}
-```
-
-Or using the `use path:to::mod` syntax
-
-```cairo title="my_project/test_package2.cairo"
-use package1::business_logic::utils::returns_two;
-
-#[test]
-fn test_returns_two() {
-    assert(returns_two() == 2, 'Should return 2');
-}
-```
-
-Make sure that the path::to:the::module is correct for your package structure.
-
-For more details on of how to test contracts, see [this page](./06-testing/README.md).
-
 ### Minimal project template
 
-If you don't plan to develop a complex project and you just want to quickly setup the easiest possible one, you can use the `--minimal` flag like this:
+If you don't plan to develop a complex project, and you just want to quickly set up the easiest possible one, you can use the `--minimal` flag like this:
 
 ```shell
 protostar init --minimal my_project

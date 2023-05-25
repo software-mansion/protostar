@@ -17,7 +17,7 @@ For detailed API description, see [declare-cairo1 command reference](../../cli-r
 Building a contract before running `declare-cairo1` is not required. Protostar builds a contract during declaration under the hood.
 :::
 
-First make sure contract is defined in the [`protostar.toml`](../04-protostar-toml.md):
+First make sure contract is defined in the [`protostar.toml`](../05-protostar-toml.md):
 
 ```toml title=protostar.toml
 # ...

@@ -131,6 +131,94 @@ You can now use your function with `my_package::mod1::functions::returns_three()
 The name `my_package` is the value of the `name` key in the `[package]` section of your `Scarb.toml`.
 :::
 
+## Using multiple contracts in a project
+
+Due to limitations of the Cairo 1 compiler, having multiple contracts defined in the package will cause
+the `protostar build` command and other commands to fail.
+
+**That is, having projects structured like this is not valid and will not work correctly.**
+
+### Multi-contract project structure
+
+Each contract must be defined in the separate package: a different directory with separate `Scarb.toml`
+and `src/lib.cairo` files defined.
+
+```
+my_project/
+├── package1/
+│   ├── src/
+│   │   ├── contract/
+│   │   │   └── hello_starknet.cairo
+│   │  ...
+│   │   ├── contract.cairo
+│   │   └── lib.cairo
+│   └── Scarb.toml
+├── package2/
+│   ├── src/
+│   │   ├── contract/
+│   │   │   └── other_contract.cairo
+│   │  ...
+│   │   ├── contract.cairo
+│   │   └── lib.cairo
+│   └── Scarb.toml
+...
+├── src/
+│   └── lib.cairo
+├── Scarb.toml
+└── protostar.toml
+```
+
+Notice that the whole project itself is a package too.
+This is due to the fact that [Scarb](https://docs.swmansion.com/scarb/), which Protostar uses 
+to manage dependencies, does not support workspaces yet. If you do not
+need to include any code in the top level package, just leave the `my_project/src/lib.cairo` file empty.
+
+Define each contract in the `[contracts]` section of the protostar.toml.
+```toml title="protostar.toml"
+# ...
+[contracts]
+hello_starknet = ["package1"]
+other_contract = ["package2"]
+```
+
+Remember to include the packages as [dependencies](https://docs.swmansion.com/scarb/docs/reference/specifying-dependencies) in `my_project/Scarb.toml`.
+```toml title="my_project/Scarb.toml"
+[package]
+name = "my_package"
+version = "0.1.0"
+
+[dependencies]
+package1 = { path = "package1" }
+package2 = { path = "package2" }
+```
+
+### Testing multi-contract projects
+
+For example, to test function `returns_two` defined in the `package1/business_logic/utils.cairo` write
+
+```cairo title="my_project/test_package1.cairo"
+#[test]
+fn test_returns_two() {
+    assert(package1::business_logic::utils::returns_two() == 2, 'Should return 2');
+}
+```
+
+Or using the `use path:to::mod` syntax
+
+```cairo title="my_project/test_package2.cairo"
+use package1::business_logic::utils::returns_two;
+
+#[test]
+fn test_returns_two() {
+    assert(returns_two() == 2, 'Should return 2');
+}
+```
+
+Make sure that the path::to::the::module is correct for your package structure.
+
+For more details on how to test contracts, see [this page](./06-testing/README.md).
+
+
 ## Packages and modules names considerations
 
 The name must be a valid Cairo identifier which means:

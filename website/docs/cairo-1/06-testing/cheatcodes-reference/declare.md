@@ -4,7 +4,7 @@
 fn declare(contract: felt252) -> Result::<felt252, felt252> nopanic;
 ```
 
-Declares a contract given its name defined in the [protostar.toml](../../04-protostar-toml.md) configuration
+Declares a contract given its name defined in the [protostar.toml](../../05-protostar-toml.md) configuration
 file.
 
 - `contract` name of a contract as cairo shortstring (e.g. `declare('mycontract')`).
