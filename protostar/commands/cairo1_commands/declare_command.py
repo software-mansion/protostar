@@ -20,11 +20,12 @@ from protostar.cli.common_arguments import (
     MAX_FEE_ARG,
     WAIT_FOR_ACCEPTANCE_ARG,
 )
+from protostar.commands.legacy_commands.declare_cairo0.declare_messages import (
+    SuccessfulDeclareMessage,
+)
 from protostar.commands.cairo1_commands.fetch_from_scarb import (
     fetch_linked_libraries_from_scarb,
 )
-
-from protostar.commands.declare.declare_messages import SuccessfulDeclareMessage
 from protostar.compiler.cairo1_contract_compiler import Cairo1ContractCompiler
 from protostar.contract_path_resolver import ContractPathResolver
 from protostar.starknet import Address
@@ -36,7 +37,7 @@ from protostar.starknet_gateway import (
 )
 
 
-class DeclareCairo1Command(ProtostarCommand):
+class DeclareCommand(ProtostarCommand):
     def __init__(
         self,
         contract_path_resolver: ContractPathResolver,
@@ -49,11 +50,11 @@ class DeclareCairo1Command(ProtostarCommand):
 
     @property
     def name(self) -> str:
-        return "declare-cairo1"
+        return "declare"
 
     @property
     def description(self) -> str:
-        return "Sends a declare transaction to Starknet."
+        return "Sends a declare transaction of Cairo 1 contract to Starknet."
 
     @property
     def example(self) -> Optional[str]:

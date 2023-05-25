@@ -54,7 +54,7 @@ async def test_multicall_use_case_happy_case(
         client=starknet_client,
     )
     with set_private_key_env_var(account.private_key):
-        declare_result = await protostar.declare(
+        declare_result = await protostar.declare_cairo0(
             contract=Path() / "build" / "main.json",
             account_address=account.address,
             chain_id=StarknetChainId.TESTNET,

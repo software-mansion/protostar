@@ -1,4 +1,5 @@
 from argparse import Namespace
+from logging import getLogger
 from pathlib import Path
 from typing import Optional
 
@@ -21,7 +22,9 @@ from protostar.cli.common_arguments import (
     MAX_FEE_ARG,
     WAIT_FOR_ACCEPTANCE_ARG,
 )
-from protostar.commands.declare.declare_messages import SuccessfulDeclareMessage
+from protostar.commands.legacy_commands.declare_cairo0.declare_messages import (
+    SuccessfulDeclareMessage,
+)
 
 from protostar.starknet import Address
 from protostar.starknet_gateway import (
@@ -32,7 +35,10 @@ from protostar.starknet_gateway import (
 )
 
 
-class DeclareCommand(ProtostarCommand):
+logger = getLogger()
+
+
+class DeclareCairo0Command(ProtostarCommand):
     def __init__(
         self,
         gateway_facade_factory: GatewayFacadeFactory,
@@ -43,11 +49,11 @@ class DeclareCommand(ProtostarCommand):
 
     @property
     def name(self) -> str:
-        return "declare"
+        return "declare-cairo0"
 
     @property
     def description(self) -> str:
-        return "Sends a declare transaction to Starknet."
+        return "Sends a declare transaction of cairo 0 contract to Starknet."
 
     @property
     def example(self) -> Optional[str]:
@@ -126,7 +132,7 @@ class DeclareCommand(ProtostarCommand):
         wait_for_acceptance: bool = False,
     ) -> SuccessfulDeclareResponse:
         gateway_facade = self._gateway_facade_factory.create(gateway_client)
-        return await gateway_facade.declare(
+        return await gateway_facade.declare_cairo0(
             compiled_contract_path=compiled_contract_path,
             signer=signer,
             account_address=account_address,

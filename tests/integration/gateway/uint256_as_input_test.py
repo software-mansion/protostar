@@ -38,7 +38,7 @@ async def test_uint256_as_input(
     constructor_input: CairoOrPythonData,
 ):
     with set_private_key_env_var(devnet_account.private_key):
-        declare_response = await protostar.declare(
+        declare_response = await protostar.declare_cairo0(
             contract=compiled_contract_filepath,
             gateway_url=devnet_gateway_url,
             account_address=devnet_account.address,
@@ -71,7 +71,7 @@ async def test_uint256_as_input_fail(
     set_private_key_env_var: SetPrivateKeyEnvVarFixture,
 ):
     with set_private_key_env_var(devnet_account.private_key):
-        declare_response = await protostar.declare(
+        declare_response = await protostar.declare_cairo0(
             contract=compiled_contract_filepath,
             gateway_url=devnet_gateway_url,
             account_address=devnet_account.address,
