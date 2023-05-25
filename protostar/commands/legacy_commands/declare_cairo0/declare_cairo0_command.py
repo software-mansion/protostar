@@ -81,10 +81,6 @@ class DeclareCairo0Command(ProtostarCommand):
         ]
 
     async def run(self, args: Namespace) -> SuccessfulDeclareResponse:
-        logger.warning(
-            "Declaring cairo 0 contracts is deprecated and won't be supported in the future. "
-            "Please consider migrating your project to cairo 1."
-        )
         write = self._messenger_factory.from_args(args)
 
         assert isinstance(args.contract, Path)
