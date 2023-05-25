@@ -1,5 +1,11 @@
 # Declaring new contracts
-
+:::info
+This command can be used to declare cairo 0 contracts only. 
+To declare a cairo 1 contract, see [`declare` command](../../cairo-1/06-interacting-with-starknet/02-declare.md).
+:::
+:::warning
+This command has been renamed from `declare` and is deprecated. It won't be supported in the future releases. Please consider migrating your contracts to cairo 1.
+:::
 ## Overview
 Starknet provides a distinction between contract class and instance. To deploy a new contract, you need to:
 1. Declare a contract
@@ -12,12 +18,12 @@ The basic inputs needed for this command are:
 - Path to the compiled contract file
 - Network you want to target (i.e. its name or gateway URL)
 
-For detailed API description, see [declare command reference](../../cli-reference.md#declare).
+For detailed API description, see [declare-cairo0 command reference](../../cli-reference.md#declare-cairo0).
 
 ## Usage example   
-To declare a contract from the Protostar CLI you need to build your project and use the `protostar declare` command.
+To declare a cairo 0 contract from the Protostar CLI you need to build your project and use the `protostar declare-cairo0` command.
 
-```console title="protostar declare ./build/main.json --network testnet"
+```console title="protostar declare-cairo0 ./build/main.json --network testnet"
 Declare transaction was sent.
 Class hash: 0x038cc...
 Transaction hash: 0x3c6c...

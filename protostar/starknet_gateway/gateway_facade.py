@@ -262,7 +262,7 @@ class GatewayFacade(MulticallClientProtocol):
             token=token,
         )
 
-    async def declare(
+    async def declare_cairo0(
         self,
         compiled_contract_path: Path,
         account_address: Address,

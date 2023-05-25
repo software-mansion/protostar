@@ -26,7 +26,7 @@ First, let's create a basic protostar file structure. You can generate it by cal
 You can read about how to compose the protostar configuration file [here](../04-configuration-file.md). The point is to keep protostar commands clean and simple and leave such things as the network configuration away from them.
 
 In this file, you should declare the following sections:
-- `declare`
+- `declare-cairo0`
 - `deploy`
 - `call`
 
@@ -59,20 +59,20 @@ These two instructions assure that the contract builds properly and all tests pa
 
 #### Declare and deploy the contract
 
-Now, we need to first [declare](./03-declare.md) the contract and then [deploy](./04-deploy.md) it.
+Now, we need to first [declare](./03-declare-cairo0.md) the contract and then [deploy](./04-deploy.md) it.
 
 Normally, we would start with something like this:
 
 ```shell
-protostar declare ./build/main.json
+protostar declare-cairo0 ./build/main.json
 ```
 
-But the `deploy` command needs the contract's class hash that comes from the `declare`'s command output. Therefore we need to get this output in a standardized way. That's when the `--json` flag comes into play.
+But the `deploy` command needs the contract's class hash that comes from the `declare-cairo0`'s command output. Therefore we need to get this output in a standardized way. That's when the `--json` flag comes into play.
 
 By doing:
 
 ```shell
-protostar declare ./build/main.json --json
+protostar declare-cairo0 ./build/main.json --json
 ```
 
 we get an output like this:
@@ -90,15 +90,15 @@ Now, we can parse the json and pull all the desired information from it easily a
 We could do something like this in our bash script:
 
 ```shell title="automate_protostar_operations.sh"
-OUTPUT=$(protostar declare ./build/main.json --json)
+OUTPUT=$(protostar declare-cairo0 ./build/main.json --json)
 CLASS_HASH=$(python -c "import sys, json; print(json.loads(sys.argv[1])['class_hash'])" $OUTPUT)
 protostar deploy $CLASS_HASH --inputs 100
 ```
 
 You can use any alternative to python that will parse the json for you. This is how it would work with [jq](https://stedolan.github.io/jq/):
 
-``` title="automate_protostar_operations.sh"
-OUTPUT=$(protostar declare ./build/main.json --json)
+```shell title="automate_protostar_operations.sh"
+OUTPUT=$(protostar declare-cairo0 ./build/main.json --json)
 CLASS_HASH=$(echo $OUT | jq -r ".class_hash")
 protostar deploy $CLASS_HASH --inputs 100
 ```
@@ -125,7 +125,7 @@ set -e
 protostar build
 protostar test
 
-DECLARE_OUTPUT=$(protostar declare ./build/main.json --json)
+DECLARE_OUTPUT=$(protostar declare-cairo0 ./build/main.json --json)
 CLASS_HASH=$(python -c "import sys, json; print(json.loads(sys.argv[1])['class_hash'])" $DECLARE_OUTPUT)
 
 DEPLOY_OUTPUT=$(protostar deploy $CLASS_HASH --inputs 100 --json)
@@ -155,7 +155,7 @@ run_command("./protostar build")
 print("TEST")
 run_command("./protostar test")
 print("DECLARE")
-out = run_command("./protostar declare ./build/main.json --json")
+out = run_command("./protostar declare-cairo0 ./build/main.json --json")
 print("DEPLOY")
 class_hash = json.loads(out)['class_hash']
 out = run_command(f"./protostar deploy {class_hash} --inputs 100 --json")

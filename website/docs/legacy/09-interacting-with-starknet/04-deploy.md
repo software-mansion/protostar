@@ -17,7 +17,7 @@ Although this command does not require [signing the transaction](./06-signing.md
 :::
 
 ## Usage example
-After [declaring your contract](./03-declare.md), you can deploy the contract in the following way.
+After [declaring your contract](./03-declare-cairo0.md), you can deploy the contract in the following way.
 
 ```console title="protostar deploy 0xdeadbeef --network testnet"
 [INFO] Invoke transaction was sent to the Universal Deployer Contract.

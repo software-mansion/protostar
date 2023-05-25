@@ -46,7 +46,7 @@ trying to use it in tests will cause compilation errors.
 ### `[contracts]` section
 
 Define packages containing contracts to be used by protostar commands
-like [declare-cairo1](../cli-reference.md#declare-cairo1) and by [cheatcodes](./05-testing/03-cheatcodes.md).
+like [declare](../cli-reference.md#declare) and by [cheatcodes](./05-testing/03-cheatcodes.md).
 
 ```toml
 [contracts]
@@ -77,15 +77,15 @@ specified in the profile.
 
 To create a configuration profile, add a new section to the `protostar.toml`. For example:
 
-- to create a configuration named `mainnet` for the [`declare-cairo1` command](../cli-reference.md#declare-cairo1),
-  add `[profile.mainnet.declare-cairo1]` section
+- to create a configuration named `mainnet` for the [`declare` command](../cli-reference.md#declare),
+  add `[profile.mainnet.declare]` section
 - to create a shared configuration named `testnet`, add `[profile.testnet.project]` section
 
 To use a profile, add the [-p or --profile argument](../cli-reference.md#-p---profile-string) followed by the name of
 the profile.
-For example, to use the [`declare-cairo1` command](../cli-reference.md#declare-cairo1) with the `testnet` profile,
+For example, to use the [`declare` command](../cli-reference.md#declare) with the `testnet` profile,
 run:
 
 ```console
-protostar -p testnet declare-cairo1
+protostar -p testnet declare
 ```

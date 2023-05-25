@@ -22,7 +22,7 @@ def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
 async def deploy_main_contract(
     protostar: ProtostarFixture, devnet_gateway_url: str, devnet_account: DevnetAccount
 ):
-    declare_response = await protostar.declare(
+    declare_response = await protostar.declare_cairo0(
         contract=protostar.project_root_path / "build" / "main.json",
         gateway_url=devnet_gateway_url,
         account_address=devnet_account.address,
@@ -44,7 +44,7 @@ async def test_invoke(
     set_private_key_env_var: SetPrivateKeyEnvVarFixture,
 ):
     with set_private_key_env_var(devnet_account.private_key):
-        declare_response = await protostar_project.protostar.declare(
+        declare_response = await protostar_project.protostar.declare_cairo0(
             contract=protostar_project.protostar.project_root_path
             / "build"
             / "main.json",
@@ -92,7 +92,7 @@ async def test_invoke_uint256_(
     )
     await protostar_project.protostar.build_cairo0()
     with set_private_key_env_var(devnet_account.private_key):
-        declare_response = await protostar_project.protostar.declare(
+        declare_response = await protostar_project.protostar.declare_cairo0(
             contract=protostar_project.project_root_path / "build" / "main.json",
             gateway_url=devnet.get_gateway_url(),
             max_fee="auto",
@@ -184,7 +184,7 @@ async def test_handling_invoke_failure(
     protostar_project.create_files({"./src/main.cairo": RUNTIME_ERROR_CONTRACT})
     await protostar_project.protostar.build_cairo0()
     with set_private_key_env_var(devnet_account.private_key):
-        declare_response = await protostar_project.protostar.declare(
+        declare_response = await protostar_project.protostar.declare_cairo0(
             contract=protostar_project.protostar.project_root_path
             / "build"
             / "main.json",
