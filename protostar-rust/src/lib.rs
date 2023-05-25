@@ -9,7 +9,7 @@ use std::collections::HashMap;
 use cairo_lang_protostar::test_collector::collect_tests;
 use cairo_lang_runner::{RunResultValue, SierraCasmRunner, ProtostarTestConfig};
 
-use starknet_rs::testing::starknet_state::StarknetState;
+use blockifier::transaction::transactions::create_state_with_trivial_validation_account;
 
 fn run_result_value_to_string(run_result: RunResultValue) -> String {
     match run_result {
@@ -25,11 +25,11 @@ fn run_result_value_to_string(run_result: RunResultValue) -> String {
 fn internal_run_tests(input_path: &str, test_config: ProtostarTestConfig) -> anyhow::Result<()> {
     let (sierra_program, test_configs) = collect_tests(&input_path.to_owned(), None, None, None)?;
 
-    let mut runner = SierraCasmRunner::new(sierra_program, None, HashMap::new())
+    let runner = SierraCasmRunner::new(sierra_program, None, HashMap::new())
         .with_context(|| "Failed setting up runner.")?;
 
     for config in &test_configs {
-      let state = StarknetState::new(None);
+        let state = create_state_with_trivial_validation_account();
         let result = runner
             .run_function(
                 runner.find_function(&config.name.as_str())?,

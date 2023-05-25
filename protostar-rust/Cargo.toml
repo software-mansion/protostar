@@ -12,6 +12,7 @@ cairo-lang-test-runner = { path = "../cairo/crates/cairo-lang-test-runner", vers
 cairo-lang-runner = { path = "../cairo/crates/cairo-lang-runner", version = "1.0.0-rc0" }
 cairo-lang-sierra-to-casm = { path = "../cairo/crates/cairo-lang-sierra-to-casm", version = "1.0.0-rc0" }
 starknet-rs = { path = "../starknet_in_rust" }
+blockifier = { path = "../blockifier/crates/blockifier" }
 
 [lib]
 name = "rust_test_runner_bindings"
