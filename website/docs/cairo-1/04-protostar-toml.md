@@ -10,8 +10,6 @@ Here is an example `protostar.toml` file:
 protostar-version = "PROTOSTAR_VERSION"
 
 # Shared Configuration (affects all commands)
-
-lib-path = "lib"
 linked-libraries = ["hello_starknet"]
 
 # Defines contract names for the use with cheatcodes and commands

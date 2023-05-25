@@ -225,25 +225,6 @@ def init_cairo0(
     chdir(protostar_repo_root)
 
 
-@pytest.fixture
-def init(
-    protostar_repo_root: Path,
-    project_name: str,
-    protostar_toml_protostar_version: str,
-    init_project: ProjectInitializer,
-    libs_path: Optional[str],
-) -> InitFixture:
-    _init(
-        project_name=project_name,
-        protostar_toml_protostar_version=protostar_toml_protostar_version,
-        init_project=init_project,
-        libs_path=libs_path,
-        cairo_version=CairoVersion.cairo1,
-    )
-    yield
-    chdir(protostar_repo_root)
-
-
 def _init(
     project_name: str,
     protostar_toml_protostar_version: str,

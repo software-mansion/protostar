@@ -118,9 +118,6 @@ class NewProjectCreator(ProjectCreator):
         return ConfigurationFileV2Model(
             protostar_version=str(self._protostar_version),
             contract_name_to_path_strs={"hello_starknet": ["src"]},
-            project_config={
-                "lib-path": "lib",
-            },
         )
 
     @staticmethod
