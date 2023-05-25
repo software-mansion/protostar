@@ -44,3 +44,17 @@ def test_failing_tests(protostar: ProtostarFixture, copy_fixture: CopyFixture):
         "test_panic_multiple_values: Panic [1870930782904301745253, 482670963043, 31066316372818838395891839589]"
         in result
     )
+
+
+def test_declare(protostar: ProtostarFixture, copy_fixture: CopyFixture):
+    copy_fixture("cairo1_build", "./cairo1_project")
+    copy_fixture(
+        "cairo1/declare_test.cairo", "./cairo1_project/tests/declare_test.cairo"
+    )
+    os.chdir("./cairo1_project")
+
+    result = protostar(["test-rust", "tests/declare_test.cairo"])
+    print()
+    print("============================================ RESULT")
+    print(result)
+    print("============================================")
