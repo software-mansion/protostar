@@ -10,7 +10,7 @@ It uses [Scarb](https://docs.swmansion.com/scarb) and its [manifest files](https
 
 ## Dependencies management
 
-Protostar uses [Scarb](https://github.com/software-mansion/scarb) and its [manifest files](https://docs.swmansion.com/scarb/docs/reference/manifest) to manage dependencies in your project.
+Protostar uses [Scarb](https://docs.swmansion.com/scarb) and its [manifest files](https://docs.swmansion.com/scarb/docs/reference/manifest) to manage dependencies in your project.
 In order to use Protostar with Cairo 1, you must have Scarb executable added to the `PATH` environment variable. 
 The `PATH` variable is a list of directories that your system searches for executables.
 
@@ -173,8 +173,8 @@ Define each contract in the `[contracts]` section of the protostar.toml.
 ```toml title="protostar.toml"
 # ...
 [contracts]
-hello_starknet = ["package1"]
-other_contract = ["package2"]
+hello_starknet = ["package1/src"]
+other_contract = ["package2/src"]
 ```
 
 Remember to include the packages as [dependencies](https://docs.swmansion.com/scarb/docs/reference/specifying-dependencies) in `my_project/Scarb.toml`.
@@ -199,7 +199,7 @@ fn test_returns_two() {
 }
 ```
 
-Or using the `use path:to::mod` syntax
+Or using the `use path::to::mod` syntax
 
 ```cairo title="my_project/test_package2.cairo"
 use package1::business_logic::utils::returns_two;
@@ -210,7 +210,7 @@ fn test_returns_two() {
 }
 ```
 
-Make sure that the path::to::the::module is correct for your package structure.
+Make sure that the `path::to::the::module` is correct for your package structure.
 
 For more details on how to test contracts, see [this page](./06-testing/README.md).
 
