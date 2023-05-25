@@ -8,6 +8,19 @@ more details.
 Keep in mind that Protostar does not support `cairo_project.toml`. 
 It uses [Scarb](https://docs.swmansion.com/scarb) and its [manifest files](https://docs.swmansion.com/scarb/docs/reference/manifest) instead.
 
+## Dependencies management
+
+Protostar uses [Scarb](https://github.com/software-mansion/scarb) and its [manifest files](https://docs.swmansion.com/scarb/docs/reference/manifest) to manage dependencies in your project.
+In order to use Protostar with Cairo 1, you must have Scarb executable added to the `PATH` environment variable. 
+The `PATH` variable is a list of directories that your system searches for executables.
+
+To learn how to manage dependencies with Scarb, check [the documentation](https://docs.swmansion.com/scarb/docs/reference/specifying-dependencies).
+
+:::info 
+The name of your package is always the value
+of the `name` key in the `[package]` section of your `Scarb.toml`. 
+:::
+
 ## Modules
 
 A module consists of one or more Cairo files, usually organized in a single directory. To define a module, create
@@ -49,8 +62,8 @@ term "crates" for packages.
 
 ### `Scarb.toml`
 
-It is a [Scarb's manifest files](https://docs.swmansion.com/scarb/docs/reference/manifest). 
-It defines dependencies for you packages. Protostar uses Scarb to manage dependencies.
+It is a [Scarb's manifest files](https://docs.swmansion.com/scarb/docs/reference/manifest) 
+containing dependencies for your package.
 
 Example content of this file:
 
@@ -73,65 +86,30 @@ mod my_other_module;
 
 ### Creating and using new modules
 
-Suppose we wanted to create a module called `mod1` inside the `my_package` package and use it in tests.
-We want this module to only have one file `functions.cairo` containing one function defined like:
-
-```cairo title="functions.cairo"
-fn returns_three() -> felt252 {
-    3
-}
-```
-
-Here is our initial file structure:
+An example package with multiple modules:
 
 ```
 my_project/
 ├── src/
-│   └── lib.cairo
+│   ├── mod1/
+│   │   └── functions.cairo
+│   ├── lib.cairo
+│   └── mod1.cairo
 └── Scarb.toml
 ```
-
-#### Adding a new module
-
-Here are the steps we need to take:
-
-1. Create a `mod1` subdirectory inside `src`.
-2. Create file `functions.cairo` inside `mod1` subdirectory and define your code there.
-3. Create `mod1.cairo` file **in the `src` directory**, with the contents of
 
 ```cairo title="mod1.cairo"
 mod functions;
 ```
 
-4. Update the `lib.cairo` file to include `mod1`. Its contents should now look like this:
-
 ```cairo title="lib.cairo"
-// previous code stays
-// ...
+
 mod mod1;
 ```
 
-If you followed the steps correctly, your new project structure should look like this:
-
-```
-my_project/
-├── src/
-│   ├── mod1/  <------------------- new directory
-│   │   └── functions.cairo  <----- new file
-│   ├── lib.cairo  <--------------- contents updated
-│   └── mod1.cairo <--------------- new file
-└── Scarb.toml
-```
-
-#### Using the added module
-
 You can now use your function with `my_package::mod1::functions::returns_three()`.
 
-:::info
-The name `my_package` is the value of the `name` key in the `[package]` section of your `Scarb.toml`.
-:::
-
-## Using multiple contracts in a project
+## Project with multiple contracts
 
 Due to limitations of the Cairo 1 compiler, having multiple contracts defined in the package will cause
 the `protostar build` command and other commands to fail.
@@ -168,10 +146,12 @@ my_project/
 └── protostar.toml
 ```
 
+:::caution
 Notice that the whole project itself is a package too.
-This is due to the fact that [Scarb](https://docs.swmansion.com/scarb/), which Protostar uses 
-to manage dependencies, does not support workspaces yet. If you do not
-need to include any code in the top level package, just leave the `my_project/src/lib.cairo` file empty.
+This is due to the fact that [Scarb](https://docs.swmansion.com/scarb/)
+does not support workspaces yet. If you do not need to include any code 
+in the top level package, just leave the `my_project/src/lib.cairo` file empty.
+:::
 
 Define each contract in the `[contracts]` section of the protostar.toml.
 ```toml title="protostar.toml"

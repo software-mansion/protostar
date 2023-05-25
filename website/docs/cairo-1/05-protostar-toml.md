@@ -38,13 +38,18 @@ This attribute defines which Protostar version should be used with your project.
 ### `[contracts]` section
 
 Define packages containing contracts to be used by Protostar commands
-like [declare](../cli-reference.md#declare) and by [cheatcodes](./05-testing/03-cheatcodes.md).
+like [declare](../cli-reference.md#declare) and by [cheatcodes](./06-testing/03-cheatcodes.md).
 
 ```toml
 [contracts]
-my_contract = ["my_contract"]
-other_contract = ["other_contract"]
+my_contract = ["my_contract_package/src"]
+other_contract = ["other_contract_package/src"]
 ```
+
+:::info
+Notice that a value assigned to a contract name key is always a path to
+`src` folder of a package defining the contract.
+:::
 
 ### Command Arguments Configuration Section
 
