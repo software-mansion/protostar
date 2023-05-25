@@ -9,12 +9,13 @@ To deploy new contract instance, you need to:
 1. Declare a contract on the network
 2. Deploy a instance of that declared contract
 
-For detailed API description, see [declare-cairo1 command reference](../../cli-reference.md#declare-cairo1).
+For detailed API description, see [declare command reference](../../cli-reference.md#declare).
 
 ## Usage example
 
 :::note
-Building a contract before running `declare-cairo1` is not required. Protostar builds a contract during declaration under the hood.
+Building a contract before running `declare` is not required. Protostar builds a contract during declaration under the hood.
+under the hood.
 :::
 
 First make sure contract is defined in the [`protostar.toml`](../05-protostar-toml.md):
@@ -28,7 +29,7 @@ my_contract = ["src"]
 Then run:
 
 ```shell title="Example"
-protostar declare-cairo1 my_contract \
+protostar declare my_contract \
   --network testnet \
   --account-address 0x0481Eed2e02b1ff19Fd32429801f28a59DEa630d81189E39c80F2F60139b381a \
   --max-fee auto \

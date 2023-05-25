@@ -33,7 +33,7 @@ def test_deploying_and_interacting_with_contract(
         result = protostar(
             [
                 "--no-color",
-                "declare",
+                "declare-cairo0",
                 "./build/main.json",
                 "--gateway-url",
                 devnet_gateway_url,
@@ -145,7 +145,7 @@ def test_deploying_contract_with_constructor_and_inputs_defined_in_config_file(
         result = protostar(
             [
                 "--no-color",
-                "declare",
+                "declare-cairo0",
                 "./build/main.json",
                 "--gateway-url",
                 devnet_gateway_url,
@@ -203,7 +203,7 @@ def test_declaring_contract(
         result = protostar(
             [
                 "--no-color",
-                "declare",
+                "declare-cairo0",
                 "./build/main.json",
                 "--gateway-url",
                 devnet_gateway_url,
@@ -238,7 +238,7 @@ def test_declaring_cairo1_contract(
         result = protostar(
             [
                 "--no-color",
-                "declare-cairo1",
+                "declare",
                 "balance",
                 "--gateway-url",
                 devnet_gateway_url,

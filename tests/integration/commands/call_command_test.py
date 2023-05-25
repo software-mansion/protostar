@@ -27,7 +27,7 @@ async def test_call(
     set_private_key_env_var: SetPrivateKeyEnvVarFixture,
 ):
     with set_private_key_env_var(devnet_account.private_key):
-        declare_response = await protostar_project.protostar.declare(
+        declare_response = await protostar_project.protostar.declare_cairo0(
             contract=protostar_project.protostar.project_root_path
             / "build"
             / "main.json",
@@ -57,7 +57,7 @@ async def test_call(
 async def deploy_main_contract(
     protostar: ProtostarFixture, devnet_gateway_url: str, devnet_account: DevnetAccount
 ):
-    declare_response = await protostar.declare(
+    declare_response = await protostar.declare_cairo0(
         contract=protostar.project_root_path / "build" / "main.json",
         gateway_url=devnet_gateway_url,
         account_address=devnet_account.address,
@@ -188,7 +188,7 @@ async def test_call_failure(
 ):
     await protostar_project.protostar.build_cairo0()
     with set_private_key_env_var(devnet_account.private_key):
-        declare_response = await protostar_project.protostar.declare(
+        declare_response = await protostar_project.protostar.declare_cairo0(
             protostar_project.protostar.project_root_path / "build" / "main.json",
             gateway_url=devnet_gateway_url,
             account_address=devnet_account.address,
@@ -220,7 +220,7 @@ async def test_uint256(
     protostar_project.create_files({"./src/main.cairo": UINT256_IDENTITY_CONTRACT})
     await protostar_project.protostar.build_cairo0()
     with set_private_key_env_var(devnet_account.private_key):
-        declare_response = await protostar_project.protostar.declare(
+        declare_response = await protostar_project.protostar.declare_cairo0(
             contract=protostar_project.protostar.project_root_path
             / "build"
             / "main.json",
@@ -258,7 +258,7 @@ async def test_json(
     protostar_project.create_files({"./src/main.cairo": UINT256_IDENTITY_CONTRACT})
     await protostar_project.protostar.build_cairo0()
     with set_private_key_env_var(devnet_account.private_key):
-        declare_response = await protostar_project.protostar.declare(
+        declare_response = await protostar_project.protostar.declare_cairo0(
             contract=protostar_project.protostar.project_root_path
             / "build"
             / "main.json",
@@ -297,7 +297,7 @@ async def test_calling_through_proxy(
     set_private_key_env_var: SetPrivateKeyEnvVarFixture,
 ):
     with set_private_key_env_var(devnet_account.private_key):
-        declared = await protostar_project.protostar.declare(
+        declared = await protostar_project.protostar.declare_cairo0(
             contract=protostar_project.protostar.project_root_path
             / "build"
             / "main.json",
@@ -315,7 +315,7 @@ async def test_calling_through_proxy(
         )
         await protostar_project.protostar.build_cairo0()
 
-        declared_proxy = await protostar_project.protostar.declare(
+        declared_proxy = await protostar_project.protostar.declare_cairo0(
             contract=protostar_project.protostar.project_root_path
             / "build"
             / "proxy.json",
