@@ -2,10 +2,8 @@ import copy
 from typing import List, Optional, cast
 
 from starkware.starknet.definitions.general_config import StarknetGeneralConfig
-from starkware.starknet.services.api.contract_class.contract_class import (
-    DeprecatedCompiledClass,
-)
 from starkware.starknet.testing.contract import StarknetContract
+from starkware.starknet.testing.contract_utils import CastableToFelt, CastableToAddress
 from starkware.starknet.testing.starknet import Starknet
 from starkware.starknet.testing.state import CastableToAddressSalt
 
@@ -38,7 +36,9 @@ class ForkableStarknet(Starknet):
             state=self.cheatable_state,
             abi=copy.deepcopy(deployed_contract.abi),
             contract_address=deployed_contract.contract_address,
-            deploy_call_info=copy.deepcopy(deployed_contract.deploy_call_info),
+            constructor_call_info=copy.deepcopy(
+                deployed_contract.constructor_call_info
+            ),
         )
 
     def fork(self):
@@ -46,20 +46,16 @@ class ForkableStarknet(Starknet):
 
     async def deploy(
         self,
-        source: Optional[str] = None,
-        contract_class: Optional[DeprecatedCompiledClass] = None,
+        class_hash: CastableToFelt,
         contract_address_salt: Optional[CastableToAddressSalt] = None,
-        cairo_path: Optional[List[str]] = None,
         constructor_calldata: Optional[List[int]] = None,
-        disable_hint_validation: bool = False,
+        sender_address: Optional[CastableToAddress] = None,
     ) -> StarknetContract:
         starknet_contract = await super().deploy(
-            source=source,
-            contract_class=contract_class,
+            class_hash=class_hash,
             contract_address_salt=contract_address_salt,
-            cairo_path=cairo_path,
             constructor_calldata=constructor_calldata,
-            disable_hint_validation=disable_hint_validation,
+            sender_address=sender_address,
         )
 
         self.cheatable_state.cheatable_state.update_event_selector_to_name_map(

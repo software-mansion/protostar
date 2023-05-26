@@ -100,14 +100,6 @@ A glob or globs to a directory or a test suite, for example:
                 type="bool",
             ),
             ProtostarArgument(
-                name="profiling",
-                description=(
-                    "Run profiling for a test contract. Works only for a single test case."
-                    "Protostar generates a file that can be opened with https://github.com/google/pprof"
-                ),
-                type="bool",
-            ),
-            ProtostarArgument(
                 name="no-progress-bar",
                 type="bool",
                 description="Disable progress bar.",
@@ -166,7 +158,6 @@ A glob or globs to a directory or a test suite, for example:
             ignored_targets=args.ignore,
             cairo_path=args.cairo_path,
             disable_hint_validation=args.disable_hint_validation,
-            profiling=args.profiling,
             no_progress_bar=args.no_progress_bar,
             safe_collecting=args.safe_collecting,
             exit_first=args.exit_first,
