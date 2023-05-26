@@ -1,16 +1,16 @@
 # Scripting
 
-In order to automate a process that includes protostar operations, you may want to build a script in language of your
+In order to automate a process that includes Protostar operations, you may want to build a script in language of your
 choice.
 
 This tutorial shows a simple example of how to do such a thing using scripting in bash.
 
 We are going to write a script that builds, tests, declares, deploys, and, in the end, calls the contract. We are also
-going to make use of the protostar's structured output, so we can use previous' commands outputs in the following ones.
+going to make use of the Protostar's structured output, so we can use previous' commands outputs in the following ones.
 
 ### File Structure
 
-First, let's create a basic protostar file structure. You can generate it by
+First, let's create a basic Protostar file structure. You can generate it by
 calling [`protostar init`](../03-project-initialization.md). It looks like this:
 
 ```
@@ -37,8 +37,8 @@ example contract is sufficient for us, and it is not important for this tutorial
 
 #### protostar.toml file
 
-You can read about how to compose the protostar configuration file [here](../05-protostar-toml.md). The point is to keep
-protostar commands clean and simple and leave such things as the network configuration away from them.
+You can read about how to compose the Protostar configuration file [here](../05-protostar-toml.md). The point is to keep
+Protostar commands clean and simple and leave such things as the network configuration away from them.
 
 In this file, you should create the following sections:
 

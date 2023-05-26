@@ -13,9 +13,9 @@ fetch the nonce).
 Depending on what account you use, these can be obtained in different ways. Refer to your account documentation for more
 details.
 
-### Providing account details in protostar commands
+### Providing account details in Protostar commands
 
-To provide your account details when running protostar commands, these arguments should be used
+To provide your account details when running Protostar commands, these arguments should be used
 
 - `--private-key-path` - a path to the file containing private key, either in hex (prefixed with '0x') or decimal
   format.
@@ -32,7 +32,7 @@ If your account contract requires a different way of signing, you can create a c
 from [BaseSigner](https://github.com/software-mansion/starknet.py/blob/68df1709c4f7664e317f5c5dbff5e9c220d11727/starknet_py/net/signer/base_signer.py#L8)
 abstract class if 
 
-To use a custom signer, provide a `--signer-class` argument when executing protostar commands.
+To use a custom signer, provide a `--signer-class` argument when executing Protostar commands.
 
 :::caution
 The custom signer class must not take any arguments in the constructor, since we don't pass any args on instantiation.

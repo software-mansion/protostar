@@ -5,7 +5,7 @@ fn deploy_contract_cairo0(contract: felt252, calldata: @Array::<felt252>) ->
 Result::<felt252, RevertedTransaction>
 ```
 
-Declares and deploys a cairo 0 contract given its name defined in the [protostar.toml](../../05-protostar-toml.md)
+Declares and deploys a Cairo 0 contract given its name defined in the [protostar.toml](../../05-protostar-toml.md)
 configuration file.
 
 ```cairo title="Example"

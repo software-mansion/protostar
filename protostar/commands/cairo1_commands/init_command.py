@@ -33,7 +33,7 @@ class InitCommand(ProtostarCommand):
         return [
             ProtostarArgument(
                 name="name",
-                description="Name of the directory a new project will be placed in.",
+                description="The name of the directory a new project will be placed in.",
                 type="str",
                 is_positional=True,
             ),

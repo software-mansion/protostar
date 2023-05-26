@@ -7,10 +7,10 @@ fn declare(contract: felt252) -> Result::<felt252, felt252> nopanic;
 Declares a contract given its name defined in the [protostar.toml](../../05-protostar-toml.md) configuration
 file.
 
-- `contract` name of a contract as cairo shortstring (e.g. `declare('mycontract')`).
+- `contract` name of a contract as Cairo shortstring (e.g. `declare('mycontract')`).
 
 :::info
-Declare only supports Cairo1 (new syntax) contracts. To declare old cairo0 contracts,
+Declare only supports Cairo 1 (new syntax) contracts. To declare old Cairo 0 contracts,
 use [declare_cairo0](./declare-cairo0.md).
 :::
 

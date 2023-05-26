@@ -13,7 +13,7 @@ Protostar currently measures:
 - [builtins](https://www.cairo-lang.org/docs/how_cairo_works/builtins.html)
 - [memory holes](https://www.cairo-lang.org/docs/how_cairo_works/cairo_intro.html#continuous-memory)
 
-If you want to generate profile for a test case, run:
+If you want to generate a profile for a test case, run:
 
 ```shell
 protostar test-cairo0 --profiling test/test_file.cairo::test_case_name 

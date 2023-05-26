@@ -30,7 +30,7 @@ Starknet.
 Read more about
 sierra [here](https://docs.starknet.io/documentation/architecture_and_concepts/Contracts/cairo-1-and-sierra).
 
-`.casm.json` files contain contracts compiled to the casm format which can be executed on the cairo virtual machine. This
+`.casm.json` files contain contracts compiled to the casm format which can be executed on the Cairo Virtual Machine. This
 format is used to calculate `compiled_class_hash` of a contract.
 
 `.class_hash` files contain class hash of the built contract
@@ -50,7 +50,7 @@ $ protostar build --linked-libraries /path/to/the/external/lib
 ```
 
 :::note
-Provided paths must contain correctly formatted cairo packages, otherwise build will fail.
+Provided paths must contain correctly formatted Cairo packages, otherwise build will fail.
 :::
 
 ## Compiling a single contract

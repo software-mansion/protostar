@@ -35,4 +35,4 @@ fn test_print_basic() {
 }
 ```
 
-You can print numbers, booleans and [Cairo short strings](https://www.cairo-lang.org/docs/how_cairo_works/consts.html#short-string-literals) as well as arrays containing values of these types.
+You can print numbers, booleans, and [Cairo short strings](https://www.cairo-lang.org/docs/how_cairo_works/consts.html#short-string-literals) as well as arrays containing values of these types.
