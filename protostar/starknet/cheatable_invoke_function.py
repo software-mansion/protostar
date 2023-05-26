@@ -17,7 +17,7 @@ from protostar.starknet.cheatable_execute_entry_point import CheatableExecuteEnt
 
 
 # pylint: disable=too-many-ancestors
-@marshmallow_dataclass.dataclass(frozen=True)
+@marshmallow_dataclass.dataclass(frozen=True)  # pyright: ignore
 class CheatableInternalInvokeFunction(InternalInvokeFunction):
     def run_execute_entrypoint(
         self,
