@@ -66,6 +66,9 @@ curl -L https://raw.githubusercontent.com/software-mansion/protostar/master/inst
 1. Upgrade pip: `pip install --upgrade pip`
 1. Install project dependencies: `poetry install`
     - MacBook M1/M2: `CFLAGS=-I/opt/homebrew/opt/gmp/include LDFLAGS=-L/opt/homebrew/opt/gmp/lib poetry install`
+1. You need to install `patchelf`:
+    - `brew install patchelf` on MacOS
+    - `pip install patchelf` on Linux
 1. Install bindings for the rust tools used by protostar:
     - [install rust](https://www.rust-lang.org/tools/install)
     - `poetry run poe install_all_bindings`
