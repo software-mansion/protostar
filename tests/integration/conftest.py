@@ -130,7 +130,7 @@ def run_cairo0_test_runner_fixture(
 
 class CreateProtostarProjectFixture(Protocol):
     def __call__(
-        self, cairo_version: CairoVersion = CairoVersion.cairo0
+        self, cairo_version: CairoVersion = CairoVersion.cairo0, minimal: bool = False
     ) -> ContextManager[ProtostarProjectFixture]:
         ...
 
@@ -140,8 +140,12 @@ def create_protostar_project_fixture(
     session_mocker: MockerFixture,
     tmp_path_factory: ProtostarTmpPathFactory,
 ) -> CreateProtostarProjectFixture:
-    def _create_protostar_project(cairo_version: CairoVersion = CairoVersion.cairo0):
-        return ProtostarProjectFixture(session_mocker, tmp_path_factory, cairo_version)
+    def _create_protostar_project(
+        cairo_version: CairoVersion = CairoVersion.cairo0, minimal: bool = False
+    ):
+        return ProtostarProjectFixture(
+            session_mocker, tmp_path_factory, cairo_version, minimal
+        )
 
     return _create_protostar_project
 

@@ -19,9 +19,9 @@ from protostar.commands import (
     InitCairo0Command,
     InvokeCommand,
     MulticallCommand,
-    DeclareCairo1Command,
     TestCairo0Command,
     TestRustCommand,
+    DeclareCairo0Command,
 )
 from protostar.commands.deploy_account_command import DeployAccountCommand
 from protostar.commands.deploy_command import DeployCommand
@@ -130,6 +130,7 @@ def create_protostar_fixture(
     build_command = BuildCommand(
         configuration_file=cairo0_project_compiler.configuration_file,
         project_root_path=project_root_path,
+        messenger_factory=messenger_factory,
     )
 
     transaction_registry = TransactionRegistry()
@@ -148,11 +149,11 @@ def create_protostar_fixture(
         project_root_path=project_root_path,
         messenger_factory=messenger_factory,
     )
-    declare_command = DeclareCommand(
+    declare_cairo0_command = DeclareCairo0Command(
         gateway_facade_factory=gateway_facade_factory,
         messenger_factory=messenger_factory,
     )
-    declare_cairo1_command = DeclareCairo1Command(
+    declare_command = DeclareCommand(
         contract_path_resolver=contract_path_resolver,
         gateway_facade_factory=gateway_facade_factory,
         messenger_factory=messenger_factory,
@@ -221,7 +222,7 @@ def create_protostar_fixture(
         build_cairo0_command=build_cairo0_command,
         format_command=format_command,
         declare_command=declare_command,
-        declare_cairo1_command=declare_cairo1_command,
+        declare_cairo0_command=declare_cairo0_command,
         deploy_command=deploy_command,
         test_command=test_command,
         test_rust_command=test_rust_command,

@@ -2,14 +2,6 @@
 
 ```cairo
 fn deploy(prepared_contract: PreparedContract) -> Result::<felt252, RevertedTransaction> nopanic;
-
-struct RevertedTransaction {
-    panic_data: Array::<felt252>, 
-}
-
-trait RevertedTransactionTrait {
-    fn first(self: @RevertedTransaction) -> felt252;
-}
 ```
 
 Deploys a [prepared](./prepare.md) contract.

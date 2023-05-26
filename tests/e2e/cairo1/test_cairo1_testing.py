@@ -16,7 +16,16 @@ def test_cairo1_test(protostar: ProtostarFixture, copy_fixture: CopyFixture):
     assert "3 passed" in result
 
 
-def test_no_tests_found(protostar: ProtostarFixture):
+def test_no_scarb_toml_found(protostar: ProtostarFixture):
+    result = protostar(["test", "tests"], expect_exit_code=1)
+
+    assert "Scarb.toml not found" in result
+
+
+def test_no_tests_found(protostar: ProtostarFixture, copy_fixture: CopyFixture):
+    copy_fixture("cairo1_project", "./cairo1_project")
+    os.chdir("./cairo1_project")
+
     result = protostar(["test", "tests"])
 
     assert "No test cases found" in result
@@ -165,9 +174,11 @@ def test_dependencies_fail(protostar: ProtostarFixture, copy_fixture: CopyFixtur
     )
     os.chdir("./cairo1_project")
 
-    toml_file = Path("protostar.toml")
-    toml_file.write_text(
-        toml_file.read_text().replace(', "libraries/external_lib_foo"', "")
+    scarb_toml = Path("Scarb.toml")
+    scarb_toml.write_text(
+        scarb_toml.read_text().replace(
+            'external_lib_bar = { path = "libraries/external_lib_bar"}', ""
+        )
     )
     result = protostar(["--no-color", "test", "tests"], expect_exit_code=1)
 

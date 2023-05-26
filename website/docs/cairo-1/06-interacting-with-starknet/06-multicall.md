@@ -24,9 +24,10 @@ function = "increase_balance"
 inputs = [42]
 ```
 
-[//]: # (TODO #1908 is this still valid? Does it refer to old deploy or new deploy <through UDC>?)
 
-Protostar supports two types of transactions — `deploy` and `invoke`, which take similar arguments to [`deploy command`](/docs/cli-reference#deploy) and [`invoke command`](/docs/cli-reference#invoke).
+Multicall supports two types of transactions — `deploy` and `invoke`, which take similar arguments to [`deploy` command](/docs/cli-reference#deploy) and [`invoke` command](/docs/cli-reference#invoke).
+
+With the `deploy` transaction type, the deployment happens through the Universal Deployer Contract (UDC), see the [`deploy` command](/docs/cli-reference#deploy) for more information.
 
 
 ```toml title="protostar.toml"

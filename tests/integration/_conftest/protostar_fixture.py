@@ -1,7 +1,7 @@
 import asyncio
 from argparse import Namespace
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Union, ContextManager
+from typing import Any, Callable, Dict, Optional, Union, ContextManager, Tuple
 
 import pytest
 from starknet_py.net.models import StarknetChainId
@@ -19,7 +19,7 @@ from protostar.commands import (
     InitCommand,
     InvokeCommand,
     MulticallCommand,
-    DeclareCairo1Command,
+    DeclareCairo0Command,
     TestCairo0Command,
     TestRustCommand,
     BuildCairo0Command,
@@ -38,12 +38,13 @@ from protostar.testing import TestingSummary
 from protostar.starknet import Address
 from protostar.starknet.data_transformer import CairoOrPythonData
 from protostar.testing.test_results import TestResult
+from protostar.cairo.bindings.cairo_bindings import PackageName
 from tests.conftest import DevnetAccount
 
 from .tokenizer import tokenize
 from .transaction_registry import TransactionRegistry
 
-ContractMap = Dict[str, List[str]]
+ContractMap = Dict[str, list[str]]
 
 
 # pylint: disable=too-many-instance-attributes
@@ -58,7 +59,7 @@ class ProtostarFixture:
         build_cairo0_command: BuildCairo0Command,
         format_command: FormatCommand,
         declare_command: DeclareCommand,
-        declare_cairo1_command: DeclareCairo1Command,
+        declare_cairo0_command: DeclareCairo0Command,
         deploy_command: DeployCommand,
         test_command: TestCommand,
         test_rust_command: TestRustCommand,
@@ -80,7 +81,7 @@ class ProtostarFixture:
         self._build_cairo0_command = build_cairo0_command
         self._format_command = format_command
         self._declare_command = declare_command
-        self._declare_cairo1_command = declare_cairo1_command
+        self._declare_cairo0_command = declare_cairo0_command
         self._deploy_command = deploy_command
         self._test_command = test_command
         self._test_rust_command = test_rust_command
@@ -102,7 +103,7 @@ class ProtostarFixture:
     def get_intercepted_transactions_mapping(self):
         return self._transaction_registry
 
-    async def declare(
+    async def declare_cairo0(
         self,
         contract: Path,
         account_address: Optional[Address] = None,
@@ -120,9 +121,9 @@ class ProtostarFixture:
             max_fee=max_fee,
         )
 
-        return await self._declare_command.run(args)
+        return await self._declare_cairo0_command.run(args)
 
-    async def declare_cairo1(
+    async def declare(
         self,
         contract: Path,
         compiled_class_hash: int,
@@ -142,7 +143,7 @@ class ProtostarFixture:
         )
         args.compiled_class_hash = compiled_class_hash
 
-        return await self._declare_cairo1_command.run(args)
+        return await self._declare_command.run(args)
 
     def _declare_common_args(
         self,
@@ -239,7 +240,7 @@ class ProtostarFixture:
         return await self._deploy_account_command.run(args)
 
     async def test_cairo0(
-        self, targets: List[str], last_failed: bool = False, estimate_gas: bool = False
+        self, targets: list[str], last_failed: bool = False, estimate_gas: bool = False
     ) -> TestingSummary:
         args = Namespace()
         args.target = targets
@@ -265,18 +266,19 @@ class ProtostarFixture:
         result = asyncio.run(self._init_cairo0_command.run(args))
         return result
 
-    def init_sync(self, project_name: str):
+    def init_sync(self, project_name: str, minimal: bool = False):
         args = Namespace()
         args.name = project_name
+        args.minimal = minimal
         result = asyncio.run(self._init_command.run(args))
         return result
 
     async def build_cairo0(self):
-        args = self._prepare_build_args()
+        args = self._prepare_build_cairo0_args()
         return await self._build_cairo0_command.run(args)
 
     def build_cairo0_sync(self):
-        args = self._prepare_build_args()
+        args = self._prepare_build_cairo0_args()
         return asyncio.run(self._build_cairo0_command.run(args))
 
     async def build(self):
@@ -291,9 +293,15 @@ class ProtostarFixture:
         args = Namespace()
         args.compiled_contracts_dir = Path("./build")
         args.disable_hint_validation = False
-        args.cairo_path = None
+        args.linked_libraries = None
         args.json = False
         args.contract_name = ""
+        return args
+
+    def _prepare_build_cairo0_args(self):
+        args = self._prepare_build_args()
+        delattr(args, "linked_libraries")
+        args.cairo_path = None
         return args
 
     async def invoke(
@@ -346,7 +354,7 @@ class ProtostarFixture:
 
     def format(
         self,
-        targets: List[str],
+        targets: list[str],
         check: bool = False,
         verbose: bool = False,
         ignore_broken: bool = False,
@@ -389,7 +397,7 @@ class ProtostarFixture:
     async def run_cairo0_test_runner_cairo0(
         self,
         target: Union[str, Path],
-        cairo_path: Optional[List[Path]] = None,
+        cairo_path: Optional[list[Path]] = None,
     ) -> TestingSummary:
         """
         Runs test runner safely, without assertions on state of the summary and cache mechanism
@@ -416,7 +424,7 @@ class ProtostarFixture:
     async def test(
         self,
         target: Union[str, Path],
-        linked_libraries: Optional[List[Path]] = None,
+        linked_libraries: Optional[list[Tuple[Path, PackageName]]] = None,
     ) -> TestingSummary:
         """
         Runs test runner safely, without assertions on state of the summary and cache mechanism

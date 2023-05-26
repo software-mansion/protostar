@@ -34,7 +34,7 @@ let prepared_contract = prepare(class_hash, @calldata).unwrap();
 
 ### `RevertedTransaction`
 
-Cheatcodes `invoke`, `deploy`, `deploy_contract`, `deploy_contract_cairo0`, `declare` and `call` return an `Err` of
+Cheatcodes `invoke`, `call`, `deploy`, `deploy_contract` and `deploy_contract_cairo0` and return an `Err` of
 type `RevertedTransaction` in case of failure.
 
 ```cairo

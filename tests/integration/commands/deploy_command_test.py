@@ -30,7 +30,7 @@ async def test_deploying_contract(
     set_private_key_env_var: SetPrivateKeyEnvVarFixture,
 ):
     with set_private_key_env_var(devnet_account.private_key):
-        declare_response = await protostar.declare(
+        declare_response = await protostar.declare_cairo0(
             contract=compiled_contract_filepath,
             gateway_url=devnet_gateway_url,
             account_address=devnet_account.address,
@@ -55,7 +55,7 @@ async def test_deploying_contract_fail(
 ):
     with set_private_key_env_var(devnet_account.private_key):
         with pytest.raises(InputValidationException):
-            declare_response = await protostar.declare(
+            declare_response = await protostar.declare_cairo0(
                 contract=compiled_contract_filepath,
                 gateway_url=devnet_gateway_url,
                 max_fee="auto",

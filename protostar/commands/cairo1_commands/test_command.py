@@ -1,16 +1,11 @@
 from argparse import Namespace
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional, Tuple
 
 from protostar.cli import ProtostarArgument, ProtostarCommand, MessengerFactory
-from protostar.cli.common_arguments import (
-    LINKED_LIBRARIES,
-)
-from protostar.compiler import LinkedLibrariesBuilder
 from protostar.io.log_color_provider import LogColorProvider
 from protostar.self.cache_io import CacheIO
 from protostar.self.protostar_directory import ProtostarDirectory
-from protostar.cairo import CairoCompilerConfig
 from protostar.testing import (
     TestingSummary,
     TestScheduler,
@@ -31,7 +26,8 @@ from protostar.commands.legacy_commands.test_cairo0.messages import (
 from protostar.commands.legacy_commands.test_cairo0.testing_live_logger import (
     TestingLiveLogger,
 )
-from .fetch_from_scarb import maybe_fetch_linked_libraries_from_scarb
+from protostar.cairo.bindings.cairo_bindings import PackageName
+from .fetch_from_scarb import fetch_linked_libraries_from_scarb
 
 
 class TestCommand(ProtostarCommand):
@@ -48,7 +44,6 @@ class TestCommand(ProtostarCommand):
         self._log_color_provider = log_color_provider
         self._project_root_path = project_root_path
         self._protostar_directory = protostar_directory
-        self._project_cairo_path_builder = LinkedLibrariesBuilder()
         self._cwd = cwd
         self._active_profile_name = active_profile_name
         self._messenger_factory = messenger_factory
@@ -90,7 +85,6 @@ A glob or globs to a directory or a test suite, for example:
                 value_parser="list",
                 type="str",
             ),
-            LINKED_LIBRARIES,
             ProtostarArgument(
                 name="no-progress-bar",
                 type="bool",
@@ -125,10 +119,8 @@ A glob or globs to a directory or a test suite, for example:
         summary = await self.test(
             targets=cache.obtain_targets(args.target, args.last_failed),
             ignored_targets=args.ignore,
-            linked_libraries=args.linked_libraries
-            + maybe_fetch_linked_libraries_from_scarb(
+            linked_libraries=fetch_linked_libraries_from_scarb(
                 package_root_path=self._project_root_path,
-                linked_libraries=args.linked_libraries,
             ),
             no_progress_bar=args.no_progress_bar,
             exit_first=args.exit_first,
@@ -142,27 +134,17 @@ A glob or globs to a directory or a test suite, for example:
 
     async def test(
         self,
-        targets: List[str],
+        targets: list[str],
         messenger: Messenger,
-        ignored_targets: Optional[List[str]] = None,
-        linked_libraries: Optional[List[Path]] = None,
+        ignored_targets: Optional[list[str]] = None,
+        linked_libraries: Optional[list[Tuple[Path, PackageName]]] = None,
         no_progress_bar: bool = False,
         exit_first: bool = False,
         slowest_tests_to_report_count: int = 0,
     ) -> TestingSummary:
-        include_paths = [
-            str(path)
-            for path in self._project_cairo_path_builder.build_project_cairo_path_list(
-                linked_libraries or []
-            )
-        ]
         testing_seed = determine_testing_seed(seed=None)
 
-        compiler_config = CairoCompilerConfig(
-            disable_hint_validation=True,
-            include_paths=include_paths,
-        )
-        test_collector = Cairo1TestCollector(compiler_config.include_paths)
+        test_collector = Cairo1TestCollector(linked_libraries or [])
         test_collector_result = test_collector.collect(
             targets=targets,
             ignored_targets=ignored_targets,
@@ -189,7 +171,10 @@ A glob or globs to a directory or a test suite, for example:
             worker = Cairo1TestRunner.worker
 
             TestScheduler(live_logger=live_logger, worker=worker).run(
-                include_paths=include_paths,
+                include_paths=[
+                    str(package_path)
+                    for package_path, package_name in linked_libraries or []
+                ],
                 test_collector_result=test_collector_result,
                 disable_hint_validation=False,
                 profiling=False,

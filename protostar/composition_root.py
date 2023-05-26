@@ -15,7 +15,7 @@ from protostar.commands import (
     BuildCairo0Command,
     CalculateAccountAddressCommand,
     CallCommand,
-    DeclareCommand,
+    DeclareCairo0Command,
     DeployAccountCommand,
     DeployCommand,
     FormatCommand,
@@ -31,7 +31,7 @@ from protostar.commands import (
     UpdateCommand,
     UpgradeCommand,
     MulticallCommand,
-    DeclareCairo1Command,
+    DeclareCommand,
 )
 from protostar.commands.cairo_migrate_command import CairoMigrateCommand
 from protostar.commands.legacy_commands.init_cairo0.project_creator import (
@@ -178,6 +178,7 @@ def build_di_container(
         BuildCommand(
             configuration_file=cairo0_project_compiler.configuration_file,
             project_root_path=project_root_path,
+            messenger_factory=messenger_factory,
         ),
         InstallCommand(
             log_color_provider=log_color_provider,
@@ -221,11 +222,11 @@ def build_di_container(
             gateway_facade_factory=gateway_facade_factory,
             messenger_factory=messenger_factory,
         ),
-        DeclareCommand(
+        DeclareCairo0Command(
             gateway_facade_factory=gateway_facade_factory,
             messenger_factory=messenger_factory,
         ),
-        DeclareCairo1Command(
+        DeclareCommand(
             contract_path_resolver=contract_path_resolver,
             gateway_facade_factory=gateway_facade_factory,
             messenger_factory=messenger_factory,
