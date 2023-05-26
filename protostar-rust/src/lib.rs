@@ -9,7 +9,7 @@ use std::collections::HashMap;
 use cairo_lang_protostar::test_collector::collect_tests;
 use cairo_lang_runner::{RunResultValue, SierraCasmRunner, ProtostarTestConfig};
 
-use blockifier::transaction::transactions::create_state_with_trivial_validation_account;
+use blockifier::transaction::transaction_utils::create_state_with_trivial_validation_account;
 
 fn run_result_value_to_string(run_result: RunResultValue) -> String {
     match run_result {
