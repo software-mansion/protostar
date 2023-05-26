@@ -2,7 +2,7 @@ use anyhow::{anyhow, Context, Result};
 use itertools::Itertools;
 use std::path::PathBuf;
 
-use cairo_lang_protostar::test_collector::collect_tests;
+use cairo_lang_protostar::test_collector::{collect_tests, LinkedLibrary};
 use cairo_lang_runner::{RunResultValue, SierraCasmRunner};
 use cairo_lang_sierra_to_casm::metadata::MetadataComputationConfig;
 
@@ -17,22 +17,13 @@ fn run_result_value_to_string(run_result: RunResultValue) -> String {
     };
 }
 
-pub fn run_tests(input_path: &str, linked_libraries: Option<&Vec<PathBuf>>) -> Result<()> {
+pub fn run_tests(input_path: PathBuf, linked_libraries: Option<Vec<LinkedLibrary>>) -> Result<()> {
     let builtins = vec!["GasBuiltin", "Pedersen", "RangeCheck", "bitwise", "ec_op"];
 
     let (sierra_program, test_configs) = collect_tests(
-        &input_path.to_string(),
+        input_path.to_str().unwrap(),
         None,
-        linked_libraries.map(|linked_libraries| {
-            linked_libraries
-                .iter()
-                .map(|path| {
-                    path.to_str()
-                        .with_context(|| format!("Failed to convert path to str: {:?}", path))
-                        .unwrap()
-                })
-                .collect()
-        }),
+        linked_libraries,
         Some(builtins),
     )?;
 

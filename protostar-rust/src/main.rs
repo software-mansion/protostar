@@ -1,4 +1,5 @@
 use anyhow::{anyhow, Context, Result};
+use cairo_lang_protostar::test_collector::LinkedLibrary;
 use clap::Parser;
 use rust_test_runner_bindings::run_tests;
 use scarb_metadata::{Metadata, MetadataCommand, PackageId, PackageMetadata};
@@ -45,7 +46,7 @@ fn protostar_config_for_package(
 fn dependencies_for_package(
     metadata: &Metadata,
     package: &PackageId,
-) -> Result<(PathBuf, Vec<PathBuf>)> {
+) -> Result<(PathBuf, Vec<LinkedLibrary>)> {
     let compilation_unit = metadata
         .compilation_units
         .iter()
@@ -69,7 +70,11 @@ fn dependencies_for_package(
     let dependencies = compilation_unit
         .components
         .iter()
-        .map(|cu| cu.source_root().to_owned().into_std_path_buf())
+        .filter(|du| !du.source_path.to_string().contains("core/src"))
+        .map(|cu| LinkedLibrary {
+            name: cu.name.clone(),
+            path: cu.source_root().to_owned().into_std_path_buf(),
+        })
         .collect();
 
     Ok((base_path, dependencies))
@@ -93,20 +98,12 @@ fn main() -> Result<()> {
         dbg!(&protostar_config);
 
         let (base_path, dependencies) = dependencies_for_package(&scarb_metadata, package)?;
-        let dependencies = dependencies
-            .iter()
-            .filter(|d| d.to_str().map_or(true, |s| !s.contains("core/src")))
-            .cloned()
-            .collect::<Vec<_>>();
         dbg!(&dependencies);
         dbg!(&base_path);
 
         run_tests(
-            "/Users/arturmichalek/Coding/protostar/protostar-rust/pkg",
-            Some(&dependencies),
-            // Some(&vec![PathBuf::from(
-            //     "/Users/arturmichalek/Coding/protostar/protostar-rust/pkg/src",
-            // )]),
+            base_path,
+            Some(dependencies),
         )?;
     }
 
