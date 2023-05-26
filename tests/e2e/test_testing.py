@@ -1,7 +1,8 @@
 import json
 import os
 import shutil
-from os import listdir
+
+# from os import listdir
 from pathlib import Path
 from textwrap import dedent
 
@@ -21,25 +22,6 @@ def test_basic_contract(protostar: ProtostarFixture):
 def test_safe_collecting(protostar: ProtostarFixture):
     result = protostar(["test-cairo0", "--safe-collecting"])
     assert "1 passed" in result
-
-
-@pytest.mark.usefixtures("init_cairo0")
-def test_basic_contract_profile(protostar: ProtostarFixture):
-    result = protostar(
-        ["test-cairo0", "--profiling", "tests/test_main.cairo::test_increase_balance"]
-    )
-    assert "1 passed" in result
-    assert "profile.pb.gz" in listdir(".")
-
-
-@pytest.mark.usefixtures("init_cairo0")
-def test_profile_fuzz(protostar: ProtostarFixture, copy_fixture: CopyFixture):
-    copy_fixture("fuzz_test.cairo", "./tests")
-    result = protostar(
-        ["test-cairo0", "--profiling", "tests/fuzz_test.cairo"], ignore_exit_code=True
-    )
-    assert "Fuzz tests cannot be profiled" in result
-    assert not Path("profile.pb.gz").exists()
 
 
 @pytest.mark.usefixtures("init_cairo0")
