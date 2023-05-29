@@ -50,12 +50,19 @@ commands:
           command: |
             env PYTHON_CONFIGURE_OPTS="--enable-framework" pyenv install -s << pipeline.parameters.python_version >>
             pyenv global << pipeline.parameters.python_version >>
-            HOMEBREW_NO_AUTO_UPDATE=1 brew install gmp
+            HOMEBREW_NO_AUTO_UPDATE=1 brew install gmp patchelf
       - save_cache:
           key: mac-python-gmp-<< pipeline.parameters.python_version >>
           paths:
             - ~/.pyenv/versions/<< pipeline.parameters.python_version >>
             - /opt/homebrew/opt/gmp
+
+  install_linux_patchelf:
+    description: "Install patchelf using pip"
+    steps:
+      - run:
+          name: Install patchelf
+          command: pip install patchelf
 
   ensure_poetry_version:
     description: "Install poetry"
@@ -120,6 +127,7 @@ commands:
       - run:
           name: Get submodule and protostar-rust hashes
           command: |
+            git rev-parse HEAD:./blockifier > /tmp/blockifier-submodule-hash
             git rev-parse HEAD:./cairo > /tmp/cairo-submodule-hash
             shasum scripts/install_all_bindings.sh > /tmp/scripts-hash
             shasum scripts/install_cairo_bindings.sh >> /tmp/scripts-hash
@@ -135,7 +143,7 @@ commands:
         enum: ["linux", "mac"]
     steps:
       - restore_cache:
-          key: bindings-<< parameters.platform >>-{{ checksum "/tmp/scripts-hash" }}-{{ checksum "/tmp/cairo-submodule-hash" }}-{{ checksum "/tmp/protostar-rust-hashes" }}-<< pipeline.parameters.poetry_version >>-py<< pipeline.parameters.python_version >>-{{ checksum "poetry.lock" }}
+          key: bindings-<< parameters.platform >>-{{ checksum "/tmp/scripts-hash" }}-{{ checksum "/tmp/cairo-submodule-hash" }}-{{ checksum "/tmp/blockifier-submodule-hash" }}-{{ checksum "/tmp/protostar-rust-hashes" }}-<< pipeline.parameters.poetry_version >>-py<< pipeline.parameters.python_version >>-{{ checksum "poetry.lock" }}
       - run:
           name: Install bindings and compile cairo-compile
           command: |
@@ -151,7 +159,7 @@ commands:
               popd
             fi
       - save_cache:
-          key: bindings-<< parameters.platform >>-{{ checksum "/tmp/scripts-hash" }}-{{ checksum "/tmp/cairo-submodule-hash" }}-{{ checksum "/tmp/protostar-rust-hashes" }}-<< pipeline.parameters.poetry_version >>-py<< pipeline.parameters.python_version >>-{{ checksum "poetry.lock" }}
+          key: bindings-<< parameters.platform >>-{{ checksum "/tmp/scripts-hash" }}-{{ checksum "/tmp/cairo-submodule-hash" }}-{{ checksum "/tmp/blockifier-submodule-hash" }}-{{ checksum "/tmp/protostar-rust-hashes" }}-<< pipeline.parameters.poetry_version >>-py<< pipeline.parameters.python_version >>-{{ checksum "poetry.lock" }}
           paths:
             - ./cairo/target/debug/cairo-compile
             - ./cairo/target/wheels
@@ -181,6 +189,11 @@ commands:
             equal: ["mac", << parameters.platform >>]
           steps:
             - install_python_and_gmp_mac
+      - when:
+        condition:
+          equal: ["linux", << parameters.platform >>]
+        steps:
+          - install_linux_patchelf
       - ensure_poetry_version
       - install_rust
       - install_scarb
@@ -202,7 +215,7 @@ commands:
         enum: ["linux", "mac"]
     steps:
       - restore_cache:
-          key: poetry-<< pipeline.parameters.poetry_version >>-py<< pipeline.parameters.python_version >>-<< parameters.platform >>-{{ checksum "poetry.lock" }}-{{ checksum "/tmp/scripts-hash" }}-{{ checksum "/tmp/cairo-submodule-hash" }}-{{ checksum "/tmp/protostar-rust-hashes" }}
+          key: poetry-<< pipeline.parameters.poetry_version >>-py<< pipeline.parameters.python_version >>-<< parameters.platform >>-{{ checksum "poetry.lock" }}-{{ checksum "/tmp/scripts-hash" }}-{{ checksum "/tmp/cairo-submodule-hash" }}-{{ checksum "/tmp/blockifier-submodule-hash" }}-{{ checksum "/tmp/protostar-rust-hashes" }}
 
   save_poetry_cache:
     parameters:
@@ -211,7 +224,7 @@ commands:
         enum: ["linux", "mac"]
     steps:
       - save_cache:
-          key: poetry-<< pipeline.parameters.poetry_version >>-py<< pipeline.parameters.python_version >>-<< parameters.platform >>-{{ checksum "poetry.lock" }}-{{ checksum "/tmp/scripts-hash" }}-{{ checksum "/tmp/cairo-submodule-hash" }}-{{ checksum "/tmp/protostar-rust-hashes" }}
+          key: poetry-<< pipeline.parameters.poetry_version >>-py<< pipeline.parameters.python_version >>-<< parameters.platform >>-{{ checksum "poetry.lock" }}-{{ checksum "/tmp/scripts-hash" }}-{{ checksum "/tmp/cairo-submodule-hash" }}-{{ checksum "/tmp/blockifier-submodule-hash" }}-{{ checksum "/tmp/protostar-rust-hashes" }}
           paths:
             - ~/.cache/pypoetry
             - ~/Library/Caches/pypoetry
