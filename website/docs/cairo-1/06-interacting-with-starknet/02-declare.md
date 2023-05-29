@@ -15,7 +15,6 @@ For detailed API description, see [declare command reference](../../cli-referenc
 
 :::note
 Building a contract before running `declare` is not required. Protostar builds a contract during declaration under the hood.
-under the hood.
 :::
 
 First make sure contract is defined in the [`protostar.toml`](../04-protostar-toml.md):
