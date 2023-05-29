@@ -22,7 +22,7 @@ class TestRustCommand(ProtostarCommand):
 
     @property
     def description(self) -> str:
-        return "Executes cairo1 tests in rust."
+        return "Executes Cairo 1 tests with Rust implementation of Protostar."
 
     @property
     def example(self) -> Optional[str]:
@@ -33,7 +33,7 @@ class TestRustCommand(ProtostarCommand):
         return [
             ProtostarArgument(
                 name="path",
-                description="A path to the tests that will be run",
+                description="A path to the file with tests that will be run",
                 type="str",
                 is_positional=True,
             ),
