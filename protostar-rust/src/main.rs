@@ -89,7 +89,6 @@ fn main() -> Result<()> {
     );
 
     let scarb_metadata = MetadataCommand::new()
-        .current_dir("/Users/arturmichalek/Coding/protostar/protostar-rust/pkg")
         .inherit_stderr()
         .exec()?;
 
