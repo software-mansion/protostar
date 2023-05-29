@@ -43,8 +43,6 @@ fn run_tests_in_file(
         Some(builtins),
     )?;
 
-    dbg!(&test_configs);
-
     let runner =
         SierraCasmRunner::new(sierra_program, Some(Default::default()), Default::default())
             .with_context(|| "Failed setting up runner.")?;

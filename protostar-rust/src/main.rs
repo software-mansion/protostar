@@ -95,11 +95,7 @@ fn main() -> Result<()> {
 
     for package in &scarb_metadata.workspace.members {
         let protostar_config = protostar_config_for_package(&scarb_metadata, package)?;
-        dbg!(&protostar_config);
-
         let (base_path, dependencies) = dependencies_for_package(&scarb_metadata, package)?;
-        dbg!(&dependencies);
-        dbg!(&base_path);
 
         run_tests(base_path, Some(dependencies))?;
     }
