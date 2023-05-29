@@ -36,7 +36,6 @@ def test_failing_tests(protostar: ProtostarFixture, copy_fixture: CopyFixture):
     )
     os.chdir("./cairo1_project")
 
-    # with pytest.raises(Exception) as ex:
     result = protostar(["test-rust", "tests/failing_test.cairo"])
     assert "test_ok: Success" in result
     assert "test_panic_single_value: Panic [21]" in result
