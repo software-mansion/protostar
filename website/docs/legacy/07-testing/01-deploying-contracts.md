@@ -103,7 +103,7 @@ func test_proxy_contract{syscall_ptr: felt*, range_check_ptr}() {
 ```
 
 :::info
-Please refer to ["passing tuples and structs in calldata"](https://www.cairo-lang.org/docs/hello_starknet/more_features.html#passing-tuples-and-structs-in-calldata) on how to serialize your constructor arguments to array of integers
+Please refer to ["passing tuples and structs in calldata"](https://www.cairo-lang.org/docs/hello_starknet/more_features.html#passing-tuples-and-structs-in-calldata) on how to serialize your constructor arguments to an array of integers
 :::
 
 Then run your test with

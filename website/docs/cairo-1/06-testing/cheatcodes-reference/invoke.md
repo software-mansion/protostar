@@ -5,7 +5,7 @@ fn invoke(contract_address: felt252, function_name: felt252, calldata: @Array::<
 ```
 
 Invokes a contract's function. `function_name` parameter should be provided as a short string. `invoke` can mutate the
-state of the contract and does not return a value, to query the contract for values use [call](./call.md).
+state of the contract and does not return a value to query the contract for values use [call](./call.md).
 
 ```cairo title="Example"
 use result::ResultTrait;

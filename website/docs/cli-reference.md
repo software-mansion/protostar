@@ -11,7 +11,7 @@ Show Protostar, Cairo-lang and Cairo 1 compiler versions.
 ```shell
 $ protostar build
 ```
-Compile cairo 1 contracts.
+Compile Cairo 1 contracts.
 #### `--compiled-contracts-dir PATH=build`
 An output directory used to put the compiled contracts in.
 #### `--contract-name STRING`
@@ -22,7 +22,7 @@ Print machine-readable output in [NDJSON](https://github.com/ndjson/ndjson-spec)
 ```shell
 $ protostar build-cairo0
 ```
-Compile cairo 0 contracts.
+Compile Cairo 0 contracts.
 #### `--cairo-path PATH[]`
 Additional directories to look for sources.
 #### `--compiled-contracts-dir PATH=build`
@@ -38,7 +38,7 @@ Migrate project sources to Cairo 0.10.
 #### `targets STRING[]=['.']`
 Targets to migrate (a target can be a file or directory)
 ### `calculate-account-address`
-In order to create an account, you need to prefund the account. To prefund the account you need to know its address. This command calculates the account address.
+In order to create an account, you need to prefund the account. To prefund the account, you need to know its address. This command calculates the account address.
 #### `--account-address-salt INT`
 Required.
 
@@ -52,7 +52,7 @@ Input to the account's constructor.
 #### `--json`
 Print machine-readable output in [NDJSON](https://github.com/ndjson/ndjson-spec) format.
 ### `call`
-Calls a contract on Starknet with given parameters
+Call a contract on Starknet with given parameters
 #### `--abi PATH`
 Path to the ABI file to be used by Data Transformer. If not provided, Protostar will get the ABI from Starknet.
 #### `--chain-id INT`
@@ -82,7 +82,7 @@ Supported Starknet networks:
 - `mainnet`
 - `testnet2`
 ### `declare`
-Sends a declare transaction of Cairo 1 contract to Starknet.
+Send a declare transaction of Cairo 1 contract to Starknet.
 #### `contract STRING`
 Required.
 
@@ -122,9 +122,9 @@ Custom signer class module path.
 #### `--token STRING`
 Used by whitelisted users for deploying contracts in Alpha MainNet.
 #### `--wait-for-acceptance`
-Waits for transaction to be accepted on chain.
+Wait for the transaction to be accepted on chain.
 ### `declare-cairo0`
-Sends a declare transaction of cairo 0 contract to Starknet.
+Send a declare transaction of Cairo 0 contract to Starknet.
 #### `contract PATH`
 Required.
 
@@ -164,7 +164,7 @@ Custom signer class module path.
 #### `--token STRING`
 Used by whitelisted users for deploying contracts in Alpha MainNet.
 #### `--wait-for-acceptance`
-Waits for transaction to be accepted on chain.
+Wait for the transaction to be accepted on chain.
 ### `deploy`
 ```shell
 protostar deploy 0x4221deadbeef123 --network testnet
@@ -215,9 +215,9 @@ Custom signer class module path.
 #### `--token STRING`
 Used by whitelisted users for deploying contracts in Alpha MainNet.
 #### `--wait-for-acceptance`
-Waits for transaction to be accepted on chain.
+Wait for the transaction to be accepted on chain.
 ### `deploy-account`
-Sends deploy-account transaction. The account contract must be already declared and prefunded.
+Send a deploy-account transaction. The account contract must be already declared and prefunded.
 #### `--account-address-salt INT`
 Required.
 
@@ -259,7 +259,7 @@ $ protostar format
 ```
 Format Cairo source code.
 #### `target STRING[]=['.']`
-Target to format, can be a file or a directory.
+Target to format; can be a file or a directory.
 #### `-c` `--check`
 Run in 'check' mode. Exits with 0 if input is formatted correctly.Exits with 1 if formatting is required.
 #### `--ignore-broken`
@@ -270,16 +270,16 @@ Log information about already formatted files as well.
 ```shell
 $ protostar init
 ```
-Create a Protostar project with cairo1 template.
+Create a Protostar project with Cairo 1 template.
 #### `name STRING`
-Name of the directory a new project will be placed in.
+The name of the directory a new project will be placed in.
 #### `--minimal`
 Create a minimal project structure.
 ### `init-cairo0`
 ```shell
 $ protostar init-cairo0
 ```
-Create a Protostar project with cairo0 template.
+Create a Protostar project with Cairo 0 template.
 #### `name STRING`
 Name of the directory a new project will be placed in.Ignored when `--existing` is passed.
 #### `--existing`
@@ -348,7 +348,7 @@ Can be used instead of PROTOSTAR_ACCOUNT_PRIVATE_KEY env variable.
 #### `--signer-class STRING`
 Custom signer class module path.
 #### `--wait-for-acceptance`
-Waits for transaction to be accepted on chain.
+Wait for the transaction to be accepted on chain.
 ### `migrate-configuration-file`
 Migrate protostar.toml V1 to V2.
 ### `multicall`
@@ -431,7 +431,7 @@ Directory containing project dependencies. This argument is used with the config
 ```shell
 $ protostar test
 ```
-Executes tests using cairo 1 runner.
+Executes tests using Cairo 1 runner.
 #### `target STRING[]=['.']`
 A glob or globs to a directory or a test suite, for example:
 - `tests/**/*_main*::*_balance` — find test cases, which names ends with `_balance` in test suites with the `_main` in filenames in the `tests` directory,
@@ -447,7 +447,7 @@ Only re-run failed and broken test cases.
 #### `--no-progress-bar`
 Disable progress bar.
 #### `--report-slowest-tests INT`
-Print slowest tests at the end.
+Print the slowest tests at the end.
 ### `test-cairo0`
 ```shell
 $ protostar test-cairo0
@@ -476,7 +476,7 @@ Set Cairo execution step limit.
 #### `--no-progress-bar`
 Disable progress bar.
 #### `--report-slowest-tests INT`
-Print slowest tests at the end.
+Print the slowest tests at the end.
 #### `--safe-collecting`
 Use Cairo compiler for test collection.
 #### `--seed INT`

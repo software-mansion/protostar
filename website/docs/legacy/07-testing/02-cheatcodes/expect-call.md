@@ -2,7 +2,7 @@
 ```python
 def expect_call(self, contract_address: int, fn_name: str, calldata: list[int]) -> None: ...
 ```
-Allows to specify what calls to contracts' functions are expected in the code.
+Allows specifying what calls to contracts' functions are expected in the code.
 It sets an expectation for a specific call that is then checked either when the returned callable is called or at the end of the current scope.
 
 `calldata` is a list of arguments that are expected for a certain call. The checking mechanism goes for a strict match, which means that the order, as well as the values of each element, have to be exactly the same.
@@ -74,4 +74,4 @@ func test_expect_call_wrong_args{syscall_ptr: felt*, range_check_ptr}() {
 ```
 
 
-`test_expect_call_wrong_args` will fail because even though the set of expected arguments is the same as the arguments in the call, the order is different so they **do not** strictly match.
+`test_expect_call_wrong_args` will fail because even though the set of expected arguments is the same as the arguments in the call, the order is different, so they **do not** strictly match.
