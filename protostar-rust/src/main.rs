@@ -100,10 +100,7 @@ fn main() -> Result<()> {
         dbg!(&dependencies);
         dbg!(&base_path);
 
-        run_tests(
-            base_path,
-            Some(dependencies),
-        )?;
+        run_tests(base_path, Some(dependencies))?;
     }
 
     Ok(())

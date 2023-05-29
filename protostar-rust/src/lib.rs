@@ -1,6 +1,7 @@
 use anyhow::{anyhow, Context, Result};
 use itertools::Itertools;
 use std::path::PathBuf;
+use walkdir::WalkDir;
 
 use cairo_lang_protostar::test_collector::{collect_tests, LinkedLibrary};
 use cairo_lang_runner::{RunResultValue, SierraCasmRunner};
@@ -18,6 +19,25 @@ fn run_result_value_to_string(run_result: RunResultValue) -> String {
 }
 
 pub fn run_tests(input_path: PathBuf, linked_libraries: Option<Vec<LinkedLibrary>>) -> Result<()> {
+    for entry in WalkDir::new(&input_path) {
+        if entry.is_err() {
+            continue;
+        }
+
+        let entry = entry.unwrap();
+        let path = entry.path();
+
+        if path.is_file() && path.extension().map_or(false, |ex| ex == "cairo") {
+            run_tests_in_file(entry.path().to_path_buf(), linked_libraries.clone())?;
+        }
+    }
+    Ok(())
+}
+
+fn run_tests_in_file(
+    input_path: PathBuf,
+    linked_libraries: Option<Vec<LinkedLibrary>>,
+) -> Result<()> {
     let builtins = vec!["GasBuiltin", "Pedersen", "RangeCheck", "bitwise", "ec_op"];
 
     let (sierra_program, test_configs) = collect_tests(
