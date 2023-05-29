@@ -14,7 +14,11 @@ fn run_result_value_to_string(run_result: RunResultValue) -> String {
     };
 }
 
-pub fn run_tests(input_path: PathBuf, linked_libraries: Option<Vec<LinkedLibrary>>) -> Result<()> {
+pub fn run_tests(
+    input_path: PathBuf,
+    linked_libraries: Option<Vec<LinkedLibrary>>,
+    config: &ProtostarTestConfig,
+) -> Result<()> {
     for entry in WalkDir::new(&input_path) {
         if entry.is_err() {
             continue;
