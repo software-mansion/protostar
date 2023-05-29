@@ -56,6 +56,7 @@ commands:
           paths:
             - ~/.pyenv/versions/<< pipeline.parameters.python_version >>
             - /opt/homebrew/opt/gmp
+            - /opt/homebrew/opt/patchelf
 
   install_linux_patchelf:
     description: "Install patchelf using pip"
@@ -190,10 +191,10 @@ commands:
           steps:
             - install_python_and_gmp_mac
       - when:
-        condition:
-          equal: ["linux", << parameters.platform >>]
-        steps:
-          - install_linux_patchelf
+          condition:
+            equal: ["linux", << parameters.platform >>]
+          steps:
+            - install_linux_patchelf
       - ensure_poetry_version
       - install_rust
       - install_scarb
