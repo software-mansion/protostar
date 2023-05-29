@@ -6,8 +6,6 @@ use scarb_metadata::{Metadata, MetadataCommand, PackageId};
 use std::env::set_var;
 use std::path::PathBuf;
 
-const CONTRACT_TARGET: &str = "starknet-contract";
-
 #[derive(Parser, Debug)]
 struct Args {
     test_filter: Option<String>,
