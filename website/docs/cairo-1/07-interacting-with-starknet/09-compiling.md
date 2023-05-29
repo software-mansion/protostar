@@ -55,7 +55,7 @@ Provided paths must contain correctly formatted Cairo packages, otherwise build 
 
 ## Compiling a single contract
 
-If your `protostar.toml` file defines multiple contracts and you wish to compile only one of them, you can specify
+If your `protostar.toml` file defines multiple contracts, and you wish to compile only one of them, you can specify
 the [`--contract-name`](../../cli-reference.md#--contract-name-string-1) argument:
 
 ```

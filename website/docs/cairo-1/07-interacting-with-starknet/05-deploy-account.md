@@ -8,7 +8,7 @@ contract.
 :::tip
 Instead of manually deploying an account through Protostar, you can consider using
 a [wallet provider](https://www.starknet.io/en/ecosystem/wallets). Please note that the Protostar team doesn't verify
-safety or compatibility of these wallets.
+the safety or compatibility of these wallets.
 :::
 
 There are multiple account contracts to choose from, and it is the end user responsibility to find an account that works

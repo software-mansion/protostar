@@ -4,10 +4,10 @@ Starknet provides a distinction between contract class and instance. This is sim
 code of a `class MyClass {}` and creating a new instance of it `let myInstance = MyClass()` in object-oriented
 programming languages.
 
-To deploy new contract instance, you need to:
+To deploy a new contract, for instance, you need to:
 
 1. Declare a contract on the network
-2. Deploy a instance of that declared contract
+2. Deploy an instance of that declared contract
 
 For detailed API description, see [declare command reference](../../cli-reference.md#declare).
 

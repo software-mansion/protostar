@@ -23,7 +23,7 @@ To provide your account details when running Protostar commands, these arguments
   or decimal
   format.
 
-If you prefer not to store private key in a file, define a `PROTOSTAR_ACCOUNT_PRIVATE_KEY`
+If you prefer not to store your private key in a file, define a `PROTOSTAR_ACCOUNT_PRIVATE_KEY`
 environment variable. Protostar will use that variable for the private key automatically when running commands.
 
 ## Using a custom signer class

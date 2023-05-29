@@ -1,6 +1,6 @@
 # Scripting
 
-In order to automate a process that includes Protostar operations, you may want to build a script in language of your
+In order to automate a process that includes Protostar operations, you may want to build a script in the language of your
 choice.
 
 This tutorial shows a simple example of how to do such a thing using scripting in bash.
@@ -32,7 +32,7 @@ my_project/
 
 #### The contract
 
-`protostar init` automatically fills generated files with sample content. We're not going to change them, because the
+`protostar init` automatically fills generated files with sample content. We're not going to change them because the
 example contract is sufficient for us, and it is not important for this tutorial what it does exactly.
 
 #### protostar.toml file
@@ -50,7 +50,7 @@ In these sections, you can specify properties like `network`, `account-address`,
 
 ### Bash script
 
-#### Setup the script
+#### Set up the script
 
 Let's start with something like this:
 
@@ -73,7 +73,7 @@ protostar build
 protostar test
 ```
 
-These two instructions assure that the contract builds properly and all tests pass.
+These two instructions ensure that the contract builds properly and all tests pass.
 
 #### Declare and deploy the contract
 
@@ -105,7 +105,7 @@ we get an output like this:
 
 :::note
 The `--json` output is, in fact, formatted in [NDJSON](https://github.com/ndjson/ndjson-spec), but here we operate on
-commands that return a single message, therefore we can treat them as JSONs.
+commands that return a single message, therefore, we can treat them as JSONs.
 :::
 
 Now, we can parse the json and pull all the desired information from it easily as json is a format that is widely
@@ -159,7 +159,7 @@ CONTRACT_ADDRESS=$(python -c "import sys, json; print(json.loads(sys.argv[1])['c
 protostar call --contract-address $CONTRACT_ADDRESS --function get_balance
 ```
 
-Of course, we could exclude pulling a specific field from the output to a separate bash function but that's not
+Of course, we could exclude pulling a specific field from the output to a separate bash function, but that's not
 important.
 
 Using the `--json` flag may also be good if you prefer the more compressed output from protostar commands.

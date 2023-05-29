@@ -1,8 +1,8 @@
 # Reproducing failures
 
-An important aspect of developing code with a fuzz testing suite, is how to reproduce failing test
+An important aspect of developing code with a fuzz testing suite is how to reproduce failing test
 cases.
-As for now, Protostar provides one mean of achieving this.
+As for now, Protostar provides means of achieving this.
 
 ## Reproducing a test run with seed
 

@@ -4,7 +4,7 @@
 def reflect(ids) -> Reflector:
 ```
 
-Loads specified Cairo object into a Python type. `reflect` is a function that takes in `ids` and returns `Reflector` object that behaves simillarly. To retrieve the value use `get()` method which can return:
+Loads specified a Cairo object into a Python type. `reflect` is a function that takes in `ids` and returns `Reflector` object that behaves simillarly. To retrieve the value use `get()` method which can return:
 
 - `int` (for felt)
 - `RelocatableValue` (for pointer)

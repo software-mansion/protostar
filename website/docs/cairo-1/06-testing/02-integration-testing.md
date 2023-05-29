@@ -9,7 +9,7 @@ Using [unit testing](./01-unit-testing.md) as much as possible is a good practic
 In this section, you will learn how to deploy and interact with a smart contract in Protostar for testing purposes. 
 
 ## How to test a contract
-To test a contract you need to use an important Protostar feature: [cheatcodes](./03-cheatcodes.md). Cheatcodes are additional library functions that Protostar exposes to help you with testing.
+To test a contract, you need to use an important Protostar feature: [cheatcodes](./03-cheatcodes.md). Cheatcodes are additional library functions that Protostar exposes to help you with testing.
 
 Let's write a test which deploys and calls a contract. First let's define our contract in the file `src/lib.cairo`
 
