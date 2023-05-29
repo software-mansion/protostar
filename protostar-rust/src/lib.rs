@@ -9,12 +9,8 @@ use cairo_lang_sierra_to_casm::metadata::MetadataComputationConfig;
 
 fn run_result_value_to_string(run_result: RunResultValue) -> String {
     return match run_result {
-        RunResultValue::Success(data) => {
-            format!("Success {:?}", data)
-        }
-        RunResultValue::Panic(data) => {
-            format!("Panic {:?}", data)
-        }
+        RunResultValue::Success(data) => format!("Success {:?}", data),
+        RunResultValue::Panic(data) => format!("Panic {:?}", data),
     };
 }
 
