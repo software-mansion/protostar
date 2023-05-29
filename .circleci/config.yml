@@ -259,6 +259,7 @@ commands:
       - run:
           name: Run integration tests
           command: |
+            export PYTHONUNBUFFERED=1
             poetry run pytest -n4 --random-order scripts tests/integration
 
   run_e2e_tests:
@@ -268,6 +269,7 @@ commands:
       - run:
           name: Run e2e tests
           command: |
+            export PYTHONUNBUFFERED=1
             poetry run pytest -n4 tests/e2e
 
   notify_about_failed_test:
