@@ -14,12 +14,10 @@ fn run_result_value_to_string(run_result: RunResultValue) -> String {
     };
 }
 
-pub fn run_tests(
-    input_path: PathBuf,
-    linked_libraries: Option<Vec<LinkedLibrary>>,
-    config: &ProtostarTestConfig,
-) -> Result<()> {
-    for entry in WalkDir::new(&input_path) {
+fn collect_tests_in_directory(input_path: &PathBuf) -> Vec<PathBuf> {
+    let mut test_directories: Vec<PathBuf> = vec![];
+
+    for entry in WalkDir::new(input_path) {
         if entry.is_err() {
             continue;
         }
@@ -28,8 +26,21 @@ pub fn run_tests(
         let path = entry.path();
 
         if path.is_file() && path.extension().map_or(false, |ex| ex == "cairo") {
-            run_tests_in_file(entry.path().to_path_buf(), linked_libraries.clone())?;
+            test_directories.push(path.to_path_buf());
         }
+    }
+
+    test_directories
+}
+
+pub fn run_tests(
+    input_path: PathBuf,
+    linked_libraries: Option<Vec<LinkedLibrary>>,
+    config: &ProtostarTestConfig,
+) -> Result<()> {
+    let test_directories = collect_tests_in_directory(&input_path);
+    for test in test_directories {
+        run_tests_in_file(test, linked_libraries.clone())
     }
     Ok(())
 }
