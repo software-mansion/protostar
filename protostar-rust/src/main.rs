@@ -18,7 +18,7 @@ struct Args {
 }
 
 #[derive(Deserialize, Debug)]
-struct ProtostarConfig {
+struct ProtostarTestConfig {
     exit_first: Option<bool>,
     ignore: Option<Vec<String>>,
     json: Option<bool>,
@@ -29,7 +29,7 @@ struct ProtostarConfig {
 fn protostar_config_for_package(
     metadata: &Metadata,
     package: &PackageId,
-) -> Result<ProtostarConfig> {
+) -> Result<ProtostarTestConfig> {
     let raw_metadata = metadata
         .packages
         .iter()
@@ -38,7 +38,7 @@ fn protostar_config_for_package(
         .tool_metadata("protostar")
         .ok_or_else(|| anyhow!("Failed to find protostar config for package = {package}"))?
         .clone();
-    let protostar_config: ProtostarConfig = serde_json::from_value(raw_metadata)?;
+    let protostar_config: ProtostarTestConfig = serde_json::from_value(raw_metadata)?;
 
     Ok(protostar_config)
 }
@@ -89,6 +89,7 @@ fn main() -> Result<()> {
     );
 
     let scarb_metadata = MetadataCommand::new()
+        .current_dir("/Users/arturmichalek/Coding/protostar/protostar-rust/pkg")
         .inherit_stderr()
         .exec()?;
 
