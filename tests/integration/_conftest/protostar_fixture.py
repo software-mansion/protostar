@@ -253,7 +253,6 @@ class ProtostarFixture:
         args.seed = None
         args.report_slowest_tests = 0
         args.last_failed = last_failed
-        args.profiling = False
         args.max_steps = None
         args.estimate_gas = estimate_gas
 

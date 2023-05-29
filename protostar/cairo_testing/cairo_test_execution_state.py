@@ -69,7 +69,7 @@ class CairoTestExecutionState:
         )
 
         state_reader = PatriciaStateReader(
-            global_state_root=empty_shared_state.contract_states,
+            contract_state_root=empty_shared_state.contract_states,
             ffc=ffc,
             contract_class_storage=ffc.storage,
             contract_class_root=empty_shared_state.contract_classes,
@@ -84,7 +84,7 @@ class CairoTestExecutionState:
                             sequencer_address=general_config.sequencer_address
                         ),
                         state_reader=state_reader,
-                        contract_class_cache={},
+                        compiled_class_cache={},
                     ),
                 )
             ),
