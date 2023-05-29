@@ -68,7 +68,6 @@ fn dependencies_for_package(
 fn main() -> Result<()> {
     let args = Args::parse();
 
-    dbg!(args);
     // TODO resolve this path somehow
     set_var(
         "CARGO_MANIFEST_DIR",
