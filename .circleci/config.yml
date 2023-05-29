@@ -460,13 +460,6 @@ jobs:
           key: yarn-docs-{{ checksum "website/yarn.lock" }}
           paths:
             - ~/.cache/yarn
-      - run:
-          name: Pack docs
-          command: tar -czvf protostar-docs.tar.gz website/build
-      - persist_to_workspace:
-          root: .
-          paths:
-            - protostar-docs.tar.gz
 
   patch_approval_check:
     parameters:
@@ -522,11 +515,7 @@ workflows:
             branches:
               only:
                 - master
-      - build_docs:
-          filters:
-            branches:
-              only:
-                - master
+      - build_docs
       - send_test_release_approval:
           type: approval
           requires:
