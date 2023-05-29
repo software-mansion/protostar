@@ -1,11 +1,9 @@
-use anyhow::{anyhow, Context, Result};
-use itertools::Itertools;
-use std::path::PathBuf;
-use walkdir::WalkDir;
-
+use anyhow::{Context, Result};
 use cairo_lang_protostar::test_collector::{collect_tests, LinkedLibrary};
 use cairo_lang_runner::{RunResultValue, SierraCasmRunner};
-use cairo_lang_sierra_to_casm::metadata::MetadataComputationConfig;
+use serde::Deserialize;
+use std::path::PathBuf;
+use walkdir::WalkDir;
 
 fn run_result_value_to_string(run_result: RunResultValue) -> String {
     return match run_result {
@@ -40,7 +38,7 @@ pub fn run_tests(
 ) -> Result<()> {
     let test_directories = collect_tests_in_directory(&input_path);
     for test in test_directories {
-        run_tests_in_file(test, linked_libraries.clone())
+        run_tests_in_file(test, linked_libraries.clone())?;
     }
     Ok(())
 }
@@ -91,3 +89,12 @@ fn run_tests_in_file(
 //     m.add_wrapped(wrap_pyfunction!(run_tests))?;
 //     Ok(())
 // }
+
+#[derive(Deserialize, Debug)]
+pub struct ProtostarTestConfig {
+    exit_first: Option<bool>,
+    ignore: Option<Vec<String>>,
+    json: Option<bool>,
+    last_failed: Option<bool>,
+    report_slowest_tests: Option<bool>,
+}

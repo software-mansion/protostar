@@ -1,9 +1,8 @@
-use anyhow::{anyhow, Context, Result};
+use anyhow::{anyhow, Result};
 use cairo_lang_protostar::test_collector::LinkedLibrary;
 use clap::Parser;
-use rust_test_runner_bindings::run_tests;
-use scarb_metadata::{Metadata, MetadataCommand, PackageId, PackageMetadata};
-use serde::Deserialize;
+use rust_test_runner_bindings::{run_tests, ProtostarTestConfig};
+use scarb_metadata::{Metadata, MetadataCommand, PackageId};
 use std::env::set_var;
 use std::path::PathBuf;
 
@@ -11,19 +10,7 @@ const CONTRACT_TARGET: &str = "starknet-contract";
 
 #[derive(Parser, Debug)]
 struct Args {
-    // #[clap(required = true)]
-    // paths: Vec<PathBuf>,
-    #[arg(short, long)]
-    linked_libraries: Option<Vec<PathBuf>>,
-}
-
-#[derive(Deserialize, Debug)]
-struct ProtostarTestConfig {
-    exit_first: Option<bool>,
-    ignore: Option<Vec<String>>,
-    json: Option<bool>,
-    last_failed: Option<bool>,
-    report_slowest_tests: Option<bool>,
+    test_filter: Option<String>,
 }
 
 fn protostar_config_for_package(
@@ -82,6 +69,8 @@ fn dependencies_for_package(
 
 fn main() -> Result<()> {
     let args = Args::parse();
+
+    dbg!(args);
     // TODO resolve this path somehow
     set_var(
         "CARGO_MANIFEST_DIR",
