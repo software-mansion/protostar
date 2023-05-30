@@ -70,7 +70,11 @@ fn run_tests_in_file(
             .run_function(
                 runner.find_function(&config.name.as_str())?,
                 &[],
-                Some(usize::MAX),
+                if let Some(available_gas) = &config.available_gas {
+                    Some(available_gas.clone())
+                } else {
+                    Some(usize::MAX)
+                },
                 Default::default(),
             )
             .with_context(|| format!("Failed to run the function `{}`.", config.name.as_str()))?;
