@@ -3,7 +3,6 @@ from pathlib import Path
 from typing import Optional
 
 from protostar.cli import ProtostarArgument, ProtostarCommand
-from protostar.protostar_exception import ProtostarException
 from protostar.configuration_file.configuration_file import ConfigurationFile
 
 from protostar.cairo.bindings import protostar_rust_bindings
@@ -36,6 +35,7 @@ class TestRustCommand(ProtostarCommand):
                 description="A path to the file with tests that will be run",
                 type="str",
                 is_positional=True,
+                is_required=True,
             ),
         ]
 
@@ -48,8 +48,6 @@ class TestRustCommand(ProtostarCommand):
                     contract_name
                 )
             ]
-        if args.path is None:
-            raise ProtostarException("No tests provided")
         test_path = Path(str(args.path))
         assert test_path.exists(), f"no such test: { test_path }"
         await protostar_rust_bindings.run_tests(str(test_path), contract_paths)
