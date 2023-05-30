@@ -10,8 +10,6 @@ pub struct ProtostarTestConfig {
     #[serde(default)]
     exit_first: bool,
     #[serde(default)]
-    ignore: Vec<String>,
-    #[serde(default)]
     json: bool,
     #[serde(default)]
     last_failed: bool,
