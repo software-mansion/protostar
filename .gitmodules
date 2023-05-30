@@ -1,3 +1,6 @@
 [submodule "cairo"]
 	path = cairo
 	url = https://github.com/software-mansion-labs/cairo
+[submodule "blockifier"]
+	path = blockifier
+	url = https://github.com/karol-bisztyga/blockifier.git

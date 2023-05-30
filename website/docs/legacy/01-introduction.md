@@ -4,7 +4,7 @@ sidebar_label: Introduction
 
 # Introduction
 
-Protostar is a toolchain for developing Starknet smart contracts that helps with tasks such as [dependencies management](06-dependencies-management.md), [project compilation](05-compiling.md), and [testing contracts](07-testing/README.md).
+Protostar is a toolchain for developing Starknet smart contracts that helps with tasks such as [dependency management](06-dependency-management.md), [project compilation](05-compiling.md), and [testing contracts](07-testing/README.md).
 It is inspired by [Foundry](https://github.com/foundry-rs/foundry).
 
 ## Target audience
@@ -18,7 +18,7 @@ After reading these guides, you will know how to:
 - [Configure `protostar.toml`](03-project-initialization.md#protostartoml)
 - [Adapt an existing Starknet project to the Protostar project](03-project-initialization.md#adapting-an-existing-project-to-the-protostar-project)
 - [Compile project](05-compiling.md)
-- [Add, update, and remove dependencies](06-dependencies-management.md)
+- [Add, update, and remove dependencies](06-dependency-management.md)
 - [Test contracts using cheatcodes](07-testing/README.md)
 - [Interact with Starknet (call, invoke, deploy contracts)](09-interacting-with-starknet/README.md)
 

@@ -96,7 +96,7 @@ class ConfigurationFile(
             [
                 "You may want to update your cairo-path configuration in your configuration file.",
                 "For more information you can visit:"
-                "https://docs.swmansion.com/protostar/docs/legacy/dependencies-management#adding-a-dependency",
+                "https://docs.swmansion.com/protostar/docs/legacy/dependency-management#adding-a-dependency",
             ]
         )
 

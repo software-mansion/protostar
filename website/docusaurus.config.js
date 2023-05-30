@@ -213,7 +213,7 @@ const config = {
           from: '/docs/legacy/guides/compiling',
         },
         {
-          to: '/docs/legacy/dependencies-management',
+          to: '/docs/legacy/dependency-management',
           from: '/docs/legacy/guides/dependencies-management',
         },
         {

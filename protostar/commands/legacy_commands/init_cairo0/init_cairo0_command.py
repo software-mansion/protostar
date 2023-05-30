@@ -32,7 +32,7 @@ class InitCairo0Command(ProtostarCommand):
 
     @property
     def description(self) -> str:
-        return "Create a Protostar project with cairo0 template."
+        return "Create a Protostar project with Cairo 0 template."
 
     @property
     def example(self) -> Optional[str]:

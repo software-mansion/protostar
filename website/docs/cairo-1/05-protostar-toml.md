@@ -9,9 +9,6 @@ Here is an example `protostar.toml` file:
 [project]
 protostar-version = "PROTOSTAR_VERSION"
 
-# Shared Configuration (affects all commands)
-linked-libraries = ["hello_starknet"]
-
 # Defines contract names for the use with cheatcodes and commands
 [contracts]
 hello_starknet = ["hello_starknet"]
@@ -38,21 +35,21 @@ The `[project]` section of the `protostar.toml` file allows you to specify globa
 
 This attribute defines which Protostar version should be used with your project.
 
-#### `linked-libraries`
-
-It defines packages to be used when running tests and other commands. If a package is not included in `linked-libraries`
-trying to use it in tests will cause compilation errors.
-
 ### `[contracts]` section
 
-Define packages containing contracts to be used by protostar commands
-like [declare](../cli-reference.md#declare) and by [cheatcodes](./05-testing/03-cheatcodes.md).
+Define packages containing contracts to be used by Protostar commands
+like [declare](../cli-reference.md#declare) and by [cheatcodes](./06-testing/03-cheatcodes.md).
 
 ```toml
 [contracts]
-my_contract = ["my_contract"]
-other_contract = ["other_contract"]
+my_contract = ["my_contract_package/src"]
+other_contract = ["other_contract_package/src"]
 ```
+
+:::info
+Notice that a value assigned to a contract name key is always a path to
+`src` folder of a package defining the contract.
+:::
 
 ### Command Arguments Configuration Section
 

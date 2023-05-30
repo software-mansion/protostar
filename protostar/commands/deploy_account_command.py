@@ -107,7 +107,7 @@ class DeployAccountCommand(ProtostarCommand):
 
     @property
     def description(self) -> str:
-        return "Sends deploy-account transaction. The account contract must be already declared and prefunded."
+        return "Send a deploy-account transaction. The account contract must be already declared and prefunded."
 
     @property
     def example(self) -> Optional[str]:

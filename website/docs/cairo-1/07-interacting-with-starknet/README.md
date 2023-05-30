@@ -4,7 +4,7 @@ Protostar provides a couple of commands allowing users to interact with Starknet
 install [`cairo-lang`](https://pypi.org/project/cairo-lang/) Python package locally.
 
 Protostar offers similar CLI to [Starknet's CLI](https://docs.starknet.io/documentation/tools/CLI/commands/).
-However, with Protostar you can move deployment configuration to [`protostar.toml`](../04-protostar-toml.md) and display
+However, with Protostar you can move deployment configuration to [`protostar.toml`](../05-protostar-toml.md) and display
 help for each command.
 
 ```mdx-code-block
@@ -14,7 +14,7 @@ import {useCurrentSidebarCategory} from '@docusaurus/theme-common';
 <DocCardList items={useCurrentSidebarCategory().items}/>
 ```
 
-## Using [configuration profiles](../04-protostar-toml.md#configuration-profiles)
+## Using [configuration profiles](../05-protostar-toml.md#configuration-profiles)
 
 Configuration profiles allow you to easily reuse configuration for devnet, testnet, and mainnet networks. You can define
 a network configuration in the `protostar.toml` as demonstrated in the snippet below.

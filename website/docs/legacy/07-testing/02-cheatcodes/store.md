@@ -59,7 +59,7 @@ func test_store{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr}
 ```
 
 :::warning
-You have to provide `value` and `key` as list of ints. In the future Data Transformer will be supported.
+You have to provide `value` and `key` as list of ints. In the future, Data Transformer will be supported.
 :::
 
 :::warning

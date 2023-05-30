@@ -4,12 +4,12 @@ sidebar_label: Compilation
 
 # Compiling a Project with Protostar
 :::warning
-Compiling cairo 0 contracts is deprecated and will be removed in the future.
+Compiling Cairo 0 contracts is deprecated and will be removed in the future.
 Consider migrating your contracts to [Cairo 1](../cairo-1/01-introduction.md).
 :::
 
 :::info
-Compiling cairo 0 contracts has recently been renamed to `build-cairo0`.
+Compiling Cairo 0 contracts has recently been renamed to `build-cairo0`.
 :::
 
 To compile your Starknet contracts using Protostar, follow these steps:
@@ -49,9 +49,9 @@ protostar-project
 ```
 
 
-## Checking Cairo-lang version
+## Checking cairo-lang version
 
-Protostar ships with its own version of Cairo-lang and formatter, so you don't need to set up the environment separately. You can check the version of Cairo-lang that Protostar uses to compile your project by running `protostar -v`.
+Protostar ships with its own version of cairo-lang and formatter, so you don't need to set up the environment separately. You can check the version of Cairo-lang that Protostar uses to compile your project by running `protostar -v`.
 
 ```console
 $ protostar -v

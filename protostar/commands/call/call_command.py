@@ -43,7 +43,7 @@ class CallCommand(ProtostarCommand):
 
     @property
     def description(self) -> str:
-        return "Calls a contract on Starknet with given parameters"
+        return "Call a contract on Starknet with given parameters"
 
     @property
     def example(self) -> Optional[str]:
