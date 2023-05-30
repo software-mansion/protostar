@@ -7,11 +7,16 @@ use walkdir::WalkDir;
 
 #[derive(Deserialize, Debug)]
 pub struct ProtostarTestConfig {
-    exit_first: Option<bool>,
-    ignore: Option<Vec<String>>,
-    json: Option<bool>,
-    last_failed: Option<bool>,
-    report_slowest_tests: Option<bool>,
+    #[serde(default)]
+    exit_first: bool,
+    #[serde(default)]
+    ignore: Vec<String>,
+    #[serde(default)]
+    json: bool,
+    #[serde(default)]
+    last_failed: bool,
+    #[serde(default)]
+    report_slowest_tests: bool,
 }
 
 fn run_result_value_to_string(run_result: RunResultValue) -> String {
