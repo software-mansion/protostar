@@ -45,7 +45,7 @@ def test_failing_tests(protostar: ProtostarFixture, copy_fixture: CopyFixture):
     )
 
 
-def test_declare(protostar: ProtostarFixture, copy_fixture: CopyFixture):
+def test_declare_rust_cheatcode(protostar: ProtostarFixture, copy_fixture: CopyFixture):
     copy_fixture("cairo1_build", "./cairo1_project")
     copy_fixture(
         "cairo1/declare_test.cairo", "./cairo1_project/tests/declare_test.cairo"
@@ -53,7 +53,4 @@ def test_declare(protostar: ProtostarFixture, copy_fixture: CopyFixture):
     os.chdir("./cairo1_project")
 
     result = protostar(["test-rust", "tests/declare_test.cairo"])
-    print()
-    print("============================================ RESULT")
-    print(result)
-    print("============================================")
+    assert "declare_test::declare_test::test_declare_simple: Success []" in result

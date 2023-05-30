@@ -36,7 +36,7 @@ fn internal_run_tests(input_path: &str, test_config: ProtostarTestConfig) -> any
                 &[],
                 config.available_gas,
                 Default::default(),
-                Some(ProtostarTestConfig{ contracts_paths: test_config.contracts_paths.clone() }),
+                Some(test_config.clone()),
                 Some(state),
             )
             .with_context(|| format!("Failed to run the function `{}`.", config.name.as_str()))?;
@@ -51,12 +51,12 @@ fn internal_run_tests(input_path: &str, test_config: ProtostarTestConfig) -> any
 fn run_tests(input_path: String, contracts_paths_arg: &PyDict) -> PyResult<()> {
   let mut contracts_paths = HashMap::new();
   for key in contracts_paths_arg.keys() {
-    let paths: Vec<String> = contracts_paths_arg.get_item(key).expect("a key has to have a value").extract().unwrap();
+    let paths: Vec<String> = contracts_paths_arg.get_item(key).expect("a key has to have a value").extract().expect("extracting path failed");
     if paths.len() > 1 {
       return Err(PyValueError::new_err(format!("Cairo 1 allows only 1 path per contract name, {} detected for name {}", paths.len(), key)));
     }
     let path = paths[0].clone();
-    let key_converted: String = key.extract().unwrap();
+    let key_converted: String = key.extract().expect("key conversion failed");
     contracts_paths.insert(key_converted, path);
   }
   let test_config = ProtostarTestConfig{ contracts_paths };

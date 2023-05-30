@@ -11,7 +11,7 @@ cairo-lang-protostar = { path = "../cairo/crates/cairo-lang-protostar" }
 cairo-lang-test-runner = { path = "../cairo/crates/cairo-lang-test-runner", version = "1.0.0-alpha.2" }
 cairo-lang-runner = { path = "../cairo/crates/cairo-lang-runner", version = "1.0.0-rc0" }
 cairo-lang-sierra-to-casm = { path = "../cairo/crates/cairo-lang-sierra-to-casm", version = "1.0.0-rc0" }
-blockifier = { path = "../blockifier/crates/blockifier" }
+blockifier = { git = "https://github.com/karol-bisztyga/blockifier.git", rev="5a4c4874a0bef4e2a3b24243eb095c589f2c2802" }
 
 [lib]
 name = "rust_test_runner_bindings"

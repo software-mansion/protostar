@@ -183,7 +183,9 @@ def create_protostar_fixture(
         messenger_factory=messenger_factory,
     )
 
-    test_rust_command = TestRustCommand(contract_path_resolver=contract_path_resolver)
+    test_rust_command = TestRustCommand(
+        configuration_file=contract_path_resolver.configuration_file
+    )
 
     invoke_command = InvokeCommand(
         gateway_facade_factory=gateway_facade_factory,

@@ -217,7 +217,7 @@ def build_di_container(
             cwd=cwd,
             messenger_factory=messenger_factory,
         ),
-        TestRustCommand(contract_path_resolver=contract_path_resolver),
+        TestRustCommand(configuration_file=contract_path_resolver.configuration_file),
         DeployCommand(
             gateway_facade_factory=gateway_facade_factory,
             messenger_factory=messenger_factory,

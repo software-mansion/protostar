@@ -4,7 +4,7 @@ from typing import Optional
 
 from protostar.cli import ProtostarArgument, ProtostarCommand
 from protostar.protostar_exception import ProtostarException
-from protostar.contract_path_resolver import ContractPathResolver
+from protostar.configuration_file.configuration_file import ConfigurationFile
 
 from protostar.cairo.bindings import protostar_rust_bindings
 
@@ -12,9 +12,9 @@ from protostar.cairo.bindings import protostar_rust_bindings
 class TestRustCommand(ProtostarCommand):
     def __init__(
         self,
-        contract_path_resolver: ContractPathResolver,
+        configuration_file: ConfigurationFile,
     ):
-        self._contract_path_resolver = contract_path_resolver
+        self._configuration_file = configuration_file
 
     @property
     def name(self) -> str:
@@ -41,12 +41,10 @@ class TestRustCommand(ProtostarCommand):
 
     async def run(self, args: Namespace):
         contract_paths: dict[str, list[str]] = {}
-        for (
-            contract_name
-        ) in self._contract_path_resolver.configuration_file.get_contract_names():
+        for contract_name in self._configuration_file.get_contract_names():
             contract_paths[contract_name] = [
                 str(path)
-                for path in self._contract_path_resolver.configuration_file.get_contract_source_paths(
+                for path in self._configuration_file.get_contract_source_paths(
                     contract_name
                 )
             ]

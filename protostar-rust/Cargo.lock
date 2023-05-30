@@ -344,6 +344,7 @@ checksum = "8d696c370c750c948ada61c69a0ee2cbbb9c50b1019ddb86d9317157a99c2cae"
 [[package]]
 name = "blockifier"
 version = "0.1.0"
+source = "git+https://github.com/karol-bisztyga/blockifier.git?rev=5a4c4874a0bef4e2a3b24243eb095c589f2c2802#5a4c4874a0bef4e2a3b24243eb095c589f2c2802"
 dependencies = [
  "cairo-felt",
  "cairo-lang-casm 1.1.0",
