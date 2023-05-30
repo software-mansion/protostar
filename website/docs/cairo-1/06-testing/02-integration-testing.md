@@ -9,7 +9,7 @@ Using [unit testing](./01-unit-testing.md) as much as possible is a good practic
 In this section, you will learn how to deploy and interact with a smart contract in Protostar for testing purposes. 
 
 ## How to test a contract
-To test a contract you need to use an important Protostar feature:  [cheatcodes](./03-cheatcodes.md). Cheatcodes are additional library functions that Protostar exposes to help you with testing.
+To test a contract, you need to use an important Protostar feature: [cheatcodes](./03-cheatcodes.md). Cheatcodes are additional library functions that Protostar exposes to help you with testing.
 
 Let's write a test which deploys and calls a contract. First let's define our contract in the file `src/lib.cairo`
 
@@ -23,7 +23,7 @@ mod MinimalContract {
 }
 ```
 
-You need to define contract in [protostar.toml](../04-protostar-toml.md) configuration
+You need to define contract in [protostar.toml](../05-protostar-toml.md) configuration
 file. Add it to the `[contracts]` section
 ```toml title="Configuration file"
 [contracts]
@@ -147,12 +147,12 @@ fn test_prank_constructor() {
 ```
 
 ## Under the hood
-You may ask, where the contract has been deployed? Protostar comes with a local Starknet instance which you can use to test your contracts. 
+You may ask where the contract has been deployed? Protostar comes with a local Starknet instance which you can use to test your contracts. 
 To encourage good testing practices, each test case starts with a fresh Starknet instance. 
 
 When Starknet instance is accessed through cheatcodes, it is analogous to accessing real Starknet through gateway. An example consequence of this behavior is that `get_caller_address` will return `0` in the called contract.
 
-## Old cairo contracts
+## Old Cairo contracts
 
 Protostar allows you to test contracts written in old cairo. You can use cheatcode [declare_cairo0](./cheatcodes-reference/declare-cairo0.md) to declare them.
 

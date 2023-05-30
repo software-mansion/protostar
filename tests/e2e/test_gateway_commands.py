@@ -260,7 +260,7 @@ def test_declaring_cairo1_contract(
 
 
 def test_deploy_account_is_available(protostar: ProtostarFixture):
-    assert "Sends deploy-account transaction" in protostar(
+    assert "Send a deploy-account transaction" in protostar(
         ["--no-color", "deploy-account", "--help"]
     )
 

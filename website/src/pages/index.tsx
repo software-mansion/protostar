@@ -12,7 +12,7 @@ export default function Home(): JSX.Element {
 
   return (
     <Layout
-      title={`Cairo smart contract development toolchain ${siteConfig.title}`}
+      title={`Protostar, the Cairo and Starknet smart contract development toolchain`}
       description="Protostar manages your dependencies, compiles your project, and runs test."
     >
       <HomepageHeader />

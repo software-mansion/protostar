@@ -8,7 +8,7 @@ sidebar_label: Dependencies
 
 :::note
 As a temporary solution, Protostar is using git submodules to manage dependencies. 
-We recommend migrating your dependency management to [Scarb](https://github.com/software-mansion/scarb).
+We recommend migrating your dependency management to [Scarb](https://docs.swmansion.com/scarb).
 :::
 
 ## Adding a dependency

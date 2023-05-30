@@ -1,7 +1,7 @@
 # Cheatcodes reference
 
 Some tests require specific setup beyond what is possible using standard flow. Protostar exposes
-additional functions called cheatcodes that let you do modify the state beyond what is normally possible.
+additional functions called cheatcodes that let you modify the state beyond what is normally possible.
 
 Cheatcodes do not require any specific imports or `use` declarations.
 

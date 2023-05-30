@@ -3,7 +3,7 @@ sidebar_label: Unit testing
 ---
 
 # Unit testing
-Protostar lets you test standalone cairo functions. This technique is referred to as unit testing. You should write as many unit tests as possible as these are **much faster** than [integration tests](./02-integration-testing.md).
+Protostar lets you test standalone Cairo functions. This technique is referred to as unit testing. You should write as many unit tests as possible as these are **much faster** than [integration tests](./02-integration-testing.md).
 
 ## Writing your first test
 
@@ -62,4 +62,4 @@ fn test_panic_single_value() {
 }
 ```
 
-Of course, if any of the functions you call from tests will *panic*, your test will fail as well.
+Of course, if any of the functions you call from tests *panics*, your test will fail as well.

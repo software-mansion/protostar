@@ -40,7 +40,7 @@ See [signing](./01-invoke.md#signing) for more details.
 :::note
 If you need to print machine-readable output in JSON format, you should use `--json` flag.
 
-This may come in handy for writing scripts that include protostar commands.
+This may come in handy for writing scripts that include Protostar commands.
 
 For more information, go to [this page](./08-scripting.md)
 :::

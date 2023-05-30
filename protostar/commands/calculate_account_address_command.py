@@ -35,7 +35,7 @@ class CalculateAccountAddressCommand(ProtostarCommand):
     def description(self) -> str:
         return (
             "In order to create an account, you need to prefund the account. "
-            "To prefund the account you need to know its address. "
+            "To prefund the account, you need to know its address. "
             "This command calculates the account address."
         )
 
