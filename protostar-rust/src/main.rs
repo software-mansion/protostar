@@ -4,7 +4,7 @@ use clap::Parser;
 use rust_test_runner_bindings::{run_tests, ProtostarTestConfig};
 use scarb_metadata::{Metadata, MetadataCommand, PackageId};
 use std::env::set_var;
-use std::path::PathBuf;
+use camino::Utf8PathBuf;
 
 #[derive(Parser, Debug)]
 struct Args {
@@ -31,7 +31,7 @@ fn protostar_config_for_package(
 fn dependencies_for_package(
     metadata: &Metadata,
     package: &PackageId,
-) -> Result<(PathBuf, Vec<LinkedLibrary>)> {
+) -> Result<(Utf8PathBuf, Vec<LinkedLibrary>)> {
     let compilation_unit = metadata
         .compilation_units
         .iter()
@@ -49,8 +49,7 @@ fn dependencies_for_package(
         .find(|p| p.id == *package)
         .ok_or_else(|| anyhow!("Failed to find metadata for package = {package}"))?
         .root
-        .clone()
-        .into_std_path_buf();
+        .clone();
 
     let dependencies = compilation_unit
         .components

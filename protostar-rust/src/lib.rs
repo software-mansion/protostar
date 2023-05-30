@@ -1,8 +1,8 @@
-use anyhow::{Context, Result};
+use anyhow::{anyhow, Context, Result};
 use cairo_lang_protostar::test_collector::{collect_tests, LinkedLibrary};
 use cairo_lang_runner::{RunResultValue, SierraCasmRunner};
+use camino::{Utf8Path, Utf8PathBuf};
 use serde::Deserialize;
-use std::path::PathBuf;
 use walkdir::WalkDir;
 
 #[derive(Deserialize, Debug)]
@@ -21,18 +21,19 @@ fn run_result_value_to_string(run_result: RunResultValue) -> String {
     };
 }
 
-fn collect_tests_in_directory(input_path: &PathBuf) -> Result<Vec<PathBuf>> {
-    let mut test_directories: Vec<PathBuf> = vec![];
+fn collect_tests_in_directory(input_path: &Utf8PathBuf) -> Result<Vec<Utf8PathBuf>> {
+    let mut test_directories: Vec<Utf8PathBuf> = vec![];
 
     for entry in WalkDir::new(input_path) {
-        let entry = entry.context(format!(
-            "Failed to read directory at path = {}",
-            input_path.display()
-        ))?;
+        let entry = entry.context(format!("Failed to read directory at path = {}", input_path))?;
         let path = entry.path();
 
         if path.is_file() && path.extension().unwrap_or_default() == "cairo" {
-            test_directories.push(path.to_path_buf());
+            test_directories.push(
+                Utf8Path::from_path(path)
+                    .context(format!("Failed to convert path = {:?} to utf-8", path))?
+                    .to_path_buf(),
+            );
         }
     }
 
@@ -40,7 +41,7 @@ fn collect_tests_in_directory(input_path: &PathBuf) -> Result<Vec<PathBuf>> {
 }
 
 pub fn run_tests(
-    input_path: PathBuf,
+    input_path: Utf8PathBuf,
     linked_libraries: Option<Vec<LinkedLibrary>>,
     config: &ProtostarTestConfig,
 ) -> Result<()> {
@@ -52,17 +53,13 @@ pub fn run_tests(
 }
 
 fn run_tests_in_file(
-    input_path: PathBuf,
+    input_path: Utf8PathBuf,
     linked_libraries: Option<Vec<LinkedLibrary>>,
 ) -> Result<()> {
     let builtins = vec!["GasBuiltin", "Pedersen", "RangeCheck", "bitwise", "ec_op"];
 
-    let (sierra_program, test_configs) = collect_tests(
-        input_path.to_str().unwrap(),
-        None,
-        linked_libraries,
-        Some(builtins),
-    )?;
+    let (sierra_program, test_configs) =
+        collect_tests(input_path.as_str(), None, linked_libraries, Some(builtins))?;
 
     let runner =
         SierraCasmRunner::new(sierra_program, Some(Default::default()), Default::default())
