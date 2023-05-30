@@ -105,6 +105,9 @@ shell = "pytest -n auto protostar/*"
 target-version = [
     "py39",
 ]
+exclude = '''
+starknet_in_rust
+'''
 
 [tool.isort]
 profile = "black"

@@ -21,6 +21,7 @@ from protostar.commands import (
     MulticallCommand,
     DeclareCairo0Command,
     TestCairo0Command,
+    TestRustCommand,
     BuildCairo0Command,
     InitCairo0Command,
 )
@@ -61,6 +62,7 @@ class ProtostarFixture:
         declare_cairo0_command: DeclareCairo0Command,
         deploy_command: DeployCommand,
         test_command: TestCommand,
+        test_rust_command: TestRustCommand,
         test_cairo0_command: TestCairo0Command,
         invoke_command: InvokeCommand,
         call_command: CallCommand,
@@ -82,6 +84,7 @@ class ProtostarFixture:
         self._declare_cairo0_command = declare_cairo0_command
         self._deploy_command = deploy_command
         self._test_command = test_command
+        self._test_rust_command = test_rust_command
         self._test_cairo0_command = test_cairo0_command
         self._invoke_command = invoke_command
         self._calculate_account_address_command = calculate_account_address_command
