@@ -57,7 +57,7 @@ fn run_tests_in_file(
 
     let runner =
         SierraCasmRunner::new(sierra_program, Some(Default::default()), Default::default())
-            .with_context(|| "Failed setting up runner.")?;
+            .context("Failed setting up runner.")?;
 
     for config in &test_configs {
         let result = runner
