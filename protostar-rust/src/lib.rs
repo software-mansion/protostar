@@ -80,17 +80,3 @@ fn run_tests_in_file(
     }
     Ok(())
 }
-
-// #[pyfunction]
-// fn run_tests(input_path: String) -> PyResult<()> {
-//     internal_run_tests(&input_path.to_owned())
-//         .map_err(|e| PyErr::new::<RuntimeError, _>(format!("{:?}", e)))?;
-//
-//     Ok(())
-// }
-//
-// #[pymodule]
-// fn rust_test_runner_bindings(_py: Python, m: &PyModule) -> PyResult<()> {
-//     m.add_wrapped(wrap_pyfunction!(run_tests))?;
-//     Ok(())
-// }
