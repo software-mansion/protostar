@@ -12,15 +12,14 @@ fn run_result_value_to_string(run_result: RunResultValue) -> String {
     };
 }
 
-fn collect_tests_in_directory(input_path: &PathBuf) -> Vec<PathBuf> {
+fn collect_tests_in_directory(input_path: &PathBuf) -> Result<Vec<PathBuf>> {
     let mut test_directories: Vec<PathBuf> = vec![];
 
     for entry in WalkDir::new(input_path) {
-        if entry.is_err() {
-            continue;
-        }
-
-        let entry = entry.unwrap();
+        let entry = entry.context(format!(
+            "Failed to read directory at path = {}",
+            input_path.display()
+        ))?;
         let path = entry.path();
 
         if path.is_file() && path.extension().map_or(false, |ex| ex == "cairo") {
@@ -28,7 +27,7 @@ fn collect_tests_in_directory(input_path: &PathBuf) -> Vec<PathBuf> {
         }
     }
 
-    test_directories
+    Ok(test_directories)
 }
 
 pub fn run_tests(
@@ -36,7 +35,7 @@ pub fn run_tests(
     linked_libraries: Option<Vec<LinkedLibrary>>,
     config: &ProtostarTestConfig,
 ) -> Result<()> {
-    let test_directories = collect_tests_in_directory(&input_path);
+    let test_directories = collect_tests_in_directory(&input_path)?;
     for test in test_directories {
         run_tests_in_file(test, linked_libraries.clone())?;
     }
