@@ -22,7 +22,7 @@ fn collect_tests_in_directory(input_path: &PathBuf) -> Result<Vec<PathBuf>> {
         ))?;
         let path = entry.path();
 
-        if path.is_file() && path.extension().map_or(false, |ex| ex == "cairo") {
+        if path.is_file() && path.extension().unwrap_or_default() == "cairo" {
             test_directories.push(path.to_path_buf());
         }
     }
