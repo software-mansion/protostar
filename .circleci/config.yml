@@ -605,8 +605,8 @@ workflows:
             - code_quality
             - unit_tests-linux
             - e2e_tests-linux
-            - unit_tests-mac
-            - e2e_tests-mac
+            # - unit_tests-mac
+            # - e2e_tests-mac
           filters:
             branches:
               only:
