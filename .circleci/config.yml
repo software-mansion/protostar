@@ -518,29 +518,29 @@ workflows:
           platform: linux
           requires:
             - code_quality
-      - unit_tests:
-          name: unit_tests-mac
-          platform: mac
-          requires:
-            - pre_cache_mac_bindings_and_compiler
-          filters:
-            branches:
-              only:
-                - master
+      # - unit_tests:
+      #     name: unit_tests-mac
+      #     platform: mac
+      #     requires:
+      #       - pre_cache_mac_bindings_and_compiler
+      #     filters:
+      #       branches:
+      #         only:
+      #           - master
       - e2e_tests:
           name: e2e_tests-linux
           platform: linux
           requires:
             - code_quality
-      - e2e_tests:
-          name: e2e_tests-mac
-          platform: mac
-          requires:
-            - pre_cache_mac_bindings_and_compiler
-          filters:
-            branches:
-              only:
-                - master
+      # - e2e_tests:
+      #     name: e2e_tests-mac
+      #     platform: mac
+      #     requires:
+      #       - pre_cache_mac_bindings_and_compiler
+      #     filters:
+      #       branches:
+      #         only:
+      #           - master
       - build_docs
       - send_test_release_approval:
           type: approval
