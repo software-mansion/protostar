@@ -5,6 +5,15 @@ use serde::Deserialize;
 use std::path::PathBuf;
 use walkdir::WalkDir;
 
+#[derive(Deserialize, Debug)]
+pub struct ProtostarTestConfig {
+    exit_first: Option<bool>,
+    ignore: Option<Vec<String>>,
+    json: Option<bool>,
+    last_failed: Option<bool>,
+    report_slowest_tests: Option<bool>,
+}
+
 fn run_result_value_to_string(run_result: RunResultValue) -> String {
     return match run_result {
         RunResultValue::Success(data) => format!("Success {:?}", data),
@@ -88,12 +97,3 @@ fn run_tests_in_file(
 //     m.add_wrapped(wrap_pyfunction!(run_tests))?;
 //     Ok(())
 // }
-
-#[derive(Deserialize, Debug)]
-pub struct ProtostarTestConfig {
-    exit_first: Option<bool>,
-    ignore: Option<Vec<String>>,
-    json: Option<bool>,
-    last_failed: Option<bool>,
-    report_slowest_tests: Option<bool>,
-}
