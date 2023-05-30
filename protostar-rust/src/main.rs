@@ -1,10 +1,10 @@
 use anyhow::{anyhow, Result};
 use cairo_lang_protostar::test_collector::LinkedLibrary;
+use camino::Utf8PathBuf;
 use clap::Parser;
 use rust_test_runner_bindings::{run_tests, ProtostarTestConfig};
 use scarb_metadata::{Metadata, MetadataCommand, PackageId};
 use std::env::set_var;
-use camino::Utf8PathBuf;
 
 #[derive(Parser, Debug)]
 struct Args {
@@ -16,9 +16,7 @@ fn protostar_config_for_package(
     package: &PackageId,
 ) -> Result<ProtostarTestConfig> {
     let raw_metadata = metadata
-        .packages
-        .iter()
-        .find(|pk| pk.id == *package)
+        .get_package(package)
         .ok_or_else(|| anyhow!("Failed to find metadata for package = {package}"))?
         .tool_metadata("protostar")
         .ok_or_else(|| anyhow!("Failed to find protostar config for package = {package}"))?
@@ -44,9 +42,7 @@ fn dependencies_for_package(
         .ok_or_else(|| anyhow!("Failed to find metadata for package = {package}"))?;
 
     let base_path = metadata
-        .packages
-        .iter()
-        .find(|p| p.id == *package)
+        .get_package(package)
         .ok_or_else(|| anyhow!("Failed to find metadata for package = {package}"))?
         .root
         .clone();
@@ -73,9 +69,7 @@ fn main() -> Result<()> {
         "/Users/arturmichalek/Coding/protostar/cairo/Cargo.toml",
     );
 
-    let scarb_metadata = MetadataCommand::new()
-        .inherit_stderr()
-        .exec()?;
+    let scarb_metadata = MetadataCommand::new().inherit_stderr().exec()?;
 
     for package in &scarb_metadata.workspace.members {
         let protostar_config = protostar_config_for_package(&scarb_metadata, package)?;
