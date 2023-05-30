@@ -28,13 +28,14 @@ fn collect_tests_in_directory(input_path: &Utf8PathBuf) -> Result<Vec<Utf8PathBu
     let mut test_directories: Vec<Utf8PathBuf> = vec![];
 
     for entry in WalkDir::new(input_path) {
-        let entry = entry.context(format!("Failed to read directory at path = {}", input_path))?;
+        let entry =
+            entry.with_context(|| format!("Failed to read directory at path = {}", input_path))?;
         let path = entry.path();
 
         if path.is_file() && path.extension().unwrap_or_default() == "cairo" {
             test_directories.push(
                 Utf8Path::from_path(path)
-                    .context(format!("Failed to convert path = {:?} to utf-8", path))?
+                    .with_context(|| format!("Failed to convert path = {:?} to utf-8", path))?
                     .to_path_buf(),
             );
         }
