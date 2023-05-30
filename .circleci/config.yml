@@ -265,7 +265,12 @@ commands:
     description: "Run unit tests"
     steps:
       - run:
-          command: poetry run pytest -n4 protostar/*
+          command: |
+            if [[ $(uname -s) == 'Darwin' ]]; then
+              poetry run pytest protostar/*
+            else
+              poetry run pytest -n4 protostar/*
+            fi
 
   run_integration_tests:
     description: "Run integration tests"
@@ -273,8 +278,12 @@ commands:
       - run:
           name: Run integration tests
           command: |
-            export PYTHONUNBUFFERED=1
-            poetry run pytest -n4 --random-order scripts tests/integration
+            if [[ $(uname -s) == 'Darwin' ]]; then
+              poetry run pytest --random-order scripts tests/integration
+            else
+              poetry run pytest -n4 --random-order scripts tests/integration
+            fi
+
 
   run_e2e_tests:
     description: "Run unit tests"
@@ -283,8 +292,11 @@ commands:
       - run:
           name: Run e2e tests
           command: |
-            export PYTHONUNBUFFERED=1
-            poetry run pytest -n4 tests/e2e
+            if [[ $(uname -s) == 'Darwin' ]]; then
+              poetry run pytest tests/e2e
+            else
+              poetry run pytest -n4 tests/e2e
+            fi
 
   notify_about_failed_test:
     description: "Send slack notification about failed test on master"
