@@ -3,9 +3,9 @@ use std::fmt::Debug;
 
 use anyhow::{Context, Result};
 use camino::{Utf8Path, Utf8PathBuf};
+use scarb_metadata::{Metadata, PackageId};
 use serde::Deserialize;
 use walkdir::WalkDir;
-use scarb_metadata::{Metadata, PackageId};
 
 use cairo_lang_protostar::casm_generator::TestConfig;
 use cairo_lang_protostar::test_collector::{collect_tests, LinkedLibrary};
@@ -130,11 +130,6 @@ fn run_tests(tests: TestsFromFile, tests_stats: &mut TestsStats) -> Result<()> {
     Ok(())
 }
 
-#[cfg(test)]
-mod tests {
-    
-}
-
 pub fn protostar_config_for_package(
     metadata: &Metadata,
     package: &PackageId,
@@ -182,4 +177,115 @@ pub fn dependencies_for_package(
         .collect();
 
     Ok((base_path, dependencies))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use anyhow::Result;
+    use assert_fs::fixture::{FileWriteStr, PathChild, PathCopy};
+    use scarb_metadata::MetadataCommand;
+
+    #[test]
+    fn get_dependencies_for_package() -> Result<()> {
+        let temp = assert_fs::TempDir::new().unwrap();
+        temp.copy_from("pkg", &["*"]).unwrap();
+        let scarb_metadata = MetadataCommand::new()
+            .inherit_stderr()
+            .current_dir(temp.path())
+            .exec()?;
+
+        let (_, dependencies) =
+            dependencies_for_package(&scarb_metadata, &scarb_metadata.workspace.members[0])?;
+
+        // TODO consider some assert for returned path (_)
+        assert!(dependencies.len() > 0);
+        Ok(())
+    }
+
+    #[test]
+    fn get_dependencies_for_package_err_on_invalid_package() -> Result<()> {
+        let temp = assert_fs::TempDir::new().unwrap();
+        temp.copy_from("pkg", &["*"]).unwrap();
+        let scarb_metadata = MetadataCommand::new()
+            .inherit_stderr()
+            .current_dir(temp.path())
+            .exec()?;
+
+        let result =
+            dependencies_for_package(&scarb_metadata, &PackageId::from(String::from("12345679")));
+        let err = result.unwrap_err();
+
+        assert!(format!("{}", err).contains("Failed to find metadata for package"));
+
+        Ok(())
+    }
+
+    #[test]
+    fn get_protostar_config_for_package() -> Result<()> {
+        let temp = assert_fs::TempDir::new().unwrap();
+        temp.copy_from("pkg", &["*"]).unwrap();
+        let scarb_metadata = MetadataCommand::new()
+            .inherit_stderr()
+            .current_dir(temp.path())
+            .exec()?;
+
+        let config =
+            protostar_config_for_package(&scarb_metadata, &scarb_metadata.workspace.members[0])?;
+
+        assert_eq!(
+            config,
+            ProtostarTestConfig {
+                exit_first: false,
+                json: false,
+                last_failed: false,
+                report_slowest_tests: false,
+            }
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn get_protostar_config_for_package_err_on_invalid_package() -> Result<()> {
+        let temp = assert_fs::TempDir::new().unwrap();
+        temp.copy_from("pkg", &["*"]).unwrap();
+        let scarb_metadata = MetadataCommand::new()
+            .inherit_stderr()
+            .current_dir(temp.path())
+            .exec()?;
+
+        let result = protostar_config_for_package(
+            &scarb_metadata,
+            &PackageId::from(String::from("12345679")),
+        );
+        let err = result.unwrap_err();
+
+        assert!(format!("{}", err).contains("Failed to find metadata for package"));
+
+        Ok(())
+    }
+
+    #[test]
+    fn get_protostar_config_for_package_err_on_missing_config() -> Result<()> {
+        let temp = assert_fs::TempDir::new().unwrap();
+        temp.copy_from("pkg", &["*"]).unwrap();
+        let content = "[package]
+name = \"pkg\"
+version = \"0.1.0\"";
+        temp.child("Scarb.toml").write_str(content)?;
+
+        let scarb_metadata = MetadataCommand::new()
+            .inherit_stderr()
+            .current_dir(temp.path())
+            .exec()?;
+
+        let result =
+            protostar_config_for_package(&scarb_metadata, &scarb_metadata.workspace.members[0]);
+        let err = result.unwrap_err();
+
+        assert!(format!("{}", err).contains("Failed to find protostar config for package"));
+
+        Ok(())
+    }
 }
