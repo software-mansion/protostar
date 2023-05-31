@@ -32,8 +32,6 @@ fn internal_run_tests(input_path: &str) -> anyhow::Result<()> {
                 &[],
                 config.available_gas,
                 Default::default(),
-                None,
-                None,
             )
             .with_context(|| format!("Failed to run the function `{}`.", config.name.as_str()))?;
         let name = config.name.clone();

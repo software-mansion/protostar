@@ -51,7 +51,6 @@ from protostar.commands import (
     InstallCommand,
     RemoveCommand,
     TestCommand,
-    TestRustCommand,
     UpdateCommand,
     UpgradeCommand,
 )
