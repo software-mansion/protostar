@@ -137,13 +137,13 @@ pub fn dependencies_for_package(
 mod tests {
     use super::*;
     use anyhow::Result;
-    use assert_fs::fixture::{FileWriteStr, PathChild, PathCopy};
+    use assert_fs::fixture::{FileTouch, FileWriteStr, PathChild, PathCopy};
     use scarb_metadata::MetadataCommand;
 
     #[test]
     fn get_dependencies_for_package() -> Result<()> {
         let temp = assert_fs::TempDir::new().unwrap();
-        temp.copy_from("pkg", &["*"]).unwrap();
+        temp.copy_from("pkg", &["**/*"]).unwrap();
         let scarb_metadata = MetadataCommand::new()
             .inherit_stderr()
             .current_dir(temp.path())
@@ -160,7 +160,7 @@ mod tests {
     #[test]
     fn get_dependencies_for_package_err_on_invalid_package() -> Result<()> {
         let temp = assert_fs::TempDir::new().unwrap();
-        temp.copy_from("pkg", &["*"]).unwrap();
+        temp.copy_from("pkg", &["**/*"]).unwrap();
         let scarb_metadata = MetadataCommand::new()
             .inherit_stderr()
             .current_dir(temp.path())
@@ -178,7 +178,7 @@ mod tests {
     #[test]
     fn get_protostar_config_for_package() -> Result<()> {
         let temp = assert_fs::TempDir::new().unwrap();
-        temp.copy_from("pkg", &["*"]).unwrap();
+        temp.copy_from("pkg", &["**/*"]).unwrap();
         let scarb_metadata = MetadataCommand::new()
             .inherit_stderr()
             .current_dir(temp.path())
@@ -203,7 +203,7 @@ mod tests {
     #[test]
     fn get_protostar_config_for_package_err_on_invalid_package() -> Result<()> {
         let temp = assert_fs::TempDir::new().unwrap();
-        temp.copy_from("pkg", &["*"]).unwrap();
+        temp.copy_from("pkg", &["**/*"]).unwrap();
         let scarb_metadata = MetadataCommand::new()
             .inherit_stderr()
             .current_dir(temp.path())
@@ -223,7 +223,7 @@ mod tests {
     #[test]
     fn get_protostar_config_for_package_err_on_missing_config() -> Result<()> {
         let temp = assert_fs::TempDir::new().unwrap();
-        temp.copy_from("pkg", &["*"]).unwrap();
+        temp.copy_from("pkg", &["**/*"]).unwrap();
         let content = "[package]
 name = \"pkg\"
 version = \"0.1.0\"";
@@ -239,6 +239,31 @@ version = \"0.1.0\"";
         let err = result.unwrap_err();
 
         assert!(format!("{}", err).contains("Failed to find protostar config for package"));
+
+        Ok(())
+    }
+
+    #[test]
+    fn collecting_tests() -> Result<()> {
+        let temp = assert_fs::TempDir::new().unwrap();
+        temp.copy_from("pkg", &["**/*"]).unwrap();
+        let tests_path = Utf8PathBuf::from_path_buf(temp.to_path_buf()).unwrap();
+
+        let tests = collect_tests_in_directory(&tests_path)?;
+
+        assert!(tests.len() > 0);
+
+        Ok(())
+    }
+
+    #[test]
+    fn collecting_tests_err_on_invalid_dir() -> Result<()> {
+        let tests_path = Utf8PathBuf::from("aaee");
+
+        let result = collect_tests_in_directory(&tests_path);
+        let err = result.unwrap_err();
+
+        assert!(format!("{}", err).contains("Failed to read directory at path"));
 
         Ok(())
     }
