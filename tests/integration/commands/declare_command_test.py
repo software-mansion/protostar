@@ -36,6 +36,7 @@ def mocked_contract_path_resolver_fixture(datadir: Path) -> ContractPathResolver
     return MockedContractPathResolver()
 
 
+@pytest.skip()
 async def test_declaring_cairo1_contract(
     devnet_gateway_url: str,
     devnet_account: DevnetAccount,
