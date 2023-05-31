@@ -1,9 +1,7 @@
-use anyhow::{anyhow, Result};
-use cairo_lang_protostar::test_collector::LinkedLibrary;
-use camino::Utf8PathBuf;
+use anyhow::Result;
 use clap::Parser;
-use rust_test_runner::{run_tests, ProtostarTestConfig};
-use scarb_metadata::{Metadata, MetadataCommand, PackageId};
+use rust_test_runner::run_tests;
+use scarb_metadata::MetadataCommand;
 use std::env::set_var;
 
 #[derive(Parser, Debug)]
