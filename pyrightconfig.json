@@ -1,3 +1,0 @@
-{
-  "ignore": ["./starknet_in_rust/", "./blockifier/"]
-}

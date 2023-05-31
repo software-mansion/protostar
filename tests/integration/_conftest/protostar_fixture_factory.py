@@ -20,7 +20,6 @@ from protostar.commands import (
     InvokeCommand,
     MulticallCommand,
     TestCairo0Command,
-    TestRustCommand,
     DeclareCairo0Command,
 )
 from protostar.commands.deploy_account_command import DeployAccountCommand
@@ -183,8 +182,6 @@ def create_protostar_fixture(
         messenger_factory=messenger_factory,
     )
 
-    test_rust_command = TestRustCommand()
-
     invoke_command = InvokeCommand(
         gateway_facade_factory=gateway_facade_factory,
         messenger_factory=messenger_factory,
@@ -225,7 +222,6 @@ def create_protostar_fixture(
         declare_cairo0_command=declare_cairo0_command,
         deploy_command=deploy_command,
         test_command=test_command,
-        test_rust_command=test_rust_command,
         test_cairo0_command=test_cairo0_command,
         invoke_command=invoke_command,
         deploy_account_command=deploy_account_command,
