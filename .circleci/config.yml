@@ -447,8 +447,9 @@ jobs:
             if [ << parameters.prerelease >> = true ]; then
               type="--prerelease"
               name="prerelease"
+              preversion="$VERSION-pre-release"
             fi
-            gh release create "$VERSION" /tmp/workspace/*.tar.gz --title "$VERSION" --repo "$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME" $type
+            gh release create "${preversion:-$VERSION}" /tmp/workspace/*.tar.gz --title "${preversion:-$VERSION}" --repo "$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME" $type
             ./scripts/notify.sh "good" \
             "*New ${name:-"release"} has just been published* :tada:" \
             "*Version:*\n$VERSION\n\n*Approver:*\n$CIRCLE_USERNAME" "$SLACK_URL"
