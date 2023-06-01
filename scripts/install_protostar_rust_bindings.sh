@@ -6,7 +6,7 @@ function install_dev() {
   git pull --recurse-submodules
 
   pushd protostar-rust
-  rustup override set nightly-2022-11-03 || return 1;
+  rustup override set nightly-2023-06-01 || return 1;
   maturin develop --release || return 1;
   popd # protostar-rust
 }
@@ -15,7 +15,7 @@ function install_prod() {
   git pull --recurse-submodules
 
   pushd protostar-rust
-  rustup override set nightly-2022-11-03 || return 1;
+  rustup override set nightly-2023-06-01 || return 1;
   maturin build || return 1;
 
   pushd target/wheels
