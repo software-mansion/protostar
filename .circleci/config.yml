@@ -146,7 +146,7 @@ commands:
               poetry run poe install_all_bindings prod
               poetry run poe install_all_bindings
               pushd cairo
-              rustup override set nightly-2022-11-03
+              rustup override set nightly-2023-05-31
               cargo build --bin cairo-compile
               popd
             fi
