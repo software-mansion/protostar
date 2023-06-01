@@ -64,10 +64,7 @@ fn main() -> Result<()> {
     let args = Args::parse();
 
     // TODO resolve this path somehow
-    set_var(
-        "CARGO_MANIFEST_DIR",
-        "../../cairo/Cargo.toml"
-    );
+    set_var("CARGO_MANIFEST_DIR", "../../cairo/Cargo.toml");
 
     let scarb_metadata = MetadataCommand::new().inherit_stderr().exec()?;
 
