@@ -8,19 +8,13 @@ use walkdir::WalkDir;
 #[derive(Deserialize, Debug)]
 pub struct ProtostarTestConfig {
     #[serde(default)]
-    exit_first: bool,
-    #[serde(default)]
-    json: bool,
-    #[serde(default)]
-    last_failed: bool,
-    #[serde(default)]
-    report_slowest_tests: bool,
+    exit_first: bool, // TODO Not implemented!
 }
 
 fn run_result_value_to_string(run_result: RunResultValue) -> String {
     return match run_result {
-        RunResultValue::Success(data) => format!("Success {:?}", data),
-        RunResultValue::Panic(data) => format!("Panic {:?}", data),
+        RunResultValue::Success(data) => format!("PASS {:?}", data),
+        RunResultValue::Panic(data) => format!("FAIL {:?}", data),
     };
 }
 
