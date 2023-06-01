@@ -39,18 +39,6 @@ format is used to calculate `compiled_class_hash` of a contract.
 
 :::note
 If you need to print machine-readable output in JSON format, you should use `--json` flag.
-
-## Using external dependencies
-
-If your build requires using external dependencies, you can specify additional paths in the `build` command. To
-do that, you need to use the [`--linked-libraries`](../../cli-reference.md#linked-libraries-path) argument like this:
-
-```
-$ protostar build --linked-libraries /path/to/the/external/lib
-```
-
-:::note
-Provided paths must contain correctly formatted Cairo packages, otherwise build will fail.
 :::
 
 ## Compiling a single contract
