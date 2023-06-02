@@ -2,7 +2,7 @@ use anyhow::{anyhow, Result};
 use cairo_lang_protostar::test_collector::LinkedLibrary;
 use camino::Utf8PathBuf;
 use clap::Parser;
-use rust_test_runner_bindings::{run_tests, ProtostarTestConfig};
+use rust_test_runner::{run_tests, ProtostarTestConfig};
 use scarb_metadata::{Metadata, MetadataCommand, PackageId};
 use std::env::set_var;
 
@@ -63,7 +63,7 @@ fn dependencies_for_package(
 fn main() -> Result<()> {
     let args = Args::parse();
 
-    // TODO resolve this path somehow
+    // TODO #1997
     set_var("CARGO_MANIFEST_DIR", "../../cairo/Cargo.toml");
 
     let scarb_metadata = MetadataCommand::new().inherit_stderr().exec()?;

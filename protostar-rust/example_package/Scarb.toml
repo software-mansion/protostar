@@ -1,5 +1,5 @@
 [package]
-name = "pkg"
+name = "example_package"
 version = "0.1.0"
 
 [tool.protostar]

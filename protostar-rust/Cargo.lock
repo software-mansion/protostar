@@ -1929,7 +1929,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "rust_test_runner_bindings"
+name = "rust_test_runner"
 version = "1.0.0"
 dependencies = [
  "anyhow",
