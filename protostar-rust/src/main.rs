@@ -1,19 +1,28 @@
-use anyhow::Result;
+use anyhow::{Context, Result};
+use camino::Utf8PathBuf;
 use clap::Parser;
 use rust_test_runner::run_tests;
 use scarb_metadata::MetadataCommand;
-use std::env::set_var;
 
 #[derive(Parser, Debug)]
 struct Args {
     test_filter: Option<String>,
+    // TODO #1997 this is a temporary solution for tests to work, this argument
+    //  should be detected automatically
+    #[arg(short, long)]
+    corelib_path: Option<String>
 }
 
 fn main() -> Result<()> {
     let args = Args::parse();
 
     // TODO #1997
-    set_var("CARGO_MANIFEST_DIR", "../../cairo/Cargo.toml");
+    let corelib = match args.corelib_path {
+        Some(corelib) => Utf8PathBuf::from(corelib),
+        None => Utf8PathBuf::from("../../cairo/corelib/src")
+        .canonicalize_utf8()
+        .context("Failed to resolve corelib path")?,
+    };
 
     let scarb_metadata = MetadataCommand::new().inherit_stderr().exec()?;
 
@@ -23,7 +32,12 @@ fn main() -> Result<()> {
         let (base_path, dependencies) =
             rust_test_runner::dependencies_for_package(&scarb_metadata, package)?;
 
-        run_tests(base_path, Some(dependencies), &protostar_config)?;
+        run_tests(
+            base_path,
+            Some(dependencies),
+            &protostar_config,
+            Some(&corelib),
+        )?;
     }
 
     Ok(())

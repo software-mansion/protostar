@@ -43,10 +43,11 @@ pub fn run_tests(
     input_path: Utf8PathBuf,
     linked_libraries: Option<Vec<LinkedLibrary>>,
     config: &ProtostarTestConfig,
+    corelib_path: Option<&Utf8PathBuf>,
 ) -> Result<()> {
     let test_directories = collect_tests_in_directory(&input_path)?;
     for test in test_directories {
-        run_tests_in_file(test, linked_libraries.clone())?;
+        run_tests_in_file(test, linked_libraries.clone(), corelib_path)?;
     }
     Ok(())
 }
@@ -54,11 +55,18 @@ pub fn run_tests(
 fn run_tests_in_file(
     input_path: Utf8PathBuf,
     linked_libraries: Option<Vec<LinkedLibrary>>,
+    corelib_path: Option<&Utf8PathBuf>,
 ) -> Result<()> {
     let builtins = vec!["GasBuiltin", "Pedersen", "RangeCheck", "bitwise", "ec_op"];
+    let corelib_path = corelib_path.map(|corelib_path| corelib_path.as_str());
 
-    let (sierra_program, test_configs) =
-        collect_tests(input_path.as_str(), None, linked_libraries, Some(builtins))?;
+    let (sierra_program, test_configs) = collect_tests(
+        input_path.as_str(),
+        None,
+        linked_libraries,
+        Some(builtins),
+        corelib_path,
+    )?;
 
     let runner =
         SierraCasmRunner::new(sierra_program, Some(Default::default()), Default::default())
@@ -187,12 +195,7 @@ mod tests {
         let config =
             protostar_config_for_package(&scarb_metadata, &scarb_metadata.workspace.members[0])?;
 
-        assert_eq!(
-            config,
-            ProtostarTestConfig {
-                exit_first: false,
-            }
-        );
+        assert_eq!(config, ProtostarTestConfig { exit_first: false });
 
         Ok(())
     }
