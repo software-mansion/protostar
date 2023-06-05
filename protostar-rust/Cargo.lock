@@ -1750,6 +1750,7 @@ name = "rust_test_runner"
 version = "1.0.0"
 dependencies = [
  "anyhow",
+ "cairo-felt",
  "cairo-lang-protostar",
  "cairo-lang-runner",
  "cairo-lang-sierra-to-casm",

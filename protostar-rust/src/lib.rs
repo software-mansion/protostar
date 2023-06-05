@@ -1,4 +1,5 @@
-use anyhow::{anyhow, Context, Result};
+use anyhow::{Context, Result};
+use cairo_felt::Felt252;
 use cairo_lang_protostar::test_collector::{collect_tests, LinkedLibrary};
 use cairo_lang_runner::{RunResultValue, SierraCasmRunner};
 use camino::{Utf8Path, Utf8PathBuf};
@@ -11,10 +12,25 @@ pub struct ProtostarTestConfig {
     exit_first: bool, // TODO Not implemented!
 }
 
+fn data_to_text(data: Vec<Felt252>) -> String {
+    let mut readable_text = String::new();
+
+    for felt in data {
+        let felt_bytes = felt.to_bytes_be();
+        let felt_text = match std::str::from_utf8(&felt_bytes) {
+            Ok(text) => text,
+            Err(_) => "",
+        };
+        readable_text.push_str(felt_text);
+    }
+
+    readable_text
+}
+
 fn run_result_value_to_string(run_result: RunResultValue) -> String {
     return match run_result {
-        RunResultValue::Success(data) => format!("PASS {:?}", data),
-        RunResultValue::Panic(data) => format!("FAIL {:?}", data),
+        RunResultValue::Success(data) => format!("PASS {}", data_to_text(data)),
+        RunResultValue::Panic(data) => format!("FAIL {}", data_to_text(data)),
     };
 }
 
