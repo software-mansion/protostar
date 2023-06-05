@@ -149,65 +149,66 @@ mod tests {
     use scarb_metadata::MetadataCommand;
 
     #[test]
-    fn get_dependencies_for_package() -> Result<()> {
+    fn get_dependencies_for_package() {
         let temp = assert_fs::TempDir::new().unwrap();
         temp.copy_from("example_package", &["**/*"]).unwrap();
         let scarb_metadata = MetadataCommand::new()
             .inherit_stderr()
             .current_dir(temp.path())
-            .exec()?;
+            .exec()
+            .unwrap();
 
         let (_, dependencies) =
-            dependencies_for_package(&scarb_metadata, &scarb_metadata.workspace.members[0])?;
+            dependencies_for_package(&scarb_metadata, &scarb_metadata.workspace.members[0])
+                .unwrap();
 
         // TODO consider some assert for returned path (_)
         assert!(dependencies.len() > 0);
-        Ok(())
     }
 
     #[test]
-    fn get_dependencies_for_package_err_on_invalid_package() -> Result<()> {
+    fn get_dependencies_for_package_err_on_invalid_package() {
         let temp = assert_fs::TempDir::new().unwrap();
         temp.copy_from("example_package", &["**/*"]).unwrap();
         let scarb_metadata = MetadataCommand::new()
             .inherit_stderr()
             .current_dir(temp.path())
-            .exec()?;
+            .exec()
+            .unwrap();
 
         let result =
             dependencies_for_package(&scarb_metadata, &PackageId::from(String::from("12345679")));
         let err = result.unwrap_err();
 
         assert!(format!("{}", err).contains("Failed to find metadata for package"));
-
-        Ok(())
     }
 
     #[test]
-    fn get_protostar_config_for_package() -> Result<()> {
+    fn get_protostar_config_for_package() {
         let temp = assert_fs::TempDir::new().unwrap();
         temp.copy_from("example_package", &["**/*"]).unwrap();
         let scarb_metadata = MetadataCommand::new()
             .inherit_stderr()
             .current_dir(temp.path())
-            .exec()?;
+            .exec()
+            .unwrap();
 
         let config =
-            protostar_config_for_package(&scarb_metadata, &scarb_metadata.workspace.members[0])?;
+            protostar_config_for_package(&scarb_metadata, &scarb_metadata.workspace.members[0])
+                .unwrap();
 
         assert_eq!(config, ProtostarTestConfig { exit_first: false });
-
-        Ok(())
     }
 
     #[test]
-    fn get_protostar_config_for_package_err_on_invalid_package() -> Result<()> {
+    fn get_protostar_config_for_package_err_on_invalid_package() {
         let temp = assert_fs::TempDir::new().unwrap();
         temp.copy_from("example_package", &["**/*"]).unwrap();
         let scarb_metadata = MetadataCommand::new()
             .inherit_stderr()
             .current_dir(temp.path())
-            .exec()?;
+            .exec()
+            .unwrap();
 
         let result = protostar_config_for_package(
             &scarb_metadata,
@@ -216,55 +217,48 @@ mod tests {
         let err = result.unwrap_err();
 
         assert!(format!("{}", err).contains("Failed to find metadata for package"));
-
-        Ok(())
     }
 
     #[test]
-    fn get_protostar_config_for_package_err_on_missing_config() -> Result<()> {
+    fn get_protostar_config_for_package_err_on_missing_config() {
         let temp = assert_fs::TempDir::new().unwrap();
         temp.copy_from("example_package", &["**/*"]).unwrap();
         let content = "[package]
 name = \"example_package\"
 version = \"0.1.0\"";
-        temp.child("Scarb.toml").write_str(content)?;
+        temp.child("Scarb.toml").write_str(content).unwrap();
 
         let scarb_metadata = MetadataCommand::new()
             .inherit_stderr()
             .current_dir(temp.path())
-            .exec()?;
+            .exec()
+            .unwrap();
 
         let result =
             protostar_config_for_package(&scarb_metadata, &scarb_metadata.workspace.members[0]);
         let err = result.unwrap_err();
 
         assert!(format!("{}", err).contains("Failed to find protostar config for package"));
-
-        Ok(())
     }
 
     #[test]
-    fn collecting_tests() -> Result<()> {
+    fn collecting_tests() {
         let temp = assert_fs::TempDir::new().unwrap();
         temp.copy_from("example_package", &["**/*"]).unwrap();
         let tests_path = Utf8PathBuf::from_path_buf(temp.to_path_buf()).unwrap();
 
-        let tests = collect_tests_in_directory(&tests_path)?;
+        let tests = collect_tests_in_directory(&tests_path).unwrap();
 
         assert!(tests.len() > 0);
-
-        Ok(())
     }
 
     #[test]
-    fn collecting_tests_err_on_invalid_dir() -> Result<()> {
+    fn collecting_tests_err_on_invalid_dir() {
         let tests_path = Utf8PathBuf::from("aaee");
 
         let result = collect_tests_in_directory(&tests_path);
         let err = result.unwrap_err();
 
         assert!(format!("{}", err).contains("Failed to read directory at path"));
-
-        Ok(())
     }
 }
