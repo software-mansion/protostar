@@ -21,7 +21,3 @@ scarb-metadata = "1.4.2"
 
 [lib]
 name = "rust_test_runner"
-
-[dependencies.pyo3]
-version = "0.10.1"
-features = ["extension-module"]

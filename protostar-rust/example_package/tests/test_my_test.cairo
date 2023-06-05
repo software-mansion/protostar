@@ -1,4 +1,4 @@
-use pkg::fib;
+use example_package::fib;
 
 #[test]
 fn test_my_test() {
