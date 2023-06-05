@@ -203,8 +203,8 @@ mod tests {
             dependencies_for_package(&scarb_metadata, &scarb_metadata.workspace.members[0])
                 .unwrap();
 
-        // TODO consider some assert for returned path (_)
         assert!(dependencies.len() > 0);
+        assert!(dependencies.iter().all(|dep| dep.path.exists()));
     }
 
     #[test]
