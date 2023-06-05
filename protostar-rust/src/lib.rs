@@ -3,6 +3,7 @@ use cairo_felt::Felt252;
 use cairo_lang_protostar::test_collector::{collect_tests, LinkedLibrary};
 use cairo_lang_runner::{RunResultValue, SierraCasmRunner};
 use camino::{Utf8Path, Utf8PathBuf};
+use log::info;
 use serde::Deserialize;
 use walkdir::WalkDir;
 
@@ -94,7 +95,7 @@ fn run_tests_in_file(
             .with_context(|| format!("Failed to run the function `{}`.", config.name.as_str()))?;
         let name = config.name.clone();
         let result_str = run_result_value_to_string(result.value);
-        println!("{}: {}", name, result_str);
+        info!("{}: {}", name, result_str);
     }
     Ok(())
 }

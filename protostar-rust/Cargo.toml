@@ -19,6 +19,8 @@ itertools = "0.10.5"
 walkdir = "2.3.3"
 camino = "1.1.4"
 scarb-metadata = "1.4.2"
+log = "0.4.18"
+env_logger = "0.10.0"
 
 [lib]
 name = "rust_test_runner"

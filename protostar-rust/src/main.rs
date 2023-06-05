@@ -1,7 +1,9 @@
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, Error, Result};
 use cairo_lang_protostar::test_collector::LinkedLibrary;
 use camino::Utf8PathBuf;
 use clap::Parser;
+use env_logger::{Builder, WriteStyle};
+use log::{error, info, LevelFilter};
 use rust_test_runner::{run_tests, ProtostarTestConfig};
 use scarb_metadata::{Metadata, MetadataCommand, PackageId};
 use std::env::set_var;
@@ -60,7 +62,14 @@ fn dependencies_for_package(
     Ok((base_path, dependencies))
 }
 
-fn main() -> Result<()> {
+fn initialize_logger() {
+    Builder::new()
+        .filter(Some("rust_test_runner"), LevelFilter::Info)
+        .write_style(WriteStyle::Always)
+        .init();
+}
+
+fn main_execution() -> Result<()> {
     let args = Args::parse();
 
     // TODO #1997
@@ -74,6 +83,18 @@ fn main() -> Result<()> {
 
         run_tests(base_path, Some(dependencies), &protostar_config)?;
     }
+
+    Ok(())
+}
+
+fn main() -> Result<()> {
+    initialize_logger();
+    info!("Protostar started...");
+
+    match main_execution() {
+        Err(error) => error!("{}", error),
+        _ => (),
+    };
 
     Ok(())
 }
