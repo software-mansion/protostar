@@ -8,10 +8,10 @@ pub fn runner() -> SnapboxCommand {
     snapbox
 }
 
-pub fn corelib_path() -> Result<String> {
+pub fn corelib_path() -> String {
     let corelib = Utf8PathBuf::from("../../cairo/corelib/src")
         .canonicalize_utf8()
-        .context("Failed to find corelib")?
+        .expect("Failed to find corelib")
         .to_string();
-    Ok(corelib)
+    corelib
 }
