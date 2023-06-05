@@ -33,6 +33,7 @@ struct TestsFromFile {
 fn collect_tests_from_directory(
     input_path: &Utf8PathBuf,
     linked_libraries: Option<&Vec<LinkedLibrary>>,
+    corelib_path: Option<&Utf8PathBuf>,
 ) -> Result<Vec<TestsFromFile>> {
     let mut test_files: Vec<Utf8PathBuf> = vec![];
 
@@ -50,16 +51,16 @@ fn collect_tests_from_directory(
         }
     }
 
-    internal_collect_tests(input_path, linked_libraries, test_files)
+    internal_collect_tests(input_path, linked_libraries, test_files, corelib_path)
 }
 
 fn internal_collect_tests(
     input_path: &Utf8PathBuf,
     linked_libraries: Option<&Vec<LinkedLibrary>>,
     test_files: Vec<Utf8PathBuf>,
+    corelib_path: Option<&Utf8PathBuf>,
 ) -> Result<Vec<TestsFromFile>> {
     let builtins = vec!["GasBuiltin", "Pedersen", "RangeCheck", "bitwise", "ec_op"];
-    let linked_libraries = linked_libraries.map(std::clone::Clone::clone);
 
     let mut tests = vec![];
     for ref test_file in test_files {
@@ -68,6 +69,7 @@ fn internal_collect_tests(
             None,
             linked_libraries.clone(),
             Some(builtins.clone()),
+            corelib_path,
         )?;
         let relative_path = test_file.strip_prefix(input_path)?.to_path_buf();
         tests.push(TestsFromFile {
@@ -84,8 +86,9 @@ pub fn run_test_runner(
     input_path: &Utf8PathBuf,
     linked_libraries: Option<&Vec<LinkedLibrary>>,
     config: &ProtostarTestConfig,
+    corelib_path: Option<&Utf8PathBuf>,
 ) -> Result<()> {
-    let tests = collect_tests_from_directory(input_path, linked_libraries)?;
+    let tests = collect_tests_from_directory(input_path, linked_libraries, corelib_path)?;
 
     pretty_printing::print_collected_tests_count(
         tests.iter().map(|tests| tests.tests_configs.len()).sum(),
@@ -233,12 +236,7 @@ mod tests {
         let config =
             protostar_config_for_package(&scarb_metadata, &scarb_metadata.workspace.members[0])?;
 
-        assert_eq!(
-            config,
-            ProtostarTestConfig {
-                exit_first: false,
-            }
-        );
+        assert_eq!(config, ProtostarTestConfig { exit_first: false });
 
         Ok(())
     }
