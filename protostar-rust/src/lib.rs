@@ -189,7 +189,7 @@ mod tests {
     #[test]
     fn get_dependencies_for_package() -> Result<()> {
         let temp = assert_fs::TempDir::new().unwrap();
-        temp.copy_from("pkg", &["**/*"]).unwrap();
+        temp.copy_from("example_package", &["**/*"]).unwrap();
         let scarb_metadata = MetadataCommand::new()
             .inherit_stderr()
             .current_dir(temp.path())
@@ -206,7 +206,7 @@ mod tests {
     #[test]
     fn get_dependencies_for_package_err_on_invalid_package() -> Result<()> {
         let temp = assert_fs::TempDir::new().unwrap();
-        temp.copy_from("pkg", &["**/*"]).unwrap();
+        temp.copy_from("example_package", &["**/*"]).unwrap();
         let scarb_metadata = MetadataCommand::new()
             .inherit_stderr()
             .current_dir(temp.path())
@@ -224,7 +224,7 @@ mod tests {
     #[test]
     fn get_protostar_config_for_package() -> Result<()> {
         let temp = assert_fs::TempDir::new().unwrap();
-        temp.copy_from("pkg", &["**/*"]).unwrap();
+        temp.copy_from("example_package", &["**/*"]).unwrap();
         let scarb_metadata = MetadataCommand::new()
             .inherit_stderr()
             .current_dir(temp.path())
@@ -237,9 +237,6 @@ mod tests {
             config,
             ProtostarTestConfig {
                 exit_first: false,
-                json: false,
-                last_failed: false,
-                report_slowest_tests: false,
             }
         );
 
@@ -249,7 +246,7 @@ mod tests {
     #[test]
     fn get_protostar_config_for_package_err_on_invalid_package() -> Result<()> {
         let temp = assert_fs::TempDir::new().unwrap();
-        temp.copy_from("pkg", &["**/*"]).unwrap();
+        temp.copy_from("example_package", &["**/*"]).unwrap();
         let scarb_metadata = MetadataCommand::new()
             .inherit_stderr()
             .current_dir(temp.path())
@@ -269,9 +266,9 @@ mod tests {
     #[test]
     fn get_protostar_config_for_package_err_on_missing_config() -> Result<()> {
         let temp = assert_fs::TempDir::new().unwrap();
-        temp.copy_from("pkg", &["**/*"]).unwrap();
+        temp.copy_from("example_package", &["**/*"]).unwrap();
         let content = "[package]
-name = \"pkg\"
+name = \"example_package\"
 version = \"0.1.0\"";
         temp.child("Scarb.toml").write_str(content)?;
 
@@ -292,7 +289,7 @@ version = \"0.1.0\"";
     #[test]
     fn collecting_tests() -> Result<()> {
         let temp = assert_fs::TempDir::new().unwrap();
-        temp.copy_from("pkg", &["**/*"]).unwrap();
+        temp.copy_from("example_package", &["**/*"]).unwrap();
         let tests_path = Utf8PathBuf::from_path_buf(temp.to_path_buf()).unwrap();
 
         let tests = collect_tests_in_directory(&tests_path)?;
