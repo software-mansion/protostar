@@ -1,3 +1,6 @@
+mod common;
+
+use crate::common::runner::{corelib_path, runner};
 use anyhow::Result;
 use assert_fs::fixture::PathCopy;
 use camino::Utf8PathBuf;
@@ -7,10 +10,9 @@ use snapbox::cmd::{cargo_bin, Command as SnapboxCommand};
 fn running_tests() -> Result<()> {
     let temp = assert_fs::TempDir::new().unwrap();
     temp.copy_from("example_package", &["**/*"]).unwrap();
-    let snapbox = SnapboxCommand::new(cargo_bin!("rust_test_runner"));
-    let corelib = Utf8PathBuf::from("../../cairo/corelib/src")
-        .canonicalize_utf8()?
-        .to_string();
+
+    let snapbox = runner();
+    let corelib = corelib_path()?;
 
     snapbox
         .current_dir(&temp)
