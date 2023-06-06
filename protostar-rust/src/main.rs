@@ -1,10 +1,10 @@
-use anyhow::{anyhow, Error, Result};
+use rust_test_runner::pretty_printing;
+
+use anyhow::{anyhow, Result};
 use cairo_lang_protostar::test_collector::LinkedLibrary;
 use camino::Utf8PathBuf;
 use clap::Parser;
-use env_logger::{Builder, WriteStyle};
-use log::{error, info, LevelFilter};
-use rust_test_runner::{run_tests, ProtostarTestConfig};
+use rust_test_runner::{run_test_runner, ProtostarTestConfig};
 use scarb_metadata::{Metadata, MetadataCommand, PackageId};
 use std::env::set_var;
 
@@ -62,14 +62,9 @@ fn dependencies_for_package(
     Ok((base_path, dependencies))
 }
 
-fn initialize_logger() {
-    Builder::new()
-        .filter(Some("rust_test_runner"), LevelFilter::Info)
-        .write_style(WriteStyle::Always)
-        .init();
-}
-
 fn main_execution() -> Result<()> {
+    pretty_printing::enable_colors();
+
     let args = Args::parse();
 
     // TODO #1997
@@ -81,20 +76,17 @@ fn main_execution() -> Result<()> {
         let protostar_config = protostar_config_for_package(&scarb_metadata, package)?;
         let (base_path, dependencies) = dependencies_for_package(&scarb_metadata, package)?;
 
-        run_tests(base_path, Some(dependencies), &protostar_config)?;
+        run_test_runner(base_path, Some(dependencies), &protostar_config)?;
     }
-
     Ok(())
 }
 
-fn main() -> Result<()> {
-    initialize_logger();
-    info!("Protostar started...");
-
+fn main() {
     match main_execution() {
-        Err(error) => error!("{}", error),
-        _ => (),
+        Ok(()) => std::process::exit(0),
+        Err(error) => {
+            pretty_printing::print_error_message(error);
+            std::process::exit(1);
+        }
     };
-
-    Ok(())
 }
