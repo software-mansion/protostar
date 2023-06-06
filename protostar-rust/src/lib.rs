@@ -221,7 +221,9 @@ mod tests {
             dependencies_for_package(&scarb_metadata, &PackageId::from(String::from("12345679")));
         let err = result.unwrap_err();
 
-        assert!(format!("{}", err).contains("Failed to find metadata for package"));
+        assert!(err
+            .to_string()
+            .contains("Failed to find metadata for package"));
     }
 
     #[test]
@@ -257,7 +259,9 @@ mod tests {
         );
         let err = result.unwrap_err();
 
-        assert!(format!("{}", err).contains("Failed to find metadata for package"));
+        assert!(err
+            .to_string()
+            .contains("Failed to find metadata for package"));
     }
 
     #[test]
@@ -279,7 +283,9 @@ version = \"0.1.0\"";
             protostar_config_for_package(&scarb_metadata, &scarb_metadata.workspace.members[0]);
         let err = result.unwrap_err();
 
-        assert!(format!("{}", err).contains("Failed to find protostar config for package"));
+        assert!(err
+            .to_string()
+            .contains("Failed to find protostar config for package"));
     }
 
     #[test]
@@ -300,6 +306,6 @@ version = \"0.1.0\"";
         let result = collect_tests_in_directory(&tests_path);
         let err = result.unwrap_err();
 
-        assert!(format!("{}", err).contains("Failed to read directory at path"));
+        assert!(err.to_string().contains("Failed to read directory at path"));
     }
 }
