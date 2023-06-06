@@ -1,5 +1,6 @@
 use super::TestsStats;
 use anyhow::Error;
+use camino::Utf8Path;
 use console::set_colors_enabled;
 use console::style;
 
@@ -16,6 +17,11 @@ pub fn print_collected_tests(tests_num: u32, tests_files_num: u32) {
         "Collected {} test(s) and {} test file(s)",
         tests_num, tests_files_num
     );
+    println!("{}", style(plain_text).bold());
+}
+
+pub fn print_running_tests(test_file: &Utf8Path, tests_num: u32) {
+    let plain_text = format!("Running {} test(s) from {:?}", tests_num, test_file);
     println!("{}", style(plain_text).bold());
 }
 

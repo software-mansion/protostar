@@ -9,6 +9,7 @@ use cairo_lang_runner::{RunResultValue, SierraCasmRunner};
 use cairo_lang_sierra::program::Program;
 use camino::{Utf8Path, Utf8PathBuf};
 use serde::Deserialize;
+use std::fmt::Debug;
 use walkdir::WalkDir;
 
 #[derive(Default)]
@@ -52,7 +53,7 @@ fn get_result_str_and_update_tests_stats(
 }
 
 fn collect_tests_in_directory(input_path: &Utf8PathBuf) -> Result<Vec<Utf8PathBuf>> {
-    let mut test_directories: Vec<Utf8PathBuf> = vec![];
+    let mut test_files: Vec<Utf8PathBuf> = vec![];
 
     for entry in WalkDir::new(input_path) {
         let entry =
@@ -60,7 +61,7 @@ fn collect_tests_in_directory(input_path: &Utf8PathBuf) -> Result<Vec<Utf8PathBu
         let path = entry.path();
 
         if path.is_file() && path.extension().unwrap_or_default() == "cairo" {
-            test_directories.push(
+            test_files.push(
                 Utf8Path::from_path(path)
                     .with_context(|| format!("Failed to convert path = {:?} to utf-8", path))?
                     .to_path_buf(),
@@ -68,7 +69,7 @@ fn collect_tests_in_directory(input_path: &Utf8PathBuf) -> Result<Vec<Utf8PathBu
         }
     }
 
-    Ok(test_directories)
+    Ok(test_files)
 }
 
 pub fn run_test_runner(
@@ -81,25 +82,27 @@ pub fn run_test_runner(
     let mut tests_vector = vec![];
 
     let builtins = vec!["GasBuiltin", "Pedersen", "RangeCheck", "bitwise", "ec_op"];
-    for test_dir in test_directories {
-        let tests = collect_tests(
-            test_dir.as_str(),
+    for test_file in test_directories {
+        let (sierra_program, test_configs) = collect_tests(
+            test_file.as_str(),
             None,
             linked_libraries.clone(),
             Some(builtins.clone()),
         )?;
-        tests_vector.push(tests);
+        let a = test_file.clone();
+        let x = a.strip_prefix(input_path.clone())?.to_path_buf();
+        tests_vector.push((sierra_program, test_configs, x));
     }
 
     pretty_printing::print_collected_tests(
         tests_vector
             .iter()
-            .fold(0, |acc, (_, e)| acc + e.len() as u32),
+            .fold(0, |acc, (_, e, _)| acc + e.len() as u32),
         tests_vector.len() as u32,
     );
     let mut tests_stats = TestsStats::default();
-    for (sierra_program, test_configs) in tests_vector {
-        run_tests(sierra_program, test_configs, &mut tests_stats)?;
+    for (sierra_program, test_configs, test_file) in tests_vector {
+        run_tests(sierra_program, test_configs, &mut tests_stats, &test_file)?;
     }
     print_test_summary(tests_stats);
 
@@ -110,11 +113,13 @@ fn run_tests(
     sierra_program: Program,
     test_configs: Vec<TestConfig>,
     tests_stats: &mut TestsStats,
+    test_file: &Utf8Path,
 ) -> Result<()> {
     let runner =
         SierraCasmRunner::new(sierra_program, Some(Default::default()), Default::default())
             .context("Failed setting up runner.")?;
 
+    pretty_printing::print_running_tests(test_file, test_configs.len() as u32);
     for config in &test_configs {
         let result = runner
             .run_function(
