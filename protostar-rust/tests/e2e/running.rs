@@ -12,7 +12,7 @@ fn running_tests() {
 
     snapbox
         .current_dir(&temp)
-        .args(&["--corelib-path", corelib.as_str()])
+        .args(&["--corelib-path", corelib])
         .assert()
         .success();
 }
