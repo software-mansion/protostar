@@ -13,7 +13,7 @@ struct Args {
     // TODO #1997 this is a temporary solution for tests to work, this argument
     //  should be detected automatically
     #[arg(short, long)]
-    corelib_path: Option<String>
+    corelib_path: Option<String>,
 }
 
 fn main_execution() -> Result<()> {
@@ -23,8 +23,8 @@ fn main_execution() -> Result<()> {
     let corelib = match args.corelib_path {
         Some(corelib) => Utf8PathBuf::from(corelib),
         None => Utf8PathBuf::from("../../cairo/corelib/src")
-        .canonicalize_utf8()
-        .context("Failed to resolve corelib path")?,
+            .canonicalize_utf8()
+            .context("Failed to resolve corelib path")?,
     };
 
     let scarb_metadata = MetadataCommand::new().inherit_stderr().exec()?;
