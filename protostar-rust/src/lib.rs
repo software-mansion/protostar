@@ -185,8 +185,7 @@ pub fn dependencies_for_package(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use anyhow::Result;
-    use assert_fs::fixture::{FileTouch, FileWriteStr, PathChild, PathCopy};
+    use assert_fs::fixture::{FileWriteStr, PathChild, PathCopy};
     use scarb_metadata::MetadataCommand;
 
     #[test]
