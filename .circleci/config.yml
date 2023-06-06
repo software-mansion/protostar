@@ -286,6 +286,7 @@ commands:
           name: Run test runner tests
           command: |
             cargo test
+          working_directory: ./protostar-rust
 
   notify_about_failed_test:
     description: "Send slack notification about failed test on master"
@@ -321,7 +322,6 @@ jobs:
         type: enum
         enum: ["linux", "mac"]
     executor: << parameters.platform >>
-    working_directory: ~/project/protostar-rust
     steps:
       - setup:
           platform: << parameters.platform >>
