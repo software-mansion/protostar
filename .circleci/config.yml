@@ -224,6 +224,18 @@ commands:
           name: Run linter
           command: poetry run poe lint
 
+  lint_rust_runner:
+    description: "Format and lint check of rust test runner"
+    steps:
+      - run:
+          name: Run format check
+          command: cargo fmt --check
+          working_directory: ./protostar-rust
+      - run:
+          name: Run lint check
+          command: cargo clippy
+          working_directory: ./protostar-rust
+
   build:
     description: "Build protostar"
     steps:
@@ -315,6 +327,12 @@ jobs:
       - lint
       - notify_about_failed_test:
           message: "*Code quality checks have failed* :rotating_light:"
+    
+  rust_runner_code_quality:
+    executor: linux
+    steps:
+      - setup
+      - lint_rust_runner
 
   rust_runner_tests:
     parameters:
@@ -329,6 +347,8 @@ jobs:
           name: Set git config
           command: git config --global protocol.file.allow always
       - run_test_runner_tests
+      - notify_about_failed_test:
+          message: "*Rust test runner tests have failed* :rotating_light:"
 
   unit_tests:
     parameters:
@@ -513,6 +533,7 @@ workflows:
   protostar:
     jobs:
       - code_quality
+      - rust_runner_code_quality
       - pre_cache_mac_bindings_and_compiler:
           filters:
             branches:
@@ -521,6 +542,8 @@ workflows:
       - rust_runner_tests:
           name: rust_runner_tests-linux
           platform: linux
+          requires:
+            - rust_runner_code_quality
       - unit_tests:
           name: unit_tests-linux
           platform: linux
