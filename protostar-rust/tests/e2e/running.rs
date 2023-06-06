@@ -1,6 +1,6 @@
 use crate::common::runner::{corelib_path, runner};
-use anyhow::Result;
 use assert_fs::fixture::PathCopy;
+use indoc::indoc;
 
 #[test]
 fn running_tests() {
@@ -14,5 +14,12 @@ fn running_tests() {
         .current_dir(&temp)
         .args(&["--corelib-path", corelib])
         .assert()
-        .success();
+        .success()
+        .stdout_matches(indoc! {r#"test_2::test_2::test_two: PASS []
+            test_2::test_2::test_two_failing: FAIL [55114047758387]
+            test_2::test_2::test_three: PASS []
+            test_my_test::test_my_test::test_my_test: PASS []
+            test_my_test::test_my_test::test_four: PASS []
+            [..]::test_fib: PASS []
+        "#});
 }

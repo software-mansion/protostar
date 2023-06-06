@@ -1893,6 +1893,7 @@ dependencies = [
  "cairo-lang-test-runner",
  "camino",
  "clap",
+ "indoc",
  "itertools",
  "once_cell",
  "scarb-metadata",
