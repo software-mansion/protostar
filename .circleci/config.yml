@@ -279,6 +279,14 @@ commands:
               poetry run pytest -n4 tests/e2e
             fi
 
+  run_test_runner_tests:
+    description: "Run test of the rust test runner"
+    steps:
+      - run:
+          name: Run test runner tests
+          command: |
+            cargo test
+
   notify_about_failed_test:
     description: "Send slack notification about failed test on master"
     parameters:
@@ -306,6 +314,21 @@ jobs:
       - lint
       - notify_about_failed_test:
           message: "*Code quality checks have failed* :rotating_light:"
+
+  rust_runner_tests:
+    parameters:
+      platform:
+        type: enum
+        enum: ["linux", "mac"]
+    executor: << parameters.platform >>
+    working_directory: ~/project/protostar-rust
+    steps:
+      - setup:
+          platform: << parameters.platform >>
+      - run:
+          name: Set git config
+          command: git config --global protocol.file.allow always
+      - run_test_runner_tests
 
   unit_tests:
     parameters:
@@ -495,6 +518,9 @@ workflows:
             branches:
               only:
                 - master
+      - rust_runner_tests:
+          name: rust_runner_tests-linux
+          platform: linux
       - unit_tests:
           name: unit_tests-linux
           platform: linux
@@ -577,6 +603,7 @@ workflows:
             - code_quality
             - unit_tests-linux
             - e2e_tests-linux
+            - rust_runner_tests-linux
           filters:
             branches:
               ignore:
@@ -587,6 +614,7 @@ workflows:
             - code_quality
             - unit_tests-linux
             - e2e_tests-linux
+            - rust_runner_tests-linux
             # - unit_tests-mac
             # - e2e_tests-mac
           filters:
