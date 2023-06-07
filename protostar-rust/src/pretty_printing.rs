@@ -1,8 +1,9 @@
-use super::TestsStats;
 use anyhow::Error;
 use camino::Utf8Path;
 use console::set_colors_enabled;
 use console::style;
+
+use super::TestsStats;
 
 pub fn enable_colors() {
     set_colors_enabled(true);
@@ -12,7 +13,7 @@ pub fn print_error_message(error: Error) {
     println!("[{}] {}", style("ERROR").red(), error);
 }
 
-pub fn print_collected_tests(tests_num: u32, tests_files_num: u32) {
+pub fn print_collected_tests(tests_num: usize, tests_files_num: usize) {
     let plain_text = format!(
         "Collected {} test(s) and {} test file(s)",
         tests_num, tests_files_num
@@ -20,7 +21,7 @@ pub fn print_collected_tests(tests_num: u32, tests_files_num: u32) {
     println!("{}", style(plain_text).bold());
 }
 
-pub fn print_running_tests(test_file: &Utf8Path, tests_num: u32) {
+pub fn print_running_tests(test_file: &Utf8Path, tests_num: usize) {
     let plain_text = format!("Running {} test(s) from {:?}", tests_num, test_file);
     println!("{}", style(plain_text).bold());
 }

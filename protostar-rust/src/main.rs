@@ -1,12 +1,13 @@
-use rust_test_runner::pretty_printing;
+use std::env::set_var;
 
 use anyhow::{anyhow, Result};
-use cairo_lang_protostar::test_collector::LinkedLibrary;
 use camino::Utf8PathBuf;
 use clap::Parser;
-use rust_test_runner::{run_test_runner, ProtostarTestConfig};
 use scarb_metadata::{Metadata, MetadataCommand, PackageId};
-use std::env::set_var;
+
+use cairo_lang_protostar::test_collector::LinkedLibrary;
+use rust_test_runner::pretty_printing;
+use rust_test_runner::{run_test_runner, ProtostarTestConfig};
 
 #[derive(Parser, Debug)]
 struct Args {

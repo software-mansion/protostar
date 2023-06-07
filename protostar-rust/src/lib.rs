@@ -1,21 +1,24 @@
-pub mod pretty_printing;
+use std::fmt::Debug;
 
-use crate::pretty_printing::print_test_summary;
 use anyhow::{Context, Result};
 use cairo_felt::Felt252;
+use camino::{Utf8Path, Utf8PathBuf};
+use serde::Deserialize;
+use walkdir::WalkDir;
+
 use cairo_lang_protostar::casm_generator::TestConfig;
 use cairo_lang_protostar::test_collector::{collect_tests, LinkedLibrary};
 use cairo_lang_runner::{RunResultValue, SierraCasmRunner};
 use cairo_lang_sierra::program::Program;
-use camino::{Utf8Path, Utf8PathBuf};
-use serde::Deserialize;
-use std::fmt::Debug;
-use walkdir::WalkDir;
+
+use crate::pretty_printing::print_test_summary;
+
+pub mod pretty_printing;
 
 #[derive(Default)]
 pub struct TestsStats {
-    passed: u32,
-    failed: u32,
+    passed: usize,
+    failed: usize,
 }
 
 #[derive(Deserialize, Debug)]
@@ -24,13 +27,13 @@ pub struct ProtostarTestConfig {
     exit_first: bool, // TODO Not implemented!
 }
 
-fn result_data_to_text(data: Vec<Felt252>) -> String {
+fn result_data_to_text(data: &[Felt252]) -> String {
     let mut readable_text = String::new();
 
     for felt in data {
         let felt_bytes = felt.to_bytes_be();
-        let felt_text = std::str::from_utf8(&felt_bytes).unwrap_or("");
-        readable_text.push_str(felt_text);
+        let felt_text = String::from_utf8_lossy(&felt_bytes);
+        readable_text.push_str(&*felt_text);
     }
 
     readable_text
@@ -43,11 +46,11 @@ fn get_result_str_and_update_tests_stats(
     match run_result {
         RunResultValue::Success(result_data) => {
             tests_stats.passed += 1;
-            result_data_to_text(result_data)
+            result_data_to_text(&result_data)
         }
         RunResultValue::Panic(result_data) => {
             tests_stats.failed += 1;
-            result_data_to_text(result_data)
+            result_data_to_text(&result_data)
         }
     }
 }
@@ -95,10 +98,8 @@ pub fn run_test_runner(
     }
 
     pretty_printing::print_collected_tests(
-        tests_vector
-            .iter()
-            .fold(0, |acc, (_, e, _)| acc + e.len() as u32),
-        tests_vector.len() as u32,
+        tests_vector.iter().map(|(_, e, _)| e.len()).sum(),
+        tests_vector.len(),
     );
     let mut tests_stats = TestsStats::default();
     for (sierra_program, test_configs, test_file) in tests_vector {
@@ -119,7 +120,7 @@ fn run_tests(
         SierraCasmRunner::new(sierra_program, Some(Default::default()), Default::default())
             .context("Failed setting up runner.")?;
 
-    pretty_printing::print_running_tests(test_file, test_configs.len() as u32);
+    pretty_printing::print_running_tests(test_file, test_configs.len());
     for config in &test_configs {
         let result = runner
             .run_function(
