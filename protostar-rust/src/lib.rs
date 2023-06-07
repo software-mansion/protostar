@@ -44,13 +44,13 @@ fn find_cairo_files_in_directory(input_path: &Utf8PathBuf) -> Result<Vec<Utf8Pat
 
     for entry in WalkDir::new(input_path) {
         let entry =
-            entry.with_context(|| format!("Failed to read directory at path = {}", input_path))?;
+            entry.with_context(|| format!("Failed to read directory at path = {input_path}"))?;
         let path = entry.path();
 
         if path.is_file() && path.extension().unwrap_or_default() == "cairo" {
             test_files.push(
                 Utf8Path::from_path(path)
-                    .with_context(|| format!("Failed to convert path = {:?} to utf-8", path))?
+                    .with_context(|| format!("Failed to convert path = {path:?} to utf-8"))?
                     .to_path_buf(),
             );
         }
