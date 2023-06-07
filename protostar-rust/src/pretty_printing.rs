@@ -5,7 +5,7 @@ use console::style;
 
 use cairo_lang_runner::RunResultValue;
 
-use super::TestsStats;
+use crate::test_stats::TestsStats;
 
 pub fn print_error_message(error: &Error) {
     let error_tag = style("ERROR").red();

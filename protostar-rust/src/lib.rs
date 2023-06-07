@@ -8,17 +8,14 @@ use walkdir::WalkDir;
 
 use cairo_lang_protostar::casm_generator::TestConfig;
 use cairo_lang_protostar::test_collector::{collect_tests, LinkedLibrary};
-use cairo_lang_runner::{RunResultValue, SierraCasmRunner, StarknetState};
+use cairo_lang_runner::{SierraCasmRunner, StarknetState};
 use cairo_lang_sierra::program::Program;
 use cairo_lang_sierra_to_casm::metadata::MetadataComputationConfig;
 
-pub mod pretty_printing;
+use crate::test_stats::TestsStats;
 
-#[derive(Default, Clone, Copy)]
-pub struct TestsStats {
-    passed: usize,
-    failed: usize,
-}
+pub mod pretty_printing;
+mod test_stats;
 
 #[derive(Deserialize, Debug)]
 pub struct ProtostarTestConfig {
@@ -26,7 +23,12 @@ pub struct ProtostarTestConfig {
     exit_first: bool, // TODO Not implemented!
 }
 
-fn collect_tests_in_directory(input_path: &Utf8PathBuf) -> Result<Vec<Utf8PathBuf>> {
+type TestInstance = (Program, Vec<TestConfig>, Utf8PathBuf);
+
+fn collect_tests_from_directory(
+    input_path: &Utf8PathBuf,
+    linked_libraries: &Option<Vec<LinkedLibrary>>,
+) -> Result<Vec<TestInstance>> {
     let mut test_files: Vec<Utf8PathBuf> = vec![];
 
     for entry in WalkDir::new(input_path) {
@@ -43,18 +45,18 @@ fn collect_tests_in_directory(input_path: &Utf8PathBuf) -> Result<Vec<Utf8PathBu
         }
     }
 
-    Ok(test_files)
+    internal_collect_tests(input_path, linked_libraries, test_files)
 }
 
 fn internal_collect_tests(
     input_path: &Utf8PathBuf,
     linked_libraries: &Option<Vec<LinkedLibrary>>,
-    test_directories: Vec<Utf8PathBuf>,
+    test_files: Vec<Utf8PathBuf>,
 ) -> Result<Vec<(Program, Vec<TestConfig>, Utf8PathBuf)>> {
     let mut tests = vec![];
 
     let builtins = vec!["GasBuiltin", "Pedersen", "RangeCheck", "bitwise", "ec_op"];
-    for ref test_file in test_directories {
+    for ref test_file in test_files {
         let (sierra_program, test_configs) = collect_tests(
             test_file.as_str(),
             None,
@@ -73,8 +75,7 @@ pub fn run_test_runner(
     linked_libraries: &Option<Vec<LinkedLibrary>>,
     config: &ProtostarTestConfig,
 ) -> Result<()> {
-    let test_directories = collect_tests_in_directory(input_path)?;
-    let mut tests = internal_collect_tests(input_path, linked_libraries, test_directories)?;
+    let tests = collect_tests_from_directory(input_path, linked_libraries)?;
 
     pretty_printing::print_collected_tests_count(
         tests.iter().map(|(_, e, _)| e.len()).sum(),
@@ -118,19 +119,8 @@ fn run_tests(
             )
             .with_context(|| format!("Failed to run the function `{}`.", config.name.as_str()))?;
 
-        update_tests_stats(&result.value, tests_stats);
+        tests_stats.update(&result.value);
         pretty_printing::print_test_result(&config.name.clone(), &result.value);
     }
     Ok(())
-}
-
-fn update_tests_stats(run_result: &RunResultValue, tests_stats: &mut TestsStats) {
-    match run_result {
-        RunResultValue::Success(_) => {
-            tests_stats.passed += 1;
-        }
-        RunResultValue::Panic(_) => {
-            tests_stats.failed += 1;
-        }
-    }
 }
