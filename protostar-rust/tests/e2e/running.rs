@@ -13,7 +13,7 @@ fn running_tests() {
 
     snapbox
         .current_dir(&temp)
-        .args(&["--corelib-path", corelib])
+        .args(["--corelib-path", corelib])
         .assert()
         .success()
         .stdout_matches(indoc! {r#"Collected 6 test(s) and 3 test file(s)
