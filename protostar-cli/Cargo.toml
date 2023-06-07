@@ -1,0 +1,16 @@
+[package]
+name = "protostar_cli"
+description = "Protostar starknet CLI client"
+version = "0.0.1"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0.71"
+camino = "1.1.4"
+clap = { version = "4.3.0", features = ["derive"] }
+console = "0.15.7"
+serde = { version = "1.0.163", features = ["derive"] }
+serde_json = "1.0.96"
+starknet = { git = "https://github.com/xJonathanLEI/starknet-rs" }
+tokio = { version = "1.28.2", features = ["full"] }
+url = "2.2.2"
