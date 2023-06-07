@@ -233,7 +233,7 @@ commands:
           working_directory: ./protostar-rust
       - run:
           name: Run lint check
-          command: cargo clippy --all-targets --all-features -- --no-deps
+          command: cargo clippy --all-targets --all-features -- --no-deps -W clippy::pedantic -A clippy::missing_errors_doc -A clippy::missing_panics_doc -A clippy::default_trait_access
           working_directory: ./protostar-rust
           environment:
             RUSTFLAGS: -Dwarnings
