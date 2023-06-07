@@ -21,6 +21,7 @@ walkdir = "2.3.3"
 camino = "1.1.4"
 scarb-metadata = "1.4.2"
 console = "0.15.7"
+indicatif = "0.17.5"
 
 [lib]
 name = "rust_test_runner"

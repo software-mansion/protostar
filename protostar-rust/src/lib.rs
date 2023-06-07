@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use std::fmt::Debug;
 
 use anyhow::{Context, Result};
@@ -8,14 +9,15 @@ use walkdir::WalkDir;
 
 use cairo_lang_protostar::casm_generator::TestConfig;
 use cairo_lang_protostar::test_collector::{collect_tests, LinkedLibrary};
-use cairo_lang_runner::{RunResultValue, SierraCasmRunner};
+use cairo_lang_runner::{RunResultValue, SierraCasmRunner, StarknetState};
 use cairo_lang_sierra::program::Program;
+use cairo_lang_sierra_to_casm::metadata::MetadataComputationConfig;
 
 use crate::pretty_printing::print_test_summary;
 
 pub mod pretty_printing;
 
-#[derive(Default)]
+#[derive(Default, Clone, Copy)]
 pub struct TestsStats {
     passed: usize,
     failed: usize,
@@ -33,7 +35,7 @@ fn result_data_to_text(data: &[Felt252]) -> String {
     for felt in data {
         let felt_bytes = felt.to_bytes_be();
         let felt_text = String::from_utf8_lossy(&felt_bytes);
-        readable_text.push_str(&*felt_text);
+        readable_text.push_str(&felt_text);
     }
 
     readable_text
@@ -76,24 +78,23 @@ fn collect_tests_in_directory(input_path: &Utf8PathBuf) -> Result<Vec<Utf8PathBu
 }
 
 pub fn run_test_runner(
-    input_path: Utf8PathBuf,
-    linked_libraries: Option<Vec<LinkedLibrary>>,
+    input_path: &Utf8PathBuf,
+    linked_libraries: &Option<Vec<LinkedLibrary>>,
     config: &ProtostarTestConfig,
 ) -> Result<()> {
-    let test_directories = collect_tests_in_directory(&input_path)?;
+    let test_directories = collect_tests_in_directory(input_path)?;
 
     let mut tests_vector = vec![];
 
     let builtins = vec!["GasBuiltin", "Pedersen", "RangeCheck", "bitwise", "ec_op"];
-    for test_file in test_directories {
+    for ref test_file in test_directories {
         let (sierra_program, test_configs) = collect_tests(
             test_file.as_str(),
             None,
             linked_libraries.clone(),
             Some(builtins.clone()),
         )?;
-        let a = test_file.clone();
-        let x = a.strip_prefix(input_path.clone())?.to_path_buf();
+        let x = test_file.strip_prefix(input_path)?.to_path_buf();
         tests_vector.push((sierra_program, test_configs, x));
     }
 
@@ -103,7 +104,7 @@ pub fn run_test_runner(
     );
     let mut tests_stats = TestsStats::default();
     for (sierra_program, test_configs, test_file) in tests_vector {
-        run_tests(sierra_program, test_configs, &mut tests_stats, &test_file)?;
+        run_tests(sierra_program, &test_configs, &mut tests_stats, &test_file)?;
     }
     print_test_summary(tests_stats);
 
@@ -112,16 +113,19 @@ pub fn run_test_runner(
 
 fn run_tests(
     sierra_program: Program,
-    test_configs: Vec<TestConfig>,
+    test_configs: &[TestConfig],
     tests_stats: &mut TestsStats,
     test_file: &Utf8Path,
 ) -> Result<()> {
-    let runner =
-        SierraCasmRunner::new(sierra_program, Some(Default::default()), Default::default())
-            .context("Failed setting up runner.")?;
+    let runner = SierraCasmRunner::new(
+        sierra_program,
+        Some(MetadataComputationConfig::default()),
+        HashMap::default(),
+    )
+    .context("Failed setting up runner.")?;
 
     pretty_printing::print_running_tests(test_file, test_configs.len());
-    for config in &test_configs {
+    for config in test_configs {
         let result = runner
             .run_function(
                 runner.find_function(config.name.as_str())?,
@@ -131,7 +135,7 @@ fn run_tests(
                 } else {
                     Some(usize::MAX)
                 },
-                Default::default(),
+                StarknetState::default(),
             )
             .with_context(|| format!("Failed to run the function `{}`.", config.name.as_str()))?;
 

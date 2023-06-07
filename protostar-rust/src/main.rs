@@ -64,9 +64,7 @@ fn dependencies_for_package(
 }
 
 fn main_execution() -> Result<()> {
-    pretty_printing::enable_colors();
-
-    let args = Args::parse();
+    let _args = Args::parse();
 
     // TODO #1997
     set_var("CARGO_MANIFEST_DIR", "../../cairo/Cargo.toml");
@@ -77,7 +75,7 @@ fn main_execution() -> Result<()> {
         let protostar_config = protostar_config_for_package(&scarb_metadata, package)?;
         let (base_path, dependencies) = dependencies_for_package(&scarb_metadata, package)?;
 
-        run_test_runner(base_path, Some(dependencies), &protostar_config)?;
+        run_test_runner(&base_path, &Some(dependencies), &protostar_config)?;
     }
     Ok(())
 }
@@ -86,7 +84,7 @@ fn main() {
     match main_execution() {
         Ok(()) => std::process::exit(0),
         Err(error) => {
-            pretty_printing::print_error_message(error);
+            pretty_printing::print_error_message(&error);
             std::process::exit(1);
         }
     };
