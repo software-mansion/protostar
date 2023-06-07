@@ -2,7 +2,6 @@ use std::collections::HashMap;
 use std::fmt::Debug;
 
 use anyhow::{Context, Result};
-use cairo_felt::Felt252;
 use camino::{Utf8Path, Utf8PathBuf};
 use serde::Deserialize;
 use walkdir::WalkDir;
@@ -29,30 +28,13 @@ pub struct ProtostarTestConfig {
     exit_first: bool, // TODO Not implemented!
 }
 
-fn result_data_to_text(data: &[Felt252]) -> String {
-    let mut readable_text = String::new();
-
-    for felt in data {
-        let felt_bytes = felt.to_bytes_be();
-        let felt_text = String::from_utf8_lossy(&felt_bytes);
-        readable_text.push_str(&felt_text);
-    }
-
-    readable_text
-}
-
-fn get_result_str_and_update_tests_stats(
-    run_result: RunResultValue,
-    tests_stats: &mut TestsStats,
-) -> String {
+fn update_tests_stats(run_result: &RunResultValue, tests_stats: &mut TestsStats) {
     match run_result {
-        RunResultValue::Success(result_data) => {
+        RunResultValue::Success(_) => {
             tests_stats.passed += 1;
-            result_data_to_text(&result_data)
         }
-        RunResultValue::Panic(result_data) => {
+        RunResultValue::Panic(_) => {
             tests_stats.failed += 1;
-            result_data_to_text(&result_data)
         }
     }
 }
@@ -94,11 +76,11 @@ pub fn run_test_runner(
             linked_libraries.clone(),
             Some(builtins.clone()),
         )?;
-        let x = test_file.strip_prefix(input_path)?.to_path_buf();
-        tests_vector.push((sierra_program, test_configs, x));
+        let relative_path_test_file = test_file.strip_prefix(input_path)?.to_path_buf();
+        tests_vector.push((sierra_program, test_configs, relative_path_test_file));
     }
 
-    pretty_printing::print_collected_tests(
+    pretty_printing::print_collected_tests_count(
         tests_vector.iter().map(|(_, e, _)| e.len()).sum(),
         tests_vector.len(),
     );
@@ -139,14 +121,8 @@ fn run_tests(
             )
             .with_context(|| format!("Failed to run the function `{}`.", config.name.as_str()))?;
 
-        let passed_before = tests_stats.passed;
-        let name = config.name.clone();
-        let result_str = get_result_str_and_update_tests_stats(result.value, tests_stats);
-        pretty_printing::print_test_result(
-            &name,
-            &result_str,
-            tests_stats.passed - passed_before > 0,
-        );
+        update_tests_stats(&result.value, tests_stats);
+        pretty_printing::print_test_result(&config.name.clone(), &result.value);
     }
     Ok(())
 }
