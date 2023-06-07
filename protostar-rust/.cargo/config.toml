@@ -1,0 +1,2 @@
+[alias]
+lint = "clippy --all-targets --all-features -- --no-deps"
