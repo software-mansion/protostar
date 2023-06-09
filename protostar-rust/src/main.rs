@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, Context, Result};
 use camino::Utf8PathBuf;
 use clap::Parser;
 use scarb_metadata::{Metadata, MetadataCommand, PackageId};
@@ -17,7 +17,7 @@ struct Args {
 }
 
 fn main_execution() -> Result<()> {
-    let _args = Args::parse();
+    let args = Args::parse();
 
     // TODO #1997
     let corelib = match args.corelib_path {
@@ -30,10 +30,17 @@ fn main_execution() -> Result<()> {
     let scarb_metadata = MetadataCommand::new().inherit_stderr().exec()?;
 
     for package in &scarb_metadata.workspace.members {
-        let protostar_config = rust_test_runner::protostar_config_for_package(&scarb_metadata, package)?;
-        let (base_path, dependencies) = rust_test_runner::dependencies_for_package(&scarb_metadata, package)?;
+        let protostar_config =
+            rust_test_runner::protostar_config_for_package(&scarb_metadata, package)?;
+        let (base_path, dependencies) =
+            rust_test_runner::dependencies_for_package(&scarb_metadata, package)?;
 
-        run_test_runner(&base_path, Some(&dependencies), &protostar_config, Some(corelib))?;
+        run_test_runner(
+            &base_path,
+            Some(&dependencies),
+            &protostar_config,
+            Some(&corelib),
+        )?;
     }
     Ok(())
 }

@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::fmt::Debug;
 
-use anyhow::{Context, Result};
+use anyhow::{anyhow, Context, Result};
 use camino::{Utf8Path, Utf8PathBuf};
 use scarb_metadata::{Metadata, PackageId};
 use serde::Deserialize;
@@ -18,7 +18,7 @@ use crate::test_stats::TestsStats;
 pub mod pretty_printing;
 mod test_stats;
 
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Debug, PartialEq)]
 pub struct ProtostarTestConfig {
     #[serde(default)]
     exit_first: bool, // TODO Not implemented!
@@ -35,6 +35,11 @@ fn collect_tests_from_directory(
     linked_libraries: Option<&Vec<LinkedLibrary>>,
     corelib_path: Option<&Utf8PathBuf>,
 ) -> Result<Vec<TestsFromFile>> {
+    let test_files = find_cairo_files_in_directory(input_path)?;
+    internal_collect_tests(input_path, linked_libraries, test_files, corelib_path)
+}
+
+fn find_cairo_files_in_directory(input_path: &Utf8PathBuf) -> Result<Vec<Utf8PathBuf>> {
     let mut test_files: Vec<Utf8PathBuf> = vec![];
 
     for entry in WalkDir::new(input_path) {
@@ -50,8 +55,7 @@ fn collect_tests_from_directory(
             );
         }
     }
-
-    internal_collect_tests(input_path, linked_libraries, test_files, corelib_path)
+    Ok(test_files)
 }
 
 fn internal_collect_tests(
@@ -67,9 +71,9 @@ fn internal_collect_tests(
         let (sierra_program, tests_configs) = collect_tests(
             test_file.as_str(),
             None,
-            linked_libraries.clone(),
+            linked_libraries,
             Some(builtins.clone()),
-            corelib_path,
+            corelib_path.map(|corelib_path| corelib_path.as_str()),
         )?;
         let relative_path = test_file.strip_prefix(input_path)?.to_path_buf();
         tests.push(TestsFromFile {
@@ -85,7 +89,7 @@ fn internal_collect_tests(
 pub fn run_test_runner(
     input_path: &Utf8PathBuf,
     linked_libraries: Option<&Vec<LinkedLibrary>>,
-    config: &ProtostarTestConfig,
+    _config: &ProtostarTestConfig,
     corelib_path: Option<&Utf8PathBuf>,
 ) -> Result<()> {
     let tests = collect_tests_from_directory(input_path, linked_libraries, corelib_path)?;
@@ -191,7 +195,8 @@ mod tests {
     #[test]
     fn get_dependencies_for_package() {
         let temp = assert_fs::TempDir::new().unwrap();
-        temp.copy_from("tests/resources/example_package", &["**/*"]).unwrap();
+        temp.copy_from("tests/resources/example_package", &["**/*"])
+            .unwrap();
         let scarb_metadata = MetadataCommand::new()
             .inherit_stderr()
             .current_dir(temp.path())
@@ -202,14 +207,15 @@ mod tests {
             dependencies_for_package(&scarb_metadata, &scarb_metadata.workspace.members[0])
                 .unwrap();
 
-        assert!(dependencies.len() > 0);
+        assert!(!dependencies.is_empty());
         assert!(dependencies.iter().all(|dep| dep.path.exists()));
     }
 
     #[test]
     fn get_dependencies_for_package_err_on_invalid_package() {
         let temp = assert_fs::TempDir::new().unwrap();
-        temp.copy_from("tests/resources/example_package", &["**/*"]).unwrap();
+        temp.copy_from("tests/resources/example_package", &["**/*"])
+            .unwrap();
         let scarb_metadata = MetadataCommand::new()
             .inherit_stderr()
             .current_dir(temp.path())
@@ -228,7 +234,8 @@ mod tests {
     #[test]
     fn get_protostar_config_for_package() {
         let temp = assert_fs::TempDir::new().unwrap();
-        temp.copy_from("tests/resources/example_package", &["**/*"]).unwrap();
+        temp.copy_from("tests/resources/example_package", &["**/*"])
+            .unwrap();
         let scarb_metadata = MetadataCommand::new()
             .inherit_stderr()
             .current_dir(temp.path())
@@ -245,7 +252,8 @@ mod tests {
     #[test]
     fn get_protostar_config_for_package_err_on_invalid_package() {
         let temp = assert_fs::TempDir::new().unwrap();
-        temp.copy_from("tests/resources/example_package", &["**/*"]).unwrap();
+        temp.copy_from("tests/resources/example_package", &["**/*"])
+            .unwrap();
         let scarb_metadata = MetadataCommand::new()
             .inherit_stderr()
             .current_dir(temp.path())
@@ -266,7 +274,8 @@ mod tests {
     #[test]
     fn get_protostar_config_for_package_err_on_missing_config() {
         let temp = assert_fs::TempDir::new().unwrap();
-        temp.copy_from("tests/resources/example_package", &["**/*"]).unwrap();
+        temp.copy_from("tests/resources/example_package", &["**/*"])
+            .unwrap();
         let content = "[package]
 name = \"example_package\"
 version = \"0.1.0\"";
@@ -290,19 +299,20 @@ version = \"0.1.0\"";
     #[test]
     fn collecting_tests() {
         let temp = assert_fs::TempDir::new().unwrap();
-        temp.copy_from("tests/resources/example_package", &["**/*"]).unwrap();
+        temp.copy_from("tests/resources/example_package", &["**/*"])
+            .unwrap();
         let tests_path = Utf8PathBuf::from_path_buf(temp.to_path_buf()).unwrap();
 
-        let tests = collect_tests_in_directory(&tests_path).unwrap();
+        let tests = find_cairo_files_in_directory(&tests_path).unwrap();
 
-        assert!(tests.len() > 0);
+        assert!(!tests.is_empty());
     }
 
     #[test]
     fn collecting_tests_err_on_invalid_dir() {
         let tests_path = Utf8PathBuf::from("aaee");
 
-        let result = collect_tests_in_directory(&tests_path);
+        let result = find_cairo_files_in_directory(&tests_path);
         let err = result.unwrap_err();
 
         assert!(err.to_string().contains("Failed to read directory at path"));
