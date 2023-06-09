@@ -1,11 +1,10 @@
-use anyhow::{anyhow, Context, Result};
+use anyhow::{Context, Result};
 use camino::Utf8PathBuf;
 use clap::Parser;
-use scarb_metadata::{Metadata, MetadataCommand, PackageId};
+use scarb_metadata::MetadataCommand;
 
-use cairo_lang_protostar::test_collector::LinkedLibrary;
 use rust_test_runner::pretty_printing;
-use rust_test_runner::{run_test_runner, ProtostarTestConfig};
+use rust_test_runner::run_test_runner;
 
 #[derive(Parser, Debug)]
 struct Args {
