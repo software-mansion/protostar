@@ -581,6 +581,7 @@ workflows:
             - code_quality
             - unit_tests-linux
             - e2e_tests-linux
+            - rust_runner_tests-linux
           filters:
             branches:
               ignore:
@@ -592,6 +593,7 @@ workflows:
             - code_quality
             - unit_tests-linux
             - e2e_tests-linux
+            - rust_runner_tests-linux
           filters:
             branches:
               ignore:
