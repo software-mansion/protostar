@@ -43,10 +43,18 @@ fn main_execution() -> Result<()> {
         .output()?;
 
     for package in &scarb_metadata.workspace.members {
+        let protostar_config =
+            rust_test_runner::protostar_config_for_package(&scarb_metadata, package)?;
         let (base_path, dependencies) =
             rust_test_runner::dependencies_for_package(&scarb_metadata, package)?;
 
-        run_test_runner(&base_path, Some(dependencies.clone()), Some(&corelib))?;
+        run_test_runner(
+            &base_path,
+            Some(&dependencies.clone()),
+            &protostar_config,
+            Some(&corelib),
+            args.test_filter.as_deref(),
+        )?;
     }
 
     // Explicitly close the temporary directory so we can handle the error

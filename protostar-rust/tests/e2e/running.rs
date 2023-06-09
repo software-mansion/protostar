@@ -28,6 +28,26 @@ fn run_simple_test() {
 }
 
 #[test]
+fn running_tests_with_filter() {
+    let temp = assert_fs::TempDir::new().unwrap();
+    temp.copy_from("tests/resources/example_package", &["**/*"])
+        .unwrap();
+
+    let snapbox = runner();
+    let corelib = corelib_path();
+
+    snapbox
+        .current_dir(&temp)
+        .arg("two")
+        .args(["--corelib-path", corelib])
+        .assert()
+        .success()
+        .stdout_matches(indoc! {r#"test_2::test_2::test_two: PASS []
+            test_2::test_2::test_two_failing: FAIL [55114047758387]
+        "#});
+}
+
+#[test]
 fn run_declare_test() {
     let temp = assert_fs::TempDir::new().unwrap();
     temp.copy_from("tests/data/declare_test", &["**/*"])
