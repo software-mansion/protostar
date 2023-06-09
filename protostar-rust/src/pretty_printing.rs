@@ -1,6 +1,6 @@
 use anyhow::Error;
 use cairo_felt::Felt252;
-use camino::Utf8Path;
+use camino::Utf8PathBuf;
 use console::style;
 
 use cairo_lang_runner::RunResultValue;
@@ -17,7 +17,7 @@ pub fn print_collected_tests_count(tests_num: usize, tests_files_num: usize) {
     println!("{}", style(plain_text).bold());
 }
 
-pub fn print_running_tests(test_file: &Utf8Path, tests_num: usize) {
+pub fn print_running_tests(test_file: &Utf8PathBuf, tests_num: usize) {
     let plain_text = format!("Running {tests_num} test(s) from {test_file}");
     println!("{}", style(plain_text).bold());
 }
@@ -34,7 +34,7 @@ pub fn print_test_summary(tests_stats: TestsStats) {
 pub fn print_test_result(test_name: &str, result_value: &RunResultValue) {
     let result_str = get_result_str(result_value);
 
-    let passed = get_if_passed(result_value);
+    let passed = did_pass(result_value);
     let result_tag = if passed {
         style("PASS").green()
     } else {
@@ -54,7 +54,7 @@ fn get_result_str(run_result: &RunResultValue) -> String {
     }
 }
 
-fn get_if_passed(run_result: &RunResultValue) -> bool {
+fn did_pass(run_result: &RunResultValue) -> bool {
     match run_result {
         RunResultValue::Success(_) => true,
         RunResultValue::Panic(_) => false,

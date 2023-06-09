@@ -23,12 +23,16 @@ pub struct ProtostarTestConfig {
     exit_first: bool, // TODO Not implemented!
 }
 
-type TestInstance = (Program, Vec<TestConfig>, Utf8PathBuf);
+struct TestsFromFile {
+    sierra_program: Program,
+    tests_configs: Vec<TestConfig>,
+    relative_path: Utf8PathBuf,
+}
 
 fn collect_tests_from_directory(
     input_path: &Utf8PathBuf,
-    linked_libraries: &Option<Vec<LinkedLibrary>>,
-) -> Result<Vec<TestInstance>> {
+    linked_libraries: Option<&Vec<LinkedLibrary>>,
+) -> Result<Vec<TestsFromFile>> {
     let mut test_files: Vec<Utf8PathBuf> = vec![];
 
     for entry in WalkDir::new(input_path) {
@@ -50,21 +54,26 @@ fn collect_tests_from_directory(
 
 fn internal_collect_tests(
     input_path: &Utf8PathBuf,
-    linked_libraries: &Option<Vec<LinkedLibrary>>,
+    linked_libraries: Option<&Vec<LinkedLibrary>>,
     test_files: Vec<Utf8PathBuf>,
-) -> Result<Vec<(Program, Vec<TestConfig>, Utf8PathBuf)>> {
-    let mut tests = vec![];
-
+) -> Result<Vec<TestsFromFile>> {
     let builtins = vec!["GasBuiltin", "Pedersen", "RangeCheck", "bitwise", "ec_op"];
+    let linked_libraries = linked_libraries.map(std::clone::Clone::clone);
+
+    let mut tests = vec![];
     for ref test_file in test_files {
-        let (sierra_program, test_configs) = collect_tests(
+        let (sierra_program, tests_configs) = collect_tests(
             test_file.as_str(),
             None,
             linked_libraries.clone(),
             Some(builtins.clone()),
         )?;
-        let relative_path_test_file = test_file.strip_prefix(input_path)?.to_path_buf();
-        tests.push((sierra_program, test_configs, relative_path_test_file));
+        let relative_path = test_file.strip_prefix(input_path)?.to_path_buf();
+        tests.push(TestsFromFile {
+            sierra_program,
+            tests_configs,
+            relative_path,
+        });
     }
 
     Ok(tests)
@@ -72,40 +81,35 @@ fn internal_collect_tests(
 
 pub fn run_test_runner(
     input_path: &Utf8PathBuf,
-    linked_libraries: &Option<Vec<LinkedLibrary>>,
+    linked_libraries: Option<&Vec<LinkedLibrary>>,
     config: &ProtostarTestConfig,
 ) -> Result<()> {
     let tests = collect_tests_from_directory(input_path, linked_libraries)?;
 
     pretty_printing::print_collected_tests_count(
-        tests.iter().map(|(_, e, _)| e.len()).sum(),
+        tests.iter().map(|tests| tests.tests_configs.len()).sum(),
         tests.len(),
     );
 
     let mut tests_stats = TestsStats::default();
-    for (sierra_program, test_configs, test_file) in tests {
-        run_tests(sierra_program, &test_configs, &test_file, &mut tests_stats)?;
+    for tests_from_file in tests {
+        run_tests(tests_from_file, &mut tests_stats)?;
     }
     pretty_printing::print_test_summary(tests_stats);
 
     Ok(())
 }
 
-fn run_tests(
-    sierra_program: Program,
-    test_configs: &[TestConfig],
-    test_file: &Utf8Path,
-    tests_stats: &mut TestsStats,
-) -> Result<()> {
+fn run_tests(tests: TestsFromFile, tests_stats: &mut TestsStats) -> Result<()> {
     let runner = SierraCasmRunner::new(
-        sierra_program,
+        tests.sierra_program,
         Some(MetadataComputationConfig::default()),
         HashMap::default(),
     )
     .context("Failed setting up runner.")?;
 
-    pretty_printing::print_running_tests(test_file, test_configs.len());
-    for config in test_configs {
+    pretty_printing::print_running_tests(&tests.relative_path, tests.tests_configs.len());
+    for config in tests.tests_configs {
         let result = runner
             .run_function(
                 runner.find_function(config.name.as_str())?,

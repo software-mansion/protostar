@@ -75,7 +75,7 @@ fn main_execution() -> Result<()> {
         let protostar_config = protostar_config_for_package(&scarb_metadata, package)?;
         let (base_path, dependencies) = dependencies_for_package(&scarb_metadata, package)?;
 
-        run_test_runner(&base_path, &Some(dependencies), &protostar_config)?;
+        run_test_runner(&base_path, Some(&dependencies), &protostar_config)?;
     }
     Ok(())
 }
