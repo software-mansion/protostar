@@ -13,5 +13,5 @@ fn test_spoof() {
 
     invoke(contract_address, 'store_tx_hash', @ArrayTrait::new()).unwrap();
     let return_data = call(contract_address, 'get_stored_tx_hash', @ArrayTrait::new()).unwrap();
-    assert(*return_data.at(0_u32) == 123, *return_data.at(0_u32));
+    assert(*return_data.at(0_u32) == 1234, *return_data.at(0_u32));
 }
