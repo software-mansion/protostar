@@ -19,7 +19,7 @@ It should be in the same hex (prefixed with '0x') or decimal representation, lik
 
 You can provide a custom signer class which inherits from [BaseSigner](https://starknetpy.readthedocs.io/en/latest/signer.html#starknet_py.net.signer.BaseSigner) abstract class. 
 This way of signing requires you to write a class in Python, which signs the transaction in a way that is suitable to you.
-After writing such class, simply use `signer_class` argument in the CLI for `declare` command to use that class instead of the default one.
+After writing such class, simply use `signer_class` argument in the CLI for `declare-cairo0` command to use that class instead of the default one.
 Usage of this way of signing is exclusive with the default signer strategy.
 
 :::caution

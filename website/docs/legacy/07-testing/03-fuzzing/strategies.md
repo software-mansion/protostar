@@ -1,8 +1,8 @@
 # Strategies
 
-Often in code we operate on some assumptions about the possible values of variables. 
-For example we can perform greater than zero validation early in the code, and we can assume that variables are greater than zero in the subsequent code. 
-Fuzzer allows to provide such assumptions to avoid testing against values which are not covered by the code. 
+Often in code, we operate on some assumptions about the possible values of variables. 
+For example, we can perform greater than zero validations early in the code, and we can assume that variables are greater than zero in the subsequent code. 
+Fuzzer allows providing such assumptions to avoid testing against values which are not covered by the code. 
 
 Cheatcode [`given`](../02-cheatcodes/given.md),
 instructs the fuzzer to adopt a specific fuzzing strategy for input parameters.
@@ -97,7 +97,7 @@ strategy.uint256().map(lambda x: (x.low // 30, x.high)).filter(lambda x: x[1] > 
 
 ## Adapting strategies
 
-Often it is the case that a strategy does not produce exactly what is desired and it is necessary to further
+Often it is the case that a strategy does not produce exactly what is desired, and it is necessary to further
 adapt the generated values.
 Although this could be done in tests directly, this hurts because fuzzer does not know about the adaptation and may repeatedly test the same values.
 The [`assume`] and [`reject`] cheatcodes provide simple interfaces to adapt an advanced strategy.

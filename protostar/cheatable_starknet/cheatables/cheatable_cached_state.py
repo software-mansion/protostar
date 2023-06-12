@@ -30,12 +30,12 @@ class CheatableCachedState(CachedState):
         self,
         block_info: BlockInfo,
         state_reader: StateReader,
-        contract_class_cache: CompiledClassCache,
+        compiled_class_cache: CompiledClassCache,
     ):
         super().__init__(
             block_info=block_info,
             state_reader=state_reader,
-            contract_class_cache=contract_class_cache,
+            compiled_class_cache=compiled_class_cache,
         )
 
         self._target_address_to_pranked_address: dict[Address, Address] = {}
@@ -83,7 +83,7 @@ class CheatableCachedState(CachedState):
     async def set_contract_class(
         self, class_hash: int, contract_class: CompiledClassBase
     ):
-        self.contract_classes[class_hash] = contract_class
+        self.compiled_classes[class_hash] = contract_class
 
     async def get_contract_class(self, class_hash: int) -> CompiledClassBase:
         return await self.get_compiled_class(class_hash)
@@ -92,7 +92,7 @@ class CheatableCachedState(CachedState):
         copied = CheatableCachedState(
             block_info=self.block_info,
             state_reader=self,
-            contract_class_cache=self.contract_classes,
+            compiled_class_cache=self.compiled_classes,
         )
 
         copied._target_address_to_pranked_address = (

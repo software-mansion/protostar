@@ -22,7 +22,7 @@ class InitCommand(ProtostarCommand):
 
     @property
     def description(self) -> str:
-        return "Create a Protostar project with cairo1 template."
+        return "Create a Protostar project with Cairo 1 template."
 
     @property
     def example(self) -> Optional[str]:
@@ -33,16 +33,24 @@ class InitCommand(ProtostarCommand):
         return [
             ProtostarArgument(
                 name="name",
-                description="Name of the directory a new project will be placed in.",
+                description="The name of the directory a new project will be placed in.",
                 type="str",
                 is_positional=True,
+            ),
+            ProtostarArgument(
+                name="minimal",
+                type="bool",
+                default=False,
+                description="Create a minimal project structure.",
             ),
         ]
 
     async def run(self, args: Namespace):
-        self.init(project_name=args.name)
+        self.init(project_name=args.name, minimal=args.minimal)
 
-    def init(self, project_name: Optional[str] = None):
+    def init(self, minimal: bool, project_name: Optional[str] = None):
         self._new_project_creator.run(
-            cairo_version=CairoVersion.cairo1, project_name=project_name
+            cairo_version=CairoVersion.cairo1,
+            project_name=project_name,
+            minimal=minimal,
         )

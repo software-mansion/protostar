@@ -67,7 +67,7 @@ async def declared_class_hash_fixture(
     compiled_contract_path: Path,
     devnet_account: DevnetAccount,
 ):
-    response = await gateway_facade.declare(
+    response = await gateway_facade.declare_cairo0(
         compiled_contract_path,
         signer=devnet_account.signer,
         account_address=devnet_account.address,
@@ -102,7 +102,7 @@ async def test_declare(
     compiled_contract_path: Path,
     devnet_account: DevnetAccount,
 ):
-    response = await gateway_facade.declare(
+    response = await gateway_facade.declare_cairo0(
         compiled_contract_path,
         account_address=devnet_account.address,
         signer=devnet_account.signer,
@@ -176,7 +176,7 @@ async def compiled_contract_without_constructor_class_hash_fixture(
     protostar_project.create_files({"./src/main.cairo": IDENTITY_CONTRACT})
     await protostar_project.protostar.build_cairo0()
     with set_private_key_env_var(devnet_account.private_key):
-        declare_res = await protostar_project.protostar.declare(
+        declare_res = await protostar_project.protostar.declare_cairo0(
             protostar_project.protostar.project_root_path / "build" / "main.json",
             gateway_url=devnet_gateway_url,
             account_address=devnet_account.address,
@@ -214,7 +214,7 @@ async def compiled_contract_with_constructor_class_hash_fixture(
     protostar_project.create_files({"./src/main.cairo": CONTRACT_WITH_CONSTRUCTOR})
     await protostar_project.protostar.build_cairo0()
     with set_private_key_env_var(devnet_account.private_key):
-        declare_res = await protostar_project.protostar.declare(
+        declare_res = await protostar_project.protostar.declare_cairo0(
             protostar_project.project_root_path / "build" / "main.json",
             gateway_url=devnet_gateway_url,
             account_address=devnet_account.address,
@@ -279,7 +279,7 @@ async def test_declare_tx_v1(
     compiled_contract_path: Path,
     devnet_accounts: list[DevnetAccount],
 ):
-    result = await gateway_facade.declare(
+    result = await gateway_facade.declare_cairo0(
         compiled_contract_path=compiled_contract_path,
         account_address=devnet_accounts[0].address,
         signer=devnet_accounts[0].signer,
@@ -304,7 +304,7 @@ async def test_fee_exceeded_max_fee(
     too_small_max_fee = 1
 
     with pytest.raises(FeeExceededMaxFeeException):
-        await gateway_facade.declare(
+        await gateway_facade.declare_cairo0(
             compiled_contract_path=compiled_contract_path,
             account_address=devnet_accounts[0].address,
             signer=devnet_accounts[0].signer,
@@ -320,7 +320,7 @@ async def test_max_fee_estimation(
     compiled_contract_path: Path,
     devnet_accounts: list[DevnetAccount],
 ):
-    await gateway_facade.declare(
+    await gateway_facade.declare_cairo0(
         compiled_contract_path=compiled_contract_path,
         account_address=devnet_accounts[0].address,
         signer=devnet_accounts[0].signer,

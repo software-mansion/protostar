@@ -1,0 +1,7 @@
+[package]
+name = "example_package"
+version = "0.1.0"
+
+[tool.protostar]
+a = true
+exit_first = false

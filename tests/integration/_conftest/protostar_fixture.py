@@ -19,7 +19,7 @@ from protostar.commands import (
     InitCommand,
     InvokeCommand,
     MulticallCommand,
-    DeclareCairo1Command,
+    DeclareCairo0Command,
     TestCairo0Command,
     BuildCairo0Command,
     InitCairo0Command,
@@ -58,7 +58,7 @@ class ProtostarFixture:
         build_cairo0_command: BuildCairo0Command,
         format_command: FormatCommand,
         declare_command: DeclareCommand,
-        declare_cairo1_command: DeclareCairo1Command,
+        declare_cairo0_command: DeclareCairo0Command,
         deploy_command: DeployCommand,
         test_command: TestCommand,
         test_cairo0_command: TestCairo0Command,
@@ -79,7 +79,7 @@ class ProtostarFixture:
         self._build_cairo0_command = build_cairo0_command
         self._format_command = format_command
         self._declare_command = declare_command
-        self._declare_cairo1_command = declare_cairo1_command
+        self._declare_cairo0_command = declare_cairo0_command
         self._deploy_command = deploy_command
         self._test_command = test_command
         self._test_cairo0_command = test_cairo0_command
@@ -100,7 +100,7 @@ class ProtostarFixture:
     def get_intercepted_transactions_mapping(self):
         return self._transaction_registry
 
-    async def declare(
+    async def declare_cairo0(
         self,
         contract: Path,
         account_address: Optional[Address] = None,
@@ -118,9 +118,9 @@ class ProtostarFixture:
             max_fee=max_fee,
         )
 
-        return await self._declare_command.run(args)
+        return await self._declare_cairo0_command.run(args)
 
-    async def declare_cairo1(
+    async def declare(
         self,
         contract: Path,
         compiled_class_hash: int,
@@ -140,7 +140,7 @@ class ProtostarFixture:
         )
         args.compiled_class_hash = compiled_class_hash
 
-        return await self._declare_cairo1_command.run(args)
+        return await self._declare_command.run(args)
 
     def _declare_common_args(
         self,
@@ -250,7 +250,6 @@ class ProtostarFixture:
         args.seed = None
         args.report_slowest_tests = 0
         args.last_failed = last_failed
-        args.profiling = False
         args.max_steps = None
         args.estimate_gas = estimate_gas
 
@@ -263,9 +262,10 @@ class ProtostarFixture:
         result = asyncio.run(self._init_cairo0_command.run(args))
         return result
 
-    def init_sync(self, project_name: str):
+    def init_sync(self, project_name: str, minimal: bool = False):
         args = Namespace()
         args.name = project_name
+        args.minimal = minimal
         result = asyncio.run(self._init_command.run(args))
         return result
 
