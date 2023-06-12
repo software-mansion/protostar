@@ -6,7 +6,6 @@ use clap::Parser;
 use scarb_metadata::{Metadata, MetadataCommand, PackageId};
 
 use cairo_lang_protostar::test_collector::LinkedLibrary;
-use rust_test_runner::pretty_printing;
 use rust_test_runner::{run_test_runner, ProtostarTestConfig};
 
 #[derive(Parser, Debug)]
@@ -63,7 +62,7 @@ fn dependencies_for_package(
     Ok((base_path, dependencies))
 }
 
-fn main_execution() -> Result<()> {
+fn main() -> Result<()> {
     let _args = Args::parse();
 
     // TODO #1997
@@ -78,14 +77,4 @@ fn main_execution() -> Result<()> {
         run_test_runner(&base_path, Some(&dependencies), &protostar_config)?;
     }
     Ok(())
-}
-
-fn main() {
-    match main_execution() {
-        Ok(()) => std::process::exit(0),
-        Err(error) => {
-            pretty_printing::print_error_message(&error);
-            std::process::exit(1);
-        }
-    };
 }
