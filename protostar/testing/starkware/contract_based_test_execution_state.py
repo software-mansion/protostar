@@ -41,7 +41,13 @@ class ContractBasedTestExecutionState(TestExecutionState):
         )
         starknet = base.starknet
 
-        contract = await starknet.deploy(contract_class=test_suite_definition)
+        sender_address = await starknet.deploy_simple_account()
+        declared_class = await starknet.deprecated_declare(
+            contract_class=test_suite_definition
+        )
+        contract = await starknet.deploy(
+            class_hash=declared_class.class_hash, sender_address=sender_address
+        )
         assert test_suite_definition.abi is not None
         starknet.cheatable_state.cheatable_state.class_hash_to_contract_abi_map[
             0

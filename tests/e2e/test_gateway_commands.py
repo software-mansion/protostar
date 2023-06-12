@@ -33,7 +33,7 @@ def test_deploying_and_interacting_with_contract(
         result = protostar(
             [
                 "--no-color",
-                "declare",
+                "declare-cairo0",
                 "./build/main.json",
                 "--gateway-url",
                 devnet_gateway_url,
@@ -145,7 +145,7 @@ def test_deploying_contract_with_constructor_and_inputs_defined_in_config_file(
         result = protostar(
             [
                 "--no-color",
-                "declare",
+                "declare-cairo0",
                 "./build/main.json",
                 "--gateway-url",
                 devnet_gateway_url,
@@ -203,7 +203,7 @@ def test_declaring_contract(
         result = protostar(
             [
                 "--no-color",
-                "declare",
+                "declare-cairo0",
                 "./build/main.json",
                 "--gateway-url",
                 devnet_gateway_url,
@@ -224,6 +224,7 @@ def test_declaring_contract(
     }
 
 
+@pytest.mark.skip(reason="devnet does not support 0.11.2")
 def test_declaring_cairo1_contract(
     protostar: ProtostarFixture,
     devnet_gateway_url: str,
@@ -238,7 +239,7 @@ def test_declaring_cairo1_contract(
         result = protostar(
             [
                 "--no-color",
-                "declare-cairo1",
+                "declare",
                 "balance",
                 "--gateway-url",
                 devnet_gateway_url,
@@ -260,7 +261,7 @@ def test_declaring_cairo1_contract(
 
 
 def test_deploy_account_is_available(protostar: ProtostarFixture):
-    assert "Sends deploy-account transaction" in protostar(
+    assert "Send a deploy-account transaction" in protostar(
         ["--no-color", "deploy-account", "--help"]
     )
 

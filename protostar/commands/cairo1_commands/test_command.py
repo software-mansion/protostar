@@ -54,7 +54,7 @@ class TestCommand(ProtostarCommand):
 
     @property
     def description(self) -> str:
-        return "Executes tests using cairo 1 runner."
+        return "Executes tests using Cairo 1 runner."
 
     @property
     def example(self) -> Optional[str]:
@@ -99,7 +99,7 @@ A glob or globs to a directory or a test suite, for example:
             ProtostarArgument(
                 name="report-slowest-tests",
                 type="int",
-                description="Print slowest tests at the end.",
+                description="Print the slowest tests at the end.",
                 default=0,
             ),
             ProtostarArgument(

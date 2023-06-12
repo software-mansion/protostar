@@ -69,7 +69,7 @@ class BuildCommand(ProtostarCommand):
 
     @property
     def description(self) -> str:
-        return "Compile cairo 1 contracts."
+        return "Compile Cairo 1 contracts."
 
     @property
     def arguments(self):

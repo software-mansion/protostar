@@ -45,7 +45,6 @@ class RunCairo0TestRunnerFixture(Protocol):
         seed: Optional[int] = None,
         max_steps: Optional[int] = None,
         disable_hint_validation: bool = False,
-        profiling: bool = False,
         cairo_path: Optional[List[Path]] = None,
         test_cases: Optional[List[str]] = None,
         ignored_test_cases: Optional[List[str]] = None,
@@ -69,7 +68,6 @@ def run_cairo0_test_runner_fixture(
         seed: Optional[int] = None,
         max_steps: Optional[int] = None,
         disable_hint_validation: bool = False,
-        profiling: bool = False,
         cairo_path: Optional[List[Path]] = None,
         test_cases: Optional[List[str]] = None,
         ignored_test_cases: Optional[List[str]] = None,
@@ -119,7 +117,6 @@ def run_cairo0_test_runner_fixture(
             ignored_targets=ignored_targets,
             seed=seed,
             max_steps=max_steps,
-            profiling=profiling,
             disable_hint_validation=disable_hint_validation,
             cairo_path=cairo_path or [],
             messenger=messenger_factory.human(),
@@ -130,7 +127,7 @@ def run_cairo0_test_runner_fixture(
 
 class CreateProtostarProjectFixture(Protocol):
     def __call__(
-        self, cairo_version: CairoVersion = CairoVersion.cairo0
+        self, cairo_version: CairoVersion = CairoVersion.cairo0, minimal: bool = False
     ) -> ContextManager[ProtostarProjectFixture]:
         ...
 
@@ -140,8 +137,12 @@ def create_protostar_project_fixture(
     session_mocker: MockerFixture,
     tmp_path_factory: ProtostarTmpPathFactory,
 ) -> CreateProtostarProjectFixture:
-    def _create_protostar_project(cairo_version: CairoVersion = CairoVersion.cairo0):
-        return ProtostarProjectFixture(session_mocker, tmp_path_factory, cairo_version)
+    def _create_protostar_project(
+        cairo_version: CairoVersion = CairoVersion.cairo0, minimal: bool = False
+    ):
+        return ProtostarProjectFixture(
+            session_mocker, tmp_path_factory, cairo_version, minimal
+        )
 
     return _create_protostar_project
 
