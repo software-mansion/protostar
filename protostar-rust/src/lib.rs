@@ -403,7 +403,25 @@ version = \"0.1.0\"";
             },]
         );
 
-        let filtered = filter_tests_by_name(Some("thing"), mocked_tests).unwrap();
+        let filtered = filter_tests_by_name(Some("thing"), mocked_tests.clone()).unwrap();
+        assert_eq!(
+            filtered,
+            vec![
+                TestConfig {
+                    name: "crate1::do_thing".to_string(),
+                    available_gas: None,
+                },
+                TestConfig {
+                    name: "crate2::run_other_thing".to_string(),
+                    available_gas: None,
+                },
+            ]
+        );
+
+        let filtered = filter_tests_by_name(Some("nonexistent"), mocked_tests.clone()).unwrap();
+        assert_eq!(filtered, vec![]);
+
+        let filtered = filter_tests_by_name(Some(""), mocked_tests).unwrap();
         assert_eq!(
             filtered,
             vec![
