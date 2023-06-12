@@ -24,7 +24,7 @@ pub fn print_running_tests(test_file: &Utf8PathBuf, tests_num: usize) {
 
 pub fn print_test_summary(tests_stats: TestsStats) {
     println!(
-        "{}: {} passed, {} failed ",
+        "{}: {} passed, {} failed",
         style("Tests").bold(),
         tests_stats.passed,
         tests_stats.failed
@@ -41,9 +41,12 @@ pub fn print_test_result(test_name: &str, result_value: &RunResultValue) {
         style("FAIL").red()
     };
 
-    let result_str_bold = style(result_str).bold();
-
-    println!("[{result_tag}] {test_name} {result_str_bold}");
+    if result_str.is_empty() {
+        println!("[{result_tag}] {test_name}");
+    } else {
+        let result_str_bold = style(result_str).bold();
+        println!("[{result_tag}] {test_name} {result_str_bold}");
+    }
 }
 
 fn get_result_str(run_result: &RunResultValue) -> String {
@@ -70,5 +73,5 @@ fn result_data_to_text(data: &[Felt252]) -> String {
         readable_text.push_str(&felt_text);
     }
 
-    readable_text
+    readable_text.trim().to_string()
 }
