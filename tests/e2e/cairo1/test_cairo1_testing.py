@@ -117,7 +117,7 @@ def test_exit_first(protostar: ProtostarFixture, copy_fixture: CopyFixture):
     result = protostar(
         ["--no-color", "test", "--exit-first", "./tests"], ignore_exit_code=True
     )
-    # The test suite contains 2 failing tests, so it should fail only one of them when using exit-first
+    # The test suite contains 3 failing tests, so it should fail only one of them when using exit-first
     assert "1 failed" in result
 
 
@@ -127,22 +127,23 @@ def test_last_failed(protostar: ProtostarFixture, copy_fixture: CopyFixture):
     os.chdir("./cairo1_project")
 
     result = protostar(["--no-color", "test", "./tests"], ignore_exit_code=True)
-    # Suite consisting of 1 passing, and 2 failing
-    assert "2 failed" in result
+    # Suite consisting of 1 passing, and 3 failing
+    assert "3 failed" in result
     assert "1 passed" in result
-    assert "3 total" in result
+    assert "4 total" in result
 
     result = protostar(["--no-color", "test", "--last-failed"], ignore_exit_code=True)
 
-    # Only ran 2 failed ones
+    # Only ran 3 failed ones
     assert "Running previously failed tests" in result
-    assert "Collected 1 suite, and 2 test cases" in result
+    assert "Collected 1 suite, and 3 test cases" in result
     assert "test_panic_multiple_values" in result
     assert "test_panic_single_value" in result
+    assert "test_assert_err_code_not_ascii" in result
     assert "test_ok" not in result
 
-    assert "2 failed" in result
-    assert "2 total" in result
+    assert "3 failed" in result
+    assert "3 total" in result
 
 
 def test_report_slowest(protostar: ProtostarFixture, copy_fixture: CopyFixture):
