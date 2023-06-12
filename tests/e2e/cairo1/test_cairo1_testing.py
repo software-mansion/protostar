@@ -41,7 +41,7 @@ def test_failing_tests(protostar: ProtostarFixture, copy_fixture: CopyFixture):
     result = protostar(["--no-color", "test", "tests"], ignore_exit_code=True)
 
     expected_output_lines = [
-        "Collected 1 suite, and 3 test cases",
+        "Collected 1 suite, and 4 test cases",
         "[FAIL] tests/failing_test.cairo test_panic_single_value",
         "Test failed with data:",
         "[21] (integer representation)",
@@ -51,8 +51,12 @@ def test_failing_tests(protostar: ProtostarFixture, copy_fixture: CopyFixture):
         "Test failed with data: ",
         "[1870930782904301745253, 482670963043, 31066316372818838395891839589] (integer representation)",
         "['elaborate', 'panic', 'data is here'] (short-string representation)",
+        "[FAIL] tests/failing_test.cairo test_assert_err_code_not_ascii",
+        "Test failed with data:",
+        "[1234] (integer representation)",
+        "[None] (short-string representation)",
         "Test suites: 1 failed, 1 total",
-        "Tests:       2 failed, 1 passed, 3 total",
+        "Tests:       3 failed, 1 passed, 4 total",
     ]
 
     for expected_output_line in expected_output_lines:
