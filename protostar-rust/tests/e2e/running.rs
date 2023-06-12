@@ -30,7 +30,7 @@ fn run_simple_test() {
 #[test]
 fn running_tests_with_filter() {
     let temp = assert_fs::TempDir::new().unwrap();
-    temp.copy_from("tests/resources/example_package", &["**/*"])
+    temp.copy_from("tests/data/example_package", &["**/*"])
         .unwrap();
 
     let snapbox = runner();
@@ -42,8 +42,13 @@ fn running_tests_with_filter() {
         .args(["--corelib-path", corelib])
         .assert()
         .success()
-        .stdout_matches(indoc! {r#"test_2::test_2::test_two: PASS []
-            test_2::test_2::test_two_failing: FAIL [55114047758387]
+        .stdout_matches(indoc! {r#"Collected 2 test(s) and 3 test file(s)
+            Running 2 test(s) from tests/test_2.cairo
+            [PASS] test_2::test_2::test_two
+            [FAIL] test_2::test_2::test_two_failing 2 == 3
+            Running 0 test(s) from tests/test_my_test.cairo
+            Running 0 test(s) from src/lib.cairo
+            Tests: 1 passed, 1 failed
         "#});
 }
 
