@@ -356,7 +356,7 @@ version = \"0.1.0\"";
     }
 
     #[test]
-    fn no_filter_doesnt_filter_tests() {
+    fn passing_none_for_filter_doesnt_filter_tests() {
         let mocked_tests: Vec<TestConfig> = vec![
             TestConfig {
                 name: "crate1::do_thing".to_string(),
