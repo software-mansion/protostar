@@ -10,7 +10,10 @@ def short_string_to_str(value: CairoShortString) -> str:
     return _to_bytes(value).decode("ascii").lstrip("\x00")
 
 
-def is_decodable_to_ascii(value: int) -> bool:
+def is_short_string(value: int) -> bool:
+    if value > int.from_bytes(b"\xff" * 31, "big"):
+        return False
+
     for byte in _to_bytes(value):
         if byte > LAST_ASCII_CHAR_DEC_VAL:
             return False
