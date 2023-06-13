@@ -166,7 +166,7 @@ fn filter_tests_by_name(
                 .name
                 .rsplit("::")
                 .next()
-                .context("Failed to get test")?;
+                .context(format!("Failed to get test name from = {}", test.name))?;
             if name.contains(test_name_filter) {
                 result.push(test);
             }
