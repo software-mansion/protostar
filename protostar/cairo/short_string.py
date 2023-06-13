@@ -18,4 +18,4 @@ def is_decodable_to_ascii(value: int) -> bool:
 
 
 def _to_bytes(value: int) -> bytes:
-    return value.to_bytes(length=31, byteorder="big")
+    return value.to_bytes(length=32, byteorder="big")
