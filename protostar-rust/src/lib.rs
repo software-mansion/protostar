@@ -486,7 +486,7 @@ version = \"0.1.0\"";
                 available_gas: None,
             },
             TestConfig {
-                name: "invalid".to_string(),
+                name: "thing".to_string(),
                 available_gas: None,
             },
         ];
@@ -501,6 +501,10 @@ version = \"0.1.0\"";
                 },
                 TestConfig {
                     name: "crate2::run_other_thing".to_string(),
+                    available_gas: None,
+                },
+                TestConfig {
+                    name: "thing".to_string(),
                     available_gas: None,
                 },
             ]
