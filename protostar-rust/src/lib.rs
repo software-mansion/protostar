@@ -522,6 +522,10 @@ version = \"0.1.0\"";
                 name: "outer::crate3::run_other_thing".to_string(),
                 available_gas: None,
             },
+            TestConfig {
+                name: "do_thing".to_string(),
+                available_gas: None,
+            },
         ];
 
         let filtered = filter_tests_by_name(Some(""), true, mocked_tests.clone()).unwrap();
@@ -529,6 +533,15 @@ version = \"0.1.0\"";
 
         let filtered = filter_tests_by_name(Some("thing"), true, mocked_tests.clone()).unwrap();
         assert_eq!(filtered, vec![]);
+
+        let filtered = filter_tests_by_name(Some("do_thing"), true, mocked_tests.clone()).unwrap();
+        assert_eq!(
+            filtered,
+            vec![TestConfig {
+                name: "do_thing".to_string(),
+                available_gas: None,
+            },]
+        );
 
         let filtered =
             filter_tests_by_name(Some("crate1::do_thing"), true, mocked_tests.clone()).unwrap();
@@ -545,12 +558,9 @@ version = \"0.1.0\"";
                 .unwrap();
         assert_eq!(filtered, vec![]);
 
-        let filtered = filter_tests_by_name(
-            Some("outer::crate3::run_other_thing"),
-            true,
-            mocked_tests,
-        )
-        .unwrap();
+        let filtered =
+            filter_tests_by_name(Some("outer::crate3::run_other_thing"), true, mocked_tests)
+                .unwrap();
         assert_eq!(
             filtered,
             vec![TestConfig {
