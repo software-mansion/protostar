@@ -42,15 +42,15 @@ fn collect_tests_from_directory(
 fn find_cairo_files_in_directory(input_path: &Utf8PathBuf) -> Result<Vec<Utf8PathBuf>> {
     let mut test_files: Vec<Utf8PathBuf> = vec![];
 
-    for entry in WalkDir::new(input_path) {
+    for entry in WalkDir::new(input_path).sort_by(|a, b| a.file_name().cmp(b.file_name())) {
         let entry =
-            entry.with_context(|| format!("Failed to read directory at path = {}", input_path))?;
+            entry.with_context(|| format!("Failed to read directory at path = {input_path}"))?;
         let path = entry.path();
 
         if path.is_file() && path.extension().unwrap_or_default() == "cairo" {
             test_files.push(
                 Utf8Path::from_path(path)
-                    .with_context(|| format!("Failed to convert path = {:?} to utf-8", path))?
+                    .with_context(|| format!("Failed to convert path = {path:?} to utf-8"))?
                     .to_path_buf(),
             );
         }

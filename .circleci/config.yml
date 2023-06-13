@@ -20,7 +20,7 @@ parameters:
 
   scarb_version:
     type: string
-    default: 0.2.0
+    default: 0.4.0
 
   node_version:
     type: string
@@ -224,6 +224,20 @@ commands:
           name: Run linter
           command: poetry run poe lint
 
+  lint_rust_runner:
+    description: "Format and lint check of rust test runner"
+    steps:
+      - run:
+          name: Run format check
+          command: cargo fmt --check
+          working_directory: ./protostar-rust
+      - run:
+          name: Run lint check
+          command: cargo clippy --all-targets --all-features -- --no-deps -W clippy::pedantic -A clippy::missing_errors_doc -A clippy::missing_panics_doc -A clippy::default_trait_access
+          working_directory: ./protostar-rust
+          environment:
+            RUSTFLAGS: -Dwarnings
+
   build:
     description: "Build protostar"
     steps:
@@ -279,6 +293,15 @@ commands:
               poetry run pytest -n4 tests/e2e
             fi
 
+  run_test_runner_tests:
+    description: "Run test of the rust test runner"
+    steps:
+      - run:
+          name: Run test runner tests
+          command: |
+            cargo test
+          working_directory: ./protostar-rust
+
   notify_about_failed_test:
     description: "Send slack notification about failed test on master"
     parameters:
@@ -306,6 +329,28 @@ jobs:
       - lint
       - notify_about_failed_test:
           message: "*Code quality checks have failed* :rotating_light:"
+    
+  rust_runner_code_quality:
+    executor: linux
+    steps:
+      - setup
+      - lint_rust_runner
+
+  rust_runner_tests:
+    parameters:
+      platform:
+        type: enum
+        enum: ["linux", "mac"]
+    executor: << parameters.platform >>
+    steps:
+      - setup:
+          platform: << parameters.platform >>
+      - run:
+          name: Set git config
+          command: git config --global protocol.file.allow always
+      - run_test_runner_tests
+      - notify_about_failed_test:
+          message: "*Rust test runner tests have failed* :rotating_light:"
 
   unit_tests:
     parameters:
@@ -490,11 +535,17 @@ workflows:
   protostar:
     jobs:
       - code_quality
+      - rust_runner_code_quality
       - pre_cache_mac_bindings_and_compiler:
           filters:
             branches:
               only:
                 - master
+      - rust_runner_tests:
+          name: rust_runner_tests-linux
+          platform: linux
+          requires:
+            - rust_runner_code_quality
       - unit_tests:
           name: unit_tests-linux
           platform: linux
@@ -530,6 +581,7 @@ workflows:
             - code_quality
             - unit_tests-linux
             - e2e_tests-linux
+            - rust_runner_tests-linux
           filters:
             branches:
               ignore:
@@ -541,6 +593,7 @@ workflows:
             - code_quality
             - unit_tests-linux
             - e2e_tests-linux
+            - rust_runner_tests-linux
           filters:
             branches:
               ignore:
@@ -577,6 +630,7 @@ workflows:
             - code_quality
             - unit_tests-linux
             - e2e_tests-linux
+            - rust_runner_tests-linux
           filters:
             branches:
               ignore:
@@ -587,6 +641,7 @@ workflows:
             - code_quality
             - unit_tests-linux
             - e2e_tests-linux
+            - rust_runner_tests-linux
             # - unit_tests-mac
             # - e2e_tests-mac
           filters:
