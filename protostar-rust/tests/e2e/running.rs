@@ -17,6 +17,8 @@ fn running_tests() {
         .assert()
         .success()
         .stdout_matches(indoc! {r#"Collected 6 test(s) and 3 test file(s)
+            Running 1 test(s) from src/lib.cairo
+            [PASS] [..]::test_fib
             Running 3 test(s) from tests/test_2.cairo
             [PASS] test_2::test_2::test_two
             [FAIL] test_2::test_2::test_two_failing 2 == 3
@@ -24,8 +26,6 @@ fn running_tests() {
             Running 2 test(s) from tests/test_my_test.cairo
             [PASS] test_my_test::test_my_test::test_my_test
             [PASS] test_my_test::test_my_test::test_four
-            Running 1 test(s) from src/lib.cairo
-            [PASS] [..]::test_fib
             Tests: 5 passed, 1 failed
         "#});
 }
