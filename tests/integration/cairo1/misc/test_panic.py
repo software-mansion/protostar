@@ -49,6 +49,6 @@ async def test_panic(protostar_project: ProtostarProjectFixture, datadir: Path):
     for item in mapping_item:
         assert isinstance(item, FailedTestCaseResult)
         expected_outputs_list = expected_outputs[item.test_case_name]
+        assert isinstance(item.exception, SimpleReportedException)
         for expected_output in expected_outputs_list:
-            assert isinstance(item.exception, SimpleReportedException)
             assert expected_output in item.exception.message
