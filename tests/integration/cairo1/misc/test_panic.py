@@ -22,5 +22,8 @@ async def test_panic(protostar_project: ProtostarProjectFixture, datadir: Path):
 
     assert_cairo_test_cases(
         testing_summary,
-        expected_failed_test_cases_names=["test_panic"],
+        expected_failed_test_cases_names=[
+            "test_panic_when_felt252_not_short_str",
+            "test_panic_with_felt252_max_val",
+        ],
     )
