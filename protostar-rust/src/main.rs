@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use anyhow::{Context, Result};
 use camino::Utf8PathBuf;
 use clap::Parser;
@@ -5,6 +6,8 @@ use scarb_metadata::MetadataCommand;
 
 use rust_test_runner::pretty_printing;
 use rust_test_runner::run_test_runner;
+
+use cairo_lang_runner::ProtostarTestConfig;
 
 #[derive(Parser, Debug)]
 struct Args {
@@ -28,6 +31,20 @@ fn main_execution() -> Result<()> {
 
     let scarb_metadata = MetadataCommand::new().inherit_stderr().exec()?;
 
+    let mut protostar_test_config = ProtostarTestConfig {
+        contracts_paths: HashMap::new(),
+    };
+    for package in &scarb_metadata.packages {
+        for target in &package.targets {
+            if target.kind == "starknet-contract" {
+                // TODO consider multiple targets of this kind
+                protostar_test_config
+                    .contracts_paths
+                    .insert(target.name.clone(), target.source_path.to_string());
+            }
+        }
+    }
+
     for package in &scarb_metadata.workspace.members {
         let protostar_config =
             rust_test_runner::protostar_config_for_package(&scarb_metadata, package)?;
@@ -36,8 +53,8 @@ fn main_execution() -> Result<()> {
 
         run_test_runner(
             &base_path,
-            Some(&dependencies),
-            &protostar_config,
+            Some(dependencies),
+            protostar_test_config.clone(),
             Some(&corelib),
         )?;
     }

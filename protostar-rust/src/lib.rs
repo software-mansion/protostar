@@ -7,11 +7,13 @@ use scarb_metadata::{Metadata, PackageId};
 use serde::Deserialize;
 use walkdir::WalkDir;
 
+use cairo_lang_runner::{ProtostarTestConfig, SierraCasmRunner, StarknetState};
 use cairo_lang_protostar::casm_generator::TestConfig;
 use cairo_lang_protostar::test_collector::{collect_tests, LinkedLibrary};
-use cairo_lang_runner::{SierraCasmRunner, StarknetState};
 use cairo_lang_sierra::program::Program;
 use cairo_lang_sierra_to_casm::metadata::MetadataComputationConfig;
+
+use blockifier::transaction::transaction_utils_for_protostar::create_state_with_trivial_validation_account;
 
 use crate::test_stats::TestsStats;
 
@@ -19,9 +21,9 @@ pub mod pretty_printing;
 mod test_stats;
 
 #[derive(Deserialize, Debug, PartialEq)]
-pub struct ProtostarTestConfig {
+pub struct ProtostarTestConfigForDeserialization {
     #[serde(default)]
-    exit_first: bool, // TODO Not implemented!
+    exit_first: bool,
 }
 
 struct TestsFromFile {
@@ -32,7 +34,7 @@ struct TestsFromFile {
 
 fn collect_tests_from_directory(
     input_path: &Utf8PathBuf,
-    linked_libraries: Option<&Vec<LinkedLibrary>>,
+    linked_libraries: Option<Vec<LinkedLibrary>>,
     corelib_path: Option<&Utf8PathBuf>,
 ) -> Result<Vec<TestsFromFile>> {
     let test_files = find_cairo_files_in_directory(input_path)?;
@@ -60,7 +62,7 @@ fn find_cairo_files_in_directory(input_path: &Utf8PathBuf) -> Result<Vec<Utf8Pat
 
 fn internal_collect_tests(
     input_path: &Utf8PathBuf,
-    linked_libraries: Option<&Vec<LinkedLibrary>>,
+    linked_libraries: Option<Vec<LinkedLibrary>>,
     test_files: Vec<Utf8PathBuf>,
     corelib_path: Option<&Utf8PathBuf>,
 ) -> Result<Vec<TestsFromFile>> {
@@ -71,7 +73,7 @@ fn internal_collect_tests(
         let (sierra_program, tests_configs) = collect_tests(
             test_file.as_str(),
             None,
-            linked_libraries,
+            linked_libraries.clone(),
             Some(builtins.clone()),
             corelib_path.map(|corelib_path| corelib_path.as_str()),
         )?;
@@ -88,8 +90,8 @@ fn internal_collect_tests(
 
 pub fn run_test_runner(
     input_path: &Utf8PathBuf,
-    linked_libraries: Option<&Vec<LinkedLibrary>>,
-    _config: &ProtostarTestConfig,
+    linked_libraries: Option<Vec<LinkedLibrary>>,
+    protostar_test_config: ProtostarTestConfig,
     corelib_path: Option<&Utf8PathBuf>,
 ) -> Result<()> {
     let tests = collect_tests_from_directory(input_path, linked_libraries, corelib_path)?;
@@ -101,14 +103,18 @@ pub fn run_test_runner(
 
     let mut tests_stats = TestsStats::default();
     for tests_from_file in tests {
-        run_tests(tests_from_file, &mut tests_stats)?;
+        run_tests(tests_from_file, &mut tests_stats, protostar_test_config.clone())?;
     }
     pretty_printing::print_test_summary(tests_stats);
 
     Ok(())
 }
 
-fn run_tests(tests: TestsFromFile, tests_stats: &mut TestsStats) -> Result<()> {
+fn run_tests(
+    tests: TestsFromFile,
+    tests_stats: &mut TestsStats,
+    protostar_test_config: ProtostarTestConfig,
+) -> Result<()> {
     let runner = SierraCasmRunner::new(
         tests.sierra_program,
         Some(MetadataComputationConfig::default()),
@@ -118,6 +124,7 @@ fn run_tests(tests: TestsFromFile, tests_stats: &mut TestsStats) -> Result<()> {
 
     pretty_printing::print_running_tests(&tests.relative_path, tests.tests_configs.len());
     for config in tests.tests_configs {
+        let blockifier_state = create_state_with_trivial_validation_account();
         let result = runner
             .run_function(
                 runner.find_function(config.name.as_str())?,
@@ -128,6 +135,8 @@ fn run_tests(tests: TestsFromFile, tests_stats: &mut TestsStats) -> Result<()> {
                     Some(usize::MAX)
                 },
                 StarknetState::default(),
+                Some(protostar_test_config.clone()),
+                Some(blockifier_state),
             )
             .with_context(|| format!("Failed to run the function `{}`.", config.name.as_str()))?;
 
@@ -140,14 +149,14 @@ fn run_tests(tests: TestsFromFile, tests_stats: &mut TestsStats) -> Result<()> {
 pub fn protostar_config_for_package(
     metadata: &Metadata,
     package: &PackageId,
-) -> Result<ProtostarTestConfig> {
+) -> Result<ProtostarTestConfigForDeserialization> {
     let raw_metadata = metadata
         .get_package(package)
         .ok_or_else(|| anyhow!("Failed to find metadata for package = {package}"))?
         .tool_metadata("protostar")
         .ok_or_else(|| anyhow!("Failed to find protostar config for package = {package}"))?
         .clone();
-    let protostar_config: ProtostarTestConfig = serde_json::from_value(raw_metadata)?;
+    let protostar_config: ProtostarTestConfigForDeserialization = serde_json::from_value(raw_metadata)?;
 
     Ok(protostar_config)
 }
@@ -246,7 +255,7 @@ mod tests {
             protostar_config_for_package(&scarb_metadata, &scarb_metadata.workspace.members[0])
                 .unwrap();
 
-        assert_eq!(config, ProtostarTestConfig { exit_first: false });
+        assert_eq!(config, ProtostarTestConfigForDeserialization { exit_first: false });
     }
 
     #[test]

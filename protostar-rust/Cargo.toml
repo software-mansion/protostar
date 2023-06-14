@@ -12,6 +12,7 @@ cairo-lang-test-runner = { path = "../cairo/crates/cairo-lang-test-runner", vers
 cairo-lang-runner = { path = "../cairo/crates/cairo-lang-runner", version = "1.1.0" }
 cairo-lang-sierra-to-casm = { path = "../cairo/crates/cairo-lang-sierra-to-casm", version = "1.1.0" }
 cairo-lang-sierra = { path = "../cairo/crates/cairo-lang-sierra", version = "1.1.0" }
+blockifier = { git = "https://github.com/karol-bisztyga/blockifier.git", branch="kb/use-in-protostar" }
 cairo-felt = "0.3.0-rc1"
 clap = { version = "4.2.7", features = ["derive"] }
 serde_json = "1.0.96"
@@ -20,6 +21,7 @@ itertools = "0.10.5"
 walkdir = "2.3.3"
 camino = "1.1.4"
 scarb-metadata = "1.4.2"
+project-root = "0.2.2"
 console = "0.15.7"
 assert_fs = "1.0.13"
 snapbox = "0.4.11"
