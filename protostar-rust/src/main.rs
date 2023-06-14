@@ -32,6 +32,7 @@ fn main_execution() -> Result<()> {
     let scarb_metadata = MetadataCommand::new().inherit_stderr().exec()?;
 
     let mut protostar_test_config = ProtostarTestConfig {
+        corelib_path: corelib.to_string(),
         contracts_paths: HashMap::new(),
     };
     for package in &scarb_metadata.packages {
@@ -46,7 +47,7 @@ fn main_execution() -> Result<()> {
     }
 
     for package in &scarb_metadata.workspace.members {
-        let protostar_config =
+        let _protostar_config =
             rust_test_runner::protostar_config_for_package(&scarb_metadata, package)?;
         let (base_path, dependencies) =
             rust_test_runner::dependencies_for_package(&scarb_metadata, package)?;

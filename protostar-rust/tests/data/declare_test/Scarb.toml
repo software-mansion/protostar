@@ -1,5 +1,5 @@
 [package]
-name = "simple_contract"
+name = "declare_test"
 version = "0.1.0"
 
 [tool.protostar]
