@@ -3,7 +3,8 @@ use camino::Utf8PathBuf;
 use clap::Parser;
 use include_dir::{include_dir, Dir};
 use scarb_metadata::MetadataCommand;
-use tempfile::tempdir;
+use std::path::PathBuf;
+use tempfile::{tempdir, TempDir};
 
 use rust_test_runner::pretty_printing;
 use rust_test_runner::run_test_runner;
@@ -17,20 +18,22 @@ struct Args {
     test_filter: Option<String>,
 }
 
-fn load_corelib() -> Result<Utf8PathBuf> {
+fn load_corelib() -> Result<TempDir> {
     let tmp_dir = tempdir()?;
     CORELIB
         .extract(&tmp_dir)
         .expect("Failed to copy corelib to temporary directory");
-    Utf8PathBuf::try_from(tmp_dir.into_path())
-        .context("Failed to convert corelib path to Utf8PathBuf")
+    Ok(tmp_dir)
 }
 
 fn main_execution() -> Result<()> {
     let _args = Args::parse();
 
     // TODO #1997
-    let corelib = load_corelib()?;
+    let corelib_dir = load_corelib()?;
+    let corelib_path: PathBuf = corelib_dir.path().into();
+    let corelib = Utf8PathBuf::try_from(corelib_path)
+        .context("Failed to convert corelib path to Utf8PathBuf")?;
 
     let scarb_metadata = MetadataCommand::new().inherit_stderr().exec()?;
 
@@ -45,6 +48,9 @@ fn main_execution() -> Result<()> {
 
         run_test_runner(&base_path, Some(dependencies.clone()), Some(&corelib))?;
     }
+
+    // Explicitly close the temporary directory so we can handle the error
+    corelib_dir.close().expect("Failed to close temporary directory with corelib. Corelib files might have not been released from filesystem");
     Ok(())
 }
 
