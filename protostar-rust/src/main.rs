@@ -1,32 +1,36 @@
 use anyhow::{Context, Result};
 use camino::Utf8PathBuf;
 use clap::Parser;
+use include_dir::{include_dir, Dir};
 use scarb_metadata::MetadataCommand;
+use tempfile::tempdir;
 
 use rust_test_runner::pretty_printing;
 use rust_test_runner::run_test_runner;
 
 use std::process::Command;
 
+static CORELIB: Dir = include_dir!("../cairo/corelib/src");
+
 #[derive(Parser, Debug)]
 struct Args {
     test_filter: Option<String>,
-    // TODO #1997 this is a temporary solution for tests to work, this argument
-    //  should be detected automatically
-    #[arg(short, long)]
-    corelib_path: Option<String>,
+}
+
+fn load_corelib() -> Result<Utf8PathBuf> {
+    let tmp_dir = tempdir()?;
+    CORELIB
+        .extract(&tmp_dir)
+        .expect("Failed to copy corelib to temporary directory");
+    Utf8PathBuf::try_from(tmp_dir.into_path())
+        .context("Failed to convert corelib path to Utf8PathBuf")
 }
 
 fn main_execution() -> Result<()> {
-    let args = Args::parse();
+    let _args = Args::parse();
 
     // TODO #1997
-    let corelib = match args.corelib_path {
-        Some(corelib) => Utf8PathBuf::from(corelib),
-        None => Utf8PathBuf::from("../../cairo/corelib/src")
-            .canonicalize_utf8()
-            .context("Failed to resolve corelib path")?,
-    };
+    let corelib = load_corelib()?;
 
     let scarb_metadata = MetadataCommand::new().inherit_stderr().exec()?;
 
