@@ -47,8 +47,6 @@ fn main_execution() -> Result<()> {
     }
 
     for package in &scarb_metadata.workspace.members {
-        let _protostar_config =
-            rust_test_runner::protostar_config_for_package(&scarb_metadata, package)?;
         let (base_path, dependencies) =
             rust_test_runner::dependencies_for_package(&scarb_metadata, package)?;
 

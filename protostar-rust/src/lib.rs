@@ -1,10 +1,8 @@
 use std::collections::HashMap;
-use std::fmt::Debug;
 
 use anyhow::{anyhow, Context, Result};
 use camino::{Utf8Path, Utf8PathBuf};
 use scarb_metadata::{Metadata, PackageId};
-use serde::Deserialize;
 use walkdir::WalkDir;
 
 use cairo_lang_runner::{ProtostarTestConfig, SierraCasmRunner, StarknetState};
@@ -19,12 +17,6 @@ use crate::test_stats::TestsStats;
 
 pub mod pretty_printing;
 mod test_stats;
-
-#[derive(Deserialize, Debug, PartialEq)]
-pub struct ProtostarTestConfigForDeserialization {
-    #[serde(default)]
-    exit_first: bool,
-}
 
 struct TestsFromFile {
     sierra_program: Program,
@@ -146,21 +138,6 @@ fn run_tests(
     Ok(())
 }
 
-pub fn protostar_config_for_package(
-    metadata: &Metadata,
-    package: &PackageId,
-) -> Result<ProtostarTestConfigForDeserialization> {
-    let raw_metadata = metadata
-        .get_package(package)
-        .ok_or_else(|| anyhow!("Failed to find metadata for package = {package}"))?
-        .tool_metadata("protostar")
-        .ok_or_else(|| anyhow!("Failed to find protostar config for package = {package}"))?
-        .clone();
-    let protostar_config: ProtostarTestConfigForDeserialization = serde_json::from_value(raw_metadata)?;
-
-    Ok(protostar_config)
-}
-
 pub fn dependencies_for_package(
     metadata: &Metadata,
     package: &PackageId,
@@ -238,71 +215,6 @@ mod tests {
         assert!(err
             .to_string()
             .contains("Failed to find metadata for package"));
-    }
-
-    #[test]
-    fn get_protostar_config_for_package() {
-        let temp = assert_fs::TempDir::new().unwrap();
-        temp.copy_from("tests/data/simple_test", &["**/*"])
-            .unwrap();
-        let scarb_metadata = MetadataCommand::new()
-            .inherit_stderr()
-            .current_dir(temp.path())
-            .exec()
-            .unwrap();
-
-        let config =
-            protostar_config_for_package(&scarb_metadata, &scarb_metadata.workspace.members[0])
-                .unwrap();
-
-        assert_eq!(config, ProtostarTestConfigForDeserialization { exit_first: false });
-    }
-
-    #[test]
-    fn get_protostar_config_for_package_err_on_invalid_package() {
-        let temp = assert_fs::TempDir::new().unwrap();
-        temp.copy_from("tests/data/simple_test", &["**/*"])
-            .unwrap();
-        let scarb_metadata = MetadataCommand::new()
-            .inherit_stderr()
-            .current_dir(temp.path())
-            .exec()
-            .unwrap();
-
-        let result = protostar_config_for_package(
-            &scarb_metadata,
-            &PackageId::from(String::from("12345679")),
-        );
-        let err = result.unwrap_err();
-
-        assert!(err
-            .to_string()
-            .contains("Failed to find metadata for package"));
-    }
-
-    #[test]
-    fn get_protostar_config_for_package_err_on_missing_config() {
-        let temp = assert_fs::TempDir::new().unwrap();
-        temp.copy_from("tests/data/simple_test", &["**/*"])
-            .unwrap();
-        let content = "[package]
-name = \"simple_test\"
-version = \"0.1.0\"";
-        temp.child("Scarb.toml").write_str(content).unwrap();
-
-        let scarb_metadata = MetadataCommand::new()
-            .inherit_stderr()
-            .current_dir(temp.path())
-            .exec()
-            .unwrap();
-
-        let result =
-            protostar_config_for_package(&scarb_metadata, &scarb_metadata.workspace.members[0]);
-        let err = result.unwrap_err();
-
-        assert!(err
-            .to_string()
-            .contains("Failed to find protostar config for package"));
     }
 
     #[test]
