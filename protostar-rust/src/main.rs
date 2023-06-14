@@ -1,4 +1,4 @@
-use anyhow::{Context, Result};
+use anyhow::{anyhow, Context, Result};
 use camino::Utf8PathBuf;
 use clap::Parser;
 use include_dir::{include_dir, Dir};
@@ -32,7 +32,7 @@ fn main_execution() -> Result<()> {
     // TODO #1997
     let corelib_dir = load_corelib()?;
     let corelib_path: PathBuf = corelib_dir.path().into();
-    let corelib = Utf8PathBuf::try_from(corelib_path)
+    let corelib = Utf8PathBuf::try_from(corelib_path.clone())
         .context("Failed to convert corelib path to Utf8PathBuf")?;
 
     let scarb_metadata = MetadataCommand::new().inherit_stderr().exec()?;
@@ -50,7 +50,12 @@ fn main_execution() -> Result<()> {
     }
 
     // Explicitly close the temporary directory so we can handle the error
-    corelib_dir.close().expect("Failed to close temporary directory with corelib. Corelib files might have not been released from filesystem");
+    corelib_dir.close().with_context(|| {
+        anyhow!(
+            "Failed to close temporary directory = {} with corelib. Corelib files might have not been released from filesystem",
+            corelib_path.display()
+        )
+    })?;
     Ok(())
 }
 
