@@ -5,9 +5,9 @@ use camino::{Utf8Path, Utf8PathBuf};
 use scarb_metadata::{Metadata, PackageId};
 use walkdir::WalkDir;
 
-use cairo_lang_runner::{ProtostarTestConfig, SierraCasmRunner, StarknetState};
 use cairo_lang_protostar::casm_generator::TestConfig;
 use cairo_lang_protostar::test_collector::{collect_tests, LinkedLibrary};
+use cairo_lang_runner::{ProtostarTestConfig, SierraCasmRunner, StarknetState};
 use cairo_lang_sierra::program::Program;
 use cairo_lang_sierra_to_casm::metadata::MetadataComputationConfig;
 
@@ -95,7 +95,11 @@ pub fn run_test_runner(
 
     let mut tests_stats = TestsStats::default();
     for tests_from_file in tests {
-        run_tests(tests_from_file, &mut tests_stats, protostar_test_config.clone())?;
+        run_tests(
+            tests_from_file,
+            &mut tests_stats,
+            protostar_test_config.clone(),
+        )?;
     }
     pretty_printing::print_test_summary(tests_stats);
 
@@ -181,8 +185,7 @@ mod tests {
     #[test]
     fn get_dependencies_for_package() {
         let temp = assert_fs::TempDir::new().unwrap();
-        temp.copy_from("tests/data/simple_test", &["**/*"])
-            .unwrap();
+        temp.copy_from("tests/data/simple_test", &["**/*"]).unwrap();
         let scarb_metadata = MetadataCommand::new()
             .inherit_stderr()
             .current_dir(temp.path())
@@ -200,8 +203,7 @@ mod tests {
     #[test]
     fn get_dependencies_for_package_err_on_invalid_package() {
         let temp = assert_fs::TempDir::new().unwrap();
-        temp.copy_from("tests/data/simple_test", &["**/*"])
-            .unwrap();
+        temp.copy_from("tests/data/simple_test", &["**/*"]).unwrap();
         let scarb_metadata = MetadataCommand::new()
             .inherit_stderr()
             .current_dir(temp.path())
@@ -220,8 +222,7 @@ mod tests {
     #[test]
     fn collecting_tests() {
         let temp = assert_fs::TempDir::new().unwrap();
-        temp.copy_from("tests/data/simple_test", &["**/*"])
-            .unwrap();
+        temp.copy_from("tests/data/simple_test", &["**/*"]).unwrap();
         let tests_path = Utf8PathBuf::from_path_buf(temp.to_path_buf()).unwrap();
 
         let tests = find_cairo_files_in_directory(&tests_path).unwrap();

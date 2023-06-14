@@ -1,8 +1,8 @@
-use std::collections::HashMap;
 use anyhow::{Context, Result};
 use camino::Utf8PathBuf;
 use clap::Parser;
 use scarb_metadata::MetadataCommand;
+use std::collections::HashMap;
 
 use rust_test_runner::pretty_printing;
 use rust_test_runner::run_test_runner;
