@@ -50,12 +50,20 @@ commands:
           command: |
             env PYTHON_CONFIGURE_OPTS="--enable-framework" pyenv install -s << pipeline.parameters.python_version >>
             pyenv global << pipeline.parameters.python_version >>
-            HOMEBREW_NO_AUTO_UPDATE=1 brew install gmp
+            HOMEBREW_NO_AUTO_UPDATE=1 brew install gmp patchelf
       - save_cache:
           key: mac-python-gmp-<< pipeline.parameters.python_version >>
           paths:
             - ~/.pyenv/versions/<< pipeline.parameters.python_version >>
             - /opt/homebrew/opt/gmp
+            - /opt/homebrew/opt/patchelf
+
+  install_linux_patchelf:
+    description: "Install patchelf using pip"
+    steps:
+      - run:
+          name: Install patchelf
+          command: pip install patchelf
 
   ensure_poetry_version:
     description: "Install poetry"
@@ -176,6 +184,11 @@ commands:
             equal: ["mac", << parameters.platform >>]
           steps:
             - install_python_and_gmp_mac
+      - when:
+          condition:
+            equal: ["linux", << parameters.platform >>]
+          steps:
+            - install_linux_patchelf
       - ensure_poetry_version
       - install_rust
       - install_scarb
