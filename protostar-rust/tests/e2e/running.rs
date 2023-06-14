@@ -5,7 +5,7 @@ use indoc::indoc;
 #[test]
 fn running_tests() {
     let temp = assert_fs::TempDir::new().unwrap();
-    temp.copy_from("tests/data/example_package", &["**/*"])
+    temp.copy_from("tests/data/simple_test", &["**/*"])
         .unwrap();
 
     let snapbox = runner();

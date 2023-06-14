@@ -1,0 +1,8 @@
+[package]
+name = "simple_contract"
+version = "0.1.0"
+
+[tool.protostar]
+exit_first = false
+
+[[target.starknet-contract]]
