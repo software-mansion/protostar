@@ -6,3 +6,8 @@ version = "0.1.0"
 exit_first = false
 
 [[target.starknet-contract]]
+sierra = true
+
+[dependencies]
+starknet = ">=1.0.0"
+

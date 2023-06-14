@@ -7,7 +7,7 @@ use walkdir::WalkDir;
 
 use cairo_lang_protostar::casm_generator::TestConfig;
 use cairo_lang_protostar::test_collector::{collect_tests, LinkedLibrary};
-use cairo_lang_runner::{ProtostarTestConfig, SierraCasmRunner, StarknetState};
+use cairo_lang_runner::{SierraCasmRunner, StarknetState};
 use cairo_lang_sierra::program::Program;
 use cairo_lang_sierra_to_casm::metadata::MetadataComputationConfig;
 
@@ -83,7 +83,6 @@ fn internal_collect_tests(
 pub fn run_test_runner(
     input_path: &Utf8PathBuf,
     linked_libraries: Option<Vec<LinkedLibrary>>,
-    protostar_test_config: ProtostarTestConfig,
     corelib_path: Option<&Utf8PathBuf>,
 ) -> Result<()> {
     let tests = collect_tests_from_directory(input_path, linked_libraries, corelib_path)?;
@@ -95,22 +94,14 @@ pub fn run_test_runner(
 
     let mut tests_stats = TestsStats::default();
     for tests_from_file in tests {
-        run_tests(
-            tests_from_file,
-            &mut tests_stats,
-            protostar_test_config.clone(),
-        )?;
+        run_tests(tests_from_file, &mut tests_stats)?;
     }
     pretty_printing::print_test_summary(tests_stats);
 
     Ok(())
 }
 
-fn run_tests(
-    tests: TestsFromFile,
-    tests_stats: &mut TestsStats,
-    protostar_test_config: ProtostarTestConfig,
-) -> Result<()> {
+fn run_tests(tests: TestsFromFile, tests_stats: &mut TestsStats) -> Result<()> {
     let runner = SierraCasmRunner::new(
         tests.sierra_program,
         Some(MetadataComputationConfig::default()),
@@ -131,7 +122,6 @@ fn run_tests(
                     Some(usize::MAX)
                 },
                 StarknetState::default(),
-                Some(protostar_test_config.clone()),
                 Some(blockifier_state),
             )
             .with_context(|| format!("Failed to run the function `{}`.", config.name.as_str()))?;
