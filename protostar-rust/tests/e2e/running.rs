@@ -50,3 +50,31 @@ fn run_declare_test() {
             Tests: 1 passed, 0 failed
         "#});
 }
+
+#[test]
+fn run_print_test() {
+    let temp = assert_fs::TempDir::new().unwrap();
+    temp.copy_from("tests/data/print_test", &["**/*"])
+        .unwrap();
+
+    let snapbox = runner();
+    let corelib = corelib_path();
+
+    snapbox
+        .current_dir(&temp)
+        .args(["--corelib-path", corelib])
+        .assert()
+        .success()
+        .stdout_matches(indoc! {r#"Collected 1 test(s) and 2 test file(s)
+            Running 0 test(s) from src/lib.cairo
+            Running 1 test(s) from tests/test_print.cairo
+            original value: [123], converted to a string: [{]
+            original value: [6381921], converted to a string: [aaa]
+            original value: [152]
+            original value: [124], converted to a string: [|]
+            original value: [149]
+            original value: [439721161573], converted to a string: [false]
+            [PASS] test_print::test_print::test_print
+            Tests: 1 passed, 0 failed
+        "#});
+}
