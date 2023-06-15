@@ -65,7 +65,7 @@ fn internal_collect_tests(
         let (sierra_program, tests_configs) = collect_tests(
             test_file.as_str(),
             None,
-            linked_libraries.clone(),
+            linked_libraries,
             Some(builtins.clone()),
             corelib_path.map(|corelib_path| corelib_path.as_str()),
         )?;
