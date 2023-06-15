@@ -2,9 +2,6 @@
 name = "declare_test"
 version = "0.1.0"
 
-[tool.protostar]
-exit_first = false
-
 [[target.starknet-contract]]
 sierra = true
 
