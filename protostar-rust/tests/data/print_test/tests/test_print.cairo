@@ -5,6 +5,7 @@ use protostar_print::PrintTrait;
 fn test_print() {
     123.print();
     'aaa'.print();
+    3618502788666131213697322783095070105623107215331596699973092056135872020480.print();
 
     let mut arr = ArrayTrait::new();
     arr.append(152);

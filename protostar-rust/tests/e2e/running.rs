@@ -70,6 +70,7 @@ fn run_print_test() {
             Running 1 test(s) from tests/test_print.cairo
             original value: [123], converted to a string: [{]
             original value: [6381921], converted to a string: [aaa]
+            original value: [3618502788666131213697322783095070105623107215331596699973092056135872020480]
             original value: [152]
             original value: [124], converted to a string: [|]
             original value: [149]
