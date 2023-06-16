@@ -54,8 +54,7 @@ fn run_declare_test() {
 #[test]
 fn run_print_test() {
     let temp = assert_fs::TempDir::new().unwrap();
-    temp.copy_from("tests/data/print_test", &["**/*"])
-        .unwrap();
+    temp.copy_from("tests/data/print_test", &["**/*"]).unwrap();
 
     let snapbox = runner();
     let corelib = corelib_path();
