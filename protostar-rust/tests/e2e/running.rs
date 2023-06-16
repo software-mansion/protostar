@@ -34,11 +34,9 @@ fn run_declare_test() {
         .unwrap();
 
     let snapbox = runner();
-    let corelib = corelib_path();
 
     snapbox
         .current_dir(&temp)
-        .args(["--corelib-path", corelib])
         .assert()
         .success()
         .stdout_matches(indoc! {r#"Collected 1 test(s) and 2 test file(s)
