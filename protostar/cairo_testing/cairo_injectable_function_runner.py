@@ -8,7 +8,7 @@ from starkware.cairo.lang.vm.vm_exceptions import VmException
 from protostar.cairo import HintLocalsDict
 from protostar.cairo.cairo_function_executor import Offset, OffsetOrName
 from protostar.cairo.cairo_function_runner_facade import CairoRunnerFacade
-from protostar.cairo.short_string import short_string_to_str
+from protostar.cairo.short_string import short_string_to_str, is_short_string
 from protostar.testing.test_environment_exceptions import RevertableException
 from protostar.starknet import SimpleReportedException
 
@@ -50,7 +50,8 @@ class CairoInjectableFunctionRunner:
             if self._cairo_runner_facade.did_panic():
                 panic_data = self._cairo_runner_facade.get_panic_data()
                 panic_data_short_strs = [
-                    short_string_to_str(datum) for datum in panic_data
+                    short_string_to_str(datum) if is_short_string(datum) else None
+                    for datum in panic_data
                 ]
                 raise SimpleReportedException(
                     f"Test failed with data: \n"
