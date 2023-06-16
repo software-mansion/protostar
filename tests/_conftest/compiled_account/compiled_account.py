@@ -1,12 +1,19 @@
 from pathlib import Path
 
-from starknet_py.compile.compiler import Compiler
+from protostar.starknet import (
+    StarknetPassManagerFactory,
+    StarknetCompiler,
+    StarknetCompilerConfig,
+)
 
 
 def compile_account_contract_with_validate_deploy() -> str:
-    return Compiler(
-        contract_source=(
-            Path(__file__).parent / "account_contract_with_validate_deploy.cairo"
-        ).read_text("utf-8"),
-        is_account_contract=True,
-    ).compile_contract()
+    return StarknetCompiler(
+        config=StarknetCompilerConfig(
+            include_paths=[],
+            disable_hint_validation=True,
+        ),
+        pass_manager_factory=StarknetPassManagerFactory,
+    ).compile_contract(
+        Path(__file__).parent / "account_contract_with_validate_deploy.cairo"
+    )

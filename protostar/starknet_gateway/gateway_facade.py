@@ -12,11 +12,11 @@ from starknet_py.net.schemas.gateway import CasmClassSchema
 from starknet_py.net.signer import BaseSigner
 from starknet_py.net.udc_deployer.deployer import Deployer, ContractDeployment
 from starknet_py.net.client_models import Call, CasmClass
-from starknet_py.transaction_exceptions import (
+from starknet_py.transaction_errors import (
     TransactionFailedError,
     TransactionRejectedError,
 )
-from starknet_py.utils.data_transformer.errors import CairoSerializerException
+from starknet_py.serialization.errors import InvalidTypeException
 from typing_extensions import Self, TypeGuard
 
 from protostar.protostar_exception import ProtostarException
@@ -112,7 +112,7 @@ class GatewayFacade(MulticallClientProtocol):
                 salt=salt,
                 abi=contract_abi.to_abi_type(),
             )
-        except (ValueError, TypeError, CairoSerializerException) as v_err:
+        except (ValueError, TypeError, InvalidTypeException) as v_err:
             raise InputValidationException(str(v_err)) from v_err
 
     async def deploy_via_udc(
