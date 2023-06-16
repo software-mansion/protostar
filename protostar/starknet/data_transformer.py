@@ -31,7 +31,12 @@ def from_python_transformer(
         raise DataTransformerException("Invalid ABI") from ex
 
     try:
-        function = abi.functions[fn_name]
+        if fn_name == "constructor":
+            function = abi.constructor
+            if function is None:
+                raise DataTransformerException(f"Constructor not in ABI")
+        else:
+            function = abi.functions[fn_name]
     except KeyError as ex:
         raise DataTransformerException(f"Function name `{fn_name}` not in ABI") from ex
 
@@ -71,7 +76,12 @@ def to_python_transformer(
             raise DataTransformerException("Invalid ABI") from ex
 
         try:
-            function = abi.functions[fn_name]
+            if fn_name == "constructor":
+                function = abi.constructor
+                if function is None:
+                    raise DataTransformerException(f"Constructor not in ABI")
+            else:
+                function = abi.functions[fn_name]
         except KeyError as ex:
             raise DataTransformerException(
                 f"Function name `{fn_name}` not in ABI"
