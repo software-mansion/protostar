@@ -11,7 +11,7 @@ use rust_test_runner::run_test_runner;
 
 use std::process::Command;
 
-static CORELIB: Dir = include_dir!("../cairo/corelib/src");
+static CORELIB_PATH: Dir = include_dir!("../cairo/corelib/src");
 
 #[derive(Parser, Debug)]
 struct Args {
@@ -20,7 +20,7 @@ struct Args {
 
 fn load_corelib() -> Result<TempDir> {
     let tmp_dir = tempdir()?;
-    CORELIB
+    CORELIB_PATH
         .extract(&tmp_dir)
         .expect("Failed to copy corelib to temporary directory");
     Ok(tmp_dir)
