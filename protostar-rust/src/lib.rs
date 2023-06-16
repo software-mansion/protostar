@@ -22,14 +22,20 @@ mod test_stats;
 
 #[derive(Deserialize, Debug, PartialEq)]
 pub struct RunnerConfig {
+    test_name_filter: Option<String>,
     exact_match: bool,
     protostar_test_config: ProtostarTestConfig,
 }
 
 impl RunnerConfig {
     #[must_use]
-    pub fn new(exact_match: bool, protostar_test_config: ProtostarTestConfig) -> Self {
+    pub fn new(
+        test_name_filter: Option<String>,
+        exact_match: bool,
+        protostar_test_config: ProtostarTestConfig,
+    ) -> Self {
         Self {
+            test_name_filter,
             exact_match,
             protostar_test_config,
         }
@@ -52,8 +58,7 @@ fn collect_tests_from_directory(
     input_path: &Utf8PathBuf,
     linked_libraries: Option<Vec<LinkedLibrary>>,
     corelib_path: Option<&Utf8PathBuf>,
-    test_name_filter: Option<&str>,
-    exact_match: bool,
+    runner_config: &RunnerConfig,
 ) -> Result<Vec<TestsFromFile>> {
     let test_files = find_cairo_files_in_directory(input_path)?;
     internal_collect_tests(
@@ -61,8 +66,7 @@ fn collect_tests_from_directory(
         linked_libraries,
         test_files,
         corelib_path,
-        test_name_filter,
-        exact_match,
+        runner_config,
     )
 }
 
@@ -90,8 +94,7 @@ fn internal_collect_tests(
     linked_libraries: Option<Vec<LinkedLibrary>>,
     test_files: Vec<Utf8PathBuf>,
     corelib_path: Option<&Utf8PathBuf>,
-    test_name_filter: Option<&str>,
-    exact_match: bool,
+    runner_config: &RunnerConfig,
 ) -> Result<Vec<TestsFromFile>> {
     let builtins = vec!["GasBuiltin", "Pedersen", "RangeCheck", "bitwise", "ec_op"];
 
@@ -107,7 +110,11 @@ fn internal_collect_tests(
             corelib_path.map(|corelib_path| corelib_path.as_str()),
         )?;
 
-        let tests_configs = filter_tests_by_name(test_name_filter, exact_match, tests_configs)?;
+        let tests_configs = filter_tests_by_name(
+            runner_config.test_name_filter.as_deref(),
+            runner_config.exact_match,
+            tests_configs,
+        )?;
 
         let relative_path = test_file.strip_prefix(input_path)?.to_path_buf();
         tests.push(TestsFromFile {
@@ -125,15 +132,9 @@ pub fn run_test_runner(
     linked_libraries: Option<Vec<LinkedLibrary>>,
     runner_config: &RunnerConfig,
     corelib_path: Option<&Utf8PathBuf>,
-    test_name_filter: Option<&str>,
 ) -> Result<()> {
-    let tests = collect_tests_from_directory(
-        input_path,
-        linked_libraries,
-        corelib_path,
-        test_name_filter,
-        runner_config.exact_match,
-    )?;
+    let tests =
+        collect_tests_from_directory(input_path, linked_libraries, corelib_path, runner_config)?;
 
     pretty_printing::print_collected_tests_count(
         tests.iter().map(|tests| tests.tests_configs.len()).sum(),

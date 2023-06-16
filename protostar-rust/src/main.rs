@@ -51,14 +51,14 @@ fn main_execution() -> Result<()> {
             rust_test_runner::protostar_config_for_package(&scarb_metadata, package)?;
         let (base_path, dependencies) =
             rust_test_runner::dependencies_for_package(&scarb_metadata, package)?;
-        let runner_config = RunnerConfig::new(args.exact, protostar_config);
+        let runner_config =
+            RunnerConfig::new(args.test_filter.clone(), args.exact, protostar_config);
 
         run_test_runner(
             &base_path,
             Some(dependencies.clone()),
             &runner_config,
             Some(&corelib),
-            args.test_filter.as_deref(),
         )?;
     }
 
