@@ -25,7 +25,6 @@ ToPythonTransformer = Callable[[CairoData], PythonData]
 def from_python_transformer(
     contract_abi: AbiType, fn_name: str, mode: Literal["inputs", "outputs"]
 ) -> FromPythonTransformer:
-
     try:
         abi = AbiParser(contract_abi).parse()
     except (AbiParsingError, ValidationError) as ex:
@@ -47,7 +46,6 @@ def from_python_transformer(
 def from_python_events_transformer(
     contract_abi: AbiType, event_name: str
 ) -> FromPythonTransformer:
-
     try:
         abi = AbiParser(contract_abi).parse()
     except (AbiParsingError, ValidationError) as ex:
