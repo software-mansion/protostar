@@ -16,7 +16,7 @@ from starknet_py.transaction_errors import (
     TransactionFailedError,
     TransactionRejectedError,
 )
-from starknet_py.serialization.errors import InvalidTypeException
+from starknet_py.serialization.errors import CairoSerializerException
 from typing_extensions import Self, TypeGuard
 
 from protostar.protostar_exception import ProtostarException
@@ -112,7 +112,7 @@ class GatewayFacade(MulticallClientProtocol):
                 salt=salt,
                 abi=contract_abi.to_abi_type(),
             )
-        except (ValueError, TypeError, InvalidTypeException) as v_err:
+        except (ValueError, TypeError, CairoSerializerException) as v_err:
             raise InputValidationException(str(v_err)) from v_err
 
     async def deploy_via_udc(
