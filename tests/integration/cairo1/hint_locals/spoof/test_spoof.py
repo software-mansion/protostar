@@ -31,5 +31,6 @@ async def test_spoof_hint_local(
             "test_spoof_transaction_hash",
             "test_spoof_tx_info",
             "test_spoof_max_fee",
+            "test_start_stop_spoof_max_fee",
         ],
     )

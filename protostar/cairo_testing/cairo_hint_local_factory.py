@@ -24,6 +24,7 @@ from protostar.cheatable_starknet.callable_hint_locals import (
     AssertExpectCallHintLocal,
     PrintHintLocal,
     StartSpoofHintLocal,
+    StopSpoofHintLocal,
     StopPrankHintLocal,
 )
 from protostar.cheatable_starknet.cheatables.cheatable_cached_state import (
@@ -110,6 +111,7 @@ class CairoSharedHintLocalFactory:
             StartSpoofHintLocal(
                 transaction_info_controller=transaction_info_controller
             ),
+            StopSpoofHintLocal(transaction_info_controller=transaction_info_controller),
             deploy_cheatcode,
             declare_cheatcode,
             declare_cairo0_cheatcode,

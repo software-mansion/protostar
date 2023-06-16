@@ -71,3 +71,22 @@ fn test_spoof_max_fee() {
     let returned_max_fee = call(contract_address, 'get_max_fee', @ArrayTrait::new()).unwrap();
     assert(*returned_max_fee.at(0_u32) == 33, *returned_max_fee.at(0_u32));
 }
+
+#[test]
+fn test_start_stop_spoof_max_fee() {
+    let contract_address = deploy_contract('simple', @ArrayTrait::new()).unwrap();
+    let max_fee_before_mock = call(contract_address, 'get_max_fee', @ArrayTrait::new()).unwrap();
+
+    let mut tx_info = TxInfoMockTrait::default();
+    tx_info.max_fee = Option::Some(33_u128);
+
+    start_spoof(contract_address, tx_info);
+
+    let returned_max_fee = call(contract_address, 'get_max_fee', @ArrayTrait::new()).unwrap();
+    assert(*returned_max_fee.at(0_u32) == 33, *returned_max_fee.at(0_u32));
+
+    stop_spoof(contract_address);
+
+    let returned_max_fee = call(contract_address, 'get_max_fee', @ArrayTrait::new()).unwrap();
+    assert(*returned_max_fee.at(0_u32) == *max_fee_before_mock.at(0_u32), *returned_max_fee.at(0_u32));
+}
