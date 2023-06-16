@@ -6,6 +6,8 @@ use scarb_metadata::MetadataCommand;
 use rust_test_runner::pretty_printing;
 use rust_test_runner::run_test_runner;
 
+use std::process::Command;
+
 #[derive(Parser, Debug)]
 struct Args {
     test_filter: Option<String>,
@@ -27,6 +29,11 @@ fn main_execution() -> Result<()> {
     };
 
     let scarb_metadata = MetadataCommand::new().inherit_stderr().exec()?;
+
+    let _ = Command::new("scarb")
+        .current_dir(std::env::current_dir().expect("failed to obtain current dir"))
+        .arg("build")
+        .output()?;
 
     for package in &scarb_metadata.workspace.members {
         let (base_path, dependencies) =

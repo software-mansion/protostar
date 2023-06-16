@@ -11,8 +11,6 @@ use cairo_lang_runner::{SierraCasmRunner, StarknetState};
 use cairo_lang_sierra::program::Program;
 use cairo_lang_sierra_to_casm::metadata::MetadataComputationConfig;
 
-use snapbox::cmd::Command as SnapboxCommand;
-
 use blockifier::transaction::transaction_utils_for_protostar::create_state_with_trivial_validation_account;
 
 use crate::test_stats::TestsStats;
@@ -62,6 +60,8 @@ fn internal_collect_tests(
 ) -> Result<Vec<TestsFromFile>> {
     let builtins = vec!["GasBuiltin", "Pedersen", "RangeCheck", "bitwise", "ec_op"];
 
+    let linked_libraries = linked_libraries;
+
     let mut tests = vec![];
     for ref test_file in test_files {
         let (sierra_program, tests_configs) = collect_tests(
@@ -93,12 +93,6 @@ pub fn run_test_runner(
         tests.iter().map(|tests| tests.tests_configs.len()).sum(),
         tests.len(),
     );
-
-    SnapboxCommand::new("scarb")
-        .arg("build")
-        .current_dir(std::env::current_dir().expect("failed to obtain current dir"))
-        .assert()
-        .success();
 
     let mut tests_stats = TestsStats::default();
     for tests_from_file in tests {
