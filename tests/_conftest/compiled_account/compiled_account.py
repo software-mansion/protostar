@@ -8,7 +8,7 @@ from protostar.starknet import (
 
 
 def compile_account_contract_with_validate_deploy() -> str:
-    return StarknetCompiler(
+    contract = StarknetCompiler(
         config=StarknetCompilerConfig(
             include_paths=[],
             disable_hint_validation=True,
@@ -17,3 +17,5 @@ def compile_account_contract_with_validate_deploy() -> str:
     ).compile_contract(
         Path(__file__).parent / "account_contract_with_validate_deploy.cairo"
     )
+
+    return contract.Schema().dumps(contract)

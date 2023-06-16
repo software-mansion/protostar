@@ -58,7 +58,7 @@ def from_python_events_transformer(
     except KeyError as ex:
         raise DataTransformerException(f"Event name `{event_name}` not in ABI") from ex
 
-    serializer = serializer_for_payload(event)
+    serializer = serializer_for_payload(event.data)
 
     return serializer.serialize
 
@@ -66,39 +66,47 @@ def from_python_events_transformer(
 def to_python_transformer(
     contract_abi: AbiType, fn_name: str, mode: Literal["inputs", "outputs"]
 ) -> ToPythonTransformer:
+    def transform(data: list[int]):
+        try:
+            abi = AbiParser(contract_abi).parse()
+        except (AbiParsingError, ValidationError) as ex:
+            raise DataTransformerException("Invalid ABI") from ex
 
-    try:
-        abi = AbiParser(contract_abi).parse()
-    except (AbiParsingError, ValidationError) as ex:
-        raise DataTransformerException("Invalid ABI") from ex
+        try:
+            function = abi.functions[fn_name]
+        except KeyError as ex:
+            raise DataTransformerException(
+                f"Function name `{fn_name}` not in ABI"
+            ) from ex
 
-    try:
-        function = abi.functions[fn_name]
-    except KeyError as ex:
-        raise DataTransformerException(f"Function name `{fn_name}` not in ABI") from ex
+        if mode == "inputs":
+            serializer = serializer_for_payload(function.inputs)
+        else:
+            serializer = serializer_for_payload(function.outputs)
 
-    if mode == "inputs":
-        serializer = serializer_for_payload(function.inputs)
-    else:
-        serializer = serializer_for_payload(function.outputs)
+        return serializer.deserialize(data).as_dict()
 
-    return serializer.deserialize
+    return transform
 
 
 def to_python_events_transformer(
     contract_abi: AbiType, event_name: str
 ) -> ToPythonTransformer:
+    def transform(data: list[int]):
+        try:
+            abi = AbiParser(contract_abi).parse()
+        except (AbiParsingError, ValidationError) as ex:
+            raise DataTransformerException("Invalid ABI") from ex
 
-    try:
-        abi = AbiParser(contract_abi).parse()
-    except (AbiParsingError, ValidationError) as ex:
-        raise DataTransformerException("Invalid ABI") from ex
+        try:
+            event = abi.events[event_name]
+        except KeyError as ex:
+            raise DataTransformerException(
+                f"Event name `{event_name}` not in ABI"
+            ) from ex
 
-    try:
-        event = abi.events[event_name]
-    except KeyError as ex:
-        raise DataTransformerException(f"Event name `{event_name}` not in ABI") from ex
+        serializer = serializer_for_payload(event.data)
 
-    serializer = serializer_for_payload(event)
+        return serializer.deserialize(data).as_dict()
 
-    return serializer.deserialize
+    return transform
