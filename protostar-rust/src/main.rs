@@ -32,7 +32,7 @@ fn main_execution() -> Result<()> {
         let (base_path, dependencies) =
             rust_test_runner::dependencies_for_package(&scarb_metadata, package)?;
 
-        run_test_runner(&base_path, Some(&dependencies), Some(&corelib))?;
+        run_test_runner(&base_path, Some(dependencies.clone()), Some(&corelib))?;
     }
     Ok(())
 }
