@@ -19,3 +19,4 @@ from .expect_call_hint_local import ExpectCallHintLocal
 from .assert_expect_call_hint_local import AssertExpectCallHintLocal
 from .print_hint_local import PrintHintLocal
 from .start_spoof_hint_local import StartSpoofHintLocal
+from .stop_spoof_hint_local import StopSpoofHintLocal

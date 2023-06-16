@@ -89,3 +89,27 @@ class TransactionInfoController:
 
     def set_nonce_for_contract(self, contract_address: Address, nonce: int):
         self.state.contract_address_to_nonce[contract_address] = nonce
+
+    def cancel_spoof(self, contract_address: Address):
+        if contract_address in self.state.contract_address_to_version:
+            del self.state.contract_address_to_version[contract_address]
+
+        if contract_address in self.state.contract_address_to_account_contract_address:
+            del self.state.contract_address_to_account_contract_address[
+                contract_address
+            ]
+
+        if contract_address in self.state.contract_address_to_max_fee:
+            del self.state.contract_address_to_max_fee[contract_address]
+
+        if contract_address in self.state.contract_address_to_signature:
+            del self.state.contract_address_to_signature[contract_address]
+
+        if contract_address in self.state.contract_address_to_transaction_hash:
+            del self.state.contract_address_to_transaction_hash[contract_address]
+
+        if contract_address in self.state.contract_address_to_chain_id:
+            del self.state.contract_address_to_chain_id[contract_address]
+
+        if contract_address in self.state.contract_address_to_nonce:
+            del self.state.contract_address_to_nonce[contract_address]
