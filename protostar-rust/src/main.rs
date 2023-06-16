@@ -31,7 +31,7 @@ fn load_corelib() -> Result<TempDir> {
 }
 
 fn main_execution() -> Result<()> {
-    let _args = Args::parse();
+    let args = Args::parse();
 
     // TODO #1997
     let corelib_dir = load_corelib()?;
@@ -55,7 +55,7 @@ fn main_execution() -> Result<()> {
 
         run_test_runner(
             &base_path,
-            Some(&dependencies.clone()),
+            Some(dependencies.clone()),
             &runner_config,
             Some(&corelib),
             args.test_filter.as_deref(),
