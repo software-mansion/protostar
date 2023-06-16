@@ -16,7 +16,7 @@ static CORELIB_PATH: Dir = include_dir!("../cairo/corelib/src");
 #[derive(Parser, Debug)]
 struct Args {
     /// Name used to filter tests
-    test_filter: Option<String>,
+    test_name: Option<String>,
     /// Use exact matches for `test_filter`
     #[arg(short, long)]
     exact: bool,
@@ -52,7 +52,7 @@ fn main_execution() -> Result<()> {
         let (base_path, dependencies) =
             rust_test_runner::dependencies_for_package(&scarb_metadata, package)?;
         let runner_config =
-            RunnerConfig::new(args.test_filter.clone(), args.exact, protostar_config);
+            RunnerConfig::new(args.test_name.clone(), args.exact, protostar_config);
 
         run_test_runner(
             &base_path,
