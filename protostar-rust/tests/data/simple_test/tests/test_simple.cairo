@@ -9,6 +9,11 @@ fn test_simple2() {
 }
 
 #[test]
+fn test_two() {
+    assert(2 == 2, '2 == 2');
+}
+
+#[test]
 fn test_failing() {
     assert(1 == 2, 'failing check');
 }

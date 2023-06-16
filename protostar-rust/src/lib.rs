@@ -304,8 +304,7 @@ mod tests {
     #[test]
     fn get_protostar_config_for_package() {
         let temp = assert_fs::TempDir::new().unwrap();
-        temp.copy_from("tests/data/example_package", &["**/*"])
-            .unwrap();
+        temp.copy_from("tests/data/simple_test", &["**/*"]).unwrap();
         let scarb_metadata = MetadataCommand::new()
             .inherit_stderr()
             .current_dir(temp.path())
@@ -322,8 +321,7 @@ mod tests {
     #[test]
     fn get_protostar_config_for_package_err_on_invalid_package() {
         let temp = assert_fs::TempDir::new().unwrap();
-        temp.copy_from("tests/data/example_package", &["**/*"])
-            .unwrap();
+        temp.copy_from("tests/data/simple_test", &["**/*"]).unwrap();
         let scarb_metadata = MetadataCommand::new()
             .inherit_stderr()
             .current_dir(temp.path())
@@ -344,8 +342,7 @@ mod tests {
     #[test]
     fn get_protostar_config_for_package_err_on_missing_config() {
         let temp = assert_fs::TempDir::new().unwrap();
-        temp.copy_from("tests/data/example_package", &["**/*"])
-            .unwrap();
+        temp.copy_from("tests/data/simple_test", &["**/*"]).unwrap();
         let content = "[package]
 name = \"example_package\"
 version = \"0.1.0\"";
