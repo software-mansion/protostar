@@ -6,6 +6,11 @@ fn test_ok() {
 }
 
 #[test]
+fn test_assert_err_code_not_ascii() {
+    assert(1 == 2, 1234);
+}
+
+#[test]
 fn test_panic_single_value() {
     let mut data = ArrayTrait::new();
     data.append(21);
