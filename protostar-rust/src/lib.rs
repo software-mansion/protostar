@@ -26,7 +26,7 @@ struct TestsFromFile {
 
 fn collect_tests_from_directory(
     input_path: &Utf8PathBuf,
-    linked_libraries: &Option<Vec<LinkedLibrary>>,
+    linked_libraries: Option<&Vec<LinkedLibrary>>,
     corelib_path: Option<&Utf8PathBuf>,
 ) -> Result<Vec<TestsFromFile>> {
     let test_files = find_cairo_files_in_directory(input_path)?;
@@ -54,7 +54,7 @@ fn find_cairo_files_in_directory(input_path: &Utf8PathBuf) -> Result<Vec<Utf8Pat
 
 fn internal_collect_tests(
     input_path: &Utf8PathBuf,
-    linked_libraries: &Option<Vec<LinkedLibrary>>,
+    linked_libraries: Option<&Vec<LinkedLibrary>>,
     test_files: Vec<Utf8PathBuf>,
     corelib_path: Option<&Utf8PathBuf>,
 ) -> Result<Vec<TestsFromFile>> {
@@ -82,7 +82,7 @@ fn internal_collect_tests(
 
 pub fn run_test_runner(
     input_path: &Utf8PathBuf,
-    linked_libraries: &Option<Vec<LinkedLibrary>>,
+    linked_libraries: Option<&Vec<LinkedLibrary>>,
     corelib_path: Option<&Utf8PathBuf>,
 ) -> Result<()> {
     let tests = collect_tests_from_directory(input_path, linked_libraries, corelib_path)?;
