@@ -26,5 +26,9 @@ async def test_spoof_hint_local(
 
     assert_cairo_test_cases(
         testing_summary,
-        expected_passed_test_cases_names=["test_spoof"],
+        expected_passed_test_cases_names=[
+            "test_spoof_transaction_hash",
+            "test_spoof_tx_info",
+            "test_spoof_max_fee",
+        ],
     )

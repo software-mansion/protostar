@@ -5,4 +5,5 @@ use array::ArrayTrait;
 fn test_start_spoof() {
     let tx_mock = TxInfoMockTrait::default();
     start_spoof(123, tx_mock);
+    assert(true, 'this should not be displayed');
 }

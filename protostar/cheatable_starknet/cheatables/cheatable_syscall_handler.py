@@ -44,7 +44,7 @@ class CheatableSyscallHandler(BusinessLogicSyscallHandler):
         tx_info = self.structs.TxInfo(
             version=tx_info.version,
             account_contract_address=tx_info.account_contract_address,
-            max_fee=self.tx_execution_context.max_fee,
+            max_fee=tx_info.max_fee,
             signature_start=signature_start,
             signature_end=signature_start + len(signature),
             transaction_hash=tx_info.transaction_hash,

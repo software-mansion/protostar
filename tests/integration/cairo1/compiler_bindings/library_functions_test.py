@@ -112,9 +112,11 @@ def check_library_function(
     cairo_test_path: Path,
     args_validator: Optional[Callable] = None,
     return_values_provider: Optional[Callable] = None,
+    can_fail: bool = True,
 ):
     protostar_casm = compile_suite(cairo_test_path)
-    for mocked_error_code in [0, 1, 50]:
+    mocked_error_codes = [0, 1, 50] if can_fail else [0]
+    for mocked_error_code in mocked_error_codes:
         cairo_runner_facade = CairoRunnerFacade(program=protostar_casm.program)
         for test_case_name, offset in protostar_casm.offset_map.items():
             err_code = None
@@ -177,7 +179,9 @@ def test_start_prank(datadir: Path):
 
 
 def test_start_spoof(datadir: Path):
-    check_library_function("start_spoof_impl", datadir / "start_spoof_test.cairo")
+    check_library_function(
+        "start_spoof_impl", datadir / "start_spoof_test.cairo", can_fail=False
+    )
 
 
 def test_stop_prank(datadir: Path):
