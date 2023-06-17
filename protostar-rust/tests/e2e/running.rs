@@ -1,6 +1,7 @@
-use crate::common::runner::runner;
 use assert_fs::fixture::PathCopy;
 use indoc::indoc;
+
+use crate::common::runner::runner;
 
 #[test]
 fn run_simple_test() {
@@ -53,11 +54,9 @@ fn run_print_test() {
     temp.copy_from("tests/data/print_test", &["**/*"]).unwrap();
 
     let snapbox = runner();
-    let corelib = corelib_path();
 
     snapbox
         .current_dir(&temp)
-        .args(["--corelib-path", corelib])
         .assert()
         .success()
         .stdout_matches(indoc! {r#"Collected 1 test(s) and 2 test file(s)
