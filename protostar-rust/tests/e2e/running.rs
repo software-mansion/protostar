@@ -23,7 +23,8 @@ fn run_simple_test() {
             Running 3 test(s) from tests/test_simple.cairo
             [PASS] test_simple::test_simple::test_simple
             [PASS] test_simple::test_simple::test_simple2
-            [FAIL] test_simple::test_simple::test_failing failing check
+            [FAIL] test_simple::test_simple::test_failing
+            original value: [8111420071579136082810415440747], converted to a string: [failing check]
             Tests: 5 passed, 1 failed
         "#});
 }
@@ -71,5 +72,31 @@ fn run_print_test() {
             original value: [439721161573], converted to a string: [false]
             [PASS] test_print::test_print::test_print
             Tests: 1 passed, 0 failed
+        "#});
+}
+
+#[test]
+fn run_panic_decoding_test() {
+    let temp = assert_fs::TempDir::new().unwrap();
+    temp.copy_from("tests/data/panic_decoding_test", &["**/*"])
+        .unwrap();
+
+    let snapbox = runner();
+
+    snapbox
+        .current_dir(&temp)
+        .assert()
+        .success()
+        .stdout_matches(indoc! {r#"Collected 1 test(s) and 2 test file(s)
+            Running 0 test(s) from src/lib.cairo
+            Running 1 test(s) from tests/test_panic_decoding.cairo
+            [FAIL] test_panic_decoding::test_panic_decoding::test_panic_decoding
+            original value: [123], converted to a string: [{]
+            original value: [6381921], converted to a string: [aaa]
+            original value: [3618502788666131213697322783095070105623107215331596699973092056135872020480]
+            original value: [152]
+            original value: [124], converted to a string: [|]
+            original value: [149]
+            Tests: 0 passed, 1 failed
         "#});
 }
