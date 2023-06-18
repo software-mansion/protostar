@@ -124,7 +124,7 @@ with [jq](https://stedolan.github.io/jq/):
 
 ```shell title="automate_protostar_operations.sh"
 OUTPUT=$(protostar declare hello_starknet --json)
-CLASS_HASH=$(echo $OUT | jq -r ".class_hash")
+CLASS_HASH=$(echo $OUTPUT | jq -r ".class_hash")
 protostar deploy $CLASS_HASH --inputs 100
 ```
 
