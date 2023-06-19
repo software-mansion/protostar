@@ -20,11 +20,12 @@ use crate::test_stats::TestsStats;
 pub mod pretty_printing;
 mod test_stats;
 
+/// Configuration of the test runner
 #[derive(Deserialize, Debug, PartialEq)]
 pub struct RunnerConfig {
     test_name_filter: Option<String>,
     exact_match: bool,
-    protostar_test_config: ProtostarTestConfig,
+    exit_first: bool, // TODO Not implemented!
 }
 
 impl RunnerConfig {
@@ -32,18 +33,19 @@ impl RunnerConfig {
     pub fn new(
         test_name_filter: Option<String>,
         exact_match: bool,
-        protostar_test_config: ProtostarTestConfig,
+        protostar_config_from_scarb: &ProtostarConfigFromScarb,
     ) -> Self {
         Self {
             test_name_filter,
             exact_match,
-            protostar_test_config,
+            exit_first: protostar_config_from_scarb.exit_first,
         }
     }
 }
 
+/// Represents protostar config deserialized from Scarb.toml
 #[derive(Deserialize, Debug, PartialEq)]
-pub struct ProtostarTestConfig {
+pub struct ProtostarConfigFromScarb {
     #[serde(default)]
     exit_first: bool, // TODO Not implemented!
 }
@@ -232,14 +234,14 @@ fn filter_tests_by_name(
 pub fn protostar_config_for_package(
     metadata: &Metadata,
     package: &PackageId,
-) -> Result<ProtostarTestConfig> {
+) -> Result<ProtostarConfigFromScarb> {
     let raw_metadata = metadata
         .get_package(package)
         .ok_or_else(|| anyhow!("Failed to find metadata for package = {package}"))?
         .tool_metadata("protostar")
         .ok_or_else(|| anyhow!("Failed to find protostar config for package = {package}"))?
         .clone();
-    let protostar_config: ProtostarTestConfig = serde_json::from_value(raw_metadata)?;
+    let protostar_config: ProtostarConfigFromScarb = serde_json::from_value(raw_metadata)?;
 
     Ok(protostar_config)
 }
@@ -335,7 +337,7 @@ mod tests {
             protostar_config_for_package(&scarb_metadata, &scarb_metadata.workspace.members[0])
                 .unwrap();
 
-        assert_eq!(config, ProtostarTestConfig { exit_first: false });
+        assert_eq!(config, ProtostarConfigFromScarb { exit_first: false });
     }
 
     #[test]
