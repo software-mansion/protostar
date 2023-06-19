@@ -1,3 +1,6 @@
 [submodule "cairo"]
 	path = cairo
 	url = https://github.com/software-mansion-labs/cairo
+[submodule "cairo-protostar"]
+	path = cairo-protostar
+	url = https://github.com/MaksymilianDemitraszek/cairo-protostar
