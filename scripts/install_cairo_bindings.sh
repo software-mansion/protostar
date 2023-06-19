@@ -21,7 +21,7 @@ function install_prod() {
   maturin build || return 1;
   popd # cairo/crates/cairo-lang-python-bindings
 
-  pushd cairo/target/wheels
+  pushd cairo-protostar/target/wheels
   pip install "./$(ls | grep cairo_python_bindings)" || return 1;
   popd # cairo/target/wheels
 }
