@@ -28,9 +28,14 @@ async def test_spoof_hint_local(
     assert_cairo_test_cases(
         testing_summary,
         expected_passed_test_cases_names=[
-            "test_spoof_transaction_hash",
+            "test_start_spoof_transaction_hash_doesnt_affect_other_fields",
             "test_spoof_tx_info",
-            "test_spoof_max_fee",
             "test_start_stop_spoof_max_fee",
+            "test_stop_spoof_on_non_existent",
+            "test_stop_spoof_on_not_spoofed",
+            "test_stop_spoof_multiple_times",
+            "test_start_spoof_latest_takes_precedence",
+            "test_stop_spoof_cancels_all_spoofs",
+            "test_spoof_multiple_times",
         ],
     )
