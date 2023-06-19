@@ -213,18 +213,20 @@ fn filter_tests_by_name(
             if test.name == test_name_filter {
                 result.push(test);
             }
-        } else {
-            let name = test
-                .name
-                .rsplit("::")
-                .next()
-                .context(format!("Failed to get test name from = {}", test.name))?;
-            if name.contains(test_name_filter) {
-                result.push(test);
-            }
+        } else if test_name_contains(test_name_filter, &test)? {
+            result.push(test);
         }
     }
     Ok(result)
+}
+
+fn test_name_contains(test_name_filter: &str, test: &TestConfig) -> Result<bool> {
+    let name = test
+        .name
+        .rsplit("::")
+        .next()
+        .context(format!("Failed to get test name from = {}", test.name))?;
+    Ok(name.contains(test_name_filter))
 }
 
 pub fn protostar_config_for_package(
