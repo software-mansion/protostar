@@ -25,7 +25,11 @@ fn simple_package() {
             [PASS] test_simple::test_simple::test_simple2
             [PASS] test_simple::test_simple::test_two
             [PASS] test_simple::test_simple::test_two_and_two
-            [FAIL] test_simple::test_simple::test_failing failing check
+            [FAIL] test_simple::test_simple::test_failing
+
+            Failure data:
+                original value: [8111420071579136082810415440747], converted to a string: [failing check]
+
             Running 1 test(s) from tests/without_prefix.cairo
             [PASS] without_prefix::without_prefix::five
             Tests: 8 passed, 1 failed
@@ -142,5 +146,41 @@ fn with_print() {
             original value: [439721161573], converted to a string: [false]
             [PASS] test_print::test_print::test_print
             Tests: 1 passed, 0 failed
+        "#});
+}
+
+#[test]
+fn panic_data_decoding() {
+    let temp = assert_fs::TempDir::new().unwrap();
+    temp.copy_from("tests/data/panic_decoding_test", &["**/*"])
+        .unwrap();
+
+    let snapbox = runner();
+
+    snapbox
+        .current_dir(&temp)
+        .assert()
+        .success()
+        .stdout_matches(indoc! {r#"Collected 4 test(s) and 2 test file(s)
+            Running 0 test(s) from src/lib.cairo
+            Running 4 test(s) from tests/test_panic_decoding.cairo
+            [PASS] test_panic_decoding::test_panic_decoding::test_simple
+            [FAIL] test_panic_decoding::test_panic_decoding::test_panic_decoding
+
+            Failure data:
+                original value: [123], converted to a string: [{]
+                original value: [6381921], converted to a string: [aaa]
+                original value: [3618502788666131213697322783095070105623107215331596699973092056135872020480]
+                original value: [152]
+                original value: [124], converted to a string: [|]
+                original value: [149]
+
+            [FAIL] test_panic_decoding::test_panic_decoding::test_panic_decoding2
+
+            Failure data:
+                original value: [128]
+
+            [PASS] test_panic_decoding::test_panic_decoding::test_simple2
+            Tests: 2 passed, 2 failed
         "#});
 }
