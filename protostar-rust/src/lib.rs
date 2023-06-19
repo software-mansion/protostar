@@ -110,6 +110,7 @@ fn internal_collect_tests(
             corelib_path.map(|corelib_path| corelib_path.as_str()),
         )?;
 
+        let tests_configs = strip_path_from_test_names(tests_configs)?;
         let tests_configs = filter_tests_by_name(
             runner_config.test_name_filter.as_deref(),
             runner_config.exact_match,
@@ -179,6 +180,24 @@ fn run_tests(tests: TestsFromFile, tests_stats: &mut TestsStats) -> Result<()> {
         pretty_printing::print_test_result(&config.name.clone(), &result.value);
     }
     Ok(())
+}
+
+fn strip_path_from_test_names(test_configs: Vec<TestConfig>) -> Result<Vec<TestConfig>> {
+    let mut result = vec![];
+    for test_config in test_configs {
+        let name: String = test_config
+            .name
+            .clone()
+            .rsplit('/')
+            .next()
+            .with_context(|| format!("Failed to get test name from = {}", test_config.name))?
+            .into();
+        result.push(TestConfig {
+            name,
+            available_gas: test_config.available_gas,
+        });
+    }
+    Ok(result)
 }
 
 fn filter_tests_by_name(
@@ -599,6 +618,43 @@ version = \"0.1.0\"";
                 },
                 TestConfig {
                     name: "thing".to_string(),
+                    available_gas: None,
+                },
+            ]
+        );
+    }
+
+    #[test]
+    fn strip_path() {
+        let mocked_tests: Vec<TestConfig> = vec![
+            TestConfig {
+                name: "/Users/user/protostar/protostar-rust/tests/data/simple_test/src::test::test_fib".to_string(),
+                available_gas: None,
+            },
+            TestConfig {
+                name: "crate2::run_other_thing".to_string(),
+                available_gas: None,
+            },
+            TestConfig {
+                name: "src/crate2::run_other_thing".to_string(),
+                available_gas: None,
+            },
+        ];
+
+        let striped_tests = strip_path_from_test_names(mocked_tests).unwrap();
+        assert_eq!(
+            striped_tests,
+            vec![
+                TestConfig {
+                    name: "src::test::test_fib".to_string(),
+                    available_gas: None,
+                },
+                TestConfig {
+                    name: "crate2::run_other_thing".to_string(),
+                    available_gas: None,
+                },
+                TestConfig {
+                    name: "crate2::run_other_thing".to_string(),
                     available_gas: None,
                 },
             ]
