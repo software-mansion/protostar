@@ -71,7 +71,7 @@ fn result_data_to_text(data: &[Felt252]) -> String {
     let mut readable_text = String::new();
 
     for felt in data {
-        readable_text.push_str(&format!("\noriginal value: [{felt}]"));
+        readable_text.push_str(&format!("\n    original value: [{felt}]"));
         if let Some(short_string) = as_cairo_short_string(felt) {
             readable_text.push_str(&format!(", converted to a string: [{short_string}]"));
         }
