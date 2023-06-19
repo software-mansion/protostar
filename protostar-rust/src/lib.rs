@@ -44,7 +44,7 @@ impl RunnerConfig {
 }
 
 /// Represents protostar config deserialized from Scarb.toml
-#[derive(Deserialize, Debug, PartialEq)]
+#[derive(Deserialize, Debug, PartialEq, Default)]
 pub struct ProtostarConfigFromScarb {
     #[serde(default)]
     exit_first: bool, // TODO Not implemented!
@@ -236,12 +236,12 @@ pub fn protostar_config_for_package(
     let raw_metadata = metadata
         .get_package(package)
         .ok_or_else(|| anyhow!("Failed to find metadata for package = {package}"))?
-        .tool_metadata("protostar")
-        .ok_or_else(|| anyhow!("Failed to find protostar config for package = {package}"))?
-        .clone();
-    let protostar_config: ProtostarConfigFromScarb = serde_json::from_value(raw_metadata)?;
+        .tool_metadata("protostar");
 
-    Ok(protostar_config)
+    raw_metadata.map_or_else(
+        || Ok(Default::default()),
+        |raw_metadata| Ok(serde_json::from_value(raw_metadata.clone())?),
+    )
 }
 
 pub fn dependencies_for_package(
@@ -360,7 +360,7 @@ mod tests {
     }
 
     #[test]
-    fn get_protostar_config_for_package_err_on_missing_config() {
+    fn get_protostar_config_for_package_default_on_missing_config() {
         let temp = assert_fs::TempDir::new().unwrap();
         temp.copy_from("tests/data/simple_test", &["**/*"]).unwrap();
         let content = "[package]
@@ -374,13 +374,11 @@ version = \"0.1.0\"";
             .exec()
             .unwrap();
 
-        let result =
-            protostar_config_for_package(&scarb_metadata, &scarb_metadata.workspace.members[0]);
-        let err = result.unwrap_err();
+        let config =
+            protostar_config_for_package(&scarb_metadata, &scarb_metadata.workspace.members[0])
+                .unwrap();
 
-        assert!(err
-            .to_string()
-            .contains("Failed to find protostar config for package"));
+        assert_eq!(config, Default::default());
     }
 
     #[test]
