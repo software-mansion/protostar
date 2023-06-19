@@ -6,7 +6,7 @@ function install_dev() {
   git submodule update --init --recursive
   git pull origin $(git rev-parse --abbrev-ref HEAD) --ff-only --recurse-submodules
 
-  pushd cairo/crates/cairo-lang-python-bindings
+  pushd cairo-protostar/crates/cairo-lang-python-bindings
   rustup override set nightly-2023-06-01 || return 1;
   maturin develop --release || return 1;
   popd
@@ -16,7 +16,7 @@ function install_prod() {
   git submodule update --init --recursive
   git pull origin $(git rev-parse --abbrev-ref HEAD) --ff-only --recurse-submodules
 
-  pushd cairo/crates/cairo-lang-python-bindings
+  pushd cairo-protostar/crates/cairo-lang-python-bindings
   rustup override set nightly-2023-06-01 || return 1;
   maturin build || return 1;
   popd # cairo/crates/cairo-lang-python-bindings
