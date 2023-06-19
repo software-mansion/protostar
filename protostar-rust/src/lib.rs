@@ -185,21 +185,22 @@ fn run_tests(tests: TestsFromFile, tests_stats: &mut TestsStats) -> Result<()> {
 }
 
 fn strip_path_from_test_names(test_configs: Vec<TestConfig>) -> Result<Vec<TestConfig>> {
-    let mut result = vec![];
-    for test_config in test_configs {
-        let name: String = test_config
-            .name
-            .clone()
-            .rsplit('/')
-            .next()
-            .with_context(|| format!("Failed to get test name from = {}", test_config.name))?
-            .into();
-        result.push(TestConfig {
-            name,
-            available_gas: test_config.available_gas,
-        });
-    }
-    Ok(result)
+    test_configs
+        .into_iter()
+        .map(|test_config| {
+            let name: String = test_config
+                .name
+                .rsplit('/')
+                .next()
+                .with_context(|| format!("Failed to get test name from = {}", test_config.name))?
+                .into();
+
+            Ok(TestConfig {
+                name,
+                available_gas: test_config.available_gas,
+            })
+        })
+        .collect()
 }
 
 fn filter_tests_by_name(
