@@ -15,7 +15,7 @@ fn simple_package() {
         .success()
         .stdout_matches(indoc! {r#"Collected 8 test(s) and 4 test file(s)
             Running 1 test(s) from src/lib.cairo
-            [PASS] [..]::test_fib
+            [PASS] src::test_fib
             Running 2 test(s) from tests/ext_function_test.cairo
             [PASS] ext_function_test::ext_function_test::test_my_test
             [PASS] ext_function_test::ext_function_test::test_simple
