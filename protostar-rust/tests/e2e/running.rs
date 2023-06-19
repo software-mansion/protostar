@@ -49,6 +49,33 @@ fn run_declare_test() {
 }
 
 #[test]
+fn run_with_multiple_contracts() {
+    let temp = assert_fs::TempDir::new().unwrap();
+    temp.copy_from("tests/data/multicontract", &["**/*"]).unwrap();
+
+    let snapbox = runner();
+
+    snapbox
+        .current_dir(&temp)
+        .assert()
+        .success()
+        .stdout_matches(indoc! {r#"Collected 6 test(s) and 5 test file(s)
+            Running 0 test(s) from src/contract1.cairo
+            Running 0 test(s) from src/contract2.cairo
+            Running 1 test(s) from src/lib.cairo
+            [PASS] [..]src::test_fib
+            Running 2 test(s) from tests/ext_function_test.cairo
+            [PASS] ext_function_test::ext_function_test::test_my_test
+            [PASS] ext_function_test::ext_function_test::test_simple
+            Running 3 test(s) from tests/test_simple.cairo
+            [PASS] test_simple::test_simple::test_simple
+            [PASS] test_simple::test_simple::test_simple2
+            [FAIL] test_simple::test_simple::test_failing failing check
+            Tests: 5 passed, 1 failed
+        "#});
+}
+
+#[test]
 fn run_print_test() {
     let temp = assert_fs::TempDir::new().unwrap();
     temp.copy_from("tests/data/print_test", &["**/*"]).unwrap();
