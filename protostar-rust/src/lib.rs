@@ -1,15 +1,15 @@
-use std::collections::HashMap;
-
 use anyhow::{anyhow, Context, Result};
 use camino::{Utf8Path, Utf8PathBuf};
+use itertools::chain;
 use scarb_metadata::{Metadata, PackageId};
 use walkdir::WalkDir;
 
 use cairo_lang_protostar::casm_generator::TestConfig;
 use cairo_lang_protostar::test_collector::{collect_tests, LinkedLibrary};
-use cairo_lang_runner::{SierraCasmRunner, StarknetState};
+use cairo_lang_runner::{build_hints_dict, CairoHintProcessor, SierraCasmRunner, StarknetState};
 use cairo_lang_sierra::program::Program;
 use cairo_lang_sierra_to_casm::metadata::MetadataComputationConfig;
+use cairo_lang_utils::ordered_hash_map::OrderedHashMap;
 
 use blockifier::transaction::transaction_utils_for_protostar::create_state_with_trivial_validation_account;
 
@@ -104,27 +104,44 @@ pub fn run_test_runner(
 }
 
 fn run_tests(tests: TestsFromFile, tests_stats: &mut TestsStats) -> Result<()> {
-    let runner = SierraCasmRunner::new(
+    let mut runner = SierraCasmRunner::new(
         tests.sierra_program,
         Some(MetadataComputationConfig::default()),
-        HashMap::default(),
+        OrderedHashMap::default(),
     )
     .context("Failed setting up runner.")?;
 
     pretty_printing::print_running_tests(&tests.relative_path, tests.tests_configs.len());
     for config in tests.tests_configs {
+        let available_gas = if let Some(available_gas) = &config.available_gas {
+            Some(*available_gas)
+        } else {
+            Some(usize::MAX)
+        };
+        let mutable_runner = &mut runner;
+        let func = mutable_runner.find_function(config.name.as_str())?;
+        let initial_gas = mutable_runner.get_initial_available_gas(func, available_gas)?;
+        let (entry_code, builtins) = mutable_runner.create_entry_code(func, &[], initial_gas)?;
+        let footer = mutable_runner.create_code_footer();
+        let instructions = chain!(
+            entry_code.iter(),
+            mutable_runner.casm_program.instructions.iter(),
+            footer.iter()
+        );
         let blockifier_state = create_state_with_trivial_validation_account();
-        let result = runner
+        let (hints_dict, string_to_hint) = build_hints_dict(instructions.clone());
+        let result = mutable_runner
             .run_function(
-                runner.find_function(config.name.as_str())?,
-                &[],
-                if let Some(available_gas) = &config.available_gas {
-                    Some(*available_gas)
-                } else {
-                    Some(usize::MAX)
+                mutable_runner.find_function(config.name.as_str())?,
+                &mut CairoHintProcessor {
+                    runner: Some(mutable_runner),
+                    starknet_state: StarknetState::default(),
+                    string_to_hint,
+                    blockifier_state: Some(blockifier_state),
                 },
-                StarknetState::default(),
-                Some(blockifier_state),
+                hints_dict,
+                instructions,
+                builtins,
             )
             .with_context(|| format!("Failed to run the function `{}`.", config.name.as_str()))?;
 
