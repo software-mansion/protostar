@@ -26,7 +26,7 @@ tomli-w = "^1.0.0"
 tqdm = "^4.65.0"
 typing-extensions = "^4.3.0"
 tomlkit = "^0.11.8"
-maturin = "^1.0.1"
+maturin = "^1.1.0"
 starknet-devnet = "0.5.3"
 
 [tool.poetry.dev-dependencies]
