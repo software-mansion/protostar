@@ -128,7 +128,7 @@ commands:
       - run:
           name: Get submodule hash
           command: |
-            git rev-parse HEAD:./cairo > /tmp/cairo-submodule-hash
+            git rev-parse HEAD:./cairo-protostar > /tmp/cairo-protostar-submodule-hash
             shasum scripts/install_cairo_bindings.sh >> /tmp/scripts-hash
 
   cairo_bindings_and_compiler:
@@ -140,25 +140,25 @@ commands:
         enum: ["linux", "mac"]
     steps:
       - restore_cache:
-          key: bindings-<< parameters.platform >>-{{ checksum "/tmp/scripts-hash" }}-{{ checksum "/tmp/cairo-submodule-hash" }}-<< pipeline.parameters.poetry_version >>-py<< pipeline.parameters.python_version >>-{{ checksum "poetry.lock" }}
+          key: bindings-<< parameters.platform >>-{{ checksum "/tmp/scripts-hash" }}-{{ checksum "/tmp/cairo-protostar-submodule-hash" }}-<< pipeline.parameters.poetry_version >>-py<< pipeline.parameters.python_version >>-{{ checksum "poetry.lock" }}
       - run:
           name: Install bindings and compile cairo-compile
           command: |
-            if [ -f ./cairo/target/debug/cairo-compile ] && [ -d ./cairo/target/wheels ]; then
-              pip install $(find ./cairo/target/wheels -maxdepth 1 -type f -iname "cairo_python_bindings*")
+            if [ -f ./cairo-protostar/target/debug/cairo-compile ] && [ -d ./cairo-protostar/target/wheels ]; then
+              pip install $(find ./cairo-protostar/target/wheels -maxdepth 1 -type f -iname "cairo_python_bindings*")
             else
               poetry run poe install_cairo_bindings prod
               poetry run poe install_cairo_bindings
-              pushd cairo
+              pushd cairo-protostar
               rustup override set nightly-2023-06-01
               cargo build --bin cairo-compile
               popd
             fi
       - save_cache:
-          key: bindings-<< parameters.platform >>-{{ checksum "/tmp/scripts-hash" }}-{{ checksum "/tmp/cairo-submodule-hash" }}-<< pipeline.parameters.poetry_version >>-py<< pipeline.parameters.python_version >>-{{ checksum "poetry.lock" }}
+          key: bindings-<< parameters.platform >>-{{ checksum "/tmp/scripts-hash" }}-{{ checksum "/tmp/cairo-protostar-submodule-hash" }}-<< pipeline.parameters.poetry_version >>-py<< pipeline.parameters.python_version >>-{{ checksum "poetry.lock" }}
           paths:
-            - ./cairo/target/debug/cairo-compile
-            - ./cairo/target/wheels
+            - ./cairo-protostar/target/debug/cairo-compile
+            - ./cairo-protostar/target/wheels
       - patch_cairo_compiler
 
   patch_cairo_compiler:
@@ -168,7 +168,7 @@ commands:
           name: Replace cairo_lang compiler
           command: |
             PY_VER=$(echo << pipeline.parameters.python_version >> | awk 'BEGIN{FS=OFS="."} NF--')
-            cp cairo/target/debug/cairo-compile $(poetry env info -p)/lib/python$PY_VER/site-packages/starkware/starknet/compiler/v1/bin/starknet-sierra-compile
+            cp cairo-protostar/target/debug/cairo-compile $(poetry env info -p)/lib/python$PY_VER/site-packages/starkware/starknet/compiler/v1/bin/starknet-sierra-compile
             chmod +x $(poetry env info -p)/lib/python$PY_VER/site-packages/starkware/starknet/compiler/v1/bin/starknet-sierra-compile
 
   setup:
@@ -210,7 +210,7 @@ commands:
         enum: ["linux", "mac"]
     steps:
       - restore_cache:
-          key: poetry-<< pipeline.parameters.poetry_version >>-py<< pipeline.parameters.python_version >>-<< parameters.platform >>-{{ checksum "poetry.lock" }}-{{ checksum "/tmp/scripts-hash" }}-{{ checksum "/tmp/cairo-submodule-hash" }}
+          key: poetry-<< pipeline.parameters.poetry_version >>-py<< pipeline.parameters.python_version >>-<< parameters.platform >>-{{ checksum "poetry.lock" }}-{{ checksum "/tmp/scripts-hash" }}-{{ checksum "/tmp/cairo-protostar-submodule-hash" }}
 
   save_poetry_cache:
     parameters:
@@ -219,7 +219,7 @@ commands:
         enum: ["linux", "mac"]
     steps:
       - save_cache:
-          key: poetry-<< pipeline.parameters.poetry_version >>-py<< pipeline.parameters.python_version >>-<< parameters.platform >>-{{ checksum "poetry.lock" }}-{{ checksum "/tmp/scripts-hash" }}-{{ checksum "/tmp/cairo-submodule-hash" }}
+          key: poetry-<< pipeline.parameters.poetry_version >>-py<< pipeline.parameters.python_version >>-<< parameters.platform >>-{{ checksum "poetry.lock" }}-{{ checksum "/tmp/scripts-hash" }}-{{ checksum "/tmp/cairo-protostar-submodule-hash" }}
           paths:
             - ~/.cache/pypoetry
             - ~/Library/Caches/pypoetry
