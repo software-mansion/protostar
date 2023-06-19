@@ -40,11 +40,12 @@ fn run_declare_test() {
         .current_dir(&temp)
         .assert()
         .success()
-        .stdout_matches(indoc! {r#"Collected 1 test(s) and 2 test file(s)
+        .stdout_matches(indoc! {r#"Collected 2 test(s) and 2 test file(s)
             Running 0 test(s) from src/lib.cairo
             Running 1 test(s) from tests/test_declare.cairo
             [PASS] test_declare::test_declare::test_declare_simple
-            Tests: 1 passed, 0 failed
+            [PASS] test_declare::test_declare::multiple_contracts
+            Tests: 2 passed, 0 failed
         "#});
 }
 
