@@ -113,11 +113,11 @@ fn internal_collect_tests(
         )?;
 
         let tests_configs = strip_path_from_test_names(tests_configs)?;
-        let tests_configs = filter_tests_by_name(
-            runner_config.test_name_filter.as_deref(),
-            runner_config.exact_match,
-            tests_configs,
-        )?;
+        let tests_configs = if let Some(test_name_filter) = &runner_config.test_name_filter {
+            filter_tests_by_name(test_name_filter, runner_config.exact_match, tests_configs)?
+        } else {
+            tests_configs
+        };
 
         let relative_path = test_file.strip_prefix(input_path)?.to_path_buf();
         tests.push(TestsFromFile {
@@ -203,30 +203,26 @@ fn strip_path_from_test_names(test_configs: Vec<TestConfig>) -> Result<Vec<TestC
 }
 
 fn filter_tests_by_name(
-    test_name_filter: Option<&str>,
+    test_name_filter: &str,
     exact_match: bool,
     test_configs: Vec<TestConfig>,
 ) -> Result<Vec<TestConfig>> {
     let mut result = vec![];
-    if let Some(test_name_filter) = test_name_filter {
-        for test in test_configs {
-            if exact_match {
-                if test.name == test_name_filter {
-                    result.push(test);
-                }
-            } else {
-                let name = test
-                    .name
-                    .rsplit("::")
-                    .next()
-                    .context(format!("Failed to get test name from = {}", test.name))?;
-                if name.contains(test_name_filter) {
-                    result.push(test);
-                }
+    for test in test_configs {
+        if exact_match {
+            if test.name == test_name_filter {
+                result.push(test);
+            }
+        } else {
+            let name = test
+                .name
+                .rsplit("::")
+                .next()
+                .context(format!("Failed to get test name from = {}", test.name))?;
+            if name.contains(test_name_filter) {
+                result.push(test);
             }
         }
-    } else {
-        result = test_configs;
     }
     Ok(result)
 }
@@ -407,27 +403,6 @@ version = \"0.1.0\"";
     }
 
     #[test]
-    fn passing_none_for_filter_doesnt_filter_tests() {
-        let mocked_tests: Vec<TestConfig> = vec![
-            TestConfig {
-                name: "crate1::do_thing".to_string(),
-                available_gas: None,
-            },
-            TestConfig {
-                name: "crate2::run_other_thing".to_string(),
-                available_gas: None,
-            },
-            TestConfig {
-                name: "outer::crate2::run_other_thing".to_string(),
-                available_gas: None,
-            },
-        ];
-
-        let filtered = filter_tests_by_name(None, false, mocked_tests.clone()).unwrap();
-        assert_eq!(filtered, mocked_tests);
-    }
-
-    #[test]
     fn filtering_tests() {
         let mocked_tests: Vec<TestConfig> = vec![
             TestConfig {
@@ -444,7 +419,7 @@ version = \"0.1.0\"";
             },
         ];
 
-        let filtered = filter_tests_by_name(Some("do"), false, mocked_tests.clone()).unwrap();
+        let filtered = filter_tests_by_name("do", false, mocked_tests.clone()).unwrap();
         assert_eq!(
             filtered,
             vec![TestConfig {
@@ -453,7 +428,7 @@ version = \"0.1.0\"";
             },]
         );
 
-        let filtered = filter_tests_by_name(Some("run"), false, mocked_tests.clone()).unwrap();
+        let filtered = filter_tests_by_name("run", false, mocked_tests.clone()).unwrap();
         assert_eq!(
             filtered,
             vec![TestConfig {
@@ -462,7 +437,7 @@ version = \"0.1.0\"";
             },]
         );
 
-        let filtered = filter_tests_by_name(Some("thing"), false, mocked_tests.clone()).unwrap();
+        let filtered = filter_tests_by_name("thing", false, mocked_tests.clone()).unwrap();
         assert_eq!(
             filtered,
             vec![
@@ -481,11 +456,10 @@ version = \"0.1.0\"";
             ]
         );
 
-        let filtered =
-            filter_tests_by_name(Some("nonexistent"), false, mocked_tests.clone()).unwrap();
+        let filtered = filter_tests_by_name("nonexistent", false, mocked_tests.clone()).unwrap();
         assert_eq!(filtered, vec![]);
 
-        let filtered = filter_tests_by_name(Some(""), false, mocked_tests).unwrap();
+        let filtered = filter_tests_by_name("", false, mocked_tests).unwrap();
         assert_eq!(
             filtered,
             vec![
@@ -522,7 +496,7 @@ version = \"0.1.0\"";
             },
         ];
 
-        let filtered = filter_tests_by_name(Some("crate"), false, mocked_tests).unwrap();
+        let filtered = filter_tests_by_name("crate", false, mocked_tests).unwrap();
         assert_eq!(filtered, vec![]);
     }
 
@@ -547,13 +521,13 @@ version = \"0.1.0\"";
             },
         ];
 
-        let filtered = filter_tests_by_name(Some(""), true, mocked_tests.clone()).unwrap();
+        let filtered = filter_tests_by_name("", true, mocked_tests.clone()).unwrap();
         assert_eq!(filtered, vec![]);
 
-        let filtered = filter_tests_by_name(Some("thing"), true, mocked_tests.clone()).unwrap();
+        let filtered = filter_tests_by_name("thing", true, mocked_tests.clone()).unwrap();
         assert_eq!(filtered, vec![]);
 
-        let filtered = filter_tests_by_name(Some("do_thing"), true, mocked_tests.clone()).unwrap();
+        let filtered = filter_tests_by_name("do_thing", true, mocked_tests.clone()).unwrap();
         assert_eq!(
             filtered,
             vec![TestConfig {
@@ -563,7 +537,7 @@ version = \"0.1.0\"";
         );
 
         let filtered =
-            filter_tests_by_name(Some("crate1::do_thing"), true, mocked_tests.clone()).unwrap();
+            filter_tests_by_name("crate1::do_thing", true, mocked_tests.clone()).unwrap();
         assert_eq!(
             filtered,
             vec![TestConfig {
@@ -573,13 +547,11 @@ version = \"0.1.0\"";
         );
 
         let filtered =
-            filter_tests_by_name(Some("crate3::run_other_thing"), true, mocked_tests.clone())
-                .unwrap();
+            filter_tests_by_name("crate3::run_other_thing", true, mocked_tests.clone()).unwrap();
         assert_eq!(filtered, vec![]);
 
         let filtered =
-            filter_tests_by_name(Some("outer::crate3::run_other_thing"), true, mocked_tests)
-                .unwrap();
+            filter_tests_by_name("outer::crate3::run_other_thing", true, mocked_tests).unwrap();
         assert_eq!(
             filtered,
             vec![TestConfig {
@@ -606,7 +578,7 @@ version = \"0.1.0\"";
             },
         ];
 
-        let result = filter_tests_by_name(Some("thing"), false, mocked_tests).unwrap();
+        let result = filter_tests_by_name("thing", false, mocked_tests).unwrap();
         assert_eq!(
             result,
             vec![
