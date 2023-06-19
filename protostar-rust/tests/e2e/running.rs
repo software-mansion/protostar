@@ -24,7 +24,10 @@ fn run_simple_test() {
             [PASS] test_simple::test_simple::test_simple
             [PASS] test_simple::test_simple::test_simple2
             [FAIL] test_simple::test_simple::test_failing
+            
+            Failure data:
             original value: [8111420071579136082810415440747], converted to a string: [failing check]
+            
             Tests: 5 passed, 1 failed
         "#});
 }
@@ -87,16 +90,26 @@ fn run_panic_decoding_test() {
         .current_dir(&temp)
         .assert()
         .success()
-        .stdout_matches(indoc! {r#"Collected 1 test(s) and 2 test file(s)
+        .stdout_matches(indoc! {r#"Collected 4 test(s) and 2 test file(s)
             Running 0 test(s) from src/lib.cairo
-            Running 1 test(s) from tests/test_panic_decoding.cairo
+            Running 4 test(s) from tests/test_panic_decoding.cairo
+            [PASS] test_panic_decoding::test_panic_decoding::test_simple
             [FAIL] test_panic_decoding::test_panic_decoding::test_panic_decoding
+            
+            Failure data:
             original value: [123], converted to a string: [{]
             original value: [6381921], converted to a string: [aaa]
             original value: [3618502788666131213697322783095070105623107215331596699973092056135872020480]
             original value: [152]
             original value: [124], converted to a string: [|]
             original value: [149]
-            Tests: 0 passed, 1 failed
+            
+            [FAIL] test_panic_decoding::test_panic_decoding::test_panic_decoding2
+            
+            Failure data:
+            original value: [128]
+            
+            [PASS] test_panic_decoding::test_panic_decoding::test_simple2
+            Tests: 2 passed, 2 failed
         "#});
 }

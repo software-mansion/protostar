@@ -34,6 +34,7 @@ pub fn print_test_summary(tests_stats: TestsStats) {
 
 pub fn print_test_result(test_name: &str, result_value: &RunResultValue) {
     let result_str = get_result_str(result_value);
+    let result_str_bold = style(result_str.clone()).bold();
 
     let passed = did_pass(result_value);
     let result_tag = if passed {
@@ -44,9 +45,10 @@ pub fn print_test_result(test_name: &str, result_value: &RunResultValue) {
 
     if result_str.is_empty() {
         println!("[{result_tag}] {test_name}");
+    } else if passed {
+        println!("[{result_tag}] {test_name}\n\nSuccess data:{result_str_bold}\n");
     } else {
-        let result_str_bold = style(result_str).bold();
-        println!("[{result_tag}] {test_name}{result_str_bold}");
+        println!("[{result_tag}] {test_name}\n\nFailure data:{result_str_bold}\n");
     }
 }
 
