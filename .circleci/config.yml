@@ -144,12 +144,12 @@ commands:
       - run:
           name: Install bindings and compile cairo-compile
           command: |
-            if [ -f ./cairo/target/debug/cairo-compile ] && [ -d ./cairo/target/wheels ]; then
-              pip install $(find ./cairo/target/wheels -maxdepth 1 -type f -iname "cairo_python_bindings*")
+            if [ -f ./cairo-protostar/target/debug/cairo-compile ] && [ -d ./cairo-protostar/target/wheels ]; then
+              pip install $(find ./cairo-protostar/target/wheels -maxdepth 1 -type f -iname "cairo_python_bindings*")
             else
               poetry run poe install_cairo_bindings prod
               poetry run poe install_cairo_bindings
-              pushd cairo
+              pushd cairo-protostar
               rustup override set nightly-2023-06-01
               cargo build --bin cairo-compile
               popd
@@ -168,7 +168,7 @@ commands:
           name: Replace cairo_lang compiler
           command: |
             PY_VER=$(echo << pipeline.parameters.python_version >> | awk 'BEGIN{FS=OFS="."} NF--')
-            cp cairo/target/debug/cairo-compile $(poetry env info -p)/lib/python$PY_VER/site-packages/starkware/starknet/compiler/v1/bin/starknet-sierra-compile
+            cp cairo-protostar/target/debug/cairo-compile $(poetry env info -p)/lib/python$PY_VER/site-packages/starkware/starknet/compiler/v1/bin/starknet-sierra-compile
             chmod +x $(poetry env info -p)/lib/python$PY_VER/site-packages/starkware/starknet/compiler/v1/bin/starknet-sierra-compile
 
   setup:
