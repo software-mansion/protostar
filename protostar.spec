@@ -10,12 +10,12 @@ extra_files = [
     ("cairo/Cargo.toml", "cairo"),
     ('templates', 'templates'),
     ('constants.json', 'info'),
-] + collect_data_files('starkware')
+] + collect_data_files('starkware') + collect_data_files('starknet_py')
 # Extra imports which are necessary for executing hints
 extra_imports = [
         "eth_hash.auto",
         "certifi",
-    ] + collect_submodules('starkware')
+    ] + collect_submodules('starkware') + collect_submodules('starknet_py')
 
 binaries = [(f"{crypto_cpp_py.__path__[0]}/../libcrypto_c_exports.*", ".")]
 
