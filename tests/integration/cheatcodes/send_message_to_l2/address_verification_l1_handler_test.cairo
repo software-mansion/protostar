@@ -5,6 +5,8 @@ from starkware.cairo.common.cairo_builtins import HashBuiltin
 func state() -> (res: felt) {
 }
 
+const ALLOWED_L1_SENDER_ADDRESS = 123;
+
 @l1_handler
 func existing_handler_verifying_sender_address{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
