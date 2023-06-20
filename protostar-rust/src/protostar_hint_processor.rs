@@ -1,6 +1,6 @@
 use std::any::Any;
 use std::collections::HashMap;
-use std::{i64, str};
+use std::i64;
 
 use anyhow::Result;
 use blockifier::block_context::BlockContext;
@@ -17,7 +17,6 @@ use cairo_lang_starknet::casm_contract_class::CasmContractClass;
 use blockifier::execution::contract_class::{
     ContractClass as BlockifierContractClass, ContractClassV1,
 };
-use cairo_lang_casm::operand::{CellRef, ResOperand};
 use cairo_vm::hint_processor::hint_processor_definition::HintProcessor;
 use cairo_vm::types::exec_scope::ExecutionScopes;
 use cairo_vm::vm::errors::hint_errors::HintError;
@@ -36,124 +35,11 @@ use cairo_lang_runner::{
     cell_ref_to_relocatable,
   },
 };
-use serde::{Deserialize, Serialize};
-use schemars::JsonSchema;
-use parity_scale_codec_derive::{Decode, Encode};
-
-#[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Clone, Encode, Decode, JsonSchema)]
-#[serde(untagged)]
-pub enum ExtendedHint {
-  // Hint(Hint),
-  #[codec(index = 1)]
-  Protostar(ProtostarHint),
-}
-
-#[derive(Serialize, Deserialize, Debug, Eq, PartialEq, Clone, Encode, Decode, JsonSchema)]
-pub enum ProtostarHint {
-    #[codec(index = 0)]
-    StartRoll {
-        block_number: ResOperand,
-        target_contract_address: ResOperand,
-        err_code: CellRef,
-    },
-    #[codec(index = 1)]
-    StopRoll {
-        target_contract_address: ResOperand,
-        err_code: CellRef,
-    },
-    #[codec(index = 3)]
-    StartWarp {
-        block_timestamp: ResOperand,
-        target_contract_address: ResOperand,
-        err_code: CellRef,
-    },
-    #[codec(index = 4)]
-    StopWarp {
-        target_contract_address: ResOperand,
-        err_code: CellRef,
-    },
-    #[codec(index = 5)]
-    Declare {
-        contract: ResOperand,
-        result: CellRef,
-        err_code: CellRef,
-    },
-    #[codec(index = 6)]
-    DeclareCairo0 {
-        contract: ResOperand,
-        result: CellRef,
-        err_code: CellRef,
-    },
-    #[codec(index = 7)]
-    StartPrank {
-        caller_address: ResOperand,
-        target_contract_address: ResOperand,
-        err_code: CellRef,
-    },
-    #[codec(index = 8)]
-    StopPrank {
-        target_contract_address: ResOperand,
-        err_code: CellRef,
-    },
-    #[codec(index = 9)]
-    Invoke {
-        contract_address: ResOperand,
-        function_name: ResOperand,
-        calldata_start: ResOperand,
-        calldata_end: ResOperand,
-        panic_data_start: CellRef,
-        panic_data_end: CellRef,
-    },
-    #[codec(index = 10)]
-    MockCall {
-        contract_address: ResOperand,
-        function_name: ResOperand,
-        response_start: ResOperand,
-        response_end: ResOperand,
-        err_code: CellRef,
-    },
-    #[codec(index = 11)]
-    Deploy {
-        prepared_contract_address: ResOperand,
-        prepared_class_hash: ResOperand,
-        prepared_constructor_calldata_start: ResOperand,
-        prepared_constructor_calldata_end: ResOperand,
-        deployed_contract_address: CellRef,
-        panic_data_start: CellRef,
-        panic_data_end: CellRef,
-    },
-    #[codec(index = 12)]
-    Prepare {
-        class_hash: ResOperand,
-        calldata_start: ResOperand,
-        calldata_end: ResOperand,
-        contract_address: CellRef,
-        return_class_hash: CellRef,
-        constructor_calldata_start: CellRef,
-        constructor_calldata_end: CellRef,
-        err_code: CellRef,
-    },
-    #[codec(index = 13)]
-    Call {
-        contract_address: ResOperand,
-        function_name: ResOperand,
-        calldata_start: ResOperand,
-        calldata_end: ResOperand,
-        return_data_start: CellRef,
-        return_data_end: CellRef,
-        panic_data_start: CellRef,
-        panic_data_end: CellRef,
-    },
-    #[codec(index = 14)]
-    Print {
-        start: ResOperand,
-        end: ResOperand,
-    },
-}
+use cairo_lang_casm::hints::{CoreHint, DeprecatedHint, Hint, ProtostarHint, StarknetHint};
 
 pub struct CairoHintProcessor<'a> {
   pub original_cairo_hint_processor: OriginalCairoHintProcessor<'a>,
-  pub blockifier_state: Option<CachedState<DictStateReader>>,
+  // pub blockifier_state: Option<CachedState<DictStateReader>>,
 }
 
 impl HintProcessor for CairoHintProcessor<'_> {
@@ -164,18 +50,18 @@ impl HintProcessor for CairoHintProcessor<'_> {
       hint_data: &Box<dyn Any>,
       constants: &HashMap<String, Felt252>,
   ) -> Result<(), HintError> {
-    println!(">> hint data: {:?}", hint_data);
-      let maybe_extended_hint = hint_data.downcast_ref::<ExtendedHint>();
-      if let Some(hint) = maybe_extended_hint {
-        if let ExtendedHint::Protostar(hint) = hint {
-            let blockifier_state = self
-                .blockifier_state
-                .as_mut()
-                .expect("blockifier state is needed for executing hints");
-            return execute_protostar_hint(vm, exec_scopes, hint, blockifier_state);
-        }
-      }
-      self.original_cairo_hint_processor.execute_hint(vm, exec_scopes, hint_data, constants)
+    // println!(">> hint data: {:?}", hint_data);
+      // let maybe_extended_hint = hint_data.downcast_ref::<Hint>();
+      // if let Some(hint) = maybe_extended_hint {
+      //   if let Hint::Protostar(hint) = hint {
+      //       let blockifier_state = self
+      //           .blockifier_state
+      //           .as_mut()
+      //           .expect("blockifier state is needed for executing hints");
+      //       return execute_protostar_hint(vm, exec_scopes, hint, blockifier_state);
+      //   }
+      // }
+      self.original_cairo_hint_processor.execute_hint(vm, exec_scopes, hint_data.clone(), constants)
   }
 }
 

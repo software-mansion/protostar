@@ -161,22 +161,24 @@ fn run_tests(tests: TestsFromFile, tests_stats: &mut TestsStats) -> Result<()> {
             mutable_runner.casm_program.instructions.iter(),
             footer.iter()
         );
-        let _blockifier_state = create_state_with_trivial_validation_account();
+        let blockifier_state = create_state_with_trivial_validation_account();
         let (hints_dict, string_to_hint) = build_hints_dict(instructions.clone());
-        let original_cairo_hint_processor = OriginalCairoHintProcessor {
+        let mut original_cairo_hint_processor = OriginalCairoHintProcessor {
             runner: Some(mutable_runner),
             starknet_state: StarknetState::default(),
             string_to_hint,
-            blockifier_state: Some(_blockifier_state),
+            blockifier_state: Some(blockifier_state),
         };
-        let blockifier_state = create_state_with_trivial_validation_account();
+        // let blockifier_state = create_state_with_trivial_validation_account();
+        let mut cairo_hint_processor = CairoHintProcessor {
+            original_cairo_hint_processor: original_cairo_hint_processor,
+            // blockifier_state: Some(blockifier_state),
+        };
         let result = mutable_runner
             .run_function(
                 mutable_runner.find_function(config.name.as_str())?,
-                &mut CairoHintProcessor {
-                    original_cairo_hint_processor,
-                    blockifier_state: Some(blockifier_state),
-                },
+                // &mut original_cairo_hint_processor, // working
+                &mut cairo_hint_processor, // not working
                 hints_dict,
                 instructions,
                 builtins,
