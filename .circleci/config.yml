@@ -452,12 +452,15 @@ jobs:
 
   verify_valid_version:
     executor: linux
+    parameters:
+      version_file:
+        type: string
     steps:
       - checkout
       - run:
           name: Verify versions
           command: |
-            build_version=$(grep pyproject.toml -e "^version =" | awk '{print $3}')
+            build_version=$(grep << parameters.version_file >> -e "^version =" | awk '{print $3}')
             released_versions=$(curl -s --fail https://api.github.com/repos/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME/releases | grep "tag_name" | awk '{print $2}' | tr -d 'v,')
             mkdir -p /tmp/version
             echo "export VERSION=v$build_version" | tr -d '"' > /tmp/version/version
@@ -548,17 +551,11 @@ workflows:
   protostar:
     jobs:
       - code_quality
-      - rust_runner_code_quality
       - pre_cache_mac_bindings_and_compiler:
           filters:
             branches:
               only:
                 - master
-      - rust_runner_tests:
-          name: rust_runner_tests-linux
-          platform: linux
-          requires:
-            - rust_runner_code_quality
       - unit_tests:
           name: unit_tests-linux
           platform: linux
@@ -594,7 +591,6 @@ workflows:
             - code_quality
             - unit_tests-linux
             - e2e_tests-linux
-            - rust_runner_tests-linux
           filters:
             branches:
               ignore:
@@ -606,7 +602,6 @@ workflows:
             - code_quality
             - unit_tests-linux
             - e2e_tests-linux
-            - rust_runner_tests-linux
           filters:
             branches:
               ignore:
@@ -639,22 +634,22 @@ workflows:
                 - master
       - verify_valid_version:
           name: verify_valid_version_branch
+          version_file: pyproject.toml
           requires:
             - code_quality
             - unit_tests-linux
             - e2e_tests-linux
-            - rust_runner_tests-linux
           filters:
             branches:
               ignore:
                 - master
       - verify_valid_version:
           name: verify_valid_version_master
+          version_file: pyproject.toml
           requires:
             - code_quality
             - unit_tests-linux
             - e2e_tests-linux
-            - rust_runner_tests-linux
             # - unit_tests-mac
             # - e2e_tests-mac
           filters:
@@ -780,3 +775,22 @@ workflows:
           requires:
             - build_prerelease_from_branch-linux
             - build_prerelease_from_branch-mac
+  protostar-rust:
+    jobs:
+      - rust_runner_code_quality
+      - rust_runner_tests:
+            name: rust_runner_tests-linux
+            platform: linux
+            requires:
+              - rust_runner_code_quality
+      - verify_valid_version:
+          name: verify_valid_version_branch
+          version_file: ./protostar-rust/Cargo.toml
+          requires:
+            - code_quality
+            - unit_tests-linux
+            - e2e_tests-linux
+          filters:
+            branches:
+              ignore:
+                - master

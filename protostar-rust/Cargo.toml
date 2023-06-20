@@ -1,6 +1,6 @@
 [package]
 name = "rust_test_runner"
-version = "1.0.0"
+version = "0.1.0+rs"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
