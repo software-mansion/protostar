@@ -3,10 +3,15 @@ use camino::{Utf8Path, Utf8PathBuf};
 use itertools::chain;
 use scarb_metadata::{Metadata, PackageId};
 use walkdir::WalkDir;
+use std::collections::HashMap;
+use cairo_lang_casm::hints::Hint;
+use cairo_lang_casm::instructions::Instruction;
+use cairo_vm::serde::deserialize_program::HintParams;
+use cairo_lang_runner::casm_run::hint_to_hint_params;
 
 use cairo_lang_protostar::casm_generator::TestConfig;
 use cairo_lang_protostar::test_collector::{collect_tests, LinkedLibrary};
-use cairo_lang_runner::{build_hints_dict, SierraCasmRunner, StarknetState};
+use cairo_lang_runner::{SierraCasmRunner, StarknetState};
 use cairo_lang_sierra::program::Program;
 use cairo_lang_sierra_to_casm::metadata::MetadataComputationConfig;
 use cairo_lang_utils::ordered_hash_map::OrderedHashMap;
@@ -19,12 +24,37 @@ pub mod pretty_printing;
 mod protostar_hint_processor;
 mod test_stats;
 
+use cairo_lang_runner::CairoHintProcessor as OriginalCairoHintProcessor;
 use crate::protostar_hint_processor::CairoHintProcessor;
 
 struct TestsFromFile {
     sierra_program: Program,
     tests_configs: Vec<TestConfig>,
     relative_path: Utf8PathBuf,
+}
+
+/// Builds hints_dict required in cairo_vm::types::program::Program from instructions.
+pub fn build_hints_dict<'b>(
+    instructions: impl Iterator<Item = &'b Instruction>,
+) -> (HashMap<usize, Vec<HintParams>>, HashMap<String, Hint>) {
+    let mut hints_dict: HashMap<usize, Vec<HintParams>> = HashMap::new();
+    let mut string_to_hint: HashMap<String, Hint> = HashMap::new();
+
+    let mut hint_offset = 0;
+
+    for instruction in instructions {
+        if !instruction.hints.is_empty() {
+            // Register hint with string for the hint processor.
+            for hint in instruction.hints.iter() {
+                string_to_hint.insert(hint.to_string(), hint.clone());
+            }
+            // Add hint, associated with the instruction offset.
+            hints_dict
+                .insert(hint_offset, instruction.hints.iter().map(hint_to_hint_params).collect());
+        }
+        hint_offset += instruction.body.op_size();
+    }
+    (hints_dict, string_to_hint)
 }
 
 fn collect_tests_from_directory(
@@ -131,15 +161,20 @@ fn run_tests(tests: TestsFromFile, tests_stats: &mut TestsStats) -> Result<()> {
             mutable_runner.casm_program.instructions.iter(),
             footer.iter()
         );
-        let blockifier_state = create_state_with_trivial_validation_account();
+        let _blockifier_state = create_state_with_trivial_validation_account();
         let (hints_dict, string_to_hint) = build_hints_dict(instructions.clone());
+        let original_cairo_hint_processor = OriginalCairoHintProcessor {
+            runner: Some(mutable_runner),
+            starknet_state: StarknetState::default(),
+            string_to_hint,
+            blockifier_state: Some(_blockifier_state),
+        };
+        let blockifier_state = create_state_with_trivial_validation_account();
         let result = mutable_runner
             .run_function(
                 mutable_runner.find_function(config.name.as_str())?,
                 &mut CairoHintProcessor {
-                    runner: Some(mutable_runner),
-                    starknet_state: StarknetState::default(),
-                    string_to_hint,
+                    original_cairo_hint_processor,
                     blockifier_state: Some(blockifier_state),
                 },
                 hints_dict,
