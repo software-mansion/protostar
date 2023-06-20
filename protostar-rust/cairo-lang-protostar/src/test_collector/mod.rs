@@ -311,8 +311,7 @@ pub fn collect_tests(
     let builtins = builtins
         .map_or_else(|| Vec::new(), |builtins| builtins.iter().map(|s| s.to_string()).collect());
 
-    validate_tests(sierra_program.clone(), &collected_tests, builtins)
-        .context("Test validation failed")?;
+    validate_tests(sierra_program.clone(), &collected_tests, builtins)?;
 
     if let Some(path) = output_path {
         fs::write(path, &sierra_program.to_string()).context("Failed to write output")?;
@@ -358,10 +357,10 @@ fn validate_tests(
             }
         }
         if let Some(return_type_name) = maybe_return_type_name {
-            if !return_type_name.starts_with("core::PanicResult::") {
+            if !return_type_name.starts_with("core::panics::PanicResult::") {
                 anyhow::bail!("Test function {} must be panicable but it's not", test.name);
             }
-            if return_type_name != "core::PanicResult::<((),)>" {
+            if return_type_name != "core::panics::PanicResult::<((),)>" {
                 anyhow::bail!(
                     "Test function {} returns a value {}, it is required that test functions do \
                      not return values",

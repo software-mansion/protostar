@@ -6,7 +6,7 @@ use walkdir::WalkDir;
 
 use cairo_lang_protostar::casm_generator::TestConfig;
 use cairo_lang_protostar::test_collector::{collect_tests, LinkedLibrary};
-use cairo_lang_runner::{build_hints_dict, CairoHintProcessor, SierraCasmRunner, StarknetState};
+use cairo_lang_runner::{build_hints_dict, SierraCasmRunner, StarknetState};
 use cairo_lang_sierra::program::Program;
 use cairo_lang_sierra_to_casm::metadata::MetadataComputationConfig;
 use cairo_lang_utils::ordered_hash_map::OrderedHashMap;
@@ -16,7 +16,10 @@ use blockifier::transaction::transaction_utils_for_protostar::create_state_with_
 use crate::test_stats::TestsStats;
 
 pub mod pretty_printing;
+mod protostar_hint_processor;
 mod test_stats;
+
+use crate::protostar_hint_processor::CairoHintProcessor;
 
 struct TestsFromFile {
     sierra_program: Program,
