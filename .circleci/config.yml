@@ -787,9 +787,7 @@ workflows:
           name: verify_valid_version_branch
           version_file: ./protostar-rust/Cargo.toml
           requires:
-            - code_quality
-            - unit_tests-linux
-            - e2e_tests-linux
+            - rust_runner_tests
           filters:
             branches:
               ignore:
