@@ -50,7 +50,7 @@ def from_python_transformer(
 
         try:
             return serializer.serialize(data)
-        except CairoSerializerException as ex:
+        except (CairoSerializerException, KeyError) as ex:
             raise DataTransformerException("Data transformer error") from ex
 
     return transform
@@ -76,7 +76,7 @@ def from_python_events_transformer(
 
         try:
             return serializer.serialize(data)
-        except CairoSerializerException as ex:
+        except (CairoSerializerException, KeyError) as ex:
             raise DataTransformerException("Data transformer error") from ex
 
     return transform
