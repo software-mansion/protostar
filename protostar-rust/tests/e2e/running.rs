@@ -1,31 +1,115 @@
-use crate::common::runner::{corelib_path, runner};
 use assert_fs::fixture::PathCopy;
 use indoc::indoc;
 
+use crate::common::runner::runner;
+
 #[test]
-fn running_tests() {
+fn run_simple_test() {
     let temp = assert_fs::TempDir::new().unwrap();
-    temp.copy_from("tests/data/example_package", &["**/*"])
-        .unwrap();
+    temp.copy_from("tests/data/simple_test", &["**/*"]).unwrap();
 
     let snapbox = runner();
-    let corelib = corelib_path();
 
     snapbox
         .current_dir(&temp)
-        .args(["--corelib-path", corelib])
         .assert()
         .success()
         .stdout_matches(indoc! {r#"Collected 6 test(s) and 3 test file(s)
             Running 1 test(s) from src/lib.cairo
             [PASS] [..]::test_fib
-            Running 3 test(s) from tests/test_2.cairo
-            [PASS] test_2::test_2::test_two
-            [FAIL] test_2::test_2::test_two_failing 2 == 3
-            [PASS] test_2::test_2::test_three
-            Running 2 test(s) from tests/test_my_test.cairo
-            [PASS] test_my_test::test_my_test::test_my_test
-            [PASS] test_my_test::test_my_test::test_four
+            Running 2 test(s) from tests/ext_function_test.cairo
+            [PASS] ext_function_test::ext_function_test::test_my_test
+            [PASS] ext_function_test::ext_function_test::test_simple
+            Running 3 test(s) from tests/test_simple.cairo
+            [PASS] test_simple::test_simple::test_simple
+            [PASS] test_simple::test_simple::test_simple2
+            [FAIL] test_simple::test_simple::test_failing
+            
+            Failure data:
+                original value: [8111420071579136082810415440747], converted to a string: [failing check]
+            
             Tests: 5 passed, 1 failed
+        "#});
+}
+
+#[test]
+fn run_declare_test() {
+    let temp = assert_fs::TempDir::new().unwrap();
+    temp.copy_from("tests/data/declare_test", &["**/*"])
+        .unwrap();
+
+    let snapbox = runner();
+
+    snapbox
+        .current_dir(&temp)
+        .assert()
+        .success()
+        .stdout_matches(indoc! {r#"Collected 1 test(s) and 2 test file(s)
+            Running 0 test(s) from src/lib.cairo
+            Running 1 test(s) from tests/test_declare.cairo
+            [PASS] test_declare::test_declare::test_declare_simple
+            Tests: 1 passed, 0 failed
+        "#});
+}
+
+#[test]
+fn run_print_test() {
+    let temp = assert_fs::TempDir::new().unwrap();
+    temp.copy_from("tests/data/print_test", &["**/*"]).unwrap();
+
+    let snapbox = runner();
+
+    snapbox
+        .current_dir(&temp)
+        .assert()
+        .success()
+        .stdout_matches(indoc! {r#"Collected 1 test(s) and 2 test file(s)
+            Running 0 test(s) from src/lib.cairo
+            Running 1 test(s) from tests/test_print.cairo
+            original value: [123], converted to a string: [{]
+            original value: [6381921], converted to a string: [aaa]
+            original value: [3618502788666131213697322783095070105623107215331596699973092056135872020480]
+            original value: [152]
+            original value: [124], converted to a string: [|]
+            original value: [149]
+            original value: [439721161573], converted to a string: [false]
+            [PASS] test_print::test_print::test_print
+            Tests: 1 passed, 0 failed
+        "#});
+}
+
+#[test]
+fn run_panic_decoding_test() {
+    let temp = assert_fs::TempDir::new().unwrap();
+    temp.copy_from("tests/data/panic_decoding_test", &["**/*"])
+        .unwrap();
+
+    let snapbox = runner();
+
+    snapbox
+        .current_dir(&temp)
+        .assert()
+        .success()
+        .stdout_matches(indoc! {r#"Collected 4 test(s) and 2 test file(s)
+            Running 0 test(s) from src/lib.cairo
+            Running 4 test(s) from tests/test_panic_decoding.cairo
+            [PASS] test_panic_decoding::test_panic_decoding::test_simple
+            [FAIL] test_panic_decoding::test_panic_decoding::test_panic_decoding
+            
+            Failure data:
+                original value: [123], converted to a string: [{]
+                original value: [6381921], converted to a string: [aaa]
+                original value: [3618502788666131213697322783095070105623107215331596699973092056135872020480]
+                original value: [152]
+                original value: [124], converted to a string: [|]
+                original value: [149]
+            
+            [FAIL] test_panic_decoding::test_panic_decoding::test_panic_decoding2
+            
+            Failure data:
+                original value: [128]
+            
+            [PASS] test_panic_decoding::test_panic_decoding::test_simple2
+            Tests: 2 passed, 2 failed
         "#});
 }

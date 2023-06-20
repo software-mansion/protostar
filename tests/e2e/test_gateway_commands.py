@@ -224,7 +224,6 @@ def test_declaring_contract(
     }
 
 
-@pytest.mark.skip(reason="devnet does not support 0.11.2")
 def test_declaring_cairo1_contract(
     protostar: ProtostarFixture,
     devnet_gateway_url: str,
