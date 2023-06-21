@@ -34,9 +34,6 @@ executors:
   linux:
     docker:
       - image: python:<< pipeline.parameters.python_version >>
-  linux-rs:
-    docker:
-      - image: cimg/rust:<< pipeline.parameters.rust_version >>
   mac:
     macos:
       xcode: << pipeline.parameters.macos_xcode_version >>
@@ -44,6 +41,20 @@ executors:
   docs:
     docker:
       - image: cimg/node:<< pipeline.parameters.node_version >>
+
+  linux-rs:
+    docker:
+      - image: cimg/rust:<< pipeline.parameters.rust_version >>
+
+  linux-arm:
+    machine:
+      image: ubuntu-2004:current
+    resource_class: arm.medium
+
+  linux-x86:
+    machine:
+      image: ubuntu-2004:current
+    resource_class: medium
 
 commands:
   install_python_and_gmp_mac:
@@ -222,9 +233,6 @@ commands:
       - run:
           name: Add compilation target
           command: rustup target add << parameters.target >>
-      - run:
-          name: Install cross
-          command: cargo install cross
 
   restore_poetry_cache:
     parameters:
@@ -289,10 +297,7 @@ commands:
       - run:
           name: Cargo build (<< parameters.target >>)
           working_directory: ./protostar-rust
-          command: |
-            echo "CROSS_CONTAINER_IN_CONTAINER=true" >> "$BASH_ENV"
-            source "$BASH_ENV"
-            cross build --release --target << parameters.target >>
+          command: cargo build --release --target << parameters.target >>
 
   pack:
     description: "Pack protostar for release"
@@ -436,10 +441,12 @@ jobs:
           platform: mac
 
   build_rust:
-    executor: linux-rs
     parameters:
       target:
         type: string
+      executor:
+        type: string
+    executor: << parameters.executor >>
     steps:
       - checkout_with_submodules
       - install_rust_toolchain:
@@ -835,11 +842,14 @@ workflows:
               ignore:
                 - master
       - build_rust:
-          matrix:
-            parameters:
-              target: [
-                "x86_64-unknown-linux-gnu",
-                "x86_64-unknown-linux-musl",
-                "aarch64-unknown-linux-gnu",
-                "aarch64-unknown-linux-musl"
-              ]
+          target: x86_64-unknown-linux-gnu
+          executor: linux-x86
+      - build_rust:
+          target: x86_64-unknown-linux-musl
+          executor: linux-x86
+      - build_rust:
+          target: aarch64-unknown-linux-gnu
+          executor: linux-arm
+      - build_rust:
+          target: aarch64-unknown-linux-musl
+          executor: linux-arm
