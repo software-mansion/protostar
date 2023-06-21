@@ -220,7 +220,11 @@ commands:
           name: Install rust toolchain
           command: rustup toolchain install << pipeline.parameters.rust_version >>-<< parameters.target >>
       - run:
+          name: Add compilation target
           command: rustup target add << parameters.target >>
+      - run:
+          name: Install cross
+          command: cargo install cross
 
   restore_poetry_cache:
     parameters:
