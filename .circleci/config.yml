@@ -289,6 +289,8 @@ commands:
       - run:
           name: Cargo build (<< parameters.target >>)
           working_directory: ./protostar-rust
+          environment:
+            CROSS_CONTAINER_IN_CONTAINER: true
           command: cross build --release --target << parameters.target >>
 
   pack:
