@@ -289,7 +289,10 @@ commands:
       - run:
           name: Cargo build (<< parameters.target >>)
           working_directory: ./protostar-rust
-          command: CROSS_CONTAINER_IN_CONTAINER=true cross build --release --target << parameters.target >>
+          command: |
+            echo "CROSS_CONTAINER_IN_CONTAINER=true" >> "$BASH_ENV"
+            source "$BASH_ENV"
+            cross build --release --target << parameters.target >>
 
   pack:
     description: "Pack protostar for release"
