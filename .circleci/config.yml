@@ -232,7 +232,7 @@ commands:
           command: rustup toolchain install << pipeline.parameters.rust_version >>-<< parameters.target >>
       - run:
           name: Install musltools
-          command: apt-get update && apt-get install musl-tools -y
+          command: sudo apt-get update && sudo apt-get install musl-tools -y
       - run:
           name: Add compilation target
           command: rustup target add << parameters.target >>
