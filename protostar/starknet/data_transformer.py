@@ -4,7 +4,7 @@ from typing_extensions import Literal
 from marshmallow import ValidationError
 
 from starknet_py.serialization import serializer_for_payload, CairoSerializerException
-from starknet_py.abi import AbiParsingError, AbiParser
+from starknet_py.abi import Abi, AbiParsingError, AbiParser
 
 from starkware.starknet.public.abi import AbiType
 
@@ -22,6 +22,16 @@ FromPythonTransformer = Callable[[PythonData], CairoData]
 ToPythonTransformer = Callable[[CairoData], PythonData]
 
 
+def get_function_from_abi(abi: Abi, fn_name: str) -> Abi.Function:
+    if abi.constructor is not None and fn_name == "constructor":
+        return abi.constructor
+    if abi.l1_handler is not None and abi.l1_handler.name == fn_name:
+        return abi.l1_handler
+    if fn_name in abi.functions:
+        return abi.functions[fn_name]
+    raise DataTransformerException(f"`{fn_name}` not found in ABI")
+
+
 def from_python_transformer(
     contract_abi: AbiType, fn_name: str, mode: Literal["inputs", "outputs"]
 ) -> FromPythonTransformer:
@@ -31,17 +41,7 @@ def from_python_transformer(
         except (AbiParsingError, ValidationError) as ex:
             raise DataTransformerException("Invalid ABI") from ex
 
-        try:
-            if fn_name == "constructor":
-                function = abi.constructor
-                if function is None:
-                    raise DataTransformerException("Constructor not in ABI")
-            else:
-                function = abi.functions[fn_name]
-        except KeyError as ex:
-            raise DataTransformerException(
-                f"Function name `{fn_name}` not in ABI"
-            ) from ex
+        function = get_function_from_abi(abi, fn_name)
 
         if mode == "inputs":
             serializer = serializer_for_payload(function.inputs)
@@ -91,17 +91,7 @@ def to_python_transformer(
         except (AbiParsingError, ValidationError) as ex:
             raise DataTransformerException("Invalid ABI") from ex
 
-        try:
-            if fn_name == "constructor":
-                function = abi.constructor
-                if function is None:
-                    raise DataTransformerException("Constructor not in ABI")
-            else:
-                function = abi.functions[fn_name]
-        except KeyError as ex:
-            raise DataTransformerException(
-                f"Function name `{fn_name}` not in ABI"
-            ) from ex
+        function = get_function_from_abi(abi, fn_name)
 
         if mode == "inputs":
             serializer = serializer_for_payload(function.inputs)
