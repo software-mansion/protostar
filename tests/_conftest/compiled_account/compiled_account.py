@@ -1,13 +1,13 @@
 from pathlib import Path
 import os
 
+from starkware.cairo.lang.compiler.constants import LIBS_DIR_ENVVAR
+
 from protostar.starknet import (
     StarknetPassManagerFactory,
     StarknetCompiler,
     StarknetCompilerConfig,
 )
-
-from starkware.cairo.lang.compiler.constants import LIBS_DIR_ENVVAR
 
 
 def compile_account_contract_with_validate_deploy() -> str:
