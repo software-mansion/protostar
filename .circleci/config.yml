@@ -279,8 +279,11 @@ commands:
     parameters:
       target:
         type: string
-    command: cargo build --release --target << parameters.target >>
-    working_directory: ./protostar-rust
+    steps:
+      - run:
+          name: Cargo build (<< parameters.target >>)
+          working_directory: ./protostar-rust
+          command: cargo build --release --target << parameters.target >>
 
   pack:
     description: "Pack protostar for release"
@@ -824,7 +827,7 @@ workflows:
             parameters:
               target: [
                 "x86_64-unknown-linux-gnu",
-                "x86_64-unknown-linux-musl"
-                "aarch64-unknown-linux-gnu"
+                "x86_64-unknown-linux-musl",
+                "aarch64-unknown-linux-gnu",
                 "aarch64-unknown-linux-musl"
               ]
