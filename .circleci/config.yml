@@ -219,6 +219,8 @@ commands:
       - run:
           name: Install rust toolchain
           command: rustup toolchain install << pipeline.parameters.rust_version >>-<< parameters.target >>
+      - run:
+          command: rustup target add << parameters.target >>
 
   restore_poetry_cache:
     parameters:
