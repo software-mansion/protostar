@@ -231,6 +231,9 @@ commands:
           name: Install rust toolchain
           command: rustup toolchain install << pipeline.parameters.rust_version >>-<< parameters.target >>
       - run:
+          name: Install musltools
+          command: apt-get update && apt-get install musl-tools -y
+      - run:
           name: Add compilation target
           command: rustup target add << parameters.target >>
 
@@ -845,12 +848,15 @@ workflows:
       - build_rust:
           target: x86_64-unknown-linux-gnu
           executor: linux-x86
+
       - build_rust:
           target: x86_64-unknown-linux-musl
           executor: linux-x86
+
       - build_rust:
           target: aarch64-unknown-linux-gnu
           executor: linux-arm
+
       - build_rust:
           target: aarch64-unknown-linux-musl
           executor: linux-arm
