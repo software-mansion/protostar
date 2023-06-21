@@ -449,6 +449,7 @@ jobs:
     executor: << parameters.executor >>
     steps:
       - checkout_with_submodules
+      - install_rust
       - install_rust_toolchain:
           target: << parameters.target >>
       - cargo_build:
