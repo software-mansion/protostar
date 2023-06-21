@@ -26,10 +26,17 @@ parameters:
     type: string
     default: "16.20"
 
+  rust_version:
+    type: string
+    default: "stable"
+
 executors:
   linux:
     docker:
       - image: python:<< pipeline.parameters.python_version >>
+  linux-rs:
+    docker:
+      - image: cimg/rust:<< pipeline.parameters.rust_version >>
   mac:
     macos:
       xcode: << pipeline.parameters.macos_xcode_version >>
@@ -203,6 +210,16 @@ commands:
       - save_poetry_cache:
           platform: << parameters.platform >>
 
+  install_rust_toolchain:
+    description: "Set up for building protostar-rust"
+    parameters:
+      target:
+        type: string
+    steps:
+      - run:
+          name: Install rust toolchain
+          command: rustup toolchain install << pipeline.parameters.rust_version >>-<< parameters.target >>
+
   restore_poetry_cache:
     parameters:
       platform:
@@ -257,6 +274,13 @@ commands:
       - run:
           name: Build protostar
           command: poetry run poe build
+  cargo_build:
+    description: "Build protostar-rust"
+    parameters:
+      target:
+        type: string
+    command: cargo build --release --target << parameters.target >>
+    working_directory: ./protostar-rust
 
   pack:
     description: "Pack protostar for release"
@@ -344,20 +368,13 @@ jobs:
           message: "*Code quality checks have failed* :rotating_light:"
     
   rust_runner_code_quality:
-    executor: linux
+    executor: linux-rs
     steps:
-      - setup
       - lint_rust_runner
 
   rust_runner_tests:
-    parameters:
-      platform:
-        type: enum
-        enum: ["linux", "mac"]
-    executor: << parameters.platform >>
+    executor: linux-rs
     steps:
-      - setup:
-          platform: << parameters.platform >>
       - run:
           name: Set git config
           command: git config --global protocol.file.allow always
@@ -403,6 +420,17 @@ jobs:
     steps:
       - setup:
           platform: mac
+
+  build_rust:
+    executor: linux-rs
+    parameters:
+      target:
+        type: string
+    steps:
+      - install_rust_toolchain:
+          target: << parameters.target >>
+      - cargo_build:
+          target: << parameters.target >>
 
   build:
     parameters:
@@ -780,7 +808,6 @@ workflows:
       - rust_runner_code_quality
       - rust_runner_tests:
             name: rust_runner_tests-linux
-            platform: linux
             requires:
               - rust_runner_code_quality
       - verify_valid_version:
@@ -792,3 +819,12 @@ workflows:
             branches:
               ignore:
                 - master
+      - build_rust:
+          matrix:
+            parameters:
+              target: [
+                "x86_64-unknown-linux-gnu",
+                "x86_64-unknown-linux-musl"
+                "aarch64-unknown-linux-gnu"
+                "aarch64-unknown-linux-musl"
+              ]
