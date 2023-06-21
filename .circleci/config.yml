@@ -373,6 +373,7 @@ jobs:
   rust_runner_code_quality:
     executor: linux-rs
     steps:
+      - checkout
       - lint_rust_runner
 
   rust_runner_tests:
@@ -381,6 +382,7 @@ jobs:
       - run:
           name: Set git config
           command: git config --global protocol.file.allow always
+      - checkout
       - run_test_runner_tests
       - notify_about_failed_test:
           message: "*Rust test runner tests have failed* :rotating_light:"
@@ -430,6 +432,7 @@ jobs:
       target:
         type: string
     steps:
+      - checkout
       - install_rust_toolchain:
           target: << parameters.target >>
       - cargo_build:
