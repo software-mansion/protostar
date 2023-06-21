@@ -43,15 +43,6 @@ executors:
       - image: cimg/node:<< pipeline.parameters.node_version >>
 
   linux-rs:
-    docker:
-      - image: cimg/rust:<< pipeline.parameters.rust_version >>
-
-  linux-arm:
-    machine:
-      image: ubuntu-2004:current
-    resource_class: arm.medium
-
-  linux-x86:
     machine:
       image: ubuntu-2004:current
     resource_class: medium
@@ -226,16 +217,25 @@ commands:
     parameters:
       target:
         type: string
+      cross:
+        description: "Use cross instead of cargo for building"
+        type: bool
     steps:
       - run:
           name: Install rust toolchain
           command: rustup toolchain install << pipeline.parameters.rust_version >>-<< parameters.target >>
       - run:
-          name: Install musltools
-          command: sudo apt-get update && sudo apt-get install musl-tools -y
-      - run:
           name: Add compilation target
           command: rustup target add << parameters.target >>
+      - when:
+          condition:
+            equal: [ true, << parameters.cross >> ]
+          steps:
+            - run:
+                name: Install cross
+                command: |
+                  cargo install cross
+                  echo 'export CARGO=cross' >> $BASH_ENV
 
   restore_poetry_cache:
     parameters:
@@ -300,7 +300,7 @@ commands:
       - run:
           name: Cargo build (<< parameters.target >>)
           working_directory: ./protostar-rust
-          command: cargo build --release --target << parameters.target >>
+          command: $CARGO build --release --target << parameters.target >>
 
   pack:
     description: "Pack protostar for release"
@@ -447,16 +447,28 @@ jobs:
     parameters:
       target:
         type: string
-      executor:
-        type: string
-    executor: << parameters.executor >>
+      cross:
+        type: boolean
+        default: false
+    executor: linux-rs
     steps:
       - checkout_with_submodules
       - install_rust
       - install_rust_toolchain:
           target: << parameters.target >>
+          cross: << parameters.cross >>
       - cargo_build:
           target: << parameters.target >>
+
+  cross_build_rust:
+    parameters:
+      target:
+        type: string
+    executor: linux-rs
+    steps:
+      - build_rust:
+          target: << parameters.target >>
+          cross: true
 
   build:
     parameters:
@@ -830,6 +842,8 @@ workflows:
             - build_prerelease_from_branch-linux
             - build_prerelease_from_branch-mac
   protostar-rust:
+    environment:
+      CARGO: cargo
     jobs:
       - rust_runner_code_quality
       - rust_runner_tests:
@@ -847,16 +861,9 @@ workflows:
                 - master
       - build_rust:
           target: x86_64-unknown-linux-gnu
-          executor: linux-x86
-
-      - build_rust:
+      - cross_build_rust:
           target: x86_64-unknown-linux-musl
-          executor: linux-x86
-
-      - build_rust:
+      - cross_build_rust:
           target: aarch64-unknown-linux-gnu
-          executor: linux-arm
-
-      - build_rust:
+      - cross_build_rust:
           target: aarch64-unknown-linux-musl
-          executor: linux-arm
