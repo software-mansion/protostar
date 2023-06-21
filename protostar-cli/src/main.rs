@@ -3,7 +3,7 @@ use anyhow::Result;
 use camino::Utf8PathBuf;
 use clap::{Parser, Subcommand};
 use console::style;
-use protostar_cli::{get_account, get_provider, Network};
+use protostar_cli::{get_account, get_block_id, get_provider, Network};
 
 mod starknet_commands;
 
@@ -39,6 +39,9 @@ struct Cli {
 enum Commands {
     /// Declare a contract
     Declare(Declare),
+
+    /// Call a contract
+    Call(starknet_commands::call::Call),
 }
 
 fn get_network(name: &str) -> Result<Network> {
@@ -82,6 +85,20 @@ async fn main() -> Result<()> {
             .await?;
             eprintln!("Class hash: {}", declared_contract.class_hash);
             eprintln!("Transaction hash: {}", declared_contract.transaction_hash);
+            Ok(())
+        }
+        Commands::Call(args) => {
+            let block_id = get_block_id(&args.block_id).unwrap();
+
+            let call = starknet_commands::call::call(
+                &args.contract_address,
+                &args.func_name,
+                &args.calldata,
+                &provider,
+                &block_id,
+            )
+            .await?;
+
             Ok(())
         }
     }

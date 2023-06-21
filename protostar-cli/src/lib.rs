@@ -9,6 +9,8 @@ use starknet::{
     signers::{LocalWallet, SigningKey},
 };
 use std::fs;
+use starknet::core::types::BlockId;
+use starknet::core::types::BlockTag::{Latest, Pending};
 use url::Url;
 
 #[derive(Deserialize, Serialize)]
@@ -77,4 +79,15 @@ pub fn get_account<'a>(
     let mut account = SingleOwnerAccount::new(provider, signer, address, network.get_chain_id());
 
     Ok(account)
+}
+
+pub fn get_block_id(value: &str) -> Result<BlockId> {
+    match value {
+        "pending" => Ok(BlockId::Tag(Pending)),
+        "latest" => Ok(BlockId::Tag(Latest)),
+        _ => Err(anyhow::anyhow!(
+            "No such block id {}! Possible values are pending and latest for now.",
+            value
+        ))
+    }
 }
