@@ -237,6 +237,12 @@ commands:
                   cargo install cross
                   echo 'export CARGO=cross' >> $BASH_ENV
 
+  install_rust_build_deps:
+    description: "Install protostar-rust OS deps"
+    steps:
+      - run:
+          command: sudo apt-get update && sudo apt-get install libssl-dev -y
+
   restore_poetry_cache:
     parameters:
       platform:
@@ -460,6 +466,7 @@ jobs:
       - install_rust_toolchain:
           target: << parameters.target >>
           cross: << parameters.cross >>
+      - install_rust_build_deps
       - cargo_build:
           target: << parameters.target >>
 
