@@ -35,11 +35,15 @@ use cairo_lang_runner::{
     cell_ref_to_relocatable,
   },
 };
-use cairo_lang_casm::hints::{CoreHint, DeprecatedHint, Hint, ProtostarHint, StarknetHint};
+use cairo_lang_casm::hints::ProtostarHint;
+use cairo_vm::serde::deserialize_program::ApTracking;
+use cairo_vm::hint_processor::hint_processor_definition::{HintReference};
+use cairo_vm::vm::errors::vm_errors::VirtualMachineError;
+use cairo_lang_casm::hints::Hint;
 
 pub struct CairoHintProcessor<'a> {
   pub original_cairo_hint_processor: OriginalCairoHintProcessor<'a>,
-  // pub blockifier_state: Option<CachedState<DictStateReader>>,
+  pub blockifier_state: Option<CachedState<DictStateReader>>,
 }
 
 impl HintProcessor for CairoHintProcessor<'_> {
@@ -50,18 +54,28 @@ impl HintProcessor for CairoHintProcessor<'_> {
       hint_data: &Box<dyn Any>,
       constants: &HashMap<String, Felt252>,
   ) -> Result<(), HintError> {
-    // println!(">> hint data: {:?}", hint_data);
-      // let maybe_extended_hint = hint_data.downcast_ref::<Hint>();
-      // if let Some(hint) = maybe_extended_hint {
-      //   if let Hint::Protostar(hint) = hint {
-      //       let blockifier_state = self
-      //           .blockifier_state
-      //           .as_mut()
-      //           .expect("blockifier state is needed for executing hints");
-      //       return execute_protostar_hint(vm, exec_scopes, hint, blockifier_state);
-      //   }
-      // }
-      self.original_cairo_hint_processor.execute_hint(vm, exec_scopes, hint_data.clone(), constants)
+      let maybe_extended_hint = hint_data.downcast_ref::<Hint>();
+      if let Some(hint) = maybe_extended_hint {
+        if let Hint::Protostar(hint) = hint {
+            let blockifier_state = self
+                .blockifier_state
+                .as_mut()
+                .expect("blockifier state is needed for executing hints");
+            return execute_protostar_hint(vm, exec_scopes, hint, blockifier_state);
+        }
+      }
+      self.original_cairo_hint_processor.execute_hint(vm, exec_scopes, hint_data, constants)
+  }
+
+    /// Trait function to store hint in the hint processor by string.
+    fn compile_hint(
+      &self,
+      hint_code: &str,
+      _ap_tracking_data: &ApTracking,
+      _reference_ids: &HashMap<String, usize>,
+      _references: &HashMap<usize, HintReference>,
+  ) -> Result<Box<dyn Any>, VirtualMachineError> {
+      Ok(Box::new(self.original_cairo_hint_processor.string_to_hint[hint_code].clone()))
   }
 }
 
