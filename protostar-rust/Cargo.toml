@@ -35,5 +35,9 @@ name = "rust_test_runner"
 
 [package.metadata.cross.build.env]
 volumes = ["CAIRO_DEP=../cairo"]
-[package.metadata.cross.build]
-pre-build = ["sudo apt-get update && sudo apt-get install libssl-dev pkg-info -y"]
+[package.metadata.cross.target.x86_64-unknown-linux-musl]
+pre-build = ["apt-get update && apt-get --assume-yes install libssl-dev pkg-info"]
+[package.metadata.cross.target.aarch64-unknown-linux-gnu]
+pre-build = ["yum update && yum install openssl openssl-devel"]
+[package.metadata.cross.target.aarch64-unknown-linux-musl]
+pre-build = ["yum update && yum install openssl openssl-devel"]
