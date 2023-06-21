@@ -28,7 +28,7 @@ parameters:
 
   rust_version:
     type: string
-    default: "stable"
+    default: "1.70.0"
 
 executors:
   linux:
