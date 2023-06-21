@@ -22,12 +22,17 @@ pub struct Invoke {
     /// Calldata for the invoked function
     #[clap(long)]
     pub calldata: Vec<String>,
+
+    /// Max fee for the transaction. If not provided, max fee will be automatically estimated
+    #[clap(long)]
+    pub max_fee: Option<String>,
 }
 
 pub async fn invoke(
     contract_address: &str,
     entry_point_name: &str,
     calldata: Vec<&str>,
+    max_fee: Option<&str>,
     account: &mut SingleOwnerAccount<&JsonRpcClient<HttpTransport>, LocalWallet>,
 ) -> Result<()> {
     let call = Call {
@@ -40,11 +45,18 @@ pub async fn invoke(
             })
             .collect::<Result<Vec<_>>>()?,
     };
-    let result = account
-        .execute(vec![call])
-        .max_fee(FieldElement::from_hex_be("0x2386f26fc10000")?)
-        .send()
-        .await?;
+    let execution = account.execute(vec![call]);
+
+    let execution = if let Some(max_fee) = max_fee {
+        execution.max_fee(
+            FieldElement::from_hex_be(max_fee)
+                .context("Failed to convert max_fee to FieldElement")?,
+        )
+    } else {
+        execution
+    };
+
+    let result = execution.send().await?;
 
     dbg!(result);
 
