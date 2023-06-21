@@ -35,3 +35,5 @@ name = "rust_test_runner"
 
 [package.metadata.cross.build.env]
 volumes = ["CAIRO_DEP=../cairo"]
+[package.metadata.cross.build]
+pre-build = ["sudo apt-get update && sudo apt-get install libssl-dev pkg-info -y"]
