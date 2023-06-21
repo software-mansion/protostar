@@ -848,7 +848,6 @@ dependencies = [
  "anyhow",
  "ark-ff 0.4.2",
  "ark-std 0.3.0",
- "blockifier",
  "cairo-felt",
  "cairo-lang-casm 1.1.0",
  "cairo-lang-compiler 1.1.0",
@@ -856,7 +855,6 @@ dependencies = [
  "cairo-lang-diagnostics 1.1.0",
  "cairo-lang-filesystem 1.1.0",
  "cairo-lang-lowering 1.1.0",
- "cairo-lang-project 1.1.0",
  "cairo-lang-semantic 1.1.0",
  "cairo-lang-sierra 1.1.0",
  "cairo-lang-sierra-ap-change 1.1.0",
@@ -873,10 +871,6 @@ dependencies = [
  "num-integer",
  "num-traits 0.2.15",
  "salsa",
- "serde_json",
- "smol_str",
- "snapbox",
- "starknet_api",
  "thiserror",
 ]
 
@@ -3294,7 +3288,7 @@ dependencies = [
 
 [[package]]
 name = "rust_test_runner"
-version = "1.0.0"
+version = "0.1.0+rs"
 dependencies = [
  "anyhow",
  "assert_fs",

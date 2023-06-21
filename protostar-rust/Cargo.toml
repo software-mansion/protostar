@@ -32,3 +32,6 @@ tempfile = "3.6.0"
 
 [lib]
 name = "rust_test_runner"
+
+[package.metadata.cross.build.env]
+volumes = ["CAIRO_DEP=../cairo"]
