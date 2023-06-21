@@ -241,7 +241,7 @@ commands:
     description: "Install protostar-rust OS deps"
     steps:
       - run:
-          command: sudo apt-get update && sudo apt-get install libssl-dev -y
+          command: sudo apt-get update && sudo apt-get install libssl-dev pkg-config -y
 
   restore_poetry_cache:
     parameters:
@@ -409,6 +409,7 @@ jobs:
     executor: linux-rs
     steps:
       - setup_git
+      - install_rust
       - checkout_with_submodules
       - run_test_runner_tests
       - notify_about_failed_test:
