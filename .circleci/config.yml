@@ -377,6 +377,11 @@ commands:
                   "*Committed by:*\n$CIRCLE_USERNAME\n\n*Url to failed test:*\n$CIRCLE_BUILD_URL" \
                   "$SLACK_URL"
                 when: on_fail
+  setup_git:
+    steps:
+      - run:
+          name: Set git config
+          command: git config --global protocol.file.allow always
 
 jobs:
   code_quality:
@@ -397,9 +402,7 @@ jobs:
   rust_runner_tests:
     executor: linux-rs
     steps:
-      - run:
-          name: Set git config
-          command: git config --global protocol.file.allow always
+      - setup_git
       - checkout_with_submodules
       - run_test_runner_tests
       - notify_about_failed_test:
@@ -414,9 +417,7 @@ jobs:
     steps:
       - setup:
           platform: << parameters.platform >>
-      - run:
-          name: Set git config
-          command: git config --global protocol.file.allow always
+      - setup_git
       - run_unit_tests
       - run_integration_tests
       - notify_about_failed_test:
@@ -431,9 +432,7 @@ jobs:
     steps:
       - setup:
           platform: << parameters.platform >>
-      - run:
-          name: Set git config
-          command: git config --global protocol.file.allow always
+      - setup_git
       - run_e2e_tests
       - notify_about_failed_test:
           message: "*End to end tests have failed* :rotating_light:"
@@ -455,6 +454,7 @@ jobs:
       CARGO: cargo # Overriden for cross-compilation
     executor: linux-rs
     steps:
+      - setup_git
       - checkout_with_submodules
       - install_rust
       - install_rust_toolchain:
