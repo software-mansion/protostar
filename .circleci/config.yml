@@ -219,7 +219,7 @@ commands:
         type: string
       cross:
         description: "Use cross instead of cargo for building"
-        type: bool
+        type: boolean
     steps:
       - run:
           name: Install rust toolchain
@@ -450,6 +450,8 @@ jobs:
       cross:
         type: boolean
         default: false
+    environment:
+      CARGO: cargo # Overriden for cross-compilation
     executor: linux-rs
     steps:
       - checkout_with_submodules
@@ -459,16 +461,6 @@ jobs:
           cross: << parameters.cross >>
       - cargo_build:
           target: << parameters.target >>
-
-  cross_build_rust:
-    parameters:
-      target:
-        type: string
-    executor: linux-rs
-    steps:
-      - build_rust:
-          target: << parameters.target >>
-          cross: true
 
   build:
     parameters:
@@ -842,8 +834,6 @@ workflows:
             - build_prerelease_from_branch-linux
             - build_prerelease_from_branch-mac
   protostar-rust:
-    environment:
-      CARGO: cargo
     jobs:
       - rust_runner_code_quality
       - rust_runner_tests:
@@ -861,9 +851,12 @@ workflows:
                 - master
       - build_rust:
           target: x86_64-unknown-linux-gnu
-      - cross_build_rust:
+      - build_rust:
           target: x86_64-unknown-linux-musl
-      - cross_build_rust:
+          cross: true
+      - build_rust:
           target: aarch64-unknown-linux-gnu
-      - cross_build_rust:
+          cross: true
+      - build_rust:
           target: aarch64-unknown-linux-musl
+          cross: true
