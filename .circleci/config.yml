@@ -291,7 +291,9 @@ commands:
           working_directory: ./protostar-rust
           environment:
             CROSS_CONTAINER_IN_CONTAINER: true
-          command: cross build --release --target << parameters.target >>
+          command: |
+            echo "$CROSS_CONTAINER_IN_CONTAINER"
+            cross build --release --target << parameters.target >>
 
   pack:
     description: "Pack protostar for release"
