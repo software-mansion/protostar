@@ -100,6 +100,8 @@ async fn main() -> Result<()> {
 
             // todo (#2107): Normalize outputs in CLI
             eprintln!("Call response: {:?}", result);
+            Ok(())
+        }
         Commands::Invoke(invoke) => {
             let mut account =
                 get_account(&cli.account, &cli.accounts_file_path, &provider, &network)?;

@@ -1,6 +1,7 @@
 use anyhow::{Error, Result};
 use camino::Utf8PathBuf;
 use clap::Args;
+use starknet::core::types::DeclareTransactionResult;
 use starknet::{
     accounts::{Account, SingleOwnerAccount},
     core::types::contract::{CompiledClass, SierraClass},
@@ -8,7 +9,6 @@ use starknet::{
     signers::LocalWallet,
 };
 use std::sync::Arc;
-use starknet::core::types::DeclareTransactionResult;
 
 #[derive(Args)]
 #[command(about = "Declare a contract to starknet", long_about = None)]
