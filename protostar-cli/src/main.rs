@@ -1,4 +1,4 @@
-use crate::starknet_commands::{call::Call, declare::Declare};
+use crate::starknet_commands::{call::Call, declare::Declare, invoke::Invoke};
 use anyhow::Result;
 use camino::Utf8PathBuf;
 use clap::{Parser, Subcommand};
@@ -42,6 +42,9 @@ enum Commands {
 
     /// Call a contract
     Call(Call),
+
+    /// Invoke a contract
+    Invoke(Invoke),
 }
 
 fn get_network(name: &str) -> Result<Network> {
@@ -97,7 +100,19 @@ async fn main() -> Result<()> {
 
             // todo (#2107): Normalize outputs in CLI
             eprintln!("Call response: {:?}", result);
-
+            Ok(())
+        }
+        Commands::Invoke(invoke) => {
+            let mut account =
+                get_account(&cli.account, &cli.accounts_file_path, &provider, &network)?;
+            starknet_commands::invoke::invoke(
+                &invoke.contract_address,
+                &invoke.entry_point_name,
+                invoke.calldata.iter().map(AsRef::as_ref).collect(),
+                invoke.max_fee.as_deref(),
+                &mut account,
+            )
+            .await?;
             Ok(())
         }
     }
