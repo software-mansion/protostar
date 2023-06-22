@@ -1,15 +1,10 @@
-use starknet::syscalls::call_contract_syscall;
-use array::ArrayTrait;
-use starknet::SyscallResult;
-use starknet::contract_address::ContractAddress;
-use array::SpanTrait;
-
 #[contract]
 mod ProxyContract {
     use starknet::syscalls::call_contract_syscall;
-    use array::ArrayTrait;
     use starknet::SyscallResult;
     use starknet::contract_address::ContractAddress;
+    use starknet::info::get_tx_info;
+    use array::ArrayTrait;
     use array::SpanTrait;
 
     #[view]
