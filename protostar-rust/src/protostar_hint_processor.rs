@@ -4,6 +4,9 @@ use std::i64;
 
 use anyhow::Result;
 use blockifier::block_context::BlockContext;
+use blockifier::execution::contract_class::{
+    ContractClass as BlockifierContractClass, ContractClassV1,
+};
 use blockifier::state::cached_state::CachedState;
 use blockifier::test_utils::DictStateReader;
 use blockifier::transaction::account_transaction::AccountTransaction;
@@ -12,71 +15,65 @@ use blockifier::transaction::transaction_utils_for_protostar::{
 };
 use blockifier::transaction::transactions::{DeclareTransaction, ExecutableTransaction};
 use cairo_felt::Felt252;
-use cairo_lang_starknet::contract_class::ContractClass;
 use cairo_lang_starknet::casm_contract_class::CasmContractClass;
-use blockifier::execution::contract_class::{
-    ContractClass as BlockifierContractClass, ContractClassV1,
-};
+use cairo_lang_starknet::contract_class::ContractClass;
 use cairo_vm::hint_processor::hint_processor_definition::HintProcessor;
 use cairo_vm::types::exec_scope::ExecutionScopes;
 use cairo_vm::vm::errors::hint_errors::HintError;
 use cairo_vm::vm::vm_core::VirtualMachine;
-use starknet_api::transaction::Fee;
 use num_traits::cast::ToPrimitive;
+use starknet_api::transaction::Fee;
 
+use cairo_lang_casm::hints::Hint;
+use cairo_lang_casm::hints::ProtostarHint;
 use cairo_lang_runner::short_string::as_cairo_short_string;
 use cairo_lang_runner::{
-  CairoHintProcessor as OriginalCairoHintProcessor,
-  insert_value_to_cellref,
-  casm_run::{
-    get_val,
-    extract_buffer,
-    get_ptr,
-    cell_ref_to_relocatable,
-  },
+    casm_run::{cell_ref_to_relocatable, extract_buffer, get_ptr, get_val},
+    insert_value_to_cellref, CairoHintProcessor as OriginalCairoHintProcessor,
 };
-use cairo_lang_casm::hints::ProtostarHint;
+use cairo_vm::hint_processor::hint_processor_definition::HintReference;
 use cairo_vm::serde::deserialize_program::ApTracking;
-use cairo_vm::hint_processor::hint_processor_definition::{HintReference};
 use cairo_vm::vm::errors::vm_errors::VirtualMachineError;
-use cairo_lang_casm::hints::Hint;
 
 pub struct CairoHintProcessor<'a> {
-  pub original_cairo_hint_processor: OriginalCairoHintProcessor<'a>,
-  pub blockifier_state: Option<CachedState<DictStateReader>>,
+    pub original_cairo_hint_processor: OriginalCairoHintProcessor<'a>,
+    pub blockifier_state: Option<CachedState<DictStateReader>>,
 }
 
 impl HintProcessor for CairoHintProcessor<'_> {
-  fn execute_hint(
-      &mut self,
-      vm: &mut VirtualMachine,
-      exec_scopes: &mut ExecutionScopes,
-      hint_data: &Box<dyn Any>,
-      constants: &HashMap<String, Felt252>,
-  ) -> Result<(), HintError> {
-      let maybe_extended_hint = hint_data.downcast_ref::<Hint>();
-      if let Some(hint) = maybe_extended_hint {
-        if let Hint::Protostar(hint) = hint {
-            let blockifier_state = self
-                .blockifier_state
-                .as_mut()
-                .expect("blockifier state is needed for executing hints");
-            return execute_protostar_hint(vm, exec_scopes, hint, blockifier_state);
+    fn execute_hint(
+        &mut self,
+        vm: &mut VirtualMachine,
+        exec_scopes: &mut ExecutionScopes,
+        hint_data: &Box<dyn Any>,
+        constants: &HashMap<String, Felt252>,
+    ) -> Result<(), HintError> {
+        let maybe_extended_hint = hint_data.downcast_ref::<Hint>();
+        if let Some(hint) = maybe_extended_hint {
+            if let Hint::Protostar(hint) = hint {
+                let blockifier_state = self
+                    .blockifier_state
+                    .as_mut()
+                    .expect("blockifier state is needed for executing hints");
+                return execute_protostar_hint(vm, exec_scopes, hint, blockifier_state);
+            }
         }
-      }
-      self.original_cairo_hint_processor.execute_hint(vm, exec_scopes, hint_data, constants)
-  }
+        self.original_cairo_hint_processor
+            .execute_hint(vm, exec_scopes, hint_data, constants)
+    }
 
     /// Trait function to store hint in the hint processor by string.
     fn compile_hint(
-      &self,
-      hint_code: &str,
-      _ap_tracking_data: &ApTracking,
-      _reference_ids: &HashMap<String, usize>,
-      _references: &HashMap<usize, HintReference>,
-  ) -> Result<Box<dyn Any>, VirtualMachineError> {
-      Ok(Box::new(self.original_cairo_hint_processor.string_to_hint[hint_code].clone()))
-  }
+        &self,
+        hint_code: &str,
+        _ap_tracking_data: &ApTracking,
+        _reference_ids: &HashMap<String, usize>,
+        _references: &HashMap<usize, HintReference>,
+    ) -> Result<Box<dyn Any>, VirtualMachineError> {
+        Ok(Box::new(
+            self.original_cairo_hint_processor.string_to_hint[hint_code].clone(),
+        ))
+    }
 }
 
 #[allow(unused)]
@@ -91,13 +88,18 @@ fn execute_protostar_hint(
         &ProtostarHint::StopRoll { .. } => todo!(),
         &ProtostarHint::StartWarp { .. } => todo!(),
         &ProtostarHint::StopWarp { .. } => todo!(),
-        ProtostarHint::Declare { contract, result, err_code } => {
+        ProtostarHint::Declare {
+            contract,
+            result,
+            err_code,
+        } => {
             let contract_value = get_val(vm, contract)?;
 
             let contract_value_as_short_str =
                 as_cairo_short_string(&contract_value).expect("conversion to short string failed");
             let current_dir = std::env::current_dir().expect("failed to obtain current dir");
-            let paths = std::fs::read_dir(format!("{}/target", current_dir.to_str().unwrap())).expect("failed to read the file maybe build failed");
+            let paths = std::fs::read_dir(format!("{}/target", current_dir.to_str().unwrap()))
+                .expect("failed to read the file maybe build failed");
             let mut maybe_sierra_path: Option<String> = None;
             for path in paths {
                 let path_str = path

@@ -1,16 +1,16 @@
 use std::fmt::Debug;
 
 use anyhow::{anyhow, Context, Result};
+use cairo_lang_casm::hints::Hint;
+use cairo_lang_casm::instructions::Instruction;
+use cairo_lang_runner::casm_run::hint_to_hint_params;
+use cairo_vm::serde::deserialize_program::HintParams;
 use camino::{Utf8Path, Utf8PathBuf};
 use itertools::chain;
 use scarb_metadata::{Metadata, PackageId};
 use serde::Deserialize;
-use walkdir::WalkDir;
 use std::collections::HashMap;
-use cairo_lang_casm::hints::Hint;
-use cairo_lang_casm::instructions::Instruction;
-use cairo_vm::serde::deserialize_program::HintParams;
-use cairo_lang_runner::casm_run::hint_to_hint_params;
+use walkdir::WalkDir;
 
 use cairo_lang_protostar::casm_generator::TestConfig;
 use cairo_lang_protostar::test_collector::{collect_tests, LinkedLibrary};
@@ -27,8 +27,8 @@ pub mod pretty_printing;
 mod protostar_hint_processor;
 mod test_stats;
 
-use cairo_lang_runner::CairoHintProcessor as OriginalCairoHintProcessor;
 use crate::protostar_hint_processor::CairoHintProcessor;
+use cairo_lang_runner::CairoHintProcessor as OriginalCairoHintProcessor;
 /// Configuration of the test runner
 #[derive(Deserialize, Debug, PartialEq)]
 pub struct RunnerConfig {
@@ -81,8 +81,10 @@ pub fn build_hints_dict<'b>(
                 string_to_hint.insert(hint.to_string(), hint.clone());
             }
             // Add hint, associated with the instruction offset.
-            hints_dict
-                .insert(hint_offset, instruction.hints.iter().map(hint_to_hint_params).collect());
+            hints_dict.insert(
+                hint_offset,
+                instruction.hints.iter().map(hint_to_hint_params).collect(),
+            );
         }
         hint_offset += instruction.body.op_size();
     }
