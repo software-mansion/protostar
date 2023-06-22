@@ -96,9 +96,8 @@ fn execute_protostar_hint(
 
             let contract_value_as_short_str =
                 as_cairo_short_string(&contract_value).expect("conversion to short string failed");
-
-            let paths = std::fs::read_dir("./target/dev")
-                .expect("failed to read ./target/dev, maybe build failed");
+            let current_dir = std::env::current_dir().expect("failed to obtain current dir");
+            let paths = std::fs::read_dir(format!("{}/target", current_dir.to_str().unwrap())).expect("failed to read the file maybe build failed");
             let mut maybe_sierra_path: Option<String> = None;
             for path in paths {
                 let path_str = path

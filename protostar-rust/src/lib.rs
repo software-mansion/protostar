@@ -172,7 +172,7 @@ fn run_tests(tests: TestsFromFile, tests_stats: &mut TestsStats) -> Result<()> {
         // let blockifier_state = create_state_with_trivial_validation_account();
         let mut cairo_hint_processor = CairoHintProcessor {
             original_cairo_hint_processor: original_cairo_hint_processor,
-            // blockifier_state: Some(blockifier_state),
+            blockifier_state: Some(create_state_with_trivial_validation_account()),
         };
         let result = mutable_runner
             .run_function(
