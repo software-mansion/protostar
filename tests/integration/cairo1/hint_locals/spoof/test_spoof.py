@@ -19,7 +19,13 @@ def protostar_fixture(create_protostar_project: CreateProtostarProjectFixture):
 async def test_spoof_hint_local(
     protostar_project: ProtostarProjectFixture, shared_datadir: Path
 ):
-    protostar_project.create_contracts_cairo1({"simple": shared_datadir / "simple"})
+    protostar_project.create_contracts_cairo1(
+        {
+            "simple": shared_datadir / "simple",
+            "proxy": shared_datadir / "proxy",
+        }
+    )
+    protostar_project.create_contracts_cairo1({})
 
     testing_summary = await protostar_project.protostar.test(
         Path(__file__).parent / "spoof_test.cairo",
