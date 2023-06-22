@@ -52,7 +52,8 @@ fn run_declare_test() {
 #[test]
 fn run_with_multiple_contracts() {
     let temp = assert_fs::TempDir::new().unwrap();
-    temp.copy_from("tests/data/multicontract", &["**/*"]).unwrap();
+    temp.copy_from("tests/data/multicontract", &["**/*"])
+        .unwrap();
 
     let snapbox = runner();
 
