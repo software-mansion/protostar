@@ -1,4 +1,4 @@
-use anyhow::{Error, Result};
+use anyhow::{Context, Result};
 use camino::Utf8PathBuf;
 use clap::Args;
 use starknet::{
@@ -28,18 +28,18 @@ pub async fn declare(
     sierra_contract_path: &Utf8PathBuf,
     casm_contract_path: &Utf8PathBuf,
     account: &mut SingleOwnerAccount<&JsonRpcClient<HttpTransport>, LocalWallet>,
-) -> Result<DeclareTransactionResult, Error> {
+) -> Result<DeclareTransactionResult> {
     let contract_definition: SierraClass = {
         let file_contents = std::fs::read(sierra_contract_path)
-            .map_err(|err| anyhow::anyhow!("Failed to read contract file: {}", err))?;
+            .with_context(|| format!("Failed to read contract file: {}", sierra_contract_path))?;
         serde_json::from_slice(&file_contents)
-            .map_err(|err| anyhow::anyhow!("Failed to parse contract definition: {}", err))?
+            .with_context(|| format!("Failed to parse contract definition: {}", sierra_contract_path))?
     };
     let casm_contract_definition: CompiledClass = {
         let file_contents = std::fs::read(casm_contract_path)
-            .map_err(|err| anyhow::anyhow!("Failed to read contract file: {}", err))?;
+            .with_context(|| format!("Failed to read contract file: {}", casm_contract_path))?;
         serde_json::from_slice(&file_contents)
-            .map_err(|err| anyhow::anyhow!("Failed to parse contract definition: {}", err))?
+            .with_context(|| format!("Failed to parse contract definition: {}", casm_contract_path))?
     };
 
     let casm_class_hash = casm_contract_definition.class_hash()?;

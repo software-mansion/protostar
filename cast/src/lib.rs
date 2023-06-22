@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, Context, Result};
 use camino::Utf8PathBuf;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -73,9 +73,11 @@ pub fn get_account<'a>(
     // todo: #2113 verify network with provider
     let account_info = get_account_info(name, network.get_value(), accounts_file_path)?;
     let signer = LocalWallet::from(SigningKey::from_secret_scalar(
-        FieldElement::from_hex_be(&account_info.private_key).unwrap(),
+        FieldElement::from_hex_be(&account_info.private_key)
+            .with_context(|| format!("Failed to convert private key {} to FieldElement", &account_info.private_key))?,
     ));
-    let address = FieldElement::from_hex_be(&account_info.address).unwrap();
+    let address = FieldElement::from_hex_be(&account_info.address)
+        .with_context(|| format!("Failed to convert account address {} to FieldElement", &account_info.private_key))?;
     let mut account = SingleOwnerAccount::new(provider, signer, address, network.get_chain_id());
 
     Ok(account)
@@ -89,6 +91,18 @@ pub fn get_block_id(value: &str) -> Result<BlockId> {
         _ => Err(anyhow::anyhow!(
             "No such block id {}! Possible values are pending and latest for now.",
             value
+        )),
+    }
+}
+
+pub fn get_network(name: &str) -> Result<Network> {
+    match name {
+        "testnet" => Ok(Network::Testnet),
+        "testnet2" => Ok(Network::Testnet2),
+        "mainnet" => Ok(Network::Mainnet),
+        _ => Err(anyhow::anyhow!(
+            "No such network {}! Possible values are testnet, testnet2, mainnet.",
+            name
         )),
     }
 }

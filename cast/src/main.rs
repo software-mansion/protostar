@@ -3,7 +3,7 @@ use anyhow::Result;
 use camino::Utf8PathBuf;
 use clap::{Parser, Subcommand};
 use console::style;
-use cast::{get_account, get_block_id, get_provider, Network};
+use cast::{get_account, get_block_id, get_provider, get_network};
 
 mod starknet_commands;
 
@@ -47,24 +47,13 @@ enum Commands {
     Invoke(Invoke),
 }
 
-fn get_network(name: &str) -> Result<Network> {
-    match name {
-        "testnet" => Ok(Network::Testnet),
-        "testnet2" => Ok(Network::Testnet2),
-        "mainnet" => Ok(Network::Mainnet),
-        _ => Err(anyhow::anyhow!(
-            "No such network {}! Possible values are testnet, testnet2, mainnet.",
-            name
-        )),
-    }
-}
-
 #[tokio::main]
 async fn main() -> Result<()> {
     let cli = Cli::parse();
 
     // todo: #2052 take network from scarb config if flag not provided
     let network_name = cli.network.unwrap_or_else(|| {
+        // todo: #2107
         eprintln!("{}", style("No --network flag passed!").red());
         std::process::exit(1);
     });
