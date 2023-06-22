@@ -3,13 +3,13 @@ use anyhow::Result;
 use camino::Utf8PathBuf;
 use clap::{Parser, Subcommand};
 use console::style;
-use protostar_cli::{get_account, get_block_id, get_provider, Network};
+use cast::{get_account, get_block_id, get_provider, Network};
 
 mod starknet_commands;
 
 #[derive(Parser)]
 #[command(version)]
-#[command(about = "protostar-cli - a protostar starknet CLI", long_about = None)]
+#[command(about = "cast - a starknet-foundry CLI", long_about = None)]
 struct Cli {
     /// RPC provider url address
     #[clap(short = 'u', long = "url")]

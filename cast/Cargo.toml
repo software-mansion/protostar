@@ -1,6 +1,6 @@
 [package]
-name = "protostar_cli"
-description = "Protostar starknet CLI client"
+name = "cast"
+description = "Cast - a starknet-foundry CLI client"
 version = "0.0.1"
 edition = "2021"
 

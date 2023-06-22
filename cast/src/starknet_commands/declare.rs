@@ -1,10 +1,12 @@
 use anyhow::{Error, Result};
 use camino::Utf8PathBuf;
 use clap::Args;
-use starknet::core::types::DeclareTransactionResult;
 use starknet::{
     accounts::{Account, SingleOwnerAccount},
-    core::types::contract::{CompiledClass, SierraClass},
+    core::types::{
+        contract::{CompiledClass, SierraClass},
+        DeclareTransactionResult,
+    },
     providers::jsonrpc::{HttpTransport, JsonRpcClient},
     signers::LocalWallet,
 };
