@@ -10,19 +10,19 @@ use starknet::providers::{JsonRpcClient, Provider};
 pub struct Call {
     /// Address of the called contract (hex)
     #[clap(short = 'a', long = "contract-address")]
-    pub(crate) contract_address: String,
+    pub contract_address: String,
 
     /// Name of the contract function to be called
     #[clap(short = 'f', long = "function-name")]
-    pub(crate) function_name: String,
+    pub function_name: String,
 
     /// Arguments of the called function (list of hex)
     #[clap(short = 'c', long = "calldata", value_delimiter = ' ')]
-    pub(crate) calldata: Vec<String>,
+    pub calldata: Vec<String>,
 
     /// Block identifier on which call should be performed
     #[clap(short = 'b', long = "block-id", default_value = "pending")]
-    pub(crate) block_id: String,
+    pub block_id: String,
 }
 
 pub async fn call(
