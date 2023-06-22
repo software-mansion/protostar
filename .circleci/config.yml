@@ -404,6 +404,7 @@ jobs:
     steps:
       - setup_git
       - install_rust
+      - install_scarb
       - checkout_with_submodules
       - run_test_runner_tests
       - notify_about_failed_test:
@@ -861,4 +862,13 @@ workflows:
           cross: true
       - build_rust:
           target: aarch64-unknown-linux-musl
+          cross: true
+      - build_rust:
+          target: x86_64-apple-darwin
+          cross: true
+      - build_rust:
+          target: aarch64-apple-darwin
+          cross: true
+      - build_rust:
+          target: x86_64-pc-windows-msvc
           cross: true
