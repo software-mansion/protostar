@@ -40,12 +40,11 @@ fn main_execution() -> Result<()> {
         .context("Failed to convert corelib path to Utf8PathBuf")?;
 
     let scarb_metadata = MetadataCommand::new().inherit_stderr().exec()?;
-    // TODO: uncomment this, now there is mocked data built with scarb 0.5.0-alpha.1 (it supports cairo 2)
-    // but once the scarb is fully released, this should be uncommented and working properly
-    // let _ = Command::new("scarb")
-    //     .current_dir(std::env::current_dir().expect("failed to obtain current dir"))
-    //     .arg("build")
-    //     .output().expect("failed to execute process");
+    let _ = Command::new("scarb")
+        .current_dir(std::env::current_dir().expect("failed to obtain current dir"))
+        .arg("build")
+        .output()
+        .expect("failed to execute the scarb process");
 
     for package in &scarb_metadata.workspace.members {
         let protostar_config =
