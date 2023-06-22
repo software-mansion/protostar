@@ -1,4 +1,6 @@
 use anyhow::{Error, Result};
+use camino::Utf8PathBuf;
+use clap::Args;
 use starknet::{
     accounts::{Account, SingleOwnerAccount},
     core::types::contract::{CompiledClass, SierraClass},
@@ -6,24 +8,42 @@ use starknet::{
     signers::LocalWallet,
 };
 use std::sync::Arc;
+use starknet::core::types::DeclareTransactionResult;
+
+#[derive(Args)]
+#[command(about = "Declare a contract to starknet", long_about = None)]
+pub struct Declare {
+    /// Path to the sierra compiled contract
+    #[clap(short = 's', long = "sierra-contract-path")]
+    pub sierra_contract_path: Utf8PathBuf,
+
+    /// Path to the casm compiled contract
+    #[clap(short = 'c', long = "casm-contract-path")]
+    pub casm_contract_path: Utf8PathBuf,
+}
 
 pub async fn declare(
-    sierra_contract_path: &str,
-    casm_contract_path: &str,
+    sierra_contract_path: &Utf8PathBuf,
+    casm_contract_path: &Utf8PathBuf,
     account: &mut SingleOwnerAccount<&JsonRpcClient<HttpTransport>, LocalWallet>,
-) -> Result<(), Error> {
-    let contract_definition: SierraClass =
-        serde_json::from_reader(std::fs::File::open(sierra_contract_path).unwrap()).unwrap();
-    let casm_contract_definition: CompiledClass =
-        serde_json::from_reader(std::fs::File::open(casm_contract_path).unwrap()).unwrap();
+) -> Result<DeclareTransactionResult, Error> {
+    let contract_definition: SierraClass = {
+        let file_contents = std::fs::read(sierra_contract_path)
+            .map_err(|err| anyhow::anyhow!("Failed to read contract file: {}", err))?;
+        serde_json::from_slice(&file_contents)
+            .map_err(|err| anyhow::anyhow!("Failed to parse contract definition: {}", err))?
+    };
+    let casm_contract_definition: CompiledClass = {
+        let file_contents = std::fs::read(casm_contract_path)
+            .map_err(|err| anyhow::anyhow!("Failed to read contract file: {}", err))?;
+        serde_json::from_slice(&file_contents)
+            .map_err(|err| anyhow::anyhow!("Failed to parse contract definition: {}", err))?
+    };
 
-    let class_hash = contract_definition.class_hash()?;
     let casm_class_hash = casm_contract_definition.class_hash()?;
 
     let declaration = account.declare(Arc::new(contract_definition.flatten()?), casm_class_hash);
     let declared = declaration.send().await?;
 
-    // dbg!(declaration);
-    // dbg!(declared);
-    Ok(())
+    Ok(declared)
 }

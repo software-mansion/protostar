@@ -12,7 +12,7 @@ use std::fs;
 use url::Url;
 
 #[derive(Deserialize, Serialize)]
-struct ParsedAccount {
+struct Account {
     private_key: String,
     public_key: String,
     address: String,
@@ -47,10 +47,8 @@ pub fn get_provider(url: &str) -> Result<JsonRpcClient<HttpTransport>> {
     Ok(provider)
 }
 
-fn get_account_info(name: &str, chain_id: &str, path: &str) -> Result<ParsedAccount> {
-    let accounts_file = Utf8PathBuf::from(path);
-
-    let accounts: Value = serde_json::from_str(&fs::read_to_string(accounts_file)?)?;
+fn get_account_info(name: &str, chain_id: &str, path: &Utf8PathBuf) -> Result<Account> {
+    let accounts: Value = serde_json::from_str(&fs::read_to_string(path)?)?;
     let account_data = accounts
         .as_object()
         .and_then(|accounts_map| {
@@ -60,17 +58,17 @@ fn get_account_info(name: &str, chain_id: &str, path: &str) -> Result<ParsedAcco
         })
         .ok_or_else(|| anyhow!("Account {} not found under chain id {}", name, chain_id))?;
 
-    let account: ParsedAccount = serde_json::from_value(account_data.clone())?;
+    let account: Account = serde_json::from_value(account_data.clone())?;
     Ok(account)
 }
 
 pub fn get_account<'a>(
     name: &str,
-    accounts_file_path: &str,
+    accounts_file_path: &Utf8PathBuf,
     provider: &'a JsonRpcClient<HttpTransport>,
     network: &Network,
 ) -> Result<SingleOwnerAccount<&'a JsonRpcClient<HttpTransport>, LocalWallet>> {
-    // todo: verify network with provider or get it directly from it
+    // todo: #2113 verify network with provider
     let account_info = get_account_info(name, network.get_value(), accounts_file_path)?;
     let signer = LocalWallet::from(SigningKey::from_secret_scalar(
         FieldElement::from_hex_be(&account_info.private_key).unwrap(),
