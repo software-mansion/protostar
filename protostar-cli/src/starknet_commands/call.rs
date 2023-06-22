@@ -1,10 +1,9 @@
-use clap::{Args};
+use anyhow::{Error, Result};
+use clap::Args;
 use starknet::core::types::{BlockId, FieldElement, FunctionCall};
 use starknet::core::utils::get_selector_from_name;
 use starknet::providers::jsonrpc::HttpTransport;
 use starknet::providers::{JsonRpcClient, Provider};
-use anyhow::{Error, Result};
-
 
 #[derive(Args)]
 #[command(about = "Call a contract instance on Starknet", long_about = None)]
@@ -32,7 +31,7 @@ pub async fn call(
     calldata: &Option<Vec<String>>,
     provider: &JsonRpcClient<HttpTransport>,
     block_id: &BlockId,
-) -> Result<(), Error> {
+) -> Result<Vec<FieldElement>, Error> {
     let function_call = FunctionCall {
         contract_address: FieldElement::from_hex_be(contract_address)?,
         entry_point_selector: get_selector_from_name(func_name)?,
@@ -43,7 +42,8 @@ pub async fn call(
             .map(|x| FieldElement::from_hex_be(x).unwrap())
             .collect(),
     };
+    // todo: Serialization issue
     let res = provider.call(function_call, block_id).await?;
 
-    Ok(())
+    Ok(res)
 }

@@ -2,6 +2,8 @@ use anyhow::{anyhow, Result};
 use camino::Utf8PathBuf;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use starknet::core::types::BlockId;
+use starknet::core::types::BlockTag::{Latest, Pending};
 use starknet::{
     accounts::SingleOwnerAccount,
     core::{chain_id, types::FieldElement},
@@ -9,8 +11,6 @@ use starknet::{
     signers::{LocalWallet, SigningKey},
 };
 use std::fs;
-use starknet::core::types::BlockId;
-use starknet::core::types::BlockTag::{Latest, Pending};
 use url::Url;
 
 #[derive(Deserialize, Serialize)]
@@ -88,6 +88,6 @@ pub fn get_block_id(value: &str) -> Result<BlockId> {
         _ => Err(anyhow::anyhow!(
             "No such block id {}! Possible values are pending and latest for now.",
             value
-        ))
+        )),
     }
 }

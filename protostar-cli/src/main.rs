@@ -90,7 +90,7 @@ async fn main() -> Result<()> {
         Commands::Call(args) => {
             let block_id = get_block_id(&args.block_id).unwrap();
 
-            let call = starknet_commands::call::call(
+            let result = starknet_commands::call::call(
                 &args.contract_address,
                 &args.func_name,
                 &args.calldata,
@@ -98,6 +98,8 @@ async fn main() -> Result<()> {
                 &block_id,
             )
             .await?;
+
+            dbg!(result);
 
             Ok(())
         }
