@@ -28,7 +28,7 @@ mod protostar_hint_processor;
 mod test_stats;
 
 use crate::protostar_hint_processor::CairoHintProcessor;
-use cairo_lang_runner::CairoHintProcessor as OriginalCairoHintProcessor;
+use cairo_lang_runner::CairoHintProcessor as CoreCairoHintProcessor;
 /// Configuration of the test runner
 #[derive(Deserialize, Debug, PartialEq)]
 pub struct RunnerConfig {
@@ -65,7 +65,7 @@ struct TestsFromFile {
     relative_path: Utf8PathBuf,
 }
 
-/// Builds hints_dict required in cairo_vm::types::program::Program from instructions.
+/// Builds `hints_dict` required in `cairo_vm::types::program::Program` from instructions.
 pub fn build_hints_dict<'b>(
     instructions: impl Iterator<Item = &'b Instruction>,
 ) -> (HashMap<usize, Vec<HintParams>>, HashMap<String, Hint>) {
@@ -77,7 +77,7 @@ pub fn build_hints_dict<'b>(
     for instruction in instructions {
         if !instruction.hints.is_empty() {
             // Register hint with string for the hint processor.
-            for hint in instruction.hints.iter() {
+            for hint in &instruction.hints {
                 string_to_hint.insert(hint.to_string(), hint.clone());
             }
             // Add hint, associated with the instruction offset.
@@ -213,24 +213,21 @@ fn run_tests(tests: TestsFromFile, tests_stats: &mut TestsStats) -> Result<()> {
             mutable_runner.casm_program.instructions.iter(),
             footer.iter()
         );
-        let blockifier_state = create_state_with_trivial_validation_account();
         let (hints_dict, string_to_hint) = build_hints_dict(instructions.clone());
-        let mut original_cairo_hint_processor = OriginalCairoHintProcessor {
+        let core_cairo_hint_processor = CoreCairoHintProcessor {
             runner: Some(mutable_runner),
             starknet_state: StarknetState::default(),
             string_to_hint,
-            blockifier_state: Some(blockifier_state),
+            blockifier_state: Some(create_state_with_trivial_validation_account()),
         };
-        // let blockifier_state = create_state_with_trivial_validation_account();
         let mut cairo_hint_processor = CairoHintProcessor {
-            original_cairo_hint_processor: original_cairo_hint_processor,
+            original_cairo_hint_processor: core_cairo_hint_processor,
             blockifier_state: Some(create_state_with_trivial_validation_account()),
         };
         let result = mutable_runner
             .run_function(
                 mutable_runner.find_function(config.name.as_str())?,
-                // &mut original_cairo_hint_processor, // working
-                &mut cairo_hint_processor, // not working
+                &mut cairo_hint_processor,
                 hints_dict,
                 instructions,
                 builtins,

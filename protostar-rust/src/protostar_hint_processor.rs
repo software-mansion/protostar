@@ -49,14 +49,12 @@ impl HintProcessor for CairoHintProcessor<'_> {
         constants: &HashMap<String, Felt252>,
     ) -> Result<(), HintError> {
         let maybe_extended_hint = hint_data.downcast_ref::<Hint>();
-        if let Some(hint) = maybe_extended_hint {
-            if let Hint::Protostar(hint) = hint {
-                let blockifier_state = self
-                    .blockifier_state
-                    .as_mut()
-                    .expect("blockifier state is needed for executing hints");
-                return execute_protostar_hint(vm, exec_scopes, hint, blockifier_state);
-            }
+        if let Some(Hint::Protostar(hint)) = maybe_extended_hint {
+            let blockifier_state = self
+                .blockifier_state
+                .as_mut()
+                .expect("blockifier state is needed for executing hints");
+            return execute_protostar_hint(vm, exec_scopes, hint, blockifier_state);
         }
         self.original_cairo_hint_processor
             .execute_hint(vm, exec_scopes, hint_data, constants)
@@ -76,7 +74,7 @@ impl HintProcessor for CairoHintProcessor<'_> {
     }
 }
 
-#[allow(unused)]
+#[allow(unused, clippy::too_many_lines)]
 fn execute_protostar_hint(
     vm: &mut VirtualMachine,
     exec_scopes: &mut ExecutionScopes,
@@ -134,7 +132,7 @@ fn execute_protostar_hint(
             let declare_tx = declare_tx_default();
             let tx = DeclareTransaction {
                 tx: starknet_api::transaction::DeclareTransaction::V1(declare_tx),
-                contract_class: contract_class.clone(),
+                contract_class,
             };
             let account_tx = AccountTransaction::Declare(tx);
             let block_context = &BlockContext::create_for_account_testing();
@@ -190,11 +188,12 @@ fn execute_protostar_hint(
                 calldata.push(value.into_owned());
                 curr += 1;
             }
-            let chint = Felt252::to_i128(&class_hash).expect("failed to convert felt to i128");
-            let chstr = format!("{:x}", chint);
-            let mut deploy_account_tx = deploy_account_tx(&chstr, None, None);
+            let class_hash_i128 =
+                Felt252::to_i128(&class_hash).expect("failed to convert felt to i128");
+            let class_hash_str = format!("{class_hash_i128:x}");
+            let mut deploy_account_tx = deploy_account_tx(&class_hash_str, None, None);
             deploy_account_tx.max_fee = Fee(0);
-            let account_tx = AccountTransaction::DeployAccount(deploy_account_tx.clone());
+            let account_tx = AccountTransaction::DeployAccount(deploy_account_tx);
             let block_context = &BlockContext::create_for_account_testing();
             let actual_execution_info = account_tx
                 .execute(blockifier_state, block_context)
@@ -221,12 +220,9 @@ fn execute_protostar_hint(
             while curr != end {
                 let value = vm.get_integer(curr)?;
                 if let Some(shortstring) = as_cairo_short_string(&value) {
-                    println!(
-                        "original value: [{}], converted to a string: [{}]",
-                        value, shortstring
-                    );
+                    println!("original value: [{value}], converted to a string: [{shortstring}]",);
                 } else {
-                    println!("original value: [{}]", value);
+                    println!("original value: [{value}]");
                 }
                 curr += 1;
             }
