@@ -87,11 +87,11 @@ async fn main() -> Result<()> {
             let block_id = get_block_id(&args.block_id).unwrap();
 
             let result = starknet_commands::call::call(
-                &args.contract_address,
-                &args.function_name,
-                args.calldata.as_ref().map(|vec| vec.as_ref()),
+                args.contract_address.as_ref(),
+                args.function_name.as_ref(),
+                args.calldata.as_ref(),
                 &provider,
-                &block_id,
+                block_id.as_ref(),
             )
             .await?;
 

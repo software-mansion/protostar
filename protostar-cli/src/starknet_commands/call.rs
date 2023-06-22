@@ -18,7 +18,7 @@ pub struct Call {
 
     /// Arguments of the called function (list of hex)
     #[clap(short = 'c', long = "calldata", value_delimiter = ' ')]
-    pub(crate) calldata: Option<Vec<String>>,
+    pub(crate) calldata: Vec<String>,
 
     /// Block identifier on which call should be performed
     #[clap(short = 'b', long = "block-id", default_value = "pending")]
@@ -28,26 +28,21 @@ pub struct Call {
 pub async fn call(
     contract_address: &str,
     func_name: &str,
-    calldata: Option<&Vec<String>>,
+    calldata: &Vec<String>,
     provider: &JsonRpcClient<HttpTransport>,
     block_id: &BlockId,
 ) -> Result<Vec<FieldElement>> {
-    let parsed_calldata = match calldata {
-        Some(calldata) => calldata
-            .iter()
-            .map(|x| {
-                FieldElement::from_hex_be(x).context("Failed to convert calldata to FieldElement")
-            })
-            .collect::<Result<Vec<_>>>()?,
-        None => Vec::new(),
-    };
-
     let function_call = FunctionCall {
         contract_address: FieldElement::from_hex_be(contract_address)
             .context("Failed to convert contract address to FieldElement")?,
         entry_point_selector: get_selector_from_name(func_name)
             .context("Failed to convert entry point selector to FieldElement")?,
-        calldata: parsed_calldata,
+        calldata: calldata
+            .iter()
+            .map(|x| {
+                FieldElement::from_hex_be(x).context("Failed to convert calldata to FieldElement")
+            })
+            .collect::<Result<Vec<_>>>()?,
     };
     let res = provider.call(function_call, block_id).await?;
 
