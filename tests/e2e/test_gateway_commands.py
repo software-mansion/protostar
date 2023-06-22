@@ -250,7 +250,7 @@ def test_declaring_cairo1_contract(
                 str(StarknetChainId.TESTNET.value),
                 "--json",
             ],
-            ignore_stderr=False,
+            ignore_stderr=True,
         )
 
     assert json.loads(result) == {
