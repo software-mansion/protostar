@@ -88,7 +88,7 @@ async fn main() -> Result<()> {
             .await?;
 
             // todo (#2107): Normalize outputs in CLI
-            eprintln!("Call response: {:?}", result);
+            eprintln!("Call response: {result:?}");
             Ok(())
         }
         Commands::Invoke(invoke) => {

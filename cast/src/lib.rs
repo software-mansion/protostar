@@ -27,6 +27,7 @@ pub enum Network {
 }
 
 impl Network {
+    #[must_use]
     pub fn get_chain_id(&self) -> FieldElement {
         match self {
             Network::Testnet => chain_id::TESTNET,
@@ -34,6 +35,7 @@ impl Network {
             Network::Mainnet => chain_id::MAINNET,
         }
     }
+    #[must_use]
     pub fn get_value(&self) -> &'static str {
         match self {
             Network::Testnet => "alpha-goerli",
