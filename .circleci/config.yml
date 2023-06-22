@@ -2,6 +2,7 @@ version: 2.1
 
 orbs:
   gh: circleci/github-cli@2.2.0
+  win: circleci/windows@5.0
 
 parameters:
   poetry_version:
@@ -42,10 +43,15 @@ executors:
     docker:
       - image: cimg/node:<< pipeline.parameters.node_version >>
 
-  linux-rs:
+  linux-vm:
     machine:
       image: ubuntu-2004:current
     resource_class: medium
+
+  windows-vm:
+    machine:
+      image: 'windows-server-2022-gui:current'
+    resource_class: windows.medium
 
 commands:
   install_python_and_gmp_mac:
@@ -393,14 +399,14 @@ jobs:
           message: "*Code quality checks have failed* :rotating_light:"
     
   rust_runner_code_quality:
-    executor: linux-rs
+    executor: linux-vm
     steps:
       - install_rust
       - checkout_with_submodules
       - lint_rust_runner
 
   rust_runner_tests:
-    executor: linux-rs
+    executor: linux-vm
     steps:
       - setup_git
       - install_rust
@@ -452,9 +458,13 @@ jobs:
       cross:
         type: boolean
         default: false
+      executor:
+        type: string
+        default: linux-vm
     environment:
       CARGO: cargo # Overriden for cross-compilation
-    executor: linux-rs
+    executor: << parameters.executor >>
+
     steps:
       - setup_git
       - checkout_with_submodules
@@ -866,9 +876,12 @@ workflows:
       - build_rust:
           target: x86_64-apple-darwin
           cross: true
+          executor: mac
       - build_rust:
           target: aarch64-apple-darwin
           cross: true
+          executor: mac
       - build_rust:
           target: x86_64-pc-windows-msvc
           cross: true
+          executor: windows-vm
