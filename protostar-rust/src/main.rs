@@ -6,8 +6,8 @@ use scarb_metadata::MetadataCommand;
 use std::path::PathBuf;
 use tempfile::{tempdir, TempDir};
 
-use rust_test_runner::pretty_printing;
 use rust_test_runner::run_test_runner;
+use rust_test_runner::{pretty_printing, RunnerConfig};
 
 use std::process::Command;
 
@@ -15,7 +15,11 @@ static CORELIB_PATH: Dir = include_dir!("../cairo/corelib/src");
 
 #[derive(Parser, Debug)]
 struct Args {
-    test_filter: Option<String>,
+    /// Name used to filter tests
+    test_name: Option<String>,
+    /// Use exact matches for `test_filter`
+    #[arg(short, long)]
+    exact: bool,
 }
 
 fn load_corelib() -> Result<TempDir> {
@@ -27,7 +31,7 @@ fn load_corelib() -> Result<TempDir> {
 }
 
 fn main_execution() -> Result<()> {
-    let _args = Args::parse();
+    let args = Args::parse();
 
     // TODO #1997
     let corelib_dir = load_corelib()?;
@@ -44,10 +48,19 @@ fn main_execution() -> Result<()> {
     //     .output().expect("failed to execute process");
 
     for package in &scarb_metadata.workspace.members {
+        let protostar_config =
+            rust_test_runner::protostar_config_for_package(&scarb_metadata, package)?;
         let (base_path, dependencies) =
             rust_test_runner::dependencies_for_package(&scarb_metadata, package)?;
+        let runner_config =
+            RunnerConfig::new(args.test_name.clone(), args.exact, &protostar_config);
 
-        run_test_runner(&base_path, Some(dependencies.clone()), Some(&corelib))?;
+        run_test_runner(
+            &base_path,
+            Some(dependencies.clone()),
+            &runner_config,
+            Some(&corelib),
+        )?;
     }
 
     // Explicitly close the temporary directory so we can handle the error
