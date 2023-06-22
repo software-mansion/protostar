@@ -1,4 +1,4 @@
-use crate::starknet_commands::declare::Declare;
+use crate::starknet_commands::{call::Call, declare::Declare};
 use anyhow::Result;
 use camino::Utf8PathBuf;
 use clap::{Parser, Subcommand};
@@ -41,7 +41,7 @@ enum Commands {
     Declare(Declare),
 
     /// Call a contract
-    Call(starknet_commands::call::Call),
+    Call(Call),
 }
 
 fn get_network(name: &str) -> Result<Network> {
@@ -62,13 +62,9 @@ async fn main() -> Result<()> {
 
     // todo: #2052 take network from scarb config if flag not provided
     let network_name = cli.network.unwrap_or_else(|| {
-            eprintln!(
-                "{}",
-                style("No --network flag passed!")
-                    .red()
-            );
-            std::process::exit(1);
-        });
+        eprintln!("{}", style("No --network flag passed!").red());
+        std::process::exit(1);
+    });
     let network = get_network(&network_name)?;
     let provider = get_provider(&cli.rpc_url)?;
 
@@ -92,8 +88,8 @@ async fn main() -> Result<()> {
 
             let result = starknet_commands::call::call(
                 &args.contract_address,
-                &args.func_name,
-                &args.calldata,
+                &args.function_name,
+                args.calldata.as_ref().map(|vec| vec.as_ref()),
                 &provider,
                 &block_id,
             )
