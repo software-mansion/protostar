@@ -47,5 +47,5 @@ pre-build = [
 ]
 [package.metadata.cross.target.aarch64-unknown-linux-musl]
 pre-build = [
-    "yum update"
+    "apt-get update"
 ]
