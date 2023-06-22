@@ -8,3 +8,4 @@ sierra = true
 [dependencies]
 starknet = ">=1.1.0"
 
+[tool.protostar]
