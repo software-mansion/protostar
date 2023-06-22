@@ -29,7 +29,7 @@ once_cell = "1.18.0"
 indoc = "2.0.1"
 include_dir = "0.7.3"
 tempfile = "3.6.0"
-openssl = { version="0.10.54", features= ["vendored"] } # https://github.com/cross-rs/cross/wiki/Recipes#openssl
+reqwest = { version = "0.11.18", default-features = false, features = ["rustls-tls"] }
 
 [lib]
 name = "rust_test_runner"
