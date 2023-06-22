@@ -9,7 +9,7 @@ use starknet::providers::JsonRpcClient;
 use starknet::signers::LocalWallet;
 
 #[derive(Args)]
-#[command(about = "Invoke a contract on starknet")]
+#[command(about = "Invoke a contract on Starknet")]
 pub struct Invoke {
     /// Address of contract to invoke
     #[clap(long)]
