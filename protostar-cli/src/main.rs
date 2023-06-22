@@ -1,9 +1,9 @@
-use crate::starknet_commands::declare::Declare;
+use crate::starknet_commands::{call::Call, declare::Declare};
 use anyhow::Result;
 use camino::Utf8PathBuf;
 use clap::{Parser, Subcommand};
 use console::style;
-use protostar_cli::{get_account, get_provider, Network};
+use protostar_cli::{get_account, get_block_id, get_provider, Network};
 
 mod starknet_commands;
 
@@ -39,6 +39,9 @@ struct Cli {
 enum Commands {
     /// Declare a contract
     Declare(Declare),
+
+    /// Call a contract
+    Call(Call),
 }
 
 fn get_network(name: &str) -> Result<Network> {
@@ -59,13 +62,9 @@ async fn main() -> Result<()> {
 
     // todo: #2052 take network from scarb config if flag not provided
     let network_name = cli.network.unwrap_or_else(|| {
-            eprintln!(
-                "{}",
-                style("No --network flag passed!")
-                    .red()
-            );
-            std::process::exit(1);
-        });
+        eprintln!("{}", style("No --network flag passed!").red());
+        std::process::exit(1);
+    });
     let network = get_network(&network_name)?;
     let provider = get_provider(&cli.rpc_url)?;
 
@@ -82,6 +81,23 @@ async fn main() -> Result<()> {
             .await?;
             eprintln!("Class hash: {}", declared_contract.class_hash);
             eprintln!("Transaction hash: {}", declared_contract.transaction_hash);
+            Ok(())
+        }
+        Commands::Call(args) => {
+            let block_id = get_block_id(&args.block_id).unwrap();
+
+            let result = starknet_commands::call::call(
+                args.contract_address.as_ref(),
+                args.function_name.as_ref(),
+                args.calldata.as_ref(),
+                &provider,
+                block_id.as_ref(),
+            )
+            .await?;
+
+            // todo (#2107): Normalize outputs in CLI
+            eprintln!("Call response: {:?}", result);
+
             Ok(())
         }
     }

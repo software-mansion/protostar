@@ -2,6 +2,8 @@ use anyhow::{anyhow, Result};
 use camino::Utf8PathBuf;
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
+use starknet::core::types::BlockId;
+use starknet::core::types::BlockTag::{Latest, Pending};
 use starknet::{
     accounts::SingleOwnerAccount,
     core::{chain_id, types::FieldElement},
@@ -77,4 +79,16 @@ pub fn get_account<'a>(
     let mut account = SingleOwnerAccount::new(provider, signer, address, network.get_chain_id());
 
     Ok(account)
+}
+
+pub fn get_block_id(value: &str) -> Result<BlockId> {
+    // todo: add more block ids (hash, number)
+    match value {
+        "pending" => Ok(BlockId::Tag(Pending)),
+        "latest" => Ok(BlockId::Tag(Latest)),
+        _ => Err(anyhow::anyhow!(
+            "No such block id {}! Possible values are pending and latest for now.",
+            value
+        )),
+    }
 }
