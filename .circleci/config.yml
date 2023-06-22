@@ -461,10 +461,11 @@ jobs:
       executor:
         type: string
         default: linux-vm
+
     environment:
       CARGO: cargo # Overriden for cross-compilation
+      CARGO_NET_GIT_FETCH_WITH_CLI: true
     executor: << parameters.executor >>
-
     steps:
       - setup_git
       - checkout_with_submodules
@@ -864,23 +865,23 @@ workflows:
                 - master
       - build_rust:
           target: x86_64-unknown-linux-gnu
-      - build_rust:
-          target: x86_64-unknown-linux-musl
-          cross: true
-      - build_rust:
-          target: aarch64-unknown-linux-gnu
-          cross: true
-      - build_rust:
-          target: aarch64-unknown-linux-musl
-          cross: true
-      - build_rust:
-          target: x86_64-apple-darwin
-          cross: true
-          executor: mac
-      - build_rust:
-          target: aarch64-apple-darwin
-          cross: true
-          executor: mac
+#      - build_rust:
+#          target: x86_64-unknown-linux-musl
+#          cross: true
+#      - build_rust:
+#          target: aarch64-unknown-linux-gnu
+#          cross: true
+#      - build_rust:
+#          target: aarch64-unknown-linux-musl
+#          cross: true
+#      - build_rust:
+#          target: x86_64-apple-darwin
+#          cross: true
+#          executor: mac
+#      - build_rust:
+#          target: aarch64-apple-darwin
+#          cross: true
+#          executor: mac
       - build_rust:
           target: x86_64-pc-windows-msvc
           cross: true
