@@ -8,7 +8,7 @@ use starknet::providers::{JsonRpcClient, Provider};
 #[derive(Args)]
 #[command(about = "Call a contract instance on Starknet", long_about = None)]
 pub struct Call {
-    /// Address of the called contract
+    /// Address of the called contract (hex)
     #[clap(short = 'a', long = "contract-address")]
     pub(crate) contract_address: String,
 
@@ -16,7 +16,7 @@ pub struct Call {
     #[clap(short = 'e', long = "func-name")]
     pub(crate) func_name: String,
 
-    /// Arguments of the called function
+    /// Arguments of the called function (list of hex)
     #[clap(short = 'c', long = "calldata", num_args = 1.., value_delimiter = ' ')]
     pub(crate) calldata: Option<Vec<String>>,
 
@@ -42,7 +42,6 @@ pub async fn call(
             .map(|x| FieldElement::from_hex_be(x).unwrap())
             .collect(),
     };
-    // todo: Serialization issue
     let res = provider.call(function_call, block_id).await?;
 
     Ok(res)

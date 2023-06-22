@@ -82,6 +82,7 @@ pub fn get_account<'a>(
 }
 
 pub fn get_block_id(value: &str) -> Result<BlockId> {
+    // todo: add more block ids (hash, number)
     match value {
         "pending" => Ok(BlockId::Tag(Pending)),
         "latest" => Ok(BlockId::Tag(Latest)),

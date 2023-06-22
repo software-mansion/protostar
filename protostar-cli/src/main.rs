@@ -99,7 +99,8 @@ async fn main() -> Result<()> {
             )
             .await?;
 
-            dbg!(result);
+            // todo (#2107): Normalize outputs in CLI
+            eprintln!("Call response: {:?}", result);
 
             Ok(())
         }
