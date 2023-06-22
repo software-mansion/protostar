@@ -37,5 +37,6 @@ async def test_spoof_hint_local(
             "test_start_spoof_latest_takes_precedence",
             "test_stop_spoof_cancels_all_spoofs",
             "test_spoof_multiple_times",
+            "test_spoof_behind_proxy",
         ],
     )

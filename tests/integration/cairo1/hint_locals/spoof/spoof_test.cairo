@@ -242,3 +242,33 @@ fn test_spoof_multiple_times() {
     let returned_max_fee = call(contract_address, 'get_max_fee', @ArrayTrait::new()).unwrap();
     assert(*returned_max_fee.at(0_u32) == *max_fee_before_mock.at(0_u32), *returned_max_fee.at(0_u32));
 }
+
+#[test]
+fn test_spoof_behind_proxy() {
+    let proxy_address = deploy_contract('proxy', @ArrayTrait::new()).unwrap();
+    let proxy_nonce_before_mock = call(proxy_address, 'get_nonce', @ArrayTrait::new()).unwrap();
+
+    let simple_address = deploy_contract('simple', @ArrayTrait::new()).unwrap();
+    let simple_nonce_before_mock = call(proxy_address, 'get_nonce', @ArrayTrait::new()).unwrap();
+
+    let mut tx_info = TxInfoMockTrait::default();
+    tx_info.nonce = Option::Some(33);
+
+    start_spoof(simple_address, tx_info);
+
+    let mut calldata = ArrayTrait::new();
+    calldata.append(simple_address);
+    let returned_simple_nonce = call(proxy_address, 'check_remote_nonce', @calldata).unwrap();
+    assert(*returned_simple_nonce.at(0_u32) == 33, *returned_simple_nonce.at(0_u32));
+
+    let returned_proxy_nonce = call(proxy_address, 'get_nonce', @ArrayTrait::new()).unwrap();
+    assert(*returned_proxy_nonce.at(0_u32) == *proxy_nonce_before_mock.at(0_u32), *returned_proxy_nonce.at(0_u32));
+
+    stop_spoof(simple_address);
+
+    let returned_simple_nonce = call(proxy_address, 'check_remote_nonce', @calldata).unwrap();
+    assert(*returned_simple_nonce.at(0_u32) == *simple_nonce_before_mock.at(0_u32), *returned_simple_nonce.at(0_u32));
+
+    let returned_proxy_nonce = call(proxy_address, 'get_nonce', @ArrayTrait::new()).unwrap();
+    assert(*returned_proxy_nonce.at(0_u32) == *proxy_nonce_before_mock.at(0_u32), *returned_proxy_nonce.at(0_u32));
+}
