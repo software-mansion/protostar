@@ -249,7 +249,7 @@ fn test_spoof_behind_proxy() {
     let proxy_nonce_before_mock = call(proxy_address, 'get_nonce', @ArrayTrait::new()).unwrap();
 
     let simple_address = deploy_contract('simple', @ArrayTrait::new()).unwrap();
-    let simple_nonce_before_mock = call(proxy_address, 'get_nonce', @ArrayTrait::new()).unwrap();
+    let simple_nonce_before_mock = call(simple_address, 'get_nonce', @ArrayTrait::new()).unwrap();
 
     let mut tx_info = TxInfoMockTrait::default();
     tx_info.nonce = Option::Some(33);
