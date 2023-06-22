@@ -12,19 +12,19 @@ use starknet::signers::LocalWallet;
 #[command(about = "Invoke a contract on Starknet")]
 pub struct Invoke {
     /// Address of contract to invoke
-    #[clap(long)]
+    #[clap(short = 'a', long)]
     pub contract_address: String,
 
     /// Name of the function to invoke
-    #[clap(long)]
+    #[clap(short, long)]
     pub entry_point_name: String,
 
     /// Calldata for the invoked function
-    #[clap(long)]
+    #[clap(short, long)]
     pub calldata: Vec<String>,
 
     /// Max fee for the transaction. If not provided, max fee will be automatically estimated
-    #[clap(long)]
+    #[clap(short, long)]
     pub max_fee: Option<String>,
 }
 
