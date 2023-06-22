@@ -58,7 +58,8 @@ pub async fn invoke(
 
     let result = execution.send().await?;
 
-    dbg!(result);
+    // todo (#2107): Normalize outputs in CLI
+    println!("{result:?}");
 
     Ok(())
 }
