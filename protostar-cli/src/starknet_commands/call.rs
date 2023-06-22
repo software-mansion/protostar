@@ -1,4 +1,4 @@
-use anyhow::{Error, Result};
+use anyhow::{Context, Error, Result};
 use clap::Args;
 use starknet::core::types::{BlockId, FieldElement, FunctionCall};
 use starknet::core::utils::get_selector_from_name;
@@ -39,8 +39,10 @@ pub async fn call(
             .clone()
             .unwrap()
             .iter()
-            .map(|x| FieldElement::from_hex_be(x).unwrap())
-            .collect(),
+            .map(|x| {
+                FieldElement::from_hex_be(x).context("Failed to convert calldata to FieldElement")
+            })
+            .collect::<Result<Vec<_>>>()?,
     };
     let res = provider.call(function_call, block_id).await?;
 
