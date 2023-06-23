@@ -1,5 +1,7 @@
 use anyhow::{Context, Result};
 use clap::Args;
+use rand::rngs::OsRng;
+use rand::RngCore;
 
 use cast::UDC_ADDRESS;
 use starknet::accounts::SingleOwnerAccount;
@@ -44,8 +46,7 @@ pub async fn deploy(
 ) -> Result<(FieldElement, FieldElement)> {
     let salt = match salt {
         Some(salt) => FieldElement::from_hex_be(salt)?,
-        // TODO: add random salt generation
-        None => FieldElement::ZERO,
+        None => FieldElement::from(OsRng.next_u32()),
     };
     let class_hash = FieldElement::from_hex_be(class_hash)?;
     let unique = matches!(unique, "true");
