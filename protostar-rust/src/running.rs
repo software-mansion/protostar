@@ -1,15 +1,18 @@
-use crate::cheatcodes_hint_processor::CairoHintProcessor;
+use std::collections::HashMap;
+
 use anyhow::{Context, Result};
 use blockifier::transaction::transaction_utils_for_protostar::create_state_with_trivial_validation_account;
+use cairo_vm::serde::deserialize_program::HintParams;
+use itertools::chain;
+
 use cairo_lang_casm::hints::Hint;
 use cairo_lang_casm::instructions::Instruction;
 use cairo_lang_runner::casm_run::hint_to_hint_params;
 use cairo_lang_runner::CairoHintProcessor as CoreCairoHintProcessor;
 use cairo_lang_runner::{RunResult, SierraCasmRunner, StarknetState};
-use cairo_vm::serde::deserialize_program::HintParams;
-use itertools::chain;
-use std::collections::HashMap;
 use test_collector::TestConfig;
+
+use crate::cheatcodes_hint_processor::CairoHintProcessor;
 
 /// Builds `hints_dict` required in `cairo_vm::types::program::Program` from instructions.
 fn build_hints_dict<'b>(
@@ -52,7 +55,7 @@ pub(crate) fn run_from_test_config(
     let footer = runner.create_code_footer();
     let instructions = chain!(
         entry_code.iter(),
-        runner.casm_program.instructions.iter(),
+        runner.get_casm_program().instructions.iter(),
         footer.iter()
     );
     let (hints_dict, string_to_hint) = build_hints_dict(instructions.clone());
