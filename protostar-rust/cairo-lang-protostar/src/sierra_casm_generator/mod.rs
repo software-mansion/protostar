@@ -29,12 +29,6 @@ pub enum GeneratorError {
     NoTestsDetected,
 }
 
-#[derive(Debug, PartialEq, Clone)]
-pub struct TestConfig {
-    pub name: String,
-    pub available_gas: Option<usize>,
-}
-
 pub struct SierraCasmGenerator {
     /// The sierra program.
     sierra_program: cairo_lang_sierra::program::Program,

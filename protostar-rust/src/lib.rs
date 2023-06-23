@@ -12,14 +12,13 @@ use serde::Deserialize;
 use std::collections::HashMap;
 use walkdir::WalkDir;
 
-use cairo_lang_protostar::casm_generator::TestConfig;
-use cairo_lang_protostar::test_collector::{collect_tests, LinkedLibrary};
 use cairo_lang_runner::{SierraCasmRunner, StarknetState};
 use cairo_lang_sierra::program::Program;
 use cairo_lang_sierra_to_casm::metadata::MetadataComputationConfig;
 use cairo_lang_utils::ordered_hash_map::OrderedHashMap;
 
 use blockifier::transaction::transaction_utils_for_protostar::create_state_with_trivial_validation_account;
+use cairo_lang_protostar::{collect_tests, LinkedLibrary, TestConfig};
 
 use crate::test_stats::TestsStats;
 
