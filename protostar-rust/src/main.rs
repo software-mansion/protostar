@@ -44,7 +44,7 @@ fn main_execution() -> Result<()> {
         .current_dir(std::env::current_dir().expect("failed to obtain current dir"))
         .arg("build")
         .output()
-        .expect("failed to execute the scarb process");
+        .expect("Failed to build contracts with Scarb");
 
     for package in &scarb_metadata.workspace.members {
         let protostar_config =
