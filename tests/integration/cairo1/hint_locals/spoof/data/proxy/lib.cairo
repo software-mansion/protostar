@@ -4,6 +4,7 @@ mod ProxyContract {
     use starknet::SyscallResult;
     use starknet::contract_address::ContractAddress;
     use starknet::info::get_tx_info;
+    use box::BoxTrait;
     use array::ArrayTrait;
     use array::SpanTrait;
 
