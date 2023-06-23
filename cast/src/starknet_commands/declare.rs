@@ -32,8 +32,9 @@ pub async fn declare(
     let contract_definition: SierraClass = {
         let file_contents = std::fs::read(sierra_contract_path)
             .with_context(|| format!("Failed to read contract file: {sierra_contract_path}"))?;
-        serde_json::from_slice(&file_contents)
-            .with_context(|| format!("Failed to parse contract definition: {sierra_contract_path}"))?
+        serde_json::from_slice(&file_contents).with_context(|| {
+            format!("Failed to parse contract definition: {sierra_contract_path}")
+        })?
     };
     let casm_contract_definition: CompiledClass = {
         let file_contents = std::fs::read(casm_contract_path)

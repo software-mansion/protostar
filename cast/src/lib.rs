@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use anyhow::{anyhow, Context, Result};
 use camino::Utf8PathBuf;
 use serde::{Deserialize, Serialize};
@@ -10,8 +9,17 @@ use starknet::{
     providers::jsonrpc::{HttpTransport, JsonRpcClient},
     signers::{LocalWallet, SigningKey},
 };
+use std::collections::HashMap;
 use std::fs;
 use url::Url;
+
+// Taken from starknet-rs
+pub const UDC_ADDRESS: FieldElement = FieldElement::from_mont([
+    15_144_800_532_519_055_890,
+    15_685_625_669_053_253_235,
+    9_333_317_513_348_225_193,
+    121_672_436_446_604_875,
+]);
 
 #[derive(Deserialize, Serialize, Clone)]
 struct Account {
@@ -73,11 +81,19 @@ pub fn get_account<'a>(
     // todo: #2113 verify network with provider
     let account_info = get_account_info(name, network.get_value(), accounts_file_path)?;
     let signer = LocalWallet::from(SigningKey::from_secret_scalar(
-        FieldElement::from_hex_be(&account_info.private_key)
-            .with_context(|| format!("Failed to convert private key {} to FieldElement", &account_info.private_key))?,
+        FieldElement::from_hex_be(&account_info.private_key).with_context(|| {
+            format!(
+                "Failed to convert private key {} to FieldElement",
+                &account_info.private_key
+            )
+        })?,
     ));
-    let address = FieldElement::from_hex_be(&account_info.address)
-        .with_context(|| format!("Failed to convert account address {} to FieldElement", &account_info.private_key))?;
+    let address = FieldElement::from_hex_be(&account_info.address).with_context(|| {
+        format!(
+            "Failed to convert account address {} to FieldElement",
+            &account_info.private_key
+        )
+    })?;
     let mut account = SingleOwnerAccount::new(provider, signer, address, network.get_chain_id());
 
     Ok(account)
