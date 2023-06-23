@@ -309,12 +309,12 @@ pub fn collect_tests(
     let sierra_program = replace_sierra_ids_in_program(db, &sierra_program);
 
     let builtins = builtins
-        .map_or_else(|| Vec::new(), |builtins| builtins.iter().map(|s| s.to_string()).collect());
+        .map_or_else(Vec::new, |builtins| builtins.iter().map(|s| s.to_string()).collect());
 
     validate_tests(sierra_program.clone(), &collected_tests, builtins)?;
 
     if let Some(path) = output_path {
-        fs::write(path, &sierra_program.to_string()).context("Failed to write output")?;
+        fs::write(path, sierra_program.to_string()).context("Failed to write output")?;
     }
     Ok((sierra_program, collected_tests))
 }
@@ -333,7 +333,7 @@ fn validate_tests(
         let mut filtered_params: Vec<String> = Vec::new();
         for param in &func.params {
             let param_str = &param.ty.debug_name.as_ref().unwrap().to_string();
-            if !ignored_params.contains(&param_str) {
+            if !ignored_params.contains(param_str) {
                 filtered_params.push(param_str.to_string());
             }
         }
@@ -347,7 +347,7 @@ fn validate_tests(
         let signature = &func.signature;
         let ret_types = &signature.ret_types;
         let tp = &ret_types[ret_types.len() - 1];
-        let info = casm_generator.get_info(&tp);
+        let info = casm_generator.get_info(tp);
         let mut maybe_return_type_name = None;
         if info.long_id.generic_id == EnumType::ID {
             if let GenericArg::UserType(ut) = &info.long_id.generic_args[0] {
