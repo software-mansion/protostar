@@ -54,7 +54,7 @@ impl HintProcessor for CairoHintProcessor<'_> {
                 .blockifier_state
                 .as_mut()
                 .expect("blockifier state is needed for executing hints");
-            return execute_protostar_hint(vm, exec_scopes, hint, blockifier_state);
+            return execute_cheatcode_hint(vm, exec_scopes, hint, blockifier_state);
         }
         self.original_cairo_hint_processor
             .execute_hint(vm, exec_scopes, hint_data, constants)
@@ -75,7 +75,7 @@ impl HintProcessor for CairoHintProcessor<'_> {
 }
 
 #[allow(unused, clippy::too_many_lines)]
-fn execute_protostar_hint(
+fn execute_cheatcode_hint(
     vm: &mut VirtualMachine,
     exec_scopes: &mut ExecutionScopes,
     hint: &ProtostarHint,
