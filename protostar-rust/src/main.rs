@@ -6,7 +6,7 @@ use scarb_metadata::MetadataCommand;
 use std::path::PathBuf;
 use tempfile::{tempdir, TempDir};
 
-use rust_test_runner::run_test_runner;
+use rust_test_runner::run;
 use rust_test_runner::{pretty_printing, RunnerConfig};
 
 use std::process::Command;
@@ -54,7 +54,7 @@ fn main_execution() -> Result<()> {
         let runner_config =
             RunnerConfig::new(args.test_name.clone(), args.exact, &protostar_config);
 
-        run_test_runner(
+        run(
             &base_path,
             Some(dependencies.clone()),
             &runner_config,

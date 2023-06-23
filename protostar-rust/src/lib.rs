@@ -1,31 +1,24 @@
 use std::fmt::Debug;
 
 use anyhow::{anyhow, Context, Result};
-use cairo_lang_casm::hints::Hint;
-use cairo_lang_casm::instructions::Instruction;
-use cairo_lang_runner::casm_run::hint_to_hint_params;
-use cairo_vm::serde::deserialize_program::HintParams;
 use camino::{Utf8Path, Utf8PathBuf};
-use itertools::chain;
 use scarb_metadata::{Metadata, PackageId};
 use serde::Deserialize;
-use std::collections::HashMap;
 use walkdir::WalkDir;
 
-use cairo_lang_runner::{SierraCasmRunner, StarknetState};
+use cairo_lang_runner::SierraCasmRunner;
 use cairo_lang_sierra::program::Program;
 use cairo_lang_sierra_to_casm::metadata::MetadataComputationConfig;
 use cairo_lang_utils::ordered_hash_map::OrderedHashMap;
 
-use blockifier::transaction::transaction_utils_for_protostar::create_state_with_trivial_validation_account;
+use crate::running::run_from_test_config;
 use test_collector::{collect_tests, LinkedLibrary, TestConfig};
 
-use crate::cheatcodes_hint_processor::CairoHintProcessor;
 use crate::test_stats::TestsStats;
-use cairo_lang_runner::CairoHintProcessor as CoreCairoHintProcessor;
 
-pub mod pretty_printing;
 mod cheatcodes_hint_processor;
+pub mod pretty_printing;
+mod running;
 mod test_stats;
 
 /// Configuration of the test runner
@@ -62,32 +55,6 @@ struct TestsFromFile {
     sierra_program: Program,
     tests_configs: Vec<TestConfig>,
     relative_path: Utf8PathBuf,
-}
-
-/// Builds `hints_dict` required in `cairo_vm::types::program::Program` from instructions.
-pub fn build_hints_dict<'b>(
-    instructions: impl Iterator<Item = &'b Instruction>,
-) -> (HashMap<usize, Vec<HintParams>>, HashMap<String, Hint>) {
-    let mut hints_dict: HashMap<usize, Vec<HintParams>> = HashMap::new();
-    let mut string_to_hint: HashMap<String, Hint> = HashMap::new();
-
-    let mut hint_offset = 0;
-
-    for instruction in instructions {
-        if !instruction.hints.is_empty() {
-            // Register hint with string for the hint processor.
-            for hint in &instruction.hints {
-                string_to_hint.insert(hint.to_string(), hint.clone());
-            }
-            // Add hint, associated with the instruction offset.
-            hints_dict.insert(
-                hint_offset,
-                instruction.hints.iter().map(hint_to_hint_params).collect(),
-            );
-        }
-        hint_offset += instruction.body.op_size();
-    }
-    (hints_dict, string_to_hint)
 }
 
 fn collect_tests_from_directory(
@@ -164,7 +131,7 @@ fn internal_collect_tests(
     Ok(tests)
 }
 
-pub fn run_test_runner(
+pub fn run(
     input_path: &Utf8PathBuf,
     linked_libraries: Option<Vec<LinkedLibrary>>,
     runner_config: &RunnerConfig,
@@ -197,42 +164,7 @@ fn run_tests(tests: TestsFromFile, tests_stats: &mut TestsStats) -> Result<()> {
 
     pretty_printing::print_running_tests(&tests.relative_path, tests.tests_configs.len());
     for config in tests.tests_configs {
-        let available_gas = if let Some(available_gas) = &config.available_gas {
-            Some(*available_gas)
-        } else {
-            Some(usize::MAX)
-        };
-        let mutable_runner = &mut runner;
-        let func = mutable_runner.find_function(config.name.as_str())?;
-        let initial_gas = mutable_runner.get_initial_available_gas(func, available_gas)?;
-        let (entry_code, builtins) = mutable_runner.create_entry_code(func, &[], initial_gas)?;
-        let footer = mutable_runner.create_code_footer();
-        let instructions = chain!(
-            entry_code.iter(),
-            mutable_runner.casm_program.instructions.iter(),
-            footer.iter()
-        );
-        let (hints_dict, string_to_hint) = build_hints_dict(instructions.clone());
-        let core_cairo_hint_processor = CoreCairoHintProcessor {
-            runner: Some(mutable_runner),
-            starknet_state: StarknetState::default(),
-            string_to_hint,
-            blockifier_state: Some(create_state_with_trivial_validation_account()),
-        };
-        let mut cairo_hint_processor = CairoHintProcessor {
-            original_cairo_hint_processor: core_cairo_hint_processor,
-            blockifier_state: Some(create_state_with_trivial_validation_account()),
-        };
-        let result = mutable_runner
-            .run_function(
-                mutable_runner.find_function(config.name.as_str())?,
-                &mut cairo_hint_processor,
-                hints_dict,
-                instructions,
-                builtins,
-            )
-            .with_context(|| format!("Failed to run the function `{}`.", config.name.as_str()))?;
-
+        let result = run_from_test_config(&mut runner, &config)?;
         tests_stats.update(&result.value);
         pretty_printing::print_test_result(&config.name.clone(), &result.value);
     }
