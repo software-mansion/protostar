@@ -71,6 +71,7 @@ async fn main() -> Result<()> {
                 &mut account,
             )
             .await?;
+            // todo: #2107
             eprintln!("Class hash: {}", declared_contract.class_hash);
             eprintln!("Transaction hash: {}", declared_contract.transaction_hash);
             Ok(())

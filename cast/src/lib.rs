@@ -1,7 +1,7 @@
+use std::collections::HashMap;
 use anyhow::{anyhow, Context, Result};
 use camino::Utf8PathBuf;
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
 use starknet::core::types::BlockId;
 use starknet::core::types::BlockTag::{Latest, Pending};
 use starknet::{
@@ -13,11 +13,13 @@ use starknet::{
 use std::fs;
 use url::Url;
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Clone)]
 struct Account {
     private_key: String,
     public_key: String,
     address: String,
+    salt: Option<String>,
+    deployed: Option<bool>,
 }
 
 pub enum Network {
@@ -52,18 +54,14 @@ pub fn get_provider(url: &str) -> Result<JsonRpcClient<HttpTransport>> {
 }
 
 fn get_account_info(name: &str, chain_id: &str, path: &Utf8PathBuf) -> Result<Account> {
-    let accounts: Value = serde_json::from_str(&fs::read_to_string(path)?)?;
-    let account_data = accounts
-        .as_object()
-        .and_then(|accounts_map| {
-            accounts_map
-                .get(chain_id)
-                .and_then(|on_chain_accounts| on_chain_accounts.get(name))
-        })
-        .ok_or_else(|| anyhow!("Account {} not found under chain id {}", name, chain_id))?;
+    let accounts: HashMap<String, HashMap<String, Account>> =
+        serde_json::from_str(&fs::read_to_string(path)?)?;
+    let user = accounts
+        .get(chain_id)
+        .and_then(|accounts_map| accounts_map.get(name))
+        .cloned();
 
-    let account: Account = serde_json::from_value(account_data.clone())?;
-    Ok(account)
+    user.ok_or_else(|| anyhow!("Account {} not found under chain id {}", name, chain_id))
 }
 
 pub fn get_account<'a>(
