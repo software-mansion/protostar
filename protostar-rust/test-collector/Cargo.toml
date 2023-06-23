@@ -1,5 +1,5 @@
 [package]
-name = "cairo-lang-protostar"
+name = "test-collector"
 version = "1.0.0"
 edition = "2021"
 
@@ -42,4 +42,4 @@ thiserror = "1.0.32"
 serde_json = "1.0"
 
 [lib]
-name = "cairo_lang_protostar"
+name = "test_collector"

@@ -18,16 +18,16 @@ use cairo_lang_sierra_to_casm::metadata::MetadataComputationConfig;
 use cairo_lang_utils::ordered_hash_map::OrderedHashMap;
 
 use blockifier::transaction::transaction_utils_for_protostar::create_state_with_trivial_validation_account;
-use cairo_lang_protostar::{collect_tests, LinkedLibrary, TestConfig};
+use test_collector::{collect_tests, LinkedLibrary, TestConfig};
 
+use crate::protostar_hint_processor::CairoHintProcessor;
 use crate::test_stats::TestsStats;
+use cairo_lang_runner::CairoHintProcessor as CoreCairoHintProcessor;
 
 pub mod pretty_printing;
 mod protostar_hint_processor;
 mod test_stats;
 
-use crate::protostar_hint_processor::CairoHintProcessor;
-use cairo_lang_runner::CairoHintProcessor as CoreCairoHintProcessor;
 /// Configuration of the test runner
 #[derive(Deserialize, Debug, PartialEq)]
 pub struct RunnerConfig {

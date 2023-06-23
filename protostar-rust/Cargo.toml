@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 anyhow = "1.0.66"
-cairo-lang-protostar = { path = "./cairo-lang-protostar" }
+test-collector = { path = "./test-collector" }
 cairo-lang-test-runner = { path = "../cairo/crates/cairo-lang-test-runner", version = "2.0.0-rc2" }
 cairo-lang-runner = { path = "../cairo/crates/cairo-lang-runner", version = "2.0.0-rc2" }
 cairo-lang-sierra-to-casm = { path = "../cairo/crates/cairo-lang-sierra-to-casm", version = "2.0.0-rc2" }
