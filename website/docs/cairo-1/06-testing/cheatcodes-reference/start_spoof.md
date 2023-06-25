@@ -7,7 +7,7 @@ fn start_spoof(contract_address: felt252, mock: TxInfoMock) nopanic;
 Changes `TxInfo` returned by `get_tx_info()` for the targeted contract until the spoof is stopped
 with [stop_spoof](./stop_spoof.md).
 
-- `contract_address` address for which `get_tx_info()` result will be replaced
+- `contract_address` address of the contract for which `get_tx_info()` result will be mocked.
 - `TxInfoMock` collection of fields equivalent to those in `TxInfo` (returned by `get_tx_info()`).
 All fields are optional to allow partial mocking of the `TxInfo`, i.e. for those fields that are `Option::None`, `get_tx_info` will return original values.
 
