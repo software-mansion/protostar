@@ -16,11 +16,9 @@ use std::sync::Arc;
 #[command(about = "Declare a contract to starknet", long_about = None)]
 pub struct Declare {
     /// Path to the sierra compiled contract
-    #[clap(short = 's', long = "sierra-contract-path")]
     pub sierra_contract_path: Utf8PathBuf,
 
     /// Path to the casm compiled contract
-    #[clap(short = 'c', long = "casm-contract-path")]
     pub casm_contract_path: Utf8PathBuf,
 }
 
