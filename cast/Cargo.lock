@@ -277,6 +277,7 @@ dependencies = [
  "camino",
  "clap",
  "console",
+ "rand",
  "serde",
  "serde_json",
  "starknet",

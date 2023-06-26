@@ -1,17 +1,27 @@
-use std::collections::HashMap;
 use anyhow::{anyhow, Context, Result};
 use camino::Utf8PathBuf;
+use console::style;
 use serde::{Deserialize, Serialize};
-use starknet::core::types::BlockId;
 use starknet::core::types::BlockTag::{Latest, Pending};
+use starknet::core::types::MaybePendingTransactionReceipt::{PendingReceipt, Receipt};
+use starknet::core::types::TransactionReceipt::{
+    Declare, Deploy, DeployAccount, Invoke, L1Handler,
+};
+use starknet::core::types::{BlockId, TransactionStatus};
+use starknet::providers::Provider;
 use starknet::{
     accounts::SingleOwnerAccount,
     core::{chain_id, types::FieldElement},
     providers::jsonrpc::{HttpTransport, JsonRpcClient},
     signers::{LocalWallet, SigningKey},
 };
+use std::collections::HashMap;
 use std::fs;
+use std::thread::sleep;
+use std::time::Duration;
 use url::Url;
+
+pub const UDC_ADDRESS: &str = "0x041a78e741e5af2fec34b695679bc6891742439f7afb8484ecd7766661ad02bf";
 
 #[derive(Deserialize, Serialize, Clone)]
 struct Account {
@@ -73,11 +83,19 @@ pub fn get_account<'a>(
     // todo: #2113 verify network with provider
     let account_info = get_account_info(name, network.get_value(), accounts_file_path)?;
     let signer = LocalWallet::from(SigningKey::from_secret_scalar(
-        FieldElement::from_hex_be(&account_info.private_key)
-            .with_context(|| format!("Failed to convert private key {} to FieldElement", &account_info.private_key))?,
+        FieldElement::from_hex_be(&account_info.private_key).with_context(|| {
+            format!(
+                "Failed to convert private key {} to FieldElement",
+                &account_info.private_key
+            )
+        })?,
     ));
-    let address = FieldElement::from_hex_be(&account_info.address)
-        .with_context(|| format!("Failed to convert account address {} to FieldElement", &account_info.private_key))?;
+    let address = FieldElement::from_hex_be(&account_info.address).with_context(|| {
+        format!(
+            "Failed to convert account address {} to FieldElement",
+            &account_info.private_key
+        )
+    })?;
     let account = SingleOwnerAccount::new(provider, signer, address, network.get_chain_id());
 
     Ok(account)
@@ -105,4 +123,37 @@ pub fn get_network(name: &str) -> Result<Network> {
             name
         )),
     }
+}
+
+pub async fn wait_for_tx(provider: &JsonRpcClient<HttpTransport>, tx_hash: FieldElement) {
+    'a: while {
+        let receipt = provider
+            .get_transaction_receipt(tx_hash)
+            .await
+            .expect("Could not get transaction with hash: {tx_hash}");
+
+        let status = if let Receipt(receipt) = receipt {
+            match receipt {
+                Invoke(receipt) => receipt.status,
+                Declare(receipt) => receipt.status,
+                Deploy(receipt) => receipt.status,
+                DeployAccount(receipt) => receipt.status,
+                L1Handler(receipt) => receipt.status,
+            }
+        } else {
+            continue 'a;
+        };
+
+        match status {
+            TransactionStatus::Pending => {
+                sleep(Duration::from_secs(5));
+                true
+            }
+            TransactionStatus::AcceptedOnL2 | TransactionStatus::AcceptedOnL1 => false,
+            TransactionStatus::Rejected => {
+                println!("{}", style("Transaction has been rejected").red());
+                false
+            }
+        }
+    } {}
 }
