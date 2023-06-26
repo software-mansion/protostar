@@ -1,6 +1,8 @@
 use anyhow::{Context, Result};
 use camino::Utf8PathBuf;
+use cast::wait_for_tx;
 use clap::Args;
+use starknet::accounts::ConnectedAccount;
 use starknet::{
     accounts::{Account, SingleOwnerAccount},
     core::types::{
@@ -47,6 +49,8 @@ pub async fn declare(
 
     let declaration = account.declare(Arc::new(contract_definition.flatten()?), casm_class_hash);
     let declared = declaration.send().await?;
+
+    wait_for_tx(account.provider(), declared.transaction_hash).await;
 
     Ok(declared)
 }
