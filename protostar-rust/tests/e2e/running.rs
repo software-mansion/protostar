@@ -126,8 +126,7 @@ fn with_declare() {
 #[test]
 fn with_deploy() {
     let temp = assert_fs::TempDir::new().unwrap();
-    temp.copy_from("tests/data/deploy_test", &["**/*"])
-        .unwrap();
+    temp.copy_from("tests/data/deploy_test", &["**/*"]).unwrap();
 
     let snapbox = runner();
 
