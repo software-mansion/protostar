@@ -7,7 +7,7 @@ use starknet::core::types::MaybePendingTransactionReceipt::{PendingReceipt, Rece
 use starknet::core::types::TransactionReceipt::{
     Declare, Deploy, DeployAccount, Invoke, L1Handler,
 };
-use starknet::core::types::{BlockId, TransactionStatus};
+use starknet::core::types::{BlockId, StarknetError, TransactionStatus};
 use starknet::providers::Provider;
 use starknet::{
     accounts::SingleOwnerAccount,
@@ -125,7 +125,10 @@ pub fn get_network(name: &str) -> Result<Network> {
     }
 }
 
-pub async fn wait_for_tx(provider: &JsonRpcClient<HttpTransport>, tx_hash: FieldElement) {
+pub async fn wait_for_tx(
+    provider: &JsonRpcClient<HttpTransport>,
+    tx_hash: FieldElement,
+) -> Result<&str> {
     'a: while {
         let receipt = provider
             .get_transaction_receipt(tx_hash)
@@ -149,11 +152,34 @@ pub async fn wait_for_tx(provider: &JsonRpcClient<HttpTransport>, tx_hash: Field
                 sleep(Duration::from_secs(5));
                 true
             }
-            TransactionStatus::AcceptedOnL2 | TransactionStatus::AcceptedOnL1 => false,
+            TransactionStatus::AcceptedOnL2 | TransactionStatus::AcceptedOnL1 => {
+                return Ok("Transaction accepted")
+            }
             TransactionStatus::Rejected => {
                 println!("{}", style("Transaction has been rejected").red());
-                false
+                return Err(anyhow!("Transaction rejected!"));
             }
         }
     } {}
+
+    Err(anyhow!("Should not reach this line"))
+}
+
+pub fn handle_rpc_error(error: StarknetError) {
+    match error {
+        StarknetError::FailedToReceiveTransaction => println!("Node failed to receive transaction"),
+        _ => println!("abc")
+        // StarknetError::ContractNotFound =>,
+        // StarknetError::BlockNotFound,
+        // StarknetError::TransactionHashNotFound,
+        // StarknetError::InvalidTransactionIndex,
+        // StarknetError::ClassHashNotFound,
+        // StarknetError::PageSizeTooBig,
+        // StarknetError::NoBlocks,
+        // StarknetError::InvalidContinuationToken,
+        // StarknetError::TooManyKeysInFilter,
+        // StarknetError::ContractError,
+        // StarknetError::InvalidContractClass,
+        // StarknetError::ClassAlreadyDeclared,
+    }
 }

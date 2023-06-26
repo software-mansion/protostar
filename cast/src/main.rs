@@ -75,8 +75,8 @@ async fn main() -> Result<()> {
             )
             .await?;
             // todo: #2107
-            eprintln!("Class hash: {}", declared_contract.class_hash);
-            eprintln!("Transaction hash: {}", declared_contract.transaction_hash);
+            // eprintln!("Class hash: {}", declared_contract.class_hash);
+            // eprintln!("Transaction hash: {}", declared_contract.transaction_hash);
             Ok(())
         }
         Commands::Deploy(deploy) => {

@@ -1,6 +1,6 @@
-use anyhow::{Context, Result};
+use anyhow::{anyhow, Context, Result};
 use camino::Utf8PathBuf;
-use cast::wait_for_tx;
+use cast::{handle_rpc_error, wait_for_tx};
 use clap::Args;
 use starknet::accounts::ConnectedAccount;
 use starknet::{
@@ -13,6 +13,10 @@ use starknet::{
     signers::LocalWallet,
 };
 use std::sync::Arc;
+use starknet::accounts::AccountError::Provider;
+use starknet::providers::jsonrpc::JsonRpcClientError::RpcError;
+use starknet::providers::jsonrpc::RpcError::{Code, Unknown};
+use starknet::providers::ProviderError::{Other, StarknetError};
 
 #[derive(Args)]
 #[command(about = "Declare a contract to starknet", long_about = None)]
@@ -30,7 +34,7 @@ pub async fn declare(
     sierra_contract_path: &Utf8PathBuf,
     casm_contract_path: &Utf8PathBuf,
     account: &mut SingleOwnerAccount<&JsonRpcClient<HttpTransport>, LocalWallet>,
-) -> Result<DeclareTransactionResult> {
+) -> Result<()> {
     let contract_definition: SierraClass = {
         let file_contents = std::fs::read(sierra_contract_path)
             .with_context(|| format!("Failed to read contract file: {sierra_contract_path}"))?;
@@ -48,9 +52,23 @@ pub async fn declare(
     let casm_class_hash = casm_contract_definition.class_hash()?;
 
     let declaration = account.declare(Arc::new(contract_definition.flatten()?), casm_class_hash);
-    let declared = declaration.send().await?;
-
-    wait_for_tx(account.provider(), declared.transaction_hash).await;
-
-    Ok(declared)
+    let declared = declaration.send().await;
+    match declared {
+        Ok(declared) => {
+            let message = wait_for_tx(account.provider(), declared.transaction_hash).await?;
+            Ok(())
+        },
+        Err(error) => {
+            match error {
+                Provider(Other(RpcError(Code(error))) | StarknetError(error)) => {
+                    handle_rpc_error(error);
+                    Err(anyhow!("Err"))
+                },
+                Provider(Other(RpcError(Unknown(error)))) => {
+                    Err(anyhow!(error.message))
+                }
+                _ => Ok(())
+            }
+        }
+    }
 }
