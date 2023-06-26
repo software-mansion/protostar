@@ -70,7 +70,12 @@ pub async fn deploy(
 
     let result = execution.send().await?;
 
-    let address = get_contract_address(salt, class_hash, &raw_constructor_calldata, UDC_ADDRESS);
+    let address = get_contract_address(
+        salt,
+        class_hash,
+        &raw_constructor_calldata,
+        FieldElement::from_hex_be(UDC_ADDRESS)?,
+    );
 
     Ok((result.transaction_hash, address))
 }

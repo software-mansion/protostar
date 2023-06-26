@@ -13,13 +13,7 @@ use std::collections::HashMap;
 use std::fs;
 use url::Url;
 
-// Taken from starknet-rs
-pub const UDC_ADDRESS: FieldElement = FieldElement::from_mont([
-    15_144_800_532_519_055_890,
-    15_685_625_669_053_253_235,
-    9_333_317_513_348_225_193,
-    121_672_436_446_604_875,
-]);
+pub const UDC_ADDRESS: &str = "0x041a78e741e5af2fec34b695679bc6891742439f7afb8484ecd7766661ad02bf";
 
 #[derive(Deserialize, Serialize, Clone)]
 struct Account {
