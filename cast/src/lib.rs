@@ -1,6 +1,6 @@
 use anyhow::{anyhow, Context, Result};
 use camino::Utf8PathBuf;
-use console::{style, Term};
+use console::{style};
 use serde::{Deserialize, Serialize};
 use starknet::core::types::BlockTag::{Latest, Pending};
 use starknet::core::types::MaybePendingTransactionReceipt::{PendingReceipt, Receipt};
