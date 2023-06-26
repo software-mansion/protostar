@@ -1,6 +1,6 @@
 use anyhow::{anyhow, Context, Result};
 use camino::Utf8PathBuf;
-use console::{style};
+use console::style;
 use serde::{Deserialize, Serialize};
 use starknet::core::types::BlockTag::{Latest, Pending};
 use starknet::core::types::MaybePendingTransactionReceipt::{PendingReceipt, Receipt};
@@ -132,22 +132,23 @@ pub async fn wait_for_tx(provider: &JsonRpcClient<HttpTransport>, tx_hash: Field
             .await
             .expect("Could not get transaction with hash: {tx_hash}");
 
-        let status = match receipt {
-            Receipt(receipt) => match receipt {
+        let status = if let Receipt(receipt) = receipt {
+            match receipt {
                 Invoke(receipt) => receipt.status,
                 Declare(receipt) => receipt.status,
                 Deploy(receipt) => receipt.status,
                 DeployAccount(receipt) => receipt.status,
                 L1Handler(receipt) => receipt.status,
-            },
-            PendingReceipt(_) => continue 'a,
+            }
+        } else {
+            continue 'a;
         };
 
         match status {
             TransactionStatus::Pending => {
                 sleep(Duration::from_secs(5));
                 true
-            },
+            }
             TransactionStatus::AcceptedOnL2 | TransactionStatus::AcceptedOnL1 => false,
             TransactionStatus::Rejected => {
                 println!("{}", style("Transaction has been rejected").red());
