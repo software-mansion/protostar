@@ -1,8 +1,14 @@
 use anyhow::{anyhow, Context, Result};
 use camino::Utf8PathBuf;
+use console::{style, Term};
 use serde::{Deserialize, Serialize};
-use starknet::core::types::BlockId;
 use starknet::core::types::BlockTag::{Latest, Pending};
+use starknet::core::types::MaybePendingTransactionReceipt::{PendingReceipt, Receipt};
+use starknet::core::types::TransactionReceipt::{
+    Declare, Deploy, DeployAccount, Invoke, L1Handler,
+};
+use starknet::core::types::{BlockId, TransactionStatus};
+use starknet::providers::Provider;
 use starknet::{
     accounts::SingleOwnerAccount,
     core::{chain_id, types::FieldElement},
@@ -115,4 +121,33 @@ pub fn get_network(name: &str) -> Result<Network> {
             name
         )),
     }
+}
+
+pub async fn wait_for_tx(provider: &JsonRpcClient<HttpTransport>, tx_hash: FieldElement) {
+    'a: while {
+        let receipt = provider
+            .get_transaction_receipt(tx_hash)
+            .await
+            .expect("Couldnt get transaction with hash: {tx_hash}");
+
+        let status = match receipt {
+            Receipt(receipt) => match receipt {
+                Invoke(receipt) => receipt.status,
+                Declare(receipt) => receipt.status,
+                Deploy(receipt) => receipt.status,
+                DeployAccount(receipt) => receipt.status,
+                L1Handler(receipt) => receipt.status,
+            },
+            PendingReceipt(_) => continue 'a,
+        };
+
+        match status {
+            TransactionStatus::Pending => true,
+            TransactionStatus::AcceptedOnL2 | TransactionStatus::AcceptedOnL1 => false,
+            TransactionStatus::Rejected => {
+                println!("{}", style("Transaction has been rejected").red());
+                false
+            }
+        }
+    } {}
 }

@@ -91,7 +91,7 @@ async fn main() -> Result<()> {
                     .collect(),
                 deploy.salt.as_deref(),
                 deploy.unique,
-                deploy.max_fee.as_deref(),
+                deploy.max_fee,
                 &account,
             )
             .await?;

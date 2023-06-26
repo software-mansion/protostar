@@ -3,8 +3,8 @@ use clap::Args;
 use rand::rngs::OsRng;
 use rand::RngCore;
 
-use cast::UDC_ADDRESS;
-use starknet::accounts::SingleOwnerAccount;
+use cast::{wait_for_tx, UDC_ADDRESS};
+use starknet::accounts::{ConnectedAccount, SingleOwnerAccount};
 use starknet::contract::ContractFactory;
 use starknet::core::types::FieldElement;
 use starknet::core::utils::get_contract_address;
@@ -33,7 +33,7 @@ pub struct Deploy {
 
     /// Max fee for the transaction. If not provided, max fee will be automatically estimated
     #[clap(short, long)]
-    pub max_fee: Option<String>,
+    pub max_fee: Option<u128>,
 }
 
 pub async fn deploy(
@@ -41,7 +41,7 @@ pub async fn deploy(
     constructor_calldata: Vec<&str>,
     salt: Option<&str>,
     unique: bool,
-    max_fee: Option<&str>,
+    max_fee: Option<u128>,
     account: &SingleOwnerAccount<&JsonRpcClient<HttpTransport>, LocalWallet>,
 ) -> Result<(FieldElement, FieldElement)> {
     let salt = match salt {
@@ -49,26 +49,25 @@ pub async fn deploy(
         None => FieldElement::from(OsRng.next_u32()),
     };
     let class_hash = FieldElement::from_hex_be(class_hash)?;
-    let raw_constructor_calldata = constructor_calldata
+    let raw_constructor_calldata: Vec<FieldElement> = constructor_calldata
         .iter()
         .map(|cd| {
             FieldElement::from_hex_be(cd).context("Failed to convert calldata to FieldElement")
         })
-        .collect::<Result<Vec<_>>>()?;
+        .collect::<Result<_>>()?;
 
     let factory = ContractFactory::new(class_hash, account);
     let deployment = factory.deploy(&raw_constructor_calldata, salt, unique);
 
     let execution = if let Some(max_fee) = max_fee {
-        deployment.max_fee(
-            FieldElement::from_hex_be(max_fee)
-                .context("Failed to convert max_fee to FieldElement")?,
-        )
+        deployment.max_fee(FieldElement::from(max_fee))
     } else {
         deployment
     };
 
     let result = execution.send().await?;
+
+    wait_for_tx(account.provider(), result.transaction_hash).await;
 
     let address = get_contract_address(
         salt,
