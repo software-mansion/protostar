@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use std::fmt::Debug;
 
 use anyhow::{anyhow, Context, Result};
@@ -7,17 +6,19 @@ use scarb_metadata::{Metadata, PackageId};
 use serde::Deserialize;
 use walkdir::WalkDir;
 
-use cairo_lang_protostar::casm_generator::TestConfig;
-use cairo_lang_protostar::test_collector::{collect_tests, LinkedLibrary};
-use cairo_lang_runner::{SierraCasmRunner, StarknetState};
+use cairo_lang_runner::SierraCasmRunner;
 use cairo_lang_sierra::program::Program;
 use cairo_lang_sierra_to_casm::metadata::MetadataComputationConfig;
+use cairo_lang_utils::ordered_hash_map::OrderedHashMap;
 
-use blockifier::transaction::transaction_utils_for_protostar::create_state_with_trivial_validation_account;
+use crate::running::run_from_test_config;
+use test_collector::{collect_tests, LinkedLibrary, TestConfig};
 
 use crate::test_stats::TestsStats;
 
+mod cheatcodes_hint_processor;
 pub mod pretty_printing;
+mod running;
 mod test_stats;
 
 /// Configuration of the test runner
@@ -130,7 +131,7 @@ fn internal_collect_tests(
     Ok(tests)
 }
 
-pub fn run_test_runner(
+pub fn run(
     input_path: &Utf8PathBuf,
     linked_libraries: Option<Vec<LinkedLibrary>>,
     runner_config: &RunnerConfig,
@@ -154,30 +155,16 @@ pub fn run_test_runner(
 }
 
 fn run_tests(tests: TestsFromFile, tests_stats: &mut TestsStats) -> Result<()> {
-    let runner = SierraCasmRunner::new(
+    let mut runner = SierraCasmRunner::new(
         tests.sierra_program,
         Some(MetadataComputationConfig::default()),
-        HashMap::default(),
+        OrderedHashMap::default(),
     )
     .context("Failed setting up runner.")?;
 
     pretty_printing::print_running_tests(&tests.relative_path, tests.tests_configs.len());
     for config in tests.tests_configs {
-        let blockifier_state = create_state_with_trivial_validation_account();
-        let result = runner
-            .run_function(
-                runner.find_function(config.name.as_str())?,
-                &[],
-                if let Some(available_gas) = &config.available_gas {
-                    Some(*available_gas)
-                } else {
-                    Some(usize::MAX)
-                },
-                StarknetState::default(),
-                Some(blockifier_state),
-            )
-            .with_context(|| format!("Failed to run the function `{}`.", config.name.as_str()))?;
-
+        let result = run_from_test_config(&mut runner, &config)?;
         tests_stats.update(&result.value);
         pretty_printing::print_test_result(&config.name.clone(), &result.value);
     }
