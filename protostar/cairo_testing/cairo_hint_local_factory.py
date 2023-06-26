@@ -23,8 +23,8 @@ from protostar.cheatable_starknet.callable_hint_locals import (
     ExpectCallHintLocal,
     AssertExpectCallHintLocal,
     PrintHintLocal,
-)
-from protostar.cheatable_starknet.callable_hint_locals.stop_prank_hint_local import (
+    StartSpoofHintLocal,
+    StopSpoofHintLocal,
     StopPrankHintLocal,
 )
 from protostar.cheatable_starknet.cheatables.cheatable_cached_state import (
@@ -38,6 +38,9 @@ from protostar.cheatable_starknet.controllers import (
 )
 from protostar.cheatable_starknet.controllers.expect_events_controller import (
     ExpectEventsController,
+)
+from protostar.cheatable_starknet.controllers.transaction_info import (
+    TransactionInfoController,
 )
 from protostar.compiler import Cairo0ProjectCompiler
 from protostar.contract_path_resolver import ContractPathResolver
@@ -61,6 +64,9 @@ class CairoSharedHintLocalFactory:
 
     def build_hint_locals(self) -> List[HintLocal]:
         block_info_controller = BlockInfoController(
+            cheatable_state=self.cheatable_state
+        )
+        transaction_info_controller = TransactionInfoController(
             cheatable_state=self.cheatable_state
         )
         contracts_controller = ContractsController(cheatable_state=self.cheatable_state)
@@ -102,6 +108,10 @@ class CairoSharedHintLocalFactory:
             PrankHintLocal(contracts_controller=contracts_controller),
             StopPrankHintLocal(contracts_controller=contracts_controller),
             SendMessageToL2HintLocal(contracts_controller=contracts_controller),
+            StartSpoofHintLocal(
+                transaction_info_controller=transaction_info_controller
+            ),
+            StopSpoofHintLocal(transaction_info_controller=transaction_info_controller),
             deploy_cheatcode,
             declare_cheatcode,
             declare_cairo0_cheatcode,
