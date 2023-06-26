@@ -11,8 +11,10 @@ fn test_declare_simple() {
 #[test]
 fn multiple_contracts() {
     let class_hash = declare('HelloStarknet').unwrap();
-    assert(class_hash == 273, 'proper class hash');
+    assert(class_hash != 0, 'proper class hash');
 
     let class_hash2 = declare('Contract1').unwrap();
-    assert(class_hash2 == 273, class_hash2);
+    assert(class_hash2 != 0, 'proper class hash');
+
+    assert(class_hash != class_hash2, 'class hashes neq');
 }

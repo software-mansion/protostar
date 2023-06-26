@@ -115,7 +115,8 @@ fn with_declare() {
         .current_dir(&temp)
         .assert()
         .success()
-        .stdout_matches(indoc! {r#"Collected 2 test(s) and 2 test file(s)
+        .stdout_matches(indoc! {r#"Collected 2 test(s) and 3 test file(s)
+            Running 0 test(s) from src/contract1.cairo
             Running 0 test(s) from src/lib.cairo
             Running 2 test(s) from tests/test_declare.cairo
             [PASS] test_declare::test_declare::test_declare_simple
