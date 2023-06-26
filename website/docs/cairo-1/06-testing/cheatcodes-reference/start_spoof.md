@@ -84,7 +84,6 @@ fn test_start_spoof() {
     let return_data = call(contract_address, 'get_stored_tx_hash', @ArrayTrait::new()).unwrap();
     assert(*return_data.at(0_u32) == 1234, *return_data.at(0_u32));
 
-    // 
     let return_data = call(contract_address, 'get_transaction_version', @ArrayTrait::new()).unwrap();
     assert(*return_data.at(0_u32) == *version_before_mock.at(0_u32), *return_data.at(0_u32));
 }
