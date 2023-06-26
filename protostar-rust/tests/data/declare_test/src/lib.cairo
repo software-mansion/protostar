@@ -13,9 +13,9 @@ mod HelloStarknet {
         self.balance.write(self.balance.read() + amount);
     }
 
-    // Returns the current balance.
+    // Increases the balance by the given amount.
     #[external]
-    fn get_balance(self: @ContractState) -> felt252 {
-        self.balance.read()
+    fn decrease_balance(ref self: ContractState, amount: felt252) {
+        self.balance.write(self.balance.read() - amount);
     }
 }
