@@ -8,7 +8,7 @@ use starknet::providers::jsonrpc::HttpTransport;
 use starknet::providers::JsonRpcClient;
 use starknet::signers::LocalWallet;
 
-use crate::starknet_commands::helpers::parse_contract_address;
+use crate::starknet_commands::helpers::parse_number;
 
 #[derive(Args)]
 #[command(about = "Invoke a contract on Starknet")]
@@ -36,12 +36,12 @@ pub async fn invoke(
     account: &mut SingleOwnerAccount<&JsonRpcClient<HttpTransport>, LocalWallet>,
 ) -> Result<()> {
     let call = Call {
-        to: parse_contract_address(contract_address)?,
+        to: parse_number(contract_address)?,
         selector: get_selector_from_name(entry_point_name)?,
         calldata: calldata
             .iter()
             .map(|cd| {
-                FieldElement::from_hex_be(cd).context("Failed to convert calldata to FieldElement")
+                parse_number(cd).context("Failed to convert calldata to FieldElement")
             })
             .collect::<Result<Vec<_>>>()?,
     };
