@@ -146,7 +146,11 @@ fn run_with_multiple_contracts() {
             Running 3 test(s) from tests/test_simple.cairo
             [PASS] test_simple::test_simple::test_simple
             [PASS] test_simple::test_simple::test_simple2
-            [FAIL] test_simple::test_simple::test_failing failing check
+            [FAIL] test_simple::test_simple::test_failing
+
+            Failure data:
+                original value: [8111420071579136082810415440747], converted to a string: [failing check]
+
             Tests: 5 passed, 1 failed
         "#});
 }
