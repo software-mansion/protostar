@@ -1,9 +1,9 @@
-use crate::starknet_commands::{call::Call, declare::Declare, invoke::Invoke};
+use crate::starknet_commands::{call::Call, declare::Declare, deploy::Deploy, invoke::Invoke};
 use anyhow::Result;
 use camino::Utf8PathBuf;
+use cast::{get_account, get_block_id, get_network, get_provider};
 use clap::{Parser, Subcommand};
 use console::style;
-use cast::{get_account, get_block_id, get_provider, get_network};
 
 mod starknet_commands;
 
@@ -39,6 +39,9 @@ struct Cli {
 enum Commands {
     /// Declare a contract
     Declare(Declare),
+
+    /// Deploy a contract
+    Deploy(Deploy),
 
     /// Call a contract
     Call(Call),
@@ -76,13 +79,36 @@ async fn main() -> Result<()> {
             eprintln!("Transaction hash: {}", declared_contract.transaction_hash);
             Ok(())
         }
-        Commands::Call(args) => {
-            let block_id = get_block_id(&args.block_id).unwrap();
+        Commands::Deploy(deploy) => {
+            let account = get_account(&cli.account, &cli.accounts_file_path, &provider, &network)?;
+
+            let (transaction_hash, contract_address) = starknet_commands::deploy::deploy(
+                &deploy.class_hash,
+                deploy
+                    .constructor_calldata
+                    .iter()
+                    .map(AsRef::as_ref)
+                    .collect(),
+                deploy.salt.as_deref(),
+                deploy.unique,
+                deploy.max_fee,
+                &account,
+            )
+            .await?;
+
+            // todo: #2107
+            eprintln!("Contract address: {contract_address}");
+            eprintln!("Transaction hash: {transaction_hash}");
+
+            Ok(())
+        }
+        Commands::Call(call) => {
+            let block_id = get_block_id(&call.block_id).unwrap();
 
             let result = starknet_commands::call::call(
-                args.contract_address.as_ref(),
-                args.function_name.as_ref(),
-                args.calldata.as_ref(),
+                call.contract_address.as_ref(),
+                call.function_name.as_ref(),
+                call.calldata.as_ref(),
                 &provider,
                 block_id.as_ref(),
             )
@@ -99,7 +125,7 @@ async fn main() -> Result<()> {
                 &invoke.contract_address,
                 &invoke.entry_point_name,
                 invoke.calldata.iter().map(AsRef::as_ref).collect(),
-                invoke.max_fee.as_deref(),
+                invoke.max_fee,
                 &mut account,
             )
             .await?;
