@@ -6,7 +6,7 @@ use scarb_metadata::MetadataCommand;
 use std::path::PathBuf;
 use tempfile::{tempdir, TempDir};
 
-use rust_test_runner::run_test_runner;
+use rust_test_runner::run;
 use rust_test_runner::{pretty_printing, RunnerConfig};
 
 use std::process::Command;
@@ -40,11 +40,11 @@ fn main_execution() -> Result<()> {
         .context("Failed to convert corelib path to Utf8PathBuf")?;
 
     let scarb_metadata = MetadataCommand::new().inherit_stderr().exec()?;
-
     let _ = Command::new("scarb")
         .current_dir(std::env::current_dir().expect("failed to obtain current dir"))
         .arg("build")
-        .output()?;
+        .output()
+        .expect("Failed to build contracts with Scarb");
 
     for package in &scarb_metadata.workspace.members {
         let protostar_config =
@@ -54,7 +54,7 @@ fn main_execution() -> Result<()> {
         let runner_config =
             RunnerConfig::new(args.test_name.clone(), args.exact, &protostar_config);
 
-        run_test_runner(
+        run(
             &base_path,
             Some(dependencies.clone()),
             &runner_config,
