@@ -27,9 +27,9 @@ pub struct Deploy {
     #[clap(short, long)]
     pub salt: Option<String>,
 
-    /// If false, salt will not be modified with account address
-    #[clap(short, long, default_value = "true")]
-    pub unique: String,
+    /// If true, salt will be modified with an account address
+    #[clap(short, long)]
+    pub unique: bool,
 
     /// Max fee for the transaction. If not provided, max fee will be automatically estimated
     #[clap(short, long)]
@@ -40,7 +40,7 @@ pub async fn deploy(
     class_hash: &str,
     constructor_calldata: Vec<&str>,
     salt: Option<&str>,
-    unique: &str,
+    unique: bool,
     max_fee: Option<&str>,
     account: &SingleOwnerAccount<&JsonRpcClient<HttpTransport>, LocalWallet>,
 ) -> Result<(FieldElement, FieldElement)> {
@@ -49,7 +49,6 @@ pub async fn deploy(
         None => FieldElement::from(OsRng.next_u32()),
     };
     let class_hash = FieldElement::from_hex_be(class_hash)?;
-    let unique = matches!(unique, "true");
     let raw_constructor_calldata = constructor_calldata
         .iter()
         .map(|cd| {

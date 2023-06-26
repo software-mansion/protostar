@@ -90,7 +90,7 @@ async fn main() -> Result<()> {
                     .map(AsRef::as_ref)
                     .collect(),
                 deploy.salt.as_deref(),
-                &deploy.unique,
+                deploy.unique,
                 deploy.max_fee.as_deref(),
                 &account,
             )
