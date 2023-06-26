@@ -134,7 +134,7 @@ fn with_deploy() {
         .current_dir(&temp)
         .assert()
         .success()
-        .stdout_matches(indoc! {r#"Collected 1 test(s) and 2 test file(s)w
+        .stdout_matches(indoc! {r#"Collected 1 test(s) and 2 test file(s)
             Running 0 test(s) from src/lib.cairo
             Running 1 test(s) from tests/test_deploy.cairo
             [PASS] test_deploy::test_deploy::test_deploy_simple
