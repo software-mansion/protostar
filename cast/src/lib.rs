@@ -78,7 +78,7 @@ pub fn get_account<'a>(
     ));
     let address = FieldElement::from_hex_be(&account_info.address)
         .with_context(|| format!("Failed to convert account address {} to FieldElement", &account_info.private_key))?;
-    let mut account = SingleOwnerAccount::new(provider, signer, address, network.get_chain_id());
+    let account = SingleOwnerAccount::new(provider, signer, address, network.get_chain_id());
 
     Ok(account)
 }
