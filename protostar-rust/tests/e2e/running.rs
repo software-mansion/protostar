@@ -124,6 +124,26 @@ fn with_declare() {
 }
 
 #[test]
+fn with_deploy() {
+    let temp = assert_fs::TempDir::new().unwrap();
+    temp.copy_from("tests/data/deploy_test", &["**/*"])
+        .unwrap();
+
+    let snapbox = runner();
+
+    snapbox
+        .current_dir(&temp)
+        .assert()
+        .success()
+        .stdout_matches(indoc! {r#"Collected 1 test(s) and 2 test file(s)w
+            Running 0 test(s) from src/lib.cairo
+            Running 1 test(s) from tests/test_deploy.cairo
+            [PASS] test_deploy::test_deploy::test_deploy_simple
+            Tests: 1 passed, 0 failed
+        "#});
+}
+
+#[test]
 fn with_print() {
     let temp = assert_fs::TempDir::new().unwrap();
     temp.copy_from("tests/data/print_test", &["**/*"]).unwrap();
