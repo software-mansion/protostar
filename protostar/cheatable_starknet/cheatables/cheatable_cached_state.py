@@ -1,7 +1,7 @@
 # pylint: disable=duplicate-code
 # pylint: disable=protected-access
 
-from typing import Dict, Optional
+from typing import Dict, Optional, List
 from typing_extensions import Self
 
 from starkware.starknet.business_logic.state.state import (
@@ -49,6 +49,14 @@ class CheatableCachedState(CachedState):
 
         self.contract_address_to_block_timestamp: dict[Address, int] = {}
         self.contract_address_to_block_number: dict[Address, int] = {}
+
+        self.contract_address_to_version: dict[Address, int] = {}
+        self.contract_address_to_account_contract_address: Dict[Address, int] = {}
+        self.contract_address_to_max_fee: Dict[Address, int] = {}
+        self.contract_address_to_signature: Dict[Address, List[int]] = {}
+        self.contract_address_to_transaction_hash: Dict[Address, int] = {}
+        self.contract_address_to_chain_id: Dict[Address, int] = {}
+        self.contract_address_to_nonce: Dict[Address, int] = {}
 
     def add_mocked_response(
         self,
@@ -121,6 +129,18 @@ class CheatableCachedState(CachedState):
         )
         copied.emitted_events = self.emitted_events.copy()
 
+        copied.contract_address_to_version = self.contract_address_to_version.copy()
+        copied.contract_address_to_account_contract_address = (
+            self.contract_address_to_account_contract_address.copy()
+        )
+        copied.contract_address_to_max_fee = self.contract_address_to_max_fee.copy()
+        copied.contract_address_to_signature = self.contract_address_to_signature.copy()
+        copied.contract_address_to_transaction_hash = (
+            self.contract_address_to_transaction_hash.copy()
+        )
+        copied.contract_address_to_chain_id = self.contract_address_to_chain_id.copy()
+        copied.contract_address_to_nonce = self.contract_address_to_nonce.copy()
+
         return copied
 
     def _apply(self, parent: Self):
@@ -178,6 +198,35 @@ class CheatableCachedState(CachedState):
             *parent.emitted_events,
             *self.emitted_events,
         ]
+
+        parent.contract_address_to_version = {
+            **parent.contract_address_to_version,
+            **self.contract_address_to_version,
+        }
+        parent.contract_address_to_account_contract_address = {
+            **parent.contract_address_to_account_contract_address,
+            **self.contract_address_to_account_contract_address,
+        }
+        parent.contract_address_to_max_fee = {
+            **parent.contract_address_to_max_fee,
+            **self.contract_address_to_max_fee,
+        }
+        parent.contract_address_to_signature = {
+            **parent.contract_address_to_signature,
+            **self.contract_address_to_signature,
+        }
+        parent.contract_address_to_transaction_hash = {
+            **parent.contract_address_to_transaction_hash,
+            **self.contract_address_to_transaction_hash,
+        }
+        parent.contract_address_to_chain_id = {
+            **parent.contract_address_to_chain_id,
+            **self.contract_address_to_chain_id,
+        }
+        parent.contract_address_to_nonce = {
+            **parent.contract_address_to_nonce,
+            **self.contract_address_to_nonce,
+        }
 
     def update_event_selector_to_name_map(
         self, local_event_selector_to_name_map: Dict[int, str]
