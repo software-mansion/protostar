@@ -130,7 +130,7 @@ pub async fn wait_for_tx(provider: &JsonRpcClient<HttpTransport>, tx_hash: Field
         let receipt = provider
             .get_transaction_receipt(tx_hash)
             .await
-            .expect("Couldnt get transaction with hash: {tx_hash}");
+            .expect("Could not get transaction with hash: {tx_hash}");
 
         let status = match receipt {
             Receipt(receipt) => match receipt {
