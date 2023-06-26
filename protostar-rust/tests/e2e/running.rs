@@ -117,7 +117,7 @@ fn with_declare() {
         .success()
         .stdout_matches(indoc! {r#"Collected 2 test(s) and 2 test file(s)
             Running 0 test(s) from src/lib.cairo
-            Running 1 test(s) from tests/test_declare.cairo
+            Running 2 test(s) from tests/test_declare.cairo
             [PASS] test_declare::test_declare::test_declare_simple
             [PASS] test_declare::test_declare::multiple_contracts
             Tests: 2 passed, 0 failed
@@ -127,7 +127,8 @@ fn with_declare() {
 #[test]
 fn run_with_multiple_contracts() {
     let temp = assert_fs::TempDir::new().unwrap();
-    temp.copy_from("tests/data/multicontract", &["**/*"]).unwrap();
+    temp.copy_from("tests/data/multicontract", &["**/*"])
+        .unwrap();
 
     let snapbox = runner();
 

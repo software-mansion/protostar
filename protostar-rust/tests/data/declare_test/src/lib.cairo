@@ -1,3 +1,5 @@
+mod contract1;
+
 #[starknet::contract]
 mod HelloStarknet {
     #[storage]
