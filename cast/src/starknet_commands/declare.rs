@@ -1,6 +1,8 @@
 use anyhow::{Context, Result};
 use camino::Utf8PathBuf;
+use cast::wait_for_tx;
 use clap::Args;
+use starknet::accounts::ConnectedAccount;
 use starknet::{
     accounts::{Account, SingleOwnerAccount},
     core::types::{
@@ -32,8 +34,9 @@ pub async fn declare(
     let contract_definition: SierraClass = {
         let file_contents = std::fs::read(sierra_contract_path)
             .with_context(|| format!("Failed to read contract file: {sierra_contract_path}"))?;
-        serde_json::from_slice(&file_contents)
-            .with_context(|| format!("Failed to parse contract definition: {sierra_contract_path}"))?
+        serde_json::from_slice(&file_contents).with_context(|| {
+            format!("Failed to parse contract definition: {sierra_contract_path}")
+        })?
     };
     let casm_contract_definition: CompiledClass = {
         let file_contents = std::fs::read(casm_contract_path)
@@ -46,6 +49,8 @@ pub async fn declare(
 
     let declaration = account.declare(Arc::new(contract_definition.flatten()?), casm_class_hash);
     let declared = declaration.send().await?;
+
+    wait_for_tx(account.provider(), declared.transaction_hash).await;
 
     Ok(declared)
 }
