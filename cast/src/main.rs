@@ -125,7 +125,7 @@ async fn main() -> Result<()> {
                 &invoke.contract_address,
                 &invoke.entry_point_name,
                 invoke.calldata.iter().map(AsRef::as_ref).collect(),
-                invoke.max_fee.as_deref(),
+                invoke.max_fee,
                 &mut account,
             )
             .await?;

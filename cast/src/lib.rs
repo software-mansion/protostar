@@ -17,6 +17,8 @@ use starknet::{
 };
 use std::collections::HashMap;
 use std::fs;
+use std::thread::sleep;
+use std::time::Duration;
 use url::Url;
 
 pub const UDC_ADDRESS: &str = "0x041a78e741e5af2fec34b695679bc6891742439f7afb8484ecd7766661ad02bf";
@@ -142,7 +144,10 @@ pub async fn wait_for_tx(provider: &JsonRpcClient<HttpTransport>, tx_hash: Field
         };
 
         match status {
-            TransactionStatus::Pending => true,
+            TransactionStatus::Pending => {
+                sleep(Duration::from_secs(5));
+                true
+            },
             TransactionStatus::AcceptedOnL2 | TransactionStatus::AcceptedOnL1 => false,
             TransactionStatus::Rejected => {
                 println!("{}", style("Transaction has been rejected").red());
