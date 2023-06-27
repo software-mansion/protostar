@@ -178,7 +178,7 @@ pub fn get_rpc_error_message(error: StarknetError) -> &'static str {
         // StarknetError::NoBlocks,
         // StarknetError::InvalidContinuationToken,
         // StarknetError::TooManyKeysInFilter,
-        // StarknetError::ContractError,
+        StarknetError::ContractError => "An error occurred in the called contract",
         // StarknetError::InvalidContractClass,
         StarknetError::ClassAlreadyDeclared => "Class with the same class hash is already declared",
         _ => "Unknown RPC error",
