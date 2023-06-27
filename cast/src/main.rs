@@ -71,6 +71,7 @@ async fn main() -> Result<()> {
             let declared_contract = starknet_commands::declare::declare(
                 &declare.sierra_contract_path,
                 &declare.casm_contract_path,
+                declare.max_fee,
                 &mut account,
             )
             .await?;
