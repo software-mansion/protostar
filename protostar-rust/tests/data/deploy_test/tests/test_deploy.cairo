@@ -12,8 +12,8 @@ fn test_deploy_simple() {
     let contract_address = deploy(
         PreparedContract {
             class_hash,
-            constructor_calldata:
-            @calldata, contract_address: 'addr'
+            constructor_calldata: @calldata,
+            contract_address: 'addr'
         }
     ).expect('Could not deploy');
     assert(contract_address == 'addr', 'incorrect contract_address');
