@@ -2691,13 +2691,13 @@ files = [
 
 [[package]]
 name = "starknet-devnet"
-version = "0.5.3"
+version = "0.5.4"
 description = "A local testnet for Starknet"
 optional = false
 python-versions = ">=3.9,<3.10"
 files = [
-    {file = "starknet_devnet-0.5.3-py3-none-any.whl", hash = "sha256:c7517a996c0e83a10e325b81070f6bfbf09d934b88b46681a30e8fcc911ed974"},
-    {file = "starknet_devnet-0.5.3.tar.gz", hash = "sha256:25ca6fb40e5545daffe04b103c0694b9366ce72d3d8300e7a948ab99f4b80a24"},
+    {file = "starknet_devnet-0.5.4-py3-none-any.whl", hash = "sha256:cd22efa4ab222057dd602aee23b0bc37d979d7aceb038937eb17b64ae6fb9117"},
+    {file = "starknet_devnet-0.5.4.tar.gz", hash = "sha256:b76cc9c128f3625b48e57c6d8f0e8a189fc894c628d458ad25b904831828ae46"},
 ]
 
 [package.dependencies]
@@ -3196,5 +3196,5 @@ multidict = ">=4.0"
 
 [metadata]
 lock-version = "2.0"
-python-versions = ">=3.9.14, <3.10"
-content-hash = "e0b34490925b6778fc5f91afe1928c5659d5110f824760217798262a131ea59a"
+python-versions = "~3.9"
+content-hash = "3f4cd9e91a39f38f5c03385899d5ead75f7ba0379aaadaed0b78ee78ca61ab39"

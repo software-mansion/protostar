@@ -7,8 +7,8 @@ import poseidon_py
 block_cipher = None
 extra_files = [
     ("protostar_cairo", "protostar_cairo"),
-    ("cairo/corelib", "cairo/corelib"),
-    ("cairo/Cargo.toml", "cairo"),
+    ("cairo-protostar/corelib", "cairo/corelib"),
+    ("cairo-protostar/Cargo.toml", "cairo"),
     ('templates', 'templates'),
     ('constants.json', 'info'),
     (f'{poseidon_py.__path__[0]}/../lib_pos.*', '.')

@@ -114,11 +114,14 @@ commands:
 
   install_scarb:
     description: "Install scarb"
+    parameters:
+      version:
+        type: string
     steps:
       - run:
           name: Install scarb
           command: |
-            curl --proto '=https' --tlsv1.2 -sSf https://docs.swmansion.com/scarb/install.sh | bash -s -- -v << pipeline.parameters.scarb_version >>
+            curl --proto '=https' --tlsv1.2 -sSf https://docs.swmansion.com/scarb/install.sh | bash -s -- -v << parameters.version >>
             echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$BASH_ENV"
             source "$BASH_ENV"
 
@@ -178,6 +181,9 @@ commands:
         default: linux
         type: enum
         enum: ["linux", "mac"]
+      scarb_version:
+        type: string
+        default: << pipeline.parameters.scarb_version >>
     steps:
       - when:
           condition:
@@ -191,7 +197,8 @@ commands:
             - install_linux_patchelf
       - ensure_poetry_version
       - install_rust
-      - install_scarb
+      - install_scarb:
+          version: << parameters.scarb_version >>
       - checkout_with_submodules
       - get_bindings_hashes
       - restore_poetry_cache:
@@ -346,7 +353,8 @@ jobs:
   rust_runner_code_quality:
     executor: linux
     steps:
-      - setup
+      - setup:
+          scarb_version: 0.5.0-alpha.0
       - lint_rust_runner
 
   rust_runner_tests:
@@ -358,6 +366,7 @@ jobs:
     steps:
       - setup:
           platform: << parameters.platform >>
+          scarb_version: 0.5.0-alpha.1
       - run:
           name: Set git config
           command: git config --global protocol.file.allow always
