@@ -1,0 +1,12 @@
+[package]
+name = "declare_test"
+version = "0.1.0"
+
+[[target.starknet-contract]]
+sierra = true
+casm = true
+
+[dependencies]
+starknet = "1.1.0"
+
+[tool.protostar]

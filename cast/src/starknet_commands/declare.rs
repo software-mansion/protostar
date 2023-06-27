@@ -1,5 +1,4 @@
 use anyhow::{Context, Result};
-use camino::Utf8PathBuf;
 use cast::wait_for_tx;
 use clap::Args;
 use starknet::accounts::ConnectedAccount;
@@ -13,31 +12,60 @@ use starknet::{
     signers::LocalWallet,
 };
 use std::sync::Arc;
+use std::process::Command;
 
 #[derive(Args)]
 #[command(about = "Declare a contract to starknet", long_about = None)]
 pub struct Declare {
     /// Path to the sierra compiled contract
-    pub sierra_contract_path: Utf8PathBuf,
-
-    /// Path to the casm compiled contract
-    pub casm_contract_path: Utf8PathBuf,
+    pub contract: String,
 }
 
 pub async fn declare(
-    sierra_contract_path: &Utf8PathBuf,
-    casm_contract_path: &Utf8PathBuf,
+    contract: &str,
     account: &mut SingleOwnerAccount<&JsonRpcClient<HttpTransport>, LocalWallet>,
 ) -> Result<DeclareTransactionResult> {
+    let _ = Command::new("scarb")
+        .current_dir(std::env::current_dir().expect("failed to obtain current dir"))
+        .arg("build")
+        .output()
+        .expect("Failed to build contracts with Scarb");
+
+    let current_dir = std::env::current_dir().expect("failed to obtain current dir");
+    let paths = std::fs::read_dir(format!("{}/target/dev", current_dir.to_str().unwrap()))
+        .expect("failed to read the file maybe build failed");
+
+    let mut maybe_sierra_contract_path: Option<String> = None;
+    let mut maybe_casm_contract_path: Option<String> = None;
+    for path in paths {
+        let path_str = path
+            .expect("path not resolved properly")
+            .path()
+            .to_str()
+            .expect("failed to convert path to string")
+            .to_string();
+        println!("> loop: {:?}", path_str);
+        if path_str.contains(&contract[..]) {
+            if path_str.contains(".sierra.json") {
+                maybe_sierra_contract_path = Some(path_str);
+            } else if path_str.contains(".casm.json") {
+                maybe_casm_contract_path = Some(path_str);
+            }
+        }
+    }
+
+    let sierra_contract_path = maybe_sierra_contract_path.expect(&format!("no sierra found for contract: {}", contract)[..]);
+    let casm_contract_path = maybe_casm_contract_path.expect(&format!("no casm found for contract: {}", contract)[..]);
+
     let contract_definition: SierraClass = {
-        let file_contents = std::fs::read(sierra_contract_path)
+        let file_contents = std::fs::read(sierra_contract_path.clone())
             .with_context(|| format!("Failed to read contract file: {sierra_contract_path}"))?;
         serde_json::from_slice(&file_contents).with_context(|| {
             format!("Failed to parse contract definition: {sierra_contract_path}")
         })?
     };
     let casm_contract_definition: CompiledClass = {
-        let file_contents = std::fs::read(casm_contract_path)
+        let file_contents = std::fs::read(casm_contract_path.clone())
             .with_context(|| format!("Failed to read contract file: {casm_contract_path}"))?;
         serde_json::from_slice(&file_contents)
             .with_context(|| format!("Failed to parse contract definition: {casm_contract_path}"))?
