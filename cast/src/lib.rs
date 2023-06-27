@@ -4,17 +4,11 @@ use console::style;
 use serde::{Deserialize, Serialize};
 use starknet::core::types::{
     BlockId,
-    TransactionStatus,
+    BlockTag::{Latest, Pending},
     FieldElement,
-    MaybePendingTransactionReceipt::{
-        PendingReceipt, Receipt
-    },
-    BlockTag::{
-        Latest, Pending
-    },
-    TransactionReceipt::{
-        Declare, Deploy, DeployAccount, Invoke, L1Handler,
-    }
+    MaybePendingTransactionReceipt::Receipt,
+    TransactionReceipt::{Declare, Deploy, DeployAccount, Invoke, L1Handler},
+    TransactionStatus,
 };
 use starknet::{
     accounts::SingleOwnerAccount,
@@ -113,7 +107,6 @@ pub fn get_account<'a>(
 }
 
 pub fn get_block_id(value: &str) -> Result<BlockId> {
-    // todo: add more block ids (hash, number)
     match value {
         "pending" => Ok(BlockId::Tag(Pending)),
         "latest" => Ok(BlockId::Tag(Latest)),
@@ -140,6 +133,7 @@ pub fn get_network(name: &str) -> Result<Network> {
     }
 }
 
+// todo: #2142 add tests
 pub async fn wait_for_tx(provider: &JsonRpcClient<HttpTransport>, tx_hash: FieldElement) {
     'a: while {
         let receipt = provider
@@ -180,6 +174,7 @@ mod tests {
     use starknet::core::types::{
         BlockId,
         BlockTag::{Latest, Pending},
+        FieldElement,
     };
     use std::fs;
     use url::ParseError;
@@ -307,11 +302,33 @@ mod tests {
     }
 
     #[test]
+    fn test_get_block_id_hex() {
+        let block = get_block_id("0x0").unwrap();
+
+        assert_eq!(
+            block,
+            BlockId::Hash(
+                FieldElement::from_hex_be(
+                    "0x0000000000000000000000000000000000000000000000000000000000000000"
+                )
+                .unwrap()
+            )
+        );
+    }
+
+    #[test]
+    fn test_get_block_id_num() {
+        let block = get_block_id("0").unwrap();
+
+        assert_eq!(block, BlockId::Number(0));
+    }
+
+    #[test]
     fn test_get_block_id_invalid() {
         let block = get_block_id("mariusz").unwrap_err();
         assert!(block
             .to_string()
-            .contains("No such block id mariusz! Possible values are pending and latest for now."));
+            .contains("No such block id mariusz! Possible values are pending, latest, block hash (hex) and block number (u64)."));
     }
 
     #[test]

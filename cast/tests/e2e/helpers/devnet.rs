@@ -1,9 +1,9 @@
 use ctor::{ctor, dtor};
-use url::Url;
 use std::process::{Command, Stdio};
 use std::string::ToString;
 use std::thread;
 use std::time::Duration;
+use url::Url;
 
 pub const URL: &str = "http://127.0.0.1:5055/rpc";
 pub const NETWORK: &str = "testnet";
@@ -36,11 +36,7 @@ fn stop_devnet() {
     Command::new("pkill")
         .args([
             "-f",
-            &format!(
-                "starknet-devnet.*{}.*{}",
-                &port,
-                &SEED.to_string()
-            )[..],
+            &format!("starknet-devnet.*{}.*{}", &port, &SEED.to_string())[..],
         ])
         .spawn()
         .expect("Failed to kill devnet processes");
