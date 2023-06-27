@@ -19,6 +19,10 @@ def test_l1_to_l2_message_cheatcode(
             {
                 "tests/test_main.cairo": contracts_sources_path
                 / "simple_l1_handler_test.cairo",
+                "tests/test_data_transformer.cairo": contracts_sources_path
+                / "data_transformer_l1_handler_test.cairo",
+                "tests/test_address_verification.cairo": contracts_sources_path
+                / "address_verification_l1_handler_test.cairo",
                 "src/main.cairo": contracts_sources_path
                 / "external_contract_with_l1_handler.cairo",
             }
