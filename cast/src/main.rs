@@ -56,7 +56,6 @@ async fn main() -> Result<()> {
 
     // todo: #2052 take network from scarb config if flag not provided
     let network_name = cli.network.unwrap_or_else(|| {
-        // todo: #2107
         eprintln!("{}", style("No --network flag passed!").red());
         std::process::exit(1);
     });
@@ -75,8 +74,11 @@ async fn main() -> Result<()> {
             )
             .await?;
 
-            println!("Class hash: {}", declared_contract.class_hash);
-            println!("Transaction hash: {}", declared_contract.transaction_hash);
+            println!("Class hash: {:#x}", declared_contract.class_hash);
+            println!(
+                "Transaction hash: {:#x}",
+                declared_contract.transaction_hash
+            );
             Ok(())
         }
         Commands::Deploy(deploy) => {
@@ -96,8 +98,8 @@ async fn main() -> Result<()> {
             )
             .await?;
 
-            println!("Contract address: {contract_address}");
-            println!("Transaction hash: {transaction_hash}");
+            println!("Contract address: {contract_address:#x}");
+            println!("Transaction hash: {transaction_hash:#x}");
 
             Ok(())
         }
@@ -128,7 +130,7 @@ async fn main() -> Result<()> {
             )
             .await?;
 
-            println!("Transaction hash: {transaction_hash}");
+            println!("Transaction hash: {transaction_hash:#x}");
             Ok(())
         }
     }

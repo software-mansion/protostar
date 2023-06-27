@@ -2,8 +2,8 @@ use anyhow::{anyhow, Context, Result};
 use clap::Args;
 
 use cast::{get_rpc_error_message, wait_for_tx};
-use starknet::accounts::{Account, Call, ConnectedAccount, SingleOwnerAccount};
 use starknet::accounts::AccountError::Provider;
+use starknet::accounts::{Account, Call, ConnectedAccount, SingleOwnerAccount};
 use starknet::core::types::FieldElement;
 use starknet::core::utils::get_selector_from_name;
 use starknet::providers::jsonrpc::HttpTransport;
@@ -61,10 +61,12 @@ pub async fn invoke(
     let result = execution.send().await;
 
     match result {
-        Ok(invoke_transaction) => match wait_for_tx(account.provider(), invoke_transaction.transaction_hash).await {
-            Ok(_) => Ok(invoke_transaction.transaction_hash),
-            Err(message) => Err(anyhow!(message)),
-        },
+        Ok(invoke_transaction) => {
+            match wait_for_tx(account.provider(), invoke_transaction.transaction_hash).await {
+                Ok(_) => Ok(invoke_transaction.transaction_hash),
+                Err(message) => Err(anyhow!(message)),
+            }
+        }
         Err(error) => match error {
             Provider(Other(RpcError(Code(error))) | StarknetError(error)) => {
                 Err(anyhow!(get_rpc_error_message(error)))
