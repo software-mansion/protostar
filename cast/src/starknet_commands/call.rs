@@ -1,8 +1,12 @@
-use anyhow::{Context, Result};
+use anyhow::{anyhow, Context, Result};
+use cast::get_rpc_error_message;
 use clap::Args;
 use starknet::core::types::{BlockId, FieldElement, FunctionCall};
 use starknet::core::utils::get_selector_from_name;
 use starknet::providers::jsonrpc::HttpTransport;
+use starknet::providers::jsonrpc::JsonRpcClientError::RpcError;
+use starknet::providers::jsonrpc::RpcError::{Code, Unknown};
+use starknet::providers::ProviderError::{Other, StarknetError};
 use starknet::providers::{JsonRpcClient, Provider};
 
 #[derive(Args)]
@@ -44,7 +48,16 @@ pub async fn call(
             })
             .collect::<Result<Vec<_>>>()?,
     };
-    let res = provider.call(function_call, block_id).await?;
+    let res = provider.call(function_call, block_id).await;
 
-    Ok(res)
+    match res {
+        Ok(res) => Ok(res),
+        Err(error) => match error {
+            Other(RpcError(Code(error))) | StarknetError(error) => {
+                Err(anyhow!(get_rpc_error_message(error)))
+            }
+            Other(RpcError(Unknown(error))) => Err(anyhow!(error.message)),
+            _ => Err(anyhow!("Other RPC error")),
+        },
+    }
 }

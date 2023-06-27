@@ -74,9 +74,9 @@ async fn main() -> Result<()> {
                 &mut account,
             )
             .await?;
-            // todo: #2107
-            // eprintln!("Class hash: {}", declared_contract.class_hash);
-            // eprintln!("Transaction hash: {}", declared_contract.transaction_hash);
+
+            println!("Class hash: {}", declared_contract.class_hash);
+            println!("Transaction hash: {}", declared_contract.transaction_hash);
             Ok(())
         }
         Commands::Deploy(deploy) => {
@@ -96,9 +96,8 @@ async fn main() -> Result<()> {
             )
             .await?;
 
-            // todo: #2107
-            eprintln!("Contract address: {contract_address}");
-            eprintln!("Transaction hash: {transaction_hash}");
+            println!("Contract address: {contract_address}");
+            println!("Transaction hash: {transaction_hash}");
 
             Ok(())
         }
@@ -114,8 +113,7 @@ async fn main() -> Result<()> {
             )
             .await?;
 
-            // todo (#2107): Normalize outputs in CLI
-            eprintln!("Call response: {result:?}");
+            println!("Call response: {result:?}");
             Ok(())
         }
         Commands::Invoke(invoke) => {

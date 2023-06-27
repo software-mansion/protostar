@@ -156,8 +156,9 @@ pub async fn wait_for_tx(
                 return Ok("Transaction accepted")
             }
             TransactionStatus::Rejected => {
-                println!("{}", style("Transaction has been rejected").red());
-                return Err(anyhow!("Transaction rejected!"));
+                return Err(anyhow!(
+                    "Transaction has been rejected. Check if max-fee argument is high enough"
+                ));
             }
         }
     } {}
@@ -165,11 +166,10 @@ pub async fn wait_for_tx(
     Err(anyhow!("Should not reach this line"))
 }
 
-pub fn handle_rpc_error(error: StarknetError) {
+pub fn get_rpc_error_message(error: StarknetError) -> &'static str {
     match error {
-        StarknetError::FailedToReceiveTransaction => println!("Node failed to receive transaction"),
-        _ => println!("abc")
-        // StarknetError::ContractNotFound =>,
+        StarknetError::FailedToReceiveTransaction => "Node failed to receive transaction",
+        StarknetError::ContractNotFound => "There is no contract at the specified address",
         // StarknetError::BlockNotFound,
         // StarknetError::TransactionHashNotFound,
         // StarknetError::InvalidTransactionIndex,
@@ -180,6 +180,7 @@ pub fn handle_rpc_error(error: StarknetError) {
         // StarknetError::TooManyKeysInFilter,
         // StarknetError::ContractError,
         // StarknetError::InvalidContractClass,
-        // StarknetError::ClassAlreadyDeclared,
+        StarknetError::ClassAlreadyDeclared => "Class with the same class hash is already declared",
+        _ => "Unknown RPC error",
     }
 }
