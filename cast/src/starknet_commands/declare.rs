@@ -27,7 +27,6 @@ pub struct Declare {
     pub casm_contract_path: Utf8PathBuf,
 
     /// Max fee for the transaction. If not provided, max fee will be automatically estimated
-    #[clap(short, long)]
     pub max_fee: Option<u128>,
 }
 
