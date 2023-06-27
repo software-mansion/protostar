@@ -166,21 +166,24 @@ pub async fn wait_for_tx(
     Err(anyhow!("Should not reach this line"))
 }
 
+#[must_use]
 pub fn get_rpc_error_message(error: StarknetError) -> &'static str {
     match error {
         StarknetError::FailedToReceiveTransaction => "Node failed to receive transaction",
         StarknetError::ContractNotFound => "There is no contract at the specified address",
-        // StarknetError::BlockNotFound,
-        // StarknetError::TransactionHashNotFound,
-        // StarknetError::InvalidTransactionIndex,
-        // StarknetError::ClassHashNotFound,
-        // StarknetError::PageSizeTooBig,
-        // StarknetError::NoBlocks,
-        // StarknetError::InvalidContinuationToken,
-        // StarknetError::TooManyKeysInFilter,
+        StarknetError::BlockNotFound => "Block was not found",
+        StarknetError::TransactionHashNotFound => {
+            "Transaction with provided hash was not found (does not exist)"
+        }
+        StarknetError::InvalidTransactionIndex => "There is no transaction with such an index",
+        StarknetError::ClassHashNotFound => "Provided class hash does not exist",
         StarknetError::ContractError => "An error occurred in the called contract",
-        // StarknetError::InvalidContractClass,
-        StarknetError::ClassAlreadyDeclared => "Class with the same class hash is already declared",
+        StarknetError::InvalidContractClass => {
+            "Contract class is invalid. Make sure to pass correct one"
+        }
+        StarknetError::ClassAlreadyDeclared => {
+            "Contract with the same class hash is already declared"
+        }
         _ => "Unknown RPC error",
     }
 }
