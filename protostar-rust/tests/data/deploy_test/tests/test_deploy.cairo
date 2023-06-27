@@ -5,7 +5,6 @@ use cheatcodes::PreparedContract;
 
 #[test]
 fn test_deploy_simple() {
-    assert(1 == 1, 'simple check');
     let calldata = ArrayTrait::<felt252>::new();
     let class_hash = declare('deploy_test').expect('Could not declare');
 
