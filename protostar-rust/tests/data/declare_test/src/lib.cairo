@@ -13,7 +13,7 @@ mod HelloStarknet {
         self.balance.write(self.balance.read() + amount);
     }
 
-    // Increases the balance by the given amount.
+    // Decreases the balance by the given amount.
     #[external]
     fn decrease_balance(ref self: ContractState, amount: felt252) {
         self.balance.write(self.balance.read() - amount);
