@@ -104,7 +104,7 @@ pub fn get_account<'a>(
     let address = FieldElement::from_hex_be(&account_info.address).with_context(|| {
         format!(
             "Failed to convert account address {} to FieldElement",
-            &account_info.private_key
+            &account_info.address
         )
     })?;
     let mut account = SingleOwnerAccount::new(provider, signer, address, network.get_chain_id());
@@ -175,13 +175,13 @@ pub async fn wait_for_tx(provider: &JsonRpcClient<HttpTransport>, tx_hash: Field
 
 #[cfg(test)]
 mod tests {
-    use std::fs;
     use crate::{get_account, get_block_id, get_network, get_provider, Network};
     use camino::Utf8PathBuf;
     use starknet::core::types::{
         BlockId,
         BlockTag::{Latest, Pending},
     };
+    use std::fs;
     use url::ParseError;
 
     #[test]
@@ -204,7 +204,7 @@ mod tests {
             "user1",
             &Utf8PathBuf::from("tests/data/accounts/accounts.json"),
             &provider,
-            &Network::Testnet
+            &Network::Testnet,
         );
 
         assert!(account.is_ok());
@@ -222,7 +222,7 @@ mod tests {
             "user1",
             &Utf8PathBuf::from("tests/data/accounts/nonexistentfile.json"),
             &provider,
-            &Network::Testnet
+            &Network::Testnet,
         );
         let err = account.unwrap_err();
         assert!(err.to_string().contains("No such file or directory"));
@@ -235,7 +235,7 @@ mod tests {
             "user1",
             &Utf8PathBuf::from("tests/data/accounts/invalid.json"),
             &provider,
-            &Network::Testnet
+            &Network::Testnet,
         );
         let err = account.unwrap_err();
         assert!(err.is::<serde_json::Error>());
@@ -248,10 +248,12 @@ mod tests {
             "user1",
             &Utf8PathBuf::from("tests/data/accounts/accounts.json"),
             &provider,
-            &Network::Mainnet
+            &Network::Mainnet,
         );
         let err = account.unwrap_err();
-        assert!(err.to_string().contains("Account user1 not found under chain id alpha-mainnet"));
+        assert!(err
+            .to_string()
+            .contains("Account user1 not found under chain id alpha-mainnet"));
     }
 
     #[test]
@@ -261,10 +263,12 @@ mod tests {
             "user10",
             &Utf8PathBuf::from("tests/data/accounts/accounts.json"),
             &provider,
-            &Network::Testnet
+            &Network::Testnet,
         );
         let err = account.unwrap_err();
-        assert!(err.to_string().contains("Account user10 not found under chain id alpha-goerli"));
+        assert!(err
+            .to_string()
+            .contains("Account user10 not found under chain id alpha-goerli"));
     }
 
     #[test]
@@ -274,19 +278,23 @@ mod tests {
             "with_wrong_private_key",
             &Utf8PathBuf::from("tests/data/accounts/faulty_accounts.json"),
             &provider,
-            &Network::Testnet
+            &Network::Testnet,
         );
         let err1 = account1.unwrap_err();
-        assert!(err1.to_string().contains("Failed to convert private key privatekey to FieldElement"));
+        assert!(err1
+            .to_string()
+            .contains("Failed to convert private key privatekey to FieldElement"));
 
         let account2 = get_account(
             "with_wrong_address",
             &Utf8PathBuf::from("tests/data/accounts/faulty_accounts.json"),
             &provider,
-            &Network::Testnet
+            &Network::Testnet,
         );
         let err2 = account2.unwrap_err();
-        assert!(err2.to_string().contains("Failed to convert account address address to FieldElement"));
+        assert!(err2
+            .to_string()
+            .contains("Failed to convert account address address to FieldElement"));
     }
 
     #[test]
@@ -301,7 +309,9 @@ mod tests {
     #[test]
     fn test_get_block_id_invalid() {
         let block = get_block_id("mariusz").unwrap_err();
-        assert!(block.to_string().contains("No such block id mariusz! Possible values are pending and latest for now."));
+        assert!(block
+            .to_string()
+            .contains("No such block id mariusz! Possible values are pending and latest for now."));
     }
 
     #[test]
@@ -318,6 +328,8 @@ mod tests {
     #[test]
     fn test_get_network_invalid() {
         let net = get_network("mariusz").unwrap_err();
-        assert!(net.to_string().contains("No such network mariusz! Possible values are testnet, testnet2, mainnet."));
+        assert!(net
+            .to_string()
+            .contains("No such network mariusz! Possible values are testnet, testnet2, mainnet."));
     }
 }

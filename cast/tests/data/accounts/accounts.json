@@ -6,16 +6,16 @@
             "address": "0x20f8c63faff27a0c5fe8a25dc1635c40c971bf67b8c35c6089a998649dfdfcb"
         },
         "user1": {
-            "private_key": "0x74d866eabee023f563684e955401326eeec6a4d3ce609d23bfe8b6b391de269",
-            "public_key": "0x14b491156e96ecf11dace8999b1e5e30888548a581c067b1956b7468bb279b9",
+            "private_key": "0x55ae34c86281fbd19292c7e3bfdfceb4",
+            "public_key": "0xe2d3d7080bfc665e0060a06e8e95c3db3ff78a1fec4cc81ddc87e49a12e0a",
             "salt": "0x14b6b215424909f34f417ddd7cbaca48de2d505d03c92467367d275e847d252",
-            "address": "0x76e7ce6466e353a00b614ee763f1bc93dba01a57925784a7682efa6b1879c3d",
+            "address": "0x112b61669a84940af30544786a6b615755b192173c4665a7d38fb3aa0541cac",
             "deployed": true
         },
         "user2": {
-            "private_key": "0xe3e70682c2094cac629f6fbed82c07cd",
-            "public_key": "0x7e52885445756b313ea16849145363ccb73fb4ab0440dbac333cf9d13de82b9",
-            "address": "0x7e00d496e324876bbc8531f2d9a82bf154d1a04a50218ee74cdd372f75a551a"
+            "private_key": "0xfd73132ffc530fb608d1fa3334b56972",
+            "public_key": "0x452050f06519756305b1466d28ee82bde7b31254ba7383fd80ff76d3c82fafb",
+            "address": "0x2cd8799590e8c05fe5919259442e4ee976b34966b288fcb3e29ebde342b8b47"
         }
     },
     "alpha-goerli2": {
