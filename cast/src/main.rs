@@ -119,7 +119,7 @@ async fn main() -> Result<()> {
         Commands::Invoke(invoke) => {
             let mut account =
                 get_account(&cli.account, &cli.accounts_file_path, &provider, &network)?;
-            starknet_commands::invoke::invoke(
+            let transaction_hash = starknet_commands::invoke::invoke(
                 &invoke.contract_address,
                 &invoke.entry_point_name,
                 invoke.calldata.iter().map(AsRef::as_ref).collect(),
@@ -127,6 +127,8 @@ async fn main() -> Result<()> {
                 &mut account,
             )
             .await?;
+
+            println!("Transaction hash: {transaction_hash}");
             Ok(())
         }
     }

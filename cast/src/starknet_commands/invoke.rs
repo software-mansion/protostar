@@ -1,12 +1,16 @@
-use anyhow::{Context, Result};
+use anyhow::{anyhow, Context, Result};
 use clap::Args;
 
-use cast::wait_for_tx;
+use cast::{get_rpc_error_message, wait_for_tx};
 use starknet::accounts::{Account, Call, ConnectedAccount, SingleOwnerAccount};
+use starknet::accounts::AccountError::Provider;
 use starknet::core::types::FieldElement;
 use starknet::core::utils::get_selector_from_name;
 use starknet::providers::jsonrpc::HttpTransport;
+use starknet::providers::jsonrpc::JsonRpcClientError::RpcError;
+use starknet::providers::jsonrpc::RpcError::{Code, Unknown};
 use starknet::providers::JsonRpcClient;
+use starknet::providers::ProviderError::{Other, StarknetError};
 use starknet::signers::LocalWallet;
 
 #[derive(Args)]
@@ -35,7 +39,7 @@ pub async fn invoke(
     calldata: Vec<&str>,
     max_fee: Option<u128>,
     account: &mut SingleOwnerAccount<&JsonRpcClient<HttpTransport>, LocalWallet>,
-) -> Result<()> {
+) -> Result<FieldElement> {
     let call = Call {
         to: FieldElement::from_hex_be(contract_address)?,
         selector: get_selector_from_name(entry_point_name)?,
@@ -54,12 +58,19 @@ pub async fn invoke(
         execution
     };
 
-    let result = execution.send().await?;
+    let result = execution.send().await;
 
-    wait_for_tx(account.provider(), result.transaction_hash).await;
-
-    // todo (#2107): Normalize outputs in CLI
-    println!("{result:?}");
-
-    Ok(())
+    match result {
+        Ok(invoke_transaction) => match wait_for_tx(account.provider(), invoke_transaction.transaction_hash).await {
+            Ok(_) => Ok(invoke_transaction.transaction_hash),
+            Err(message) => Err(anyhow!(message)),
+        },
+        Err(error) => match error {
+            Provider(Other(RpcError(Code(error))) | StarknetError(error)) => {
+                Err(anyhow!(get_rpc_error_message(error)))
+            }
+            Provider(Other(RpcError(Unknown(error)))) => Err(anyhow!(error.message)),
+            _ => Err(anyhow!("Other RPC error")),
+        },
+    }
 }

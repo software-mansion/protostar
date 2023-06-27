@@ -5,10 +5,11 @@ use rand::RngCore;
 
 use cast::{get_rpc_error_message, wait_for_tx, UDC_ADDRESS};
 use starknet::accounts::AccountError::Provider;
-use starknet::accounts::{ConnectedAccount, SingleOwnerAccount};
+use starknet::accounts::{Account, ConnectedAccount, SingleOwnerAccount};
 use starknet::contract::ContractFactory;
 use starknet::core::types::FieldElement;
-use starknet::core::utils::get_contract_address;
+use starknet::core::utils::UdcUniqueness::{NotUnique, Unique};
+use starknet::core::utils::{get_udc_deployed_address, UdcUniqueSettings};
 use starknet::providers::jsonrpc::HttpTransport;
 use starknet::providers::jsonrpc::JsonRpcClientError::RpcError;
 use starknet::providers::jsonrpc::RpcError::{Code, Unknown};
@@ -71,16 +72,24 @@ pub async fn deploy(
 
     let result = execution.send().await;
 
-    let address = get_contract_address(
-        salt,
-        class_hash,
-        &raw_constructor_calldata,
-        FieldElement::from_hex_be(UDC_ADDRESS)?,
-    );
-
     match result {
         Ok(result) => match wait_for_tx(account.provider(), result.transaction_hash).await {
-            Ok(_) => Ok((result.transaction_hash, address)),
+            Ok(_) => Ok((
+                result.transaction_hash,
+                get_udc_deployed_address(
+                    salt,
+                    class_hash,
+                    &if unique {
+                        Unique(UdcUniqueSettings {
+                            deployer_address: account.address(),
+                            udc_contract_address: FieldElement::from_hex_be(UDC_ADDRESS)?,
+                        })
+                    } else {
+                        NotUnique
+                    },
+                    &raw_constructor_calldata,
+                ),
+            )),
             Err(message) => Err(anyhow!(message)),
         },
         Err(error) => match error {
