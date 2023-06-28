@@ -3,7 +3,7 @@ use clap::Args;
 use rand::rngs::OsRng;
 use rand::RngCore;
 
-use cast::{handle_rpc_error, wait_for_tx, UDC_ADDRESS};
+use cast::{handle_rpc_error, handle_wait_for_tx_result, wait_for_tx, UDC_ADDRESS};
 use starknet::accounts::AccountError::Provider;
 use starknet::accounts::{Account, ConnectedAccount, SingleOwnerAccount};
 use starknet::contract::ContractFactory;
@@ -70,25 +70,29 @@ pub async fn deploy(
     let result = execution.send().await;
 
     match result {
-        Ok(result) => match wait_for_tx(account.provider(), result.transaction_hash).await {
-            Ok(_) => Ok((
+        Ok(result) => {
+            handle_wait_for_tx_result(
+                account.provider(),
                 result.transaction_hash,
-                get_udc_deployed_address(
-                    salt,
-                    class_hash,
-                    &if unique {
-                        Unique(UdcUniqueSettings {
-                            deployer_address: account.address(),
-                            udc_contract_address: FieldElement::from_hex_be(UDC_ADDRESS)?,
-                        })
-                    } else {
-                        NotUnique
-                    },
-                    &raw_constructor_calldata,
+                (
+                    result.transaction_hash,
+                    get_udc_deployed_address(
+                        salt,
+                        class_hash,
+                        &if unique {
+                            Unique(UdcUniqueSettings {
+                                deployer_address: account.address(),
+                                udc_contract_address: FieldElement::from_hex_be(UDC_ADDRESS)?,
+                            })
+                        } else {
+                            NotUnique
+                        },
+                        &raw_constructor_calldata,
+                    ),
                 ),
-            )),
-            Err(message) => Err(anyhow!(message)),
-        },
+            )
+            .await
+        }
         Err(Provider(error)) => handle_rpc_error(error),
         _ => Err(anyhow!("Unknown RPC error")),
     }

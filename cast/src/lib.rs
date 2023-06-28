@@ -202,3 +202,14 @@ pub fn handle_rpc_error<T, G>(
         _ => Err(anyhow!("Unknown RPC error")),
     }
 }
+
+pub async fn handle_wait_for_tx_result<T>(
+    provider: &JsonRpcClient<HttpTransport>,
+    transaction_hash: FieldElement,
+    return_value: T,
+) -> Result<T> {
+    match wait_for_tx(provider, transaction_hash).await {
+        Ok(_) => Ok(return_value),
+        Err(message) => Err(anyhow!(message)),
+    }
+}
