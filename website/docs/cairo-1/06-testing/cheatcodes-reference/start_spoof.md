@@ -8,8 +8,9 @@ Changes `TxInfo` returned by `get_tx_info()` for the targeted contract until the
 with [stop_spoof](./stop_spoof.md).
 
 - `contract_address` address of the contract for which `get_tx_info()` result will be mocked.
-- `TxInfoMock` collection of fields equivalent to those in `TxInfo` (returned by `get_tx_info()`).
-All fields are optional to allow partial mocking of the `TxInfo`, i.e. for those fields that are `Option::None`, `get_tx_info` will return original values.
+- `TxInfoMock` - a struct with same structure as `TxInfo` (returned by `get_tx_info()`), fields are optional to allow
+  partial mocking of the `TxInfo`, i.e. for those fields that are `Option::None`, `get_tx_info` will return original
+  values.
 
 ```cairo title="TxInfoMock"
 struct TxInfoMock {
@@ -23,21 +24,8 @@ struct TxInfoMock {
 }
 
 trait TxInfoMockTrait {
+    // Returns a default object initialized with Option::None for each field  
     fn default() -> TxInfoMock;
-}
-
-impl TxInfoMockImpl of TxInfoMockTrait {
-    fn default() -> TxInfoMock {
-        TxInfoMock {
-            version: Option::None(()),
-            account_contract_address: Option::None(()),
-            max_fee: Option::None(()),
-            signature: Option::None(()),
-            transaction_hash: Option::None(()),
-            chain_id: Option::None(()),
-            nonce: Option::None(()),
-        }
-    }
 }
 ```
 
@@ -76,14 +64,18 @@ fn test_start_spoof() {
     let contract_address = deploy_contract('simple', @ArrayTrait::new()).unwrap();
     let version_before_mock = call(contract_address, 'get_transaction_version', @ArrayTrait::new()).unwrap();
 
+    // Set tx_hash to 1234
     let mut tx_info = TxInfoMockTrait::default();
     tx_info.transaction_hash = Option::Some(1234);
     start_spoof(contract_address, tx_info);
 
+    // Stores tx_hash in contract storage
     invoke(contract_address, 'store_tx_hash', @ArrayTrait::new()).unwrap();
+    // Retrieve stored tx_hash
     let return_data = call(contract_address, 'get_stored_tx_hash', @ArrayTrait::new()).unwrap();
     assert(*return_data.at(0_u32) == 1234, *return_data.at(0_u32));
 
+    // Verify that none of the other fields have been mocked
     let return_data = call(contract_address, 'get_transaction_version', @ArrayTrait::new()).unwrap();
     assert(*return_data.at(0_u32) == *version_before_mock.at(0_u32), *return_data.at(0_u32));
 }
