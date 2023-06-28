@@ -31,7 +31,6 @@ mod HelloStarknet {
         contract_address_salt: felt252,
         public_key_: felt252
     ) -> felt252 {
-        // TODO use starknet::VALIDATED
-        'VALID'
+        starknet::VALIDATED
     }
 }
