@@ -62,7 +62,6 @@ async fn main() -> Result<()> {
         anyhow::bail!("accounts file ({}) does not exist", parent);
     }
 
-    // todo: #2052 take network from scarb config if flag not provided
     let network_name = cli.network.unwrap_or_else(|| {
         // todo: #2107
         eprintln!("{}", style("No --network flag passed!").red());
