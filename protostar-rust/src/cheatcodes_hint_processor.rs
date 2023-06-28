@@ -131,7 +131,7 @@ fn execute_cheatcode_hint(
                 .join("target/dev");
 
             let mut paths = std::fs::read_dir(&current_dir)
-                .expect("Failed to read ./target/dev, maybe scarb build failed?");
+                .expect("Failed to read ./target/dev, scarb build probably failed");
 
             let starknet_artifacts = &paths
                 .find_map(|path| match path {
