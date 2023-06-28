@@ -4,6 +4,7 @@ use cairo_lang_runner::RunResultValue;
 pub struct TestsStats {
     pub passed: usize,
     pub failed: usize,
+    pub skipped: usize,
 }
 
 impl TestsStats {

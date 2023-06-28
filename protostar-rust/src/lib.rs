@@ -6,7 +6,7 @@ use scarb_metadata::{Metadata, PackageId};
 use serde::Deserialize;
 use walkdir::WalkDir;
 
-use cairo_lang_runner::SierraCasmRunner;
+use cairo_lang_runner::{RunResultValue, SierraCasmRunner};
 use cairo_lang_sierra::program::Program;
 use cairo_lang_sierra_to_casm::metadata::MetadataComputationConfig;
 use cairo_lang_utils::ordered_hash_map::OrderedHashMap;
@@ -26,7 +26,7 @@ mod test_stats;
 pub struct RunnerConfig {
     test_name_filter: Option<String>,
     exact_match: bool,
-    exit_first: bool, // TODO Not implemented!
+    exit_first: bool,
 }
 
 impl RunnerConfig {
@@ -44,11 +44,16 @@ impl RunnerConfig {
     }
 }
 
+enum RunnerStatus {
+    Run,
+    Exit,
+}
+
 /// Represents protostar config deserialized from Scarb.toml
 #[derive(Deserialize, Debug, PartialEq, Default)]
 pub struct ProtostarConfigFromScarb {
     #[serde(default)]
-    exit_first: bool, // TODO Not implemented!
+    exit_first: bool,
 }
 
 struct TestsFromFile {
@@ -146,15 +151,28 @@ pub fn run(
     );
 
     let mut tests_stats = TestsStats::default();
+    let mut runner_status = RunnerStatus::Run;
+
     for tests_from_file in tests {
-        run_tests(tests_from_file, &mut tests_stats)?;
+        match runner_status {
+            RunnerStatus::Run => {
+                runner_status = run_tests(tests_from_file, &mut tests_stats, runner_config)?;
+            }
+            RunnerStatus::Exit => {
+                tests_stats.skipped += tests_from_file.tests_configs.len();
+            }
+        }
     }
     pretty_printing::print_test_summary(tests_stats);
 
     Ok(())
 }
 
-fn run_tests(tests: TestsFromFile, tests_stats: &mut TestsStats) -> Result<()> {
+fn run_tests(
+    tests: TestsFromFile,
+    tests_stats: &mut TestsStats,
+    runner_config: &RunnerConfig,
+) -> Result<RunnerStatus> {
     let mut runner = SierraCasmRunner::new(
         tests.sierra_program,
         Some(MetadataComputationConfig::default()),
@@ -163,12 +181,20 @@ fn run_tests(tests: TestsFromFile, tests_stats: &mut TestsStats) -> Result<()> {
     .context("Failed setting up runner.")?;
 
     pretty_printing::print_running_tests(&tests.relative_path, tests.tests_configs.len());
-    for config in tests.tests_configs {
-        let result = run_from_test_config(&mut runner, &config)?;
+    for (i, config) in tests.tests_configs.iter().enumerate() {
+        let result = run_from_test_config(&mut runner, config)?;
+
         tests_stats.update(&result.value);
         pretty_printing::print_test_result(&config.name.clone(), &result.value);
+
+        if let RunResultValue::Panic(_) = result.value {
+            if runner_config.exit_first {
+                tests_stats.skipped += tests.tests_configs.len() - i - 1;
+                return Ok(RunnerStatus::Exit);
+            }
+        }
     }
-    Ok(())
+    Ok(RunnerStatus::Run)
 }
 
 fn strip_path_from_test_names(test_configs: Vec<TestConfig>) -> Result<Vec<TestConfig>> {
