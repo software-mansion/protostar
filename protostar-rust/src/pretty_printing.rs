@@ -27,7 +27,7 @@ pub fn print_test_summary(tests_stats: TestsStats) {
     let skipped_str = if tests_stats.skipped > 0 {
         format!(", {} skipped", tests_stats.skipped)
     } else {
-        "".to_string()
+        String::new()
     };
 
     let summary = format!(
@@ -38,7 +38,7 @@ pub fn print_test_summary(tests_stats: TestsStats) {
         skipped_str
     );
 
-    println!("{}", summary);
+    println!("{summary}");
 }
 
 pub fn print_test_result(test_name: &str, result_value: &RunResultValue) {
