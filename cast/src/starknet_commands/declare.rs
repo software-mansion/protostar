@@ -50,7 +50,6 @@ pub async fn declare(
             .to_str()
             .expect("failed to convert path to string")
             .to_string();
-        println!("> loop: {:?}", path_str);
         if path_str.contains(&contract[..]) {
             if path_str.contains(".sierra.json") {
                 maybe_sierra_contract_path = Some(path_str);
