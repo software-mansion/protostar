@@ -1,27 +1,37 @@
-#[abi]
-trait IHelloStarknet {
-    #[external]
-    fn increase_balance(amount: felt252);
-
-    #[view]
-    fn get_balance() -> felt252;
+#[starknet::interface]
+trait IHelloStarknet<TContractState> {
+    fn increase_balance(ref self: TContractState, amount: felt252);
+    fn get_balance(self: @TContractState) -> felt252;
 }
 
-#[contract]
+#[starknet::contract]
 mod HelloStarknet {
+    #[storage]
     struct Storage {
         balance: felt252,
     }
 
-    // Increases the balance by the given amount.
-    #[external]
-    fn increase_balance(amount: felt252) {
-        balance::write(balance::read() + amount);
+    #[external(v0)]
+    impl IHelloStarknetImpl of super::IHelloStarknet<ContractState> {
+        // Increases the balance by the given amount.
+        fn increase_balance(ref self: ContractState, amount: felt252) {
+            self.balance.write(self.balance.read() + amount);
+        }
+
+        // Returns the current balance.
+        fn get_balance(self: @ContractState) -> felt252 {
+            self.balance.read()
+        }
     }
 
-    // Returns the current balance.
-    #[view]
-    fn get_balance() -> felt252 {
-        balance::read()
+    #[external(v0)]
+    fn __validate_deploy__(
+        self: @ContractState,
+        class_hash: felt252,
+        contract_address_salt: felt252,
+        public_key_: felt252
+    ) -> felt252 {
+        // TODO use starknet::VALIDATED
+        'VALID'
     }
 }
