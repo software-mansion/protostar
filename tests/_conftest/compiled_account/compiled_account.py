@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from starknet_py.compile.compiler import Compiler
+from .compiler import Compiler
 
 
 def compile_account_contract_with_validate_deploy() -> str:

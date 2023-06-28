@@ -106,10 +106,14 @@ pub fn get_block_id(value: &str) -> Result<BlockId> {
     match value {
         "pending" => Ok(BlockId::Tag(Pending)),
         "latest" => Ok(BlockId::Tag(Latest)),
-        _ => Err(anyhow::anyhow!(
-            "No such block id {}! Possible values are pending and latest for now.",
-            value
-        )),
+        _ if value.starts_with("0x") => Ok(BlockId::Hash(FieldElement::from_hex_be(value)?)),
+        _ => match value.parse::<u64>() {
+            Ok(value) => Ok(BlockId::Number(value)),
+            Err(_) => Err(anyhow::anyhow!(
+                "No such block id {}! Possible values are pending, latest, block hash (hex) and block number (u64).",
+                value
+            )),
+        },
     }
 }
 
