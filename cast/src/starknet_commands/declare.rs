@@ -31,11 +31,15 @@ pub async fn declare(
     max_fee: Option<u128>,
     account: &mut SingleOwnerAccount<&JsonRpcClient<HttpTransport>, LocalWallet>,
 ) -> Result<DeclareTransactionResult> {
-    let _ = Command::new("scarb")
+    let command_result = Command::new("scarb")
         .current_dir(std::env::current_dir().expect("Failed to obtain current dir"))
         .arg("build")
         .output()
-        .expect("Failed to build contracts with Scarb");
+        .expect("Failed to start building contracts with Scarb");
+    let result_code = command_result.status.code().expect("failed to obtain status code from scarb build");
+    if result_code != 0 {
+        panic!("scarb build returned non-zero exit code: {}", result_code);
+    }
 
     let current_dir = std::env::current_dir().expect("Failed to obtain current dir");
     let paths = std::fs::read_dir(format!("{}/target/dev", current_dir.to_str().unwrap()))
