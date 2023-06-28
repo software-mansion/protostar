@@ -58,6 +58,9 @@ async fn main() -> Result<()> {
         Some(path) => path,
         None => Utf8PathBuf::from(format!("{}/.starknet_accounts/starknet_open_zeppelin_accounts.json", dirs::home_dir().expect("failed to read the home directory").to_str().expect("failed to convert home directory to string"))),
     };
+    if !accounts_file_path.exists() {
+        anyhow::bail!("accounts file ({}) does not exist", parent);
+    }
 
     // todo: #2052 take network from scarb config if flag not provided
     let network_name = cli.network.unwrap_or_else(|| {
@@ -71,9 +74,6 @@ async fn main() -> Result<()> {
     match cli.command {
         Commands::Declare(declare) => {
             let parent = accounts_file_path.parent().unwrap();
-            if !accounts_file_path.exists() {
-                anyhow::bail!("accounts file ({}) does not exist", parent);
-            }
             let mut account =
                 get_account(&cli.account, &accounts_file_path, &provider, &network)?;
 
