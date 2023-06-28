@@ -3,7 +3,6 @@ use std::collections::hash_map::DefaultHasher;
 use std::collections::HashMap;
 use std::fs;
 use std::hash::{Hash, Hasher};
-use std::ops::Deref;
 use std::path::PathBuf;
 use std::sync::Arc;
 
@@ -17,7 +16,8 @@ use blockifier::execution::entry_point::{CallEntryPoint, CallType};
 use blockifier::execution::syscalls::CallContractRequest;
 use blockifier::state::cached_state::CachedState;
 use blockifier::state::state_api::StateReader;
-use blockifier::test_utils::{DictStateReader, TEST_ACCOUNT_CONTRACT_ADDRESS};
+use blockifier::test_utils::{invoke_tx, DictStateReader};
+use blockifier::test_utils::{MAX_FEE, TEST_ACCOUNT_CONTRACT_ADDRESS};
 use blockifier::transaction::account_transaction::AccountTransaction;
 use blockifier::transaction::transaction_utils_for_protostar::declare_tx_default;
 use blockifier::transaction::transactions::{DeclareTransaction, ExecutableTransaction};
@@ -39,9 +39,11 @@ use cairo_vm::types::exec_scope::ExecutionScopes;
 use cairo_vm::vm::errors::hint_errors::HintError;
 use cairo_vm::vm::errors::vm_errors::VirtualMachineError;
 use cairo_vm::vm::vm_core::VirtualMachine;
-use num_traits::Num;
+use num_traits::{Num, ToPrimitive};
 use serde::Deserialize;
-use starknet_api::core::{ClassHash, ContractAddress, EntryPointSelector, PatriciaKey};
+use starknet_api::core::{
+    calculate_contract_address, ClassHash, ContractAddress, EntryPointSelector, PatriciaKey,
+};
 use starknet_api::deprecated_contract_class::EntryPointType;
 use starknet_api::hash::{StarkFelt, StarkHash};
 use starknet_api::transaction::{
@@ -64,12 +66,15 @@ impl HintProcessor for CairoHintProcessor<'_> {
         constants: &HashMap<String, Felt252>,
     ) -> Result<(), HintError> {
         let maybe_extended_hint = hint_data.downcast_ref::<Hint>();
+        let blockifier_state = self
+            .blockifier_state
+            .as_mut()
+            .expect("blockifier state is needed for executing hints");
         if let Some(Hint::Protostar(hint)) = maybe_extended_hint {
-            let blockifier_state = self
-                .blockifier_state
-                .as_mut()
-                .expect("blockifier state is needed for executing hints");
             return execute_cheatcode_hint(vm, exec_scopes, hint, blockifier_state);
+        }
+        if let Some(Hint::Starknet(StarknetHint::SystemCall { system })) = maybe_extended_hint {
+            return execute_syscall(system, vm, blockifier_state);
         }
         self.original_cairo_hint_processor
             .execute_hint(vm, exec_scopes, hint_data, constants)
@@ -110,6 +115,131 @@ struct ScarbStarknetContract {
 struct ScarbStarknetContractArtifact {
     sierra: PathBuf,
     casm: Option<PathBuf>,
+}
+
+fn execute_syscall(
+    system: &ResOperand,
+    vm: &mut VirtualMachine,
+    blockifier_state: &mut CachedState<DictStateReader>,
+) -> Result<(), HintError> {
+    let (cell, offset) = extract_buffer(system);
+    let mut system_ptr = get_ptr(vm, cell, &offset)?;
+
+    let selector = vm.get_integer(system_ptr).unwrap();
+    // dbg!(&selector);
+    let selector = selector.to_bytes_be();
+    system_ptr += 1;
+
+    let gas_counter = vm.get_integer(system_ptr).unwrap().to_usize().unwrap();
+    system_ptr += 1;
+
+    // Get
+    // let x = vm.get_integer(system_ptr).unwrap().to_owned();
+    let contract_address = vm.get_integer(system_ptr).unwrap().clone().into_owned();
+    system_ptr += 1;
+
+    let entry_point_selector = vm.get_integer(system_ptr).unwrap().into_owned();
+    system_ptr += 1;
+
+    let mut start = vm.get_relocatable(system_ptr).unwrap();
+    system_ptr += 1;
+
+    let end = vm.get_relocatable(system_ptr).unwrap();
+    system_ptr += 1;
+
+    let mut calldata = vec![];
+    while start != end {
+        let val = vm.get_integer(start).unwrap().into_owned();
+        calldata.push(val);
+        start.offset += 1;
+    }
+
+    // dbg!(&selector);
+    // dbg!(&contract_address);
+    // dbg!(&entry_point_selector);
+    // dbg!(&calldata);
+
+    let result = match std::str::from_utf8(&selector).unwrap() {
+        "CallContract" => call_contract(
+            &contract_address,
+            &entry_point_selector,
+            &calldata,
+            blockifier_state,
+        ),
+        // TODO do not panic, return execution to base handler
+        _ => panic!("Unknown selector for system call!"),
+    }
+    .expect("TODO: panic message");
+
+    vm.insert_value(system_ptr, gas_counter).unwrap();
+    system_ptr += 1;
+
+    vm.insert_value(system_ptr, Felt252::from(0)).unwrap();
+    system_ptr += 1;
+
+    let mut ptr = vm.add_memory_segment();
+    let start = ptr;
+
+    for value in result {
+        vm.insert_value(ptr, value).unwrap();
+        ptr += 1;
+    }
+
+    let end = ptr;
+
+    vm.insert_value(system_ptr, start).unwrap();
+    system_ptr += 1;
+
+    vm.insert_value(system_ptr, end).unwrap();
+    system_ptr += 1;
+
+    Ok(())
+}
+
+// This can mutate state, the name of the syscall is not very good
+fn call_contract(
+    contract_address: &Felt252,
+    entry_point_selector: &Felt252,
+    calldata: &[Felt252],
+    blockifier_state: &mut CachedState<DictStateReader>,
+) -> Result<Vec<Felt252>> {
+    let request = CallContractRequest {
+        contract_address: ContractAddress(
+            PatriciaKey::try_from(StarkFelt::new(contract_address.to_be_bytes()).unwrap()).unwrap(),
+        ),
+        function_selector: EntryPointSelector(
+            StarkHash::new(entry_point_selector.to_be_bytes()).unwrap(),
+        ),
+        calldata: Calldata(Arc::new(
+            calldata
+                .iter()
+                .map(|data| StarkFelt::new(data.to_be_bytes()).unwrap())
+                .collect(),
+        )),
+    };
+    let account_address = ContractAddress(patricia_key!(TEST_ACCOUNT_CONTRACT_ADDRESS));
+    let entry_point = CallEntryPoint {
+        class_hash: None,
+        code_address: Some(request.contract_address),
+        entry_point_type: EntryPointType::External,
+        entry_point_selector: request.function_selector,
+        calldata: request.calldata,
+        storage_address: request.contract_address,
+        caller_address: account_address,
+        call_type: CallType::Call,
+    };
+    let call_info = entry_point.execute_directly(blockifier_state).unwrap();
+
+    let raw_return_data = &call_info.execution.retdata.0;
+    assert!(!call_info.execution.failed,);
+
+    let return_data = raw_return_data
+        .iter()
+        .map(|data| Ok(Felt252::from_bytes_be(data.bytes())))
+        .collect();
+
+    // dbg!(&return_data);
+    return_data
 }
 
 #[allow(unused, clippy::too_many_lines)]
@@ -244,6 +374,7 @@ fn execute_cheatcode_hint(
             // TODO deploy should fail if contract address provided doesn't match calculated
             //  or not accept this address as argument at all.
             let class_hash = get_val(vm, prepared_class_hash)?;
+            dbg!(&class_hash);
 
             let as_relocatable = |vm, value| {
                 let (base, offset) = extract_buffer(value);
@@ -255,8 +386,9 @@ fn execute_cheatcode_hint(
             while curr != end {
                 let value = vm.get_integer(curr)?;
                 calldata.push(value.into_owned());
-                curr += 1;
+                curr.offset += 1;
             }
+            // dbg!(&calldata);
             let class_hash_str = class_hash.to_str_radix(16);
             let class_hash = ClassHash(StarkFelt::new(class_hash.to_be_bytes()).unwrap());
 
@@ -265,14 +397,24 @@ fn execute_cheatcode_hint(
             let block_context = &BlockContext::create_for_account_testing();
             let entry_point_selector = selector_from_name("deploy_contract");
             let salt = ContractAddressSalt::default();
-            let execute_calldata = calldata![
-                *account_address.0.key(), // Contract address.
-                entry_point_selector.0,   // EP selector.
-                stark_felt!(3_u8),        // Calldata length.
-                class_hash.0,             // Calldata: class_hash.
-                salt.0,                   // Contract_address_salt.
-                stark_felt!(0_u8)         // Constructor calldata length.
+
+            let calldata_len = u64::try_from(calldata.len()).unwrap();
+            let mut execute_calldata = vec![
+                *account_address.0.key(),      // Contract address.
+                entry_point_selector.0,        // EP selector.
+                stark_felt!(calldata_len + 3), // Calldata length.
+                class_hash.0,                  // Calldata: class_hash.
+                salt.0,                        // Contract_address_salt.
+                stark_felt!(calldata_len),     // Constructor calldata length.
             ];
+            let mut calldata: Vec<StarkFelt> = calldata
+                .iter()
+                .map(|data| StarkFelt::new(data.to_be_bytes()).unwrap())
+                .collect();
+            execute_calldata.append(&mut calldata);
+            // dbg!(&execute_calldata);
+            let execute_calldata = Calldata(execute_calldata.into());
+
             let contract_address =
                 calculate_contract_address(salt, class_hash, &calldata![], account_address)
                     .unwrap();
