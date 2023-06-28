@@ -292,7 +292,6 @@ fn dispatchers() {
         .assert()
         .success()
         .stdout_matches(indoc! {r#"Collected 2 test(s) and 4 test file(s)
-            Collected 2 test(s) and 4 test file(s)
             Running 0 test(s) from src/erc20.cairo
             Running 0 test(s) from src/hello_starknet.cairo
             Running 0 test(s) from src/lib.cairo
