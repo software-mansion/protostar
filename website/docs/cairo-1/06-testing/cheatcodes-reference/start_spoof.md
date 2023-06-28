@@ -8,9 +8,9 @@ Changes `TxInfo` returned by `get_tx_info()` for the targeted contract until the
 with [stop_spoof](./stop_spoof.md).
 
 - `contract_address` address of the contract for which `get_tx_info()` result will be mocked.
-- `TxInfoMock` - a struct with same structure as `TxInfo` (returned by `get_tx_info()`), fields are optional to allow
-  partial mocking of the `TxInfo`, i.e. for those fields that are `Option::None`, `get_tx_info` will return original
-  values.
+- `TxInfoMock` - a struct with same structure as `TxInfo` (returned by `get_tx_info()`), 
+
+To mock the field of `TxInfo`, set the corresponding field of `TxInfoMock` to `Some(mocked_value)`. Setting the field to `None` will use a default value - the field will not be mocked. Using `None` will also cancel current mock for that field. See below for practical example.
 
 ```cairo title="TxInfoMock"
 struct TxInfoMock {
@@ -64,7 +64,8 @@ fn test_start_spoof() {
     let contract_address = deploy_contract('simple', @ArrayTrait::new()).unwrap();
     let version_before_mock = call(contract_address, 'get_transaction_version', @ArrayTrait::new()).unwrap();
 
-    // Set tx_hash to 1234
+    // Change transaction_hash to 1234
+    // All other fields of `TxInfo` remain unchanged
     let mut tx_info = TxInfoMockTrait::default();
     tx_info.transaction_hash = Option::Some(1234);
     start_spoof(contract_address, tx_info);
@@ -75,7 +76,7 @@ fn test_start_spoof() {
     let return_data = call(contract_address, 'get_stored_tx_hash', @ArrayTrait::new()).unwrap();
     assert(*return_data.at(0_u32) == 1234, *return_data.at(0_u32));
 
-    // Verify that none of the other fields have been mocked
+    // Verify that only transaction_hash has been mocked
     let return_data = call(contract_address, 'get_transaction_version', @ArrayTrait::new()).unwrap();
     assert(*return_data.at(0_u32) == *version_before_mock.at(0_u32), *return_data.at(0_u32));
 }
