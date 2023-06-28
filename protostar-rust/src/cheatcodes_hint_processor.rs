@@ -1,47 +1,54 @@
 use std::any::Any;
 use std::collections::hash_map::DefaultHasher;
 use std::collections::HashMap;
+use std::fs;
 use std::hash::{Hash, Hasher};
+use std::ops::Deref;
 use std::path::PathBuf;
-use std::{fs, i64};
+use std::sync::Arc;
 
 use anyhow::Result;
+use blockifier::abi::abi_utils::selector_from_name;
 use blockifier::block_context::BlockContext;
 use blockifier::execution::contract_class::{
     ContractClass as BlockifierContractClass, ContractClassV1,
 };
+use blockifier::execution::entry_point::{CallEntryPoint, CallType};
+use blockifier::execution::syscalls::CallContractRequest;
 use blockifier::state::cached_state::CachedState;
 use blockifier::state::state_api::StateReader;
 use blockifier::test_utils::{DictStateReader, TEST_ACCOUNT_CONTRACT_ADDRESS};
 use blockifier::transaction::account_transaction::AccountTransaction;
-use blockifier::transaction::transaction_utils_for_protostar::{
-    declare_tx_default, deploy_account_tx,
-};
+use blockifier::transaction::transaction_utils_for_protostar::declare_tx_default;
 use blockifier::transaction::transactions::{DeclareTransaction, ExecutableTransaction};
 use cairo_felt::Felt252;
-use cairo_lang_starknet::casm_contract_class::CasmContractClass;
-use cairo_lang_starknet::contract_class::ContractClass;
-use cairo_vm::hint_processor::hint_processor_definition::HintProcessor;
-use cairo_vm::types::exec_scope::ExecutionScopes;
-use cairo_vm::vm::errors::hint_errors::HintError;
-use cairo_vm::vm::vm_core::VirtualMachine;
-use num_traits::cast::ToPrimitive;
-use starknet_api::transaction::{DeclareTransactionV0V1, Fee};
-
-use cairo_lang_casm::hints::Hint;
 use cairo_lang_casm::hints::ProtostarHint;
+use cairo_lang_casm::hints::{Hint, StarknetHint};
+use cairo_lang_casm::operand::ResOperand;
 use cairo_lang_runner::short_string::as_cairo_short_string;
 use cairo_lang_runner::{
     casm_run::{cell_ref_to_relocatable, extract_buffer, get_ptr, get_val},
     insert_value_to_cellref, CairoHintProcessor as OriginalCairoHintProcessor,
 };
+use cairo_lang_starknet::casm_contract_class::CasmContractClass;
+use cairo_lang_starknet::contract_class::ContractClass;
+use cairo_vm::hint_processor::hint_processor_definition::HintProcessor;
 use cairo_vm::hint_processor::hint_processor_definition::HintReference;
 use cairo_vm::serde::deserialize_program::ApTracking;
+use cairo_vm::types::exec_scope::ExecutionScopes;
+use cairo_vm::vm::errors::hint_errors::HintError;
 use cairo_vm::vm::errors::vm_errors::VirtualMachineError;
+use cairo_vm::vm::vm_core::VirtualMachine;
+use num_traits::Num;
 use serde::Deserialize;
-use starknet_api::core::{ClassHash, ContractAddress, PatriciaKey};
+use starknet_api::core::{ClassHash, ContractAddress, EntryPointSelector, PatriciaKey};
+use starknet_api::deprecated_contract_class::EntryPointType;
 use starknet_api::hash::{StarkFelt, StarkHash};
-use starknet_api::{patricia_key, stark_felt};
+use starknet_api::transaction::{
+    Calldata, ContractAddressSalt, DeclareTransactionV0V1, Fee, InvokeTransaction,
+    InvokeTransactionV1,
+};
+use starknet_api::{calldata, patricia_key, stark_felt};
 
 pub struct CairoHintProcessor<'a> {
     pub original_cairo_hint_processor: OriginalCairoHintProcessor<'a>,
@@ -208,11 +215,11 @@ fn execute_cheatcode_hint(
                 .execute(blockifier_state, block_context)
                 .expect("Failed to execute declare transaction");
 
-            let class_hash_int =
-                i64::from_str_radix(&class_hash.to_string().replace("0x", "")[..], 16)
-                    .expect("Failed to convert hex string to int");
-
-            insert_value_to_cellref!(vm, result, Felt252::from(class_hash_int))?;
+            insert_value_to_cellref!(
+                vm,
+                result,
+                Felt252::from_str_radix(&class_hash.to_string().replace("0x", "")[..], 16).unwrap()
+            )?;
             // TODO https://github.com/software-mansion/protostar/issues/2024
             // in case of errors above, consider not panicking, set an error and return it here
             // instead
@@ -248,16 +255,35 @@ fn execute_cheatcode_hint(
                 calldata.push(value.into_owned());
                 curr += 1;
             }
-            let class_hash_i128 =
-                Felt252::to_i128(&class_hash).expect("failed to convert felt to i128");
-            let class_hash_str = format!("{class_hash_i128:x}");
-            let mut deploy_account_tx = deploy_account_tx(&class_hash_str, None, None);
-            deploy_account_tx.max_fee = Fee(0);
-            let account_tx = AccountTransaction::DeployAccount(deploy_account_tx);
+            let class_hash_str = class_hash.to_str_radix(16);
+            let class_hash = ClassHash(StarkFelt::new(class_hash.to_be_bytes()).unwrap());
+
+            // Deploy a contract using syscall deploy.
+            let account_address = ContractAddress(patricia_key!(TEST_ACCOUNT_CONTRACT_ADDRESS));
             let block_context = &BlockContext::create_for_account_testing();
-            let actual_execution_info = account_tx
-                .execute(blockifier_state, block_context)
-                .expect("error executing transaction deploy");
+            let entry_point_selector = selector_from_name("deploy_contract");
+            let salt = ContractAddressSalt::default();
+            let execute_calldata = calldata![
+                *account_address.0.key(), // Contract address.
+                entry_point_selector.0,   // EP selector.
+                stark_felt!(3_u8),        // Calldata length.
+                class_hash.0,             // Calldata: class_hash.
+                salt.0,                   // Contract_address_salt.
+                stark_felt!(0_u8)         // Constructor calldata length.
+            ];
+
+            let nonce = blockifier_state
+                .get_nonce_at(ContractAddress(patricia_key!(
+                    TEST_ACCOUNT_CONTRACT_ADDRESS
+                )))
+                .expect("Failed to get nonce");
+            let tx = invoke_tx(execute_calldata, account_address, Fee(MAX_FEE), None);
+            let account_tx =
+                AccountTransaction::Invoke(InvokeTransaction::V1(InvokeTransactionV1 {
+                    nonce,
+                    ..tx
+                }));
+            account_tx.execute(blockifier_state, block_context).unwrap();
 
             insert_value_to_cellref!(vm, deployed_contract_address, contract_address)?;
             // todo in case of error, consider filling the panic data instead of packing in rust
