@@ -32,23 +32,23 @@ pub async fn declare(
     account: &mut SingleOwnerAccount<&JsonRpcClient<HttpTransport>, LocalWallet>,
 ) -> Result<DeclareTransactionResult> {
     let _ = Command::new("scarb")
-        .current_dir(std::env::current_dir().expect("failed to obtain current dir"))
+        .current_dir(std::env::current_dir().expect("Failed to obtain current dir"))
         .arg("build")
         .output()
         .expect("Failed to build contracts with Scarb");
 
-    let current_dir = std::env::current_dir().expect("failed to obtain current dir");
+    let current_dir = std::env::current_dir().expect("Failed to obtain current dir");
     let paths = std::fs::read_dir(format!("{}/target/dev", current_dir.to_str().unwrap()))
-        .expect("failed to read the file maybe build failed");
+        .expect("Failed to read the file maybe build failed");
 
     let mut maybe_sierra_contract_path: Option<String> = None;
     let mut maybe_casm_contract_path: Option<String> = None;
     for path in paths {
         let path_str = path
-            .expect("path not resolved properly")
+            .expect("Path not resolved properly")
             .path()
             .to_str()
-            .expect("failed to convert path to string")
+            .expect("Failed to convert path to string")
             .to_string();
         if path_str.contains(&contract[..]) {
             if path_str.contains(".sierra.json") {
@@ -59,8 +59,8 @@ pub async fn declare(
         }
     }
 
-    let sierra_contract_path = maybe_sierra_contract_path.expect(&format!("no sierra found for contract: {}", contract)[..]);
-    let casm_contract_path = maybe_casm_contract_path.expect(&format!("no casm found for contract: {}", contract)[..]);
+    let sierra_contract_path = maybe_sierra_contract_path.expect(&format!("No sierra found for contract: {}", contract)[..]);
+    let casm_contract_path = maybe_casm_contract_path.expect(&format!("No casm found for contract: {}", contract)[..]);
 
     let contract_definition: SierraClass = {
         let file_contents = std::fs::read(sierra_contract_path.clone())
