@@ -1,6 +1,5 @@
-use anyhow::{anyhow, Context, Result};
+use anyhow::{anyhow, Context, Error, Result};
 use camino::Utf8PathBuf;
-use console::style;
 use serde::{Deserialize, Serialize};
 use starknet::core::types::BlockTag::{Latest, Pending};
 use starknet::core::types::MaybePendingTransactionReceipt::{PendingReceipt, Receipt};
@@ -8,7 +7,11 @@ use starknet::core::types::TransactionReceipt::{
     Declare, Deploy, DeployAccount, Invoke, L1Handler,
 };
 use starknet::core::types::{BlockId, StarknetError, TransactionStatus};
-use starknet::providers::Provider;
+use starknet::providers::jsonrpc::JsonRpcClientError;
+use starknet::providers::jsonrpc::JsonRpcClientError::RpcError;
+use starknet::providers::jsonrpc::RpcError::{Code, Unknown};
+use starknet::providers::ProviderError::{Other, StarknetError as ProviderStarknetError};
+use starknet::providers::{Provider, ProviderError};
 use starknet::{
     accounts::SingleOwnerAccount,
     core::{chain_id, types::FieldElement},
@@ -137,7 +140,7 @@ pub async fn wait_for_tx(
         let receipt = provider
             .get_transaction_receipt(tx_hash)
             .await
-            .expect("Could not get transaction with hash: {tx_hash}");
+            .expect("Could not get transaction with hash: {tx_hash:#x}");
 
         let status = if let Receipt(receipt) = receipt {
             match receipt {
@@ -160,14 +163,12 @@ pub async fn wait_for_tx(
                 return Ok("Transaction accepted")
             }
             TransactionStatus::Rejected => {
-                return Err(anyhow!(
-                    "Transaction has been rejected. Check if max-fee argument is high enough"
-                ));
+                return Err(anyhow!("Transaction has been rejected"));
             }
         }
     } {}
 
-    Err(anyhow!("Should not reach this line"))
+    Err(anyhow!("Unexpected error happened"))
 }
 
 #[must_use]
@@ -182,12 +183,22 @@ pub fn get_rpc_error_message(error: StarknetError) -> &'static str {
         StarknetError::InvalidTransactionIndex => "There is no transaction with such an index",
         StarknetError::ClassHashNotFound => "Provided class hash does not exist",
         StarknetError::ContractError => "An error occurred in the called contract",
-        StarknetError::InvalidContractClass => {
-            "Contract class is invalid. Make sure to pass correct one"
-        }
+        StarknetError::InvalidContractClass => "Contract class is invalid",
         StarknetError::ClassAlreadyDeclared => {
             "Contract with the same class hash is already declared"
         }
         _ => "Unknown RPC error",
+    }
+}
+
+pub fn handle_rpc_error<T, G>(
+    error: ProviderError<JsonRpcClientError<T>>,
+) -> std::result::Result<G, Error> {
+    match error {
+        Other(RpcError(Code(error))) | ProviderStarknetError(error) => {
+            Err(anyhow!(get_rpc_error_message(error)))
+        }
+        Other(RpcError(Unknown(error))) => Err(anyhow!(error.message)),
+        _ => Err(anyhow!("Unknown RPC error")),
     }
 }

@@ -3,7 +3,7 @@ use clap::Args;
 use rand::rngs::OsRng;
 use rand::RngCore;
 
-use cast::{get_rpc_error_message, wait_for_tx, UDC_ADDRESS};
+use cast::{handle_rpc_error, wait_for_tx, UDC_ADDRESS};
 use starknet::accounts::AccountError::Provider;
 use starknet::accounts::{Account, ConnectedAccount, SingleOwnerAccount};
 use starknet::contract::ContractFactory;
@@ -11,10 +11,7 @@ use starknet::core::types::FieldElement;
 use starknet::core::utils::UdcUniqueness::{NotUnique, Unique};
 use starknet::core::utils::{get_udc_deployed_address, UdcUniqueSettings};
 use starknet::providers::jsonrpc::HttpTransport;
-use starknet::providers::jsonrpc::JsonRpcClientError::RpcError;
-use starknet::providers::jsonrpc::RpcError::{Code, Unknown};
 use starknet::providers::JsonRpcClient;
-use starknet::providers::ProviderError::{Other, StarknetError};
 use starknet::signers::LocalWallet;
 
 #[derive(Args)]
@@ -92,12 +89,7 @@ pub async fn deploy(
             )),
             Err(message) => Err(anyhow!(message)),
         },
-        Err(error) => match error {
-            Provider(Other(RpcError(Code(error))) | StarknetError(error)) => {
-                Err(anyhow!(get_rpc_error_message(error)))
-            }
-            Provider(Other(RpcError(Unknown(error)))) => Err(anyhow!(error.message)),
-            _ => Err(anyhow!("Other RPC error")),
-        },
+        Err(Provider(error)) => handle_rpc_error(error),
+        _ => Err(anyhow!("Unknown RPC error")),
     }
 }
