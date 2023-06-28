@@ -90,14 +90,14 @@ pub fn get_account<'a>(
     let signer = LocalWallet::from(SigningKey::from_secret_scalar(
         FieldElement::from_hex_be(&account_info.private_key).with_context(|| {
             format!(
-                "Failed to convert private key {} to FieldElement",
+                "Failed to convert private key: {} to FieldElement",
                 &account_info.private_key
             )
         })?,
     ));
     let address = FieldElement::from_hex_be(&account_info.address).with_context(|| {
         format!(
-            "Failed to convert account address {} to FieldElement",
+            "Failed to convert account address: {} to FieldElement",
             &account_info.address
         )
     })?;
@@ -228,7 +228,7 @@ mod tests {
         let provider = get_provider("http://127.0.0.1:5050/rpc").unwrap();
         let account = get_account(
             "user1",
-            &Utf8PathBuf::from("tests/data/accounts/invalid.json"),
+            &Utf8PathBuf::from("tests/data/accounts/invalid_format.json"),
             &provider,
             &Network::Testnet,
         );
@@ -278,7 +278,7 @@ mod tests {
         let err1 = account1.unwrap_err();
         assert!(err1
             .to_string()
-            .contains("Failed to convert private key privatekey to FieldElement"));
+            .contains("Failed to convert private key: privatekey to FieldElement"));
 
         let account2 = get_account(
             "with_wrong_address",
@@ -289,7 +289,7 @@ mod tests {
         let err2 = account2.unwrap_err();
         assert!(err2
             .to_string()
-            .contains("Failed to convert account address address to FieldElement"));
+            .contains("Failed to convert account address: address to FieldElement"));
     }
 
     #[test]
