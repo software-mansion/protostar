@@ -70,6 +70,7 @@ async fn main() -> Result<()> {
             let declared_contract = starknet_commands::declare::declare(
                 &declare.sierra_contract_path,
                 &declare.casm_contract_path,
+                declare.max_fee,
                 &mut account,
             )
             .await?;
@@ -104,7 +105,7 @@ async fn main() -> Result<()> {
             Ok(())
         }
         Commands::Call(call) => {
-            let block_id = get_block_id(&call.block_id).unwrap();
+            let block_id = get_block_id(&call.block_id)?;
 
             let result = starknet_commands::call::call(
                 call.contract_address.as_ref(),

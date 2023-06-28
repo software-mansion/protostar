@@ -2,6 +2,7 @@
 from PyInstaller.utils.hooks import collect_data_files, collect_submodules
 
 import crypto_cpp_py
+import poseidon_py
 
 block_cipher = None
 extra_files = [
@@ -10,12 +11,13 @@ extra_files = [
     ("cairo-protostar/Cargo.toml", "cairo"),
     ('templates', 'templates'),
     ('constants.json', 'info'),
-] + collect_data_files('starkware')
+    (f'{poseidon_py.__path__[0]}/../lib_pos.*', '.')
+] + collect_data_files('starkware') + collect_data_files('starknet_py') + collect_data_files('poseidon_py')
 # Extra imports which are necessary for executing hints
 extra_imports = [
         "eth_hash.auto",
         "certifi",
-    ] + collect_submodules('starkware')
+    ] + collect_submodules('starkware') + collect_submodules('starknet_py') + collect_submodules('poseidon_py')
 
 binaries = [(f"{crypto_cpp_py.__path__[0]}/../libcrypto_c_exports.*", ".")]
 

@@ -12,11 +12,11 @@ from starknet_py.net.schemas.gateway import CasmClassSchema
 from starknet_py.net.signer import BaseSigner
 from starknet_py.net.udc_deployer.deployer import Deployer, ContractDeployment
 from starknet_py.net.client_models import Call, CasmClass
-from starknet_py.transaction_exceptions import (
+from starknet_py.transaction_errors import (
     TransactionFailedError,
     TransactionRejectedError,
 )
-from starknet_py.utils.data_transformer.errors import CairoSerializerException
+from starknet_py.serialization.errors import CairoSerializerException
 from typing_extensions import Self, TypeGuard
 
 from protostar.protostar_exception import ProtostarException

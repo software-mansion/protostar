@@ -24,7 +24,9 @@ pub struct Call {
     #[clap(short = 'c', long = "calldata", value_delimiter = ' ')]
     pub calldata: Vec<String>,
 
-    /// Block identifier on which call should be performed
+    /// Block identifier on which call should be performed.
+    /// Possible values: pending, latest, block hash (0x prefixed string)
+    /// and block number (u64)
     #[clap(short = 'b', long = "block-id", default_value = "pending")]
     pub block_id: String,
 }

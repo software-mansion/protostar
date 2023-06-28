@@ -49,10 +49,10 @@ def get_signer(
 
     try:
         key_pair = KeyPair.from_private_key(private_key)
-    except AssertionError as a_err:
+    except (AssertionError, OverflowError) as err:
         raise ProtostarException(
             "Invalid private key value. Please provide a valid private key."
-        ) from a_err
+        ) from err
 
     try:
         signer = StarkCurveSigner(
