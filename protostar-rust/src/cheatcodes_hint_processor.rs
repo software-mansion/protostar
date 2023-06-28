@@ -241,6 +241,8 @@ fn execute_cheatcode_hint(
             panic_data_end,
         } => {
             let contract_address = get_val(vm, prepared_contract_address)?;
+            // TODO deploy should fail if contract address provided doesn't match calculated
+            //  or not accept this address as argument at all.
             let class_hash = get_val(vm, prepared_class_hash)?;
 
             let as_relocatable = |vm, value| {
@@ -271,6 +273,14 @@ fn execute_cheatcode_hint(
                 salt.0,                   // Contract_address_salt.
                 stark_felt!(0_u8)         // Constructor calldata length.
             ];
+            let contract_address =
+                calculate_contract_address(salt, class_hash, &calldata![], account_address)
+                    .unwrap();
+            let contract_address = Felt252::from_str_radix(
+                &contract_address.0.key().to_string().replace("0x", "")[..],
+                16,
+            )
+            .unwrap();
 
             let nonce = blockifier_state
                 .get_nonce_at(ContractAddress(patricia_key!(
