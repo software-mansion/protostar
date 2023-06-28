@@ -43,7 +43,7 @@ pub async fn declare(
 
     let current_dir = std::env::current_dir().expect("Failed to obtain current dir");
     let paths = std::fs::read_dir(format!("{}/target/dev", current_dir.to_str().unwrap()))
-        .expect("Failed to read the file maybe build failed");
+        .expect("Failed to read the file that should have been built with scarb");
 
     let mut maybe_sierra_contract_path: Option<String> = None;
     let mut maybe_casm_contract_path: Option<String> = None;
