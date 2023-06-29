@@ -15,6 +15,7 @@ starknet = { git = "https://github.com/xJonathanLEI/starknet-rs" }
 tokio = { version = "1.28.2", features = ["full"] }
 url = "2.2.2"
 rand = "0.8.5"
+primitive-types = "0.12.1"
 
 [dev-dependencies]
 ctor = "0.2.2"

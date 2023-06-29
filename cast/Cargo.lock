@@ -279,6 +279,7 @@ dependencies = [
  "console",
  "ctor",
  "indoc",
+ "primitive-types",
  "rand",
  "serde",
  "serde_json",

@@ -35,6 +35,10 @@ struct Cli {
     #[clap(short, long)]
     int_format: bool,
 
+    /// If passed, output will be displayed in json format
+    #[clap(short, long)]
+    json: bool,
+
     #[command(subcommand)]
     command: Commands,
 }
@@ -79,12 +83,20 @@ async fn main() -> Result<()> {
             )
             .await?;
 
-            print_formatted("Class hash: ", declared_contract.class_hash, cli.int_format);
             print_formatted(
-                "Transaction hash: ",
-                declared_contract.transaction_hash,
+                vec![
+                    ("command", "Declare".to_string()),
+                    ("class_hash", format!("{}", declared_contract.class_hash)),
+                    (
+                        "transaction_hash",
+                        format!("{}", declared_contract.transaction_hash),
+                    ),
+                ]
+                .into_iter()
+                .collect(),
                 cli.int_format,
-            );
+                cli.json,
+            )?;
             Ok(())
         }
         Commands::Deploy(deploy) => {
@@ -104,9 +116,17 @@ async fn main() -> Result<()> {
             )
             .await?;
 
-            print_formatted("Contract address: ", contract_address, cli.int_format);
-            print_formatted("Transaction hash: ", transaction_hash, cli.int_format);
-
+            print_formatted(
+                vec![
+                    ("command", "Deploy".to_string()),
+                    ("contract_address", format!("{contract_address}")),
+                    ("transaction_hash", format!("{transaction_hash}")),
+                ]
+                .into_iter()
+                .collect(),
+                cli.int_format,
+                cli.json,
+            )?;
             Ok(())
         }
         Commands::Call(call) => {
@@ -136,7 +156,16 @@ async fn main() -> Result<()> {
             )
             .await?;
 
-            print_formatted("Transaction hash: ", transaction_hash, cli.int_format);
+            print_formatted(
+                vec![
+                    ("command", "Invoke".to_string()),
+                    ("transaction_hash", format!("{transaction_hash}")),
+                ]
+                .into_iter()
+                .collect(),
+                cli.int_format,
+                cli.json,
+            )?;
             Ok(())
         }
     }

@@ -1,6 +1,8 @@
 use anyhow::{anyhow, Context, Error, Result};
 use camino::Utf8PathBuf;
+use primitive_types::U256;
 use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use starknet::core::types::{
     BlockId,
     BlockTag::{Latest, Pending},
@@ -220,15 +222,34 @@ pub async fn handle_wait_for_tx_result<T>(
     }
 }
 
-pub fn print_formatted(text: &str, value: FieldElement, int_format: bool) {
-    println!(
-        "{text}{}",
-        if int_format {
-            format!("{value}")
-        } else {
-            format!("{value:#x}")
+pub fn print_formatted(
+    mut output: HashMap<&str, String>,
+    int_format: bool,
+    json: bool,
+) -> Result<()> {
+    if !int_format {
+        output = output
+            .into_iter()
+            .map(|(key, value)| {
+                if let Ok(int_value) = U256::from_dec_str(&value) {
+                    (key, format!("{int_value:#x}"))
+                } else {
+                    (key, value)
+                }
+            })
+            .collect();
+    }
+
+    if json {
+        let json_value: Value = serde_json::to_value(output)?;
+        println!("{}", serde_json::to_string_pretty(&json_value)?);
+    } else {
+        for (key, value) in &output {
+            println!("{key}: {value}");
         }
-    );
+    }
+
+    Ok(())
 }
 
 #[cfg(test)]
