@@ -183,11 +183,10 @@ fn execute_cheatcode_hint(
                 )))
                 .expect("Failed to get nonce");
 
-            let declare_tx = declare_tx_default();
             let declare_tx = DeclareTransactionV0V1 {
                 nonce,
                 class_hash,
-                ..declare_tx
+                ..declare_tx_default()
             };
             let tx = DeclareTransaction {
                 tx: starknet_api::transaction::DeclareTransaction::V1(declare_tx),
