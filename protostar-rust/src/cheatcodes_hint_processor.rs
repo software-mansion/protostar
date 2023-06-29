@@ -6,7 +6,7 @@ use std::hash::{Hash, Hasher};
 use std::path::PathBuf;
 use std::sync::Arc;
 
-use anyhow::Result;
+use anyhow::{anyhow, Result};
 use blockifier::abi::abi_utils::selector_from_name;
 use blockifier::block_context::BlockContext;
 use blockifier::execution::contract_class::{
@@ -36,7 +36,7 @@ use cairo_vm::hint_processor::hint_processor_definition::HintProcessor;
 use cairo_vm::hint_processor::hint_processor_definition::HintReference;
 use cairo_vm::serde::deserialize_program::ApTracking;
 use cairo_vm::types::exec_scope::ExecutionScopes;
-use cairo_vm::types::relocatable::Relocatable;
+use cairo_vm::types::relocatable::{MaybeRelocatable, Relocatable};
 use cairo_vm::vm::errors::hint_errors::HintError;
 use cairo_vm::vm::errors::vm_errors::VirtualMachineError;
 use cairo_vm::vm::vm_core::VirtualMachine;
@@ -124,39 +124,17 @@ fn execute_syscall(
     let (cell, offset) = extract_buffer(system);
     let mut system_ptr = get_ptr(vm, cell, &offset)?;
 
-    let selector = vm.get_integer(system_ptr).unwrap();
-    // dbg!(&selector);
-    let selector = selector.to_bytes_be();
-    system_ptr += 1;
+    let selector = felt_from_pointer(vm, &mut system_ptr)
+        .unwrap()
+        .to_bytes_be();
 
-    let gas_counter = vm.get_integer(system_ptr).unwrap().to_usize().unwrap();
-    system_ptr += 1;
+    let gas_counter = usize_from_pointer(vm, &mut system_ptr).unwrap();
+    let contract_address = felt_from_pointer(vm, &mut system_ptr).unwrap();
+    let entry_point_selector = felt_from_pointer(vm, &mut system_ptr).unwrap();
 
-    // Get
-    // let x = vm.get_integer(system_ptr).unwrap().to_owned();
-    let contract_address = vm.get_integer(system_ptr).unwrap().clone().into_owned();
-    system_ptr += 1;
-
-    let entry_point_selector = vm.get_integer(system_ptr).unwrap().into_owned();
-    system_ptr += 1;
-
-    let mut start = vm.get_relocatable(system_ptr).unwrap();
-    system_ptr += 1;
-
-    let end = vm.get_relocatable(system_ptr).unwrap();
-    system_ptr += 1;
-
-    let mut calldata = vec![];
-    while start != end {
-        let val = vm.get_integer(start).unwrap().into_owned();
-        calldata.push(val);
-        start.offset += 1;
-    }
-
-    // dbg!(&selector);
-    // dbg!(&contract_address);
-    // dbg!(&entry_point_selector);
-    // dbg!(&calldata);
+    let start = relocatable_from_pointer(vm, &mut system_ptr).unwrap();
+    let end = relocatable_from_pointer(vm, &mut system_ptr).unwrap();
+    let calldata = read_data_from_range(vm, start, end).unwrap();
 
     let result = match std::str::from_utf8(&selector).unwrap() {
         "CallContract" => call_contract(
@@ -170,29 +148,54 @@ fn execute_syscall(
     }
     .expect("TODO: panic message");
 
-    vm.insert_value(system_ptr, gas_counter).unwrap();
-    system_ptr += 1;
-
-    vm.insert_value(system_ptr, Felt252::from(0)).unwrap();
-    system_ptr += 1;
+    insert_at_pointer(vm, &mut system_ptr, gas_counter).unwrap();
+    insert_at_pointer(vm, &mut system_ptr, Felt252::from(0)).unwrap();
 
     let mut ptr = vm.add_memory_segment();
     let start = ptr;
-
     for value in result {
-        vm.insert_value(ptr, value).unwrap();
-        ptr += 1;
+        insert_at_pointer(vm, &mut ptr, value).unwrap();
     }
-
     let end = ptr;
 
-    vm.insert_value(system_ptr, start).unwrap();
-    system_ptr += 1;
-
-    vm.insert_value(system_ptr, end).unwrap();
-    system_ptr += 1;
+    insert_at_pointer(vm, &mut system_ptr, start).unwrap();
+    insert_at_pointer(vm, &mut system_ptr, end).unwrap();
 
     Ok(())
+}
+
+fn insert_at_pointer<T: Into<MaybeRelocatable>>(
+    vm: &mut VirtualMachine,
+    system_ptr: &mut Relocatable,
+    value: T,
+) -> Result<()> {
+    vm.insert_value(*system_ptr, value)?;
+    *system_ptr += 1;
+    Ok(())
+}
+
+fn usize_from_pointer(vm: &mut VirtualMachine, system_ptr: &mut Relocatable) -> Result<usize> {
+    let gas_counter = vm
+        .get_integer(*system_ptr)?
+        .to_usize()
+        .ok_or_else(|| anyhow!("Failed to convert to usize"))?;
+    *system_ptr += 1;
+    Ok(gas_counter)
+}
+
+fn relocatable_from_pointer(
+    vm: &mut VirtualMachine,
+    system_ptr: &mut Relocatable,
+) -> Result<Relocatable> {
+    let start = vm.get_relocatable(*system_ptr)?;
+    *system_ptr += 1;
+    Ok(start)
+}
+
+fn felt_from_pointer(vm: &mut VirtualMachine, system_ptr: &mut Relocatable) -> Result<Felt252> {
+    let entry_point_selector = vm.get_integer(*system_ptr)?.into_owned();
+    *system_ptr += 1;
+    Ok(entry_point_selector)
 }
 
 // This can mutate state, the name of the syscall is not very good
