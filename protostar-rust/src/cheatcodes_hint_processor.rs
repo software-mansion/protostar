@@ -133,7 +133,7 @@ fn execute_cheatcode_hint(
             let mut paths = std::fs::read_dir(&current_dir)
                 .expect("Failed to read ./target/dev, scarb build probably failed");
 
-            let starknet_artifacts = &paths
+            let starknet_artifacts_entry = &paths
                 .find_map(|path| match path {
                     Ok(path) => {
                         let name = path.file_name().into_string().ok()?;
@@ -142,11 +142,20 @@ fn execute_cheatcode_hint(
                     Err(_) => None,
                 })
                 .expect("Failed to find starknet_artifacts.json file");
-            let starknet_artifacts = fs::read_to_string(starknet_artifacts.path())
-                .expect("Failed to read starknet_artifacts.json contents");
+            let starknet_artifacts = fs::read_to_string(starknet_artifacts_entry.path())
+                .unwrap_or_else(|_| {
+                    panic!(
+                        "Failed to read {:?} contents",
+                        starknet_artifacts_entry.file_name()
+                    )
+                });
             let starknet_artifacts: ScarbStarknetArtifacts =
-                serde_json::from_str(starknet_artifacts.as_str())
-                    .expect("Failed to parse starknet_artifacts.json contents");
+                serde_json::from_str(starknet_artifacts.as_str()).unwrap_or_else(|_| {
+                    panic!(
+                        "Failed to parse {:?} contents",
+                        starknet_artifacts_entry.file_name()
+                    )
+                });
 
             let sierra_path = starknet_artifacts.contracts.iter().find_map(|contract| {
                 if contract.contract_name == contract_value_as_short_str {
