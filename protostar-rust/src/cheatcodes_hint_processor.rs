@@ -339,8 +339,7 @@ fn execute_cheatcode_hint(
             };
             let account_tx = AccountTransaction::Declare(tx);
             let block_context = &BlockContext::create_for_account_testing();
-
-            let actual_execution_info = account_tx
+            let tx_result = account_tx
                 .execute(blockifier_state, block_context)
                 .expect("Failed to execute declare transaction");
 
