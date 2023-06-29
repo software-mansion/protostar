@@ -2,17 +2,21 @@ use anyhow::{anyhow, Context, Result};
 use camino::Utf8PathBuf;
 use console::style;
 use serde::{Deserialize, Serialize};
-use starknet::core::types::BlockTag::{Latest, Pending};
-use starknet::core::types::MaybePendingTransactionReceipt::Receipt;
-use starknet::core::types::TransactionReceipt::{
-    Declare, Deploy, DeployAccount, Invoke, L1Handler,
+use starknet::core::types::{
+    BlockId,
+    BlockTag::{Latest, Pending},
+    FieldElement,
+    MaybePendingTransactionReceipt::Receipt,
+    TransactionReceipt::{Declare, Deploy, DeployAccount, Invoke, L1Handler},
+    TransactionStatus,
 };
-use starknet::core::types::{BlockId, TransactionStatus};
-use starknet::providers::Provider;
 use starknet::{
     accounts::SingleOwnerAccount,
-    core::{chain_id, types::FieldElement},
-    providers::jsonrpc::{HttpTransport, JsonRpcClient},
+    core::chain_id,
+    providers::{
+        jsonrpc::{HttpTransport, JsonRpcClient},
+        Provider,
+    },
     signers::{LocalWallet, SigningKey},
 };
 use std::collections::HashMap;
@@ -32,6 +36,7 @@ struct Account {
     deployed: Option<bool>,
 }
 
+#[derive(Debug, PartialEq)]
 pub enum Network {
     Testnet,
     Testnet2,
@@ -85,15 +90,15 @@ pub fn get_account<'a>(
     let signer = LocalWallet::from(SigningKey::from_secret_scalar(
         FieldElement::from_hex_be(&account_info.private_key).with_context(|| {
             format!(
-                "Failed to convert private key {} to FieldElement",
+                "Failed to convert private key: {} to FieldElement",
                 &account_info.private_key
             )
         })?,
     ));
     let address = FieldElement::from_hex_be(&account_info.address).with_context(|| {
         format!(
-            "Failed to convert account address {} to FieldElement",
-            &account_info.private_key
+            "Failed to convert account address: {} to FieldElement",
+            &account_info.address
         )
     })?;
     let account = SingleOwnerAccount::new(provider, signer, address, network.get_chain_id());
@@ -102,7 +107,6 @@ pub fn get_account<'a>(
 }
 
 pub fn get_block_id(value: &str) -> Result<BlockId> {
-    // todo: add more block ids (hash, number)
     match value {
         "pending" => Ok(BlockId::Tag(Pending)),
         "latest" => Ok(BlockId::Tag(Latest)),
@@ -129,6 +133,7 @@ pub fn get_network(name: &str) -> Result<Network> {
     }
 }
 
+// todo: #2142 add tests
 pub async fn wait_for_tx(provider: &JsonRpcClient<HttpTransport>, tx_hash: FieldElement) {
     'a: while {
         let receipt = provider
@@ -160,4 +165,188 @@ pub async fn wait_for_tx(provider: &JsonRpcClient<HttpTransport>, tx_hash: Field
             }
         }
     } {}
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::{get_account, get_block_id, get_network, get_provider, Network};
+    use camino::Utf8PathBuf;
+    use starknet::core::types::{
+        BlockId,
+        BlockTag::{Latest, Pending},
+        FieldElement,
+    };
+    use std::fs;
+    use url::ParseError;
+
+    #[test]
+    fn test_get_provider() {
+        let provider = get_provider("http://127.0.0.1:5050/rpc");
+        assert!(provider.is_ok());
+    }
+
+    #[test]
+    fn test_get_provider_invalid_url() {
+        let provider = get_provider("");
+        let err = provider.unwrap_err();
+        assert!(err.is::<ParseError>());
+    }
+
+    #[test]
+    fn test_get_account() {
+        let provider = get_provider("http://127.0.0.1:5050/rpc").unwrap();
+        let account = get_account(
+            "user1",
+            &Utf8PathBuf::from("tests/data/accounts/accounts.json"),
+            &provider,
+            &Network::Testnet,
+        );
+
+        assert!(account.is_ok());
+
+        let expected = fs::read_to_string("tests/data/accounts/user1_representation")
+            .expect("Failed to read expected debug representation");
+        let returned = format!("{:?}", account.unwrap());
+        assert_eq!(returned.trim(), expected.trim());
+    }
+
+    #[test]
+    fn test_get_account_no_file() {
+        let provider = get_provider("http://127.0.0.1:5050/rpc").unwrap();
+        let account = get_account(
+            "user1",
+            &Utf8PathBuf::from("tests/data/accounts/nonexistentfile.json"),
+            &provider,
+            &Network::Testnet,
+        );
+        let err = account.unwrap_err();
+        assert!(err.to_string().contains("No such file or directory"));
+    }
+
+    #[test]
+    fn test_get_account_invalid_file() {
+        let provider = get_provider("http://127.0.0.1:5050/rpc").unwrap();
+        let account = get_account(
+            "user1",
+            &Utf8PathBuf::from("tests/data/accounts/invalid_format.json"),
+            &provider,
+            &Network::Testnet,
+        );
+        let err = account.unwrap_err();
+        assert!(err.is::<serde_json::Error>());
+    }
+
+    #[test]
+    fn test_get_account_no_network() {
+        let provider = get_provider("http://127.0.0.1:5050/rpc").unwrap();
+        let account = get_account(
+            "user1",
+            &Utf8PathBuf::from("tests/data/accounts/accounts.json"),
+            &provider,
+            &Network::Mainnet,
+        );
+        let err = account.unwrap_err();
+        assert!(err
+            .to_string()
+            .contains("Account user1 not found under chain id alpha-mainnet"));
+    }
+
+    #[test]
+    fn test_get_account_no_user_for_network() {
+        let provider = get_provider("http://127.0.0.1:5050/rpc").unwrap();
+        let account = get_account(
+            "user10",
+            &Utf8PathBuf::from("tests/data/accounts/accounts.json"),
+            &provider,
+            &Network::Testnet,
+        );
+        let err = account.unwrap_err();
+        assert!(err
+            .to_string()
+            .contains("Account user10 not found under chain id alpha-goerli"));
+    }
+
+    #[test]
+    fn test_get_account_failed_to_convert_field_elements() {
+        let provider = get_provider("http://127.0.0.1:5050/rpc").unwrap();
+        let account1 = get_account(
+            "with_wrong_private_key",
+            &Utf8PathBuf::from("tests/data/accounts/faulty_accounts.json"),
+            &provider,
+            &Network::Testnet,
+        );
+        let err1 = account1.unwrap_err();
+        assert!(err1
+            .to_string()
+            .contains("Failed to convert private key: privatekey to FieldElement"));
+
+        let account2 = get_account(
+            "with_wrong_address",
+            &Utf8PathBuf::from("tests/data/accounts/faulty_accounts.json"),
+            &provider,
+            &Network::Testnet,
+        );
+        let err2 = account2.unwrap_err();
+        assert!(err2
+            .to_string()
+            .contains("Failed to convert account address: address to FieldElement"));
+    }
+
+    #[test]
+    fn test_get_block_id() {
+        let pending_block = get_block_id("pending").unwrap();
+        let latest_block = get_block_id("latest").unwrap();
+
+        assert_eq!(pending_block, BlockId::Tag(Pending));
+        assert_eq!(latest_block, BlockId::Tag(Latest));
+    }
+
+    #[test]
+    fn test_get_block_id_hex() {
+        let block = get_block_id("0x0").unwrap();
+
+        assert_eq!(
+            block,
+            BlockId::Hash(
+                FieldElement::from_hex_be(
+                    "0x0000000000000000000000000000000000000000000000000000000000000000"
+                )
+                .unwrap()
+            )
+        );
+    }
+
+    #[test]
+    fn test_get_block_id_num() {
+        let block = get_block_id("0").unwrap();
+
+        assert_eq!(block, BlockId::Number(0));
+    }
+
+    #[test]
+    fn test_get_block_id_invalid() {
+        let block = get_block_id("mariusz").unwrap_err();
+        assert!(block
+            .to_string()
+            .contains("No such block id mariusz! Possible values are pending, latest, block hash (hex) and block number (u64)."));
+    }
+
+    #[test]
+    fn test_get_network() {
+        let testnet = get_network("testnet").unwrap();
+        let testnet2 = get_network("testnet2").unwrap();
+        let mainnet = get_network("mainnet").unwrap();
+
+        assert_eq!(testnet, Network::Testnet);
+        assert_eq!(testnet2, Network::Testnet2);
+        assert_eq!(mainnet, Network::Mainnet);
+    }
+
+    #[test]
+    fn test_get_network_invalid() {
+        let net = get_network("mariusz").unwrap_err();
+        assert!(net
+            .to_string()
+            .contains("No such network mariusz! Possible values are testnet, testnet2, mainnet."));
+    }
 }
