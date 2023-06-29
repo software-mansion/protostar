@@ -64,8 +64,8 @@ pub async fn declare(
         }
     }
 
-    let sierra_contract_path = maybe_sierra_contract_path.context(&format!("No sierra found for contract: {}", contract)[..])?;
-    let casm_contract_path = maybe_casm_contract_path.context(&format!("No casm found for contract: {}", contract)[..])?;
+    let sierra_contract_path = maybe_sierra_contract_path.context(format!("No sierra found for contract: {}", contract))?;
+    let casm_contract_path = maybe_casm_contract_path.context(format!("No casm found for contract: {}", contract))?;
 
     let contract_definition: SierraClass = {
         let file_contents = std::fs::read(sierra_contract_path.clone())
