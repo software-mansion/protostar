@@ -388,7 +388,6 @@ fn execute_cheatcode_hint(
                 calldata.push(value.into_owned());
                 curr.offset += 1;
             }
-            // dbg!(&calldata);
             let class_hash_str = class_hash.to_str_radix(16);
             let class_hash = ClassHash(StarkFelt::new(class_hash.to_be_bytes()).unwrap());
 
@@ -411,23 +410,8 @@ fn execute_cheatcode_hint(
                 .iter()
                 .map(|data| StarkFelt::new(data.to_be_bytes()).unwrap())
                 .collect();
-            let contract_address = calculate_contract_address(
-                salt,
-                class_hash,
-                &Calldata(calldata.clone().into()),
-                account_address,
-            )
-            .unwrap();
-
             execute_calldata.append(&mut calldata);
-            // dbg!(&execute_calldata);
             let execute_calldata = Calldata(execute_calldata.into());
-
-            let contract_address = Felt252::from_str_radix(
-                &contract_address.0.key().to_string().replace("0x", "")[..],
-                16,
-            )
-            .unwrap();
 
             let nonce = blockifier_state
                 .get_nonce_at(ContractAddress(patricia_key!(
@@ -440,7 +424,17 @@ fn execute_cheatcode_hint(
                     nonce,
                     ..tx
                 }));
-            account_tx.execute(blockifier_state, block_context).unwrap();
+            let tx_result = account_tx.execute(blockifier_state, block_context).unwrap();
+            let return_data = tx_result
+                .execute_call_info
+                .expect("Failed to get execution data from method")
+                .execution
+                .retdata;
+            let contract_address = return_data
+                .0
+                .get(0)
+                .expect("Failed to get contract_address from return_data");
+            let contract_address = Felt252::from_bytes_be(contract_address.bytes());
 
             insert_value_to_cellref!(vm, deployed_contract_address, contract_address)?;
             // todo in case of error, consider filling the panic data instead of packing in rust
