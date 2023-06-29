@@ -298,6 +298,6 @@ fn dispatchers() {
             Running 2 test(s) from tests/using_dispatchers.cairo
             [PASS] using_dispatchers::using_dispatchers::call_and_invoke
             [PASS] using_dispatchers::using_dispatchers::advanced_types
-            Tests: 2 passed, 0 failed
+            Tests: 2 passed, 0 failed, 0 skipped
         "#});
 }
