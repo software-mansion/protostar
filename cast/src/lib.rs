@@ -213,3 +213,14 @@ pub async fn handle_wait_for_tx_result<T>(
         Err(message) => Err(anyhow!(message)),
     }
 }
+
+pub fn print_formatted(text: &str, value: FieldElement, int_format: bool) {
+    println!(
+        "{text}{}",
+        if int_format {
+            format!("{value}")
+        } else {
+            format!("{value:#x}")
+        }
+    );
+}
