@@ -41,7 +41,7 @@ fn main_execution() -> Result<()> {
 
     let scarb_metadata = MetadataCommand::new().inherit_stderr().exec()?;
     let _ = Command::new("scarb")
-        .current_dir(std::env::current_dir().context("failed to obtain current dir")?)
+        .current_dir(std::env::current_dir().context("Failed to get current directory")?)
         .arg("build")
         .output()
         .context("Failed to build contracts with Scarb")?;
