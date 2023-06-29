@@ -13,7 +13,7 @@ use starknet::{
     signers::LocalWallet,
 };
 use std::sync::Arc;
-use std::process::Command;
+use std::process::{Command, Stdio};
 use serde::Deserialize;
 use std::path::PathBuf;
 
@@ -60,19 +60,21 @@ pub async fn declare(
     let command_result = Command::new("scarb")
         .current_dir(std::env::current_dir().context("Failed to obtain current dir")?)
         .arg("build")
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
         .output()
         .context("Failed to start building contracts with Scarb")?;
     let result_code = command_result.status.code().context("failed to obtain status code from scarb build")?;
     if result_code != 0 {
-        panic!("scarb build returned non-zero exit code: {}", result_code);
+        anyhow::bail!("scarb build returned non-zero exit code: {}", result_code);
     }
 
     // TODO #2141 improve handling starknet artifacts
     let current_dir = std::env::current_dir()
-                .expect("Failed to get current directory")
+                .context("Failed to get current directory")?
                 .join("target/dev");
     let mut paths = std::fs::read_dir(&current_dir)
-            .expect("Failed to read ./target/dev, scarb build probably failed");
+            .context("Failed to read ./target/dev, scarb build probably failed")?;
 
     let starknet_artifacts = &paths
         .find_map(|path| match path {
@@ -82,12 +84,12 @@ pub async fn declare(
             }
             Err(_) => None,
         })
-        .expect("Failed to find starknet_artifacts.json file");
+        .context("Failed to find starknet_artifacts.json file")?;
     let starknet_artifacts = std::fs::read_to_string(starknet_artifacts.path())
-        .expect("Failed to read starknet_artifacts.json contents");
+        .context("Failed to read starknet_artifacts.json contents")?;
     let starknet_artifacts: ScarbStarknetArtifacts =
         serde_json::from_str(starknet_artifacts.as_str())
-            .expect("Failed to parse starknet_artifacts.json contents");
+            .context("Failed to parse starknet_artifacts.json contents")?;
 
     let sierra_path = starknet_artifacts.contracts.iter().find_map(|contract| {
         if contract.contract_name == contract_name {
