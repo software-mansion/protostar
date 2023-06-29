@@ -5,8 +5,6 @@ use cast::{get_account, get_block_id, get_network, get_provider};
 use clap::{Parser, Subcommand};
 use console::style;
 
-extern crate dirs;
-
 mod starknet_commands;
 
 #[derive(Parser)]
@@ -29,8 +27,9 @@ struct Cli {
     #[clap(
         short = 'f',
         long = "accounts-file",
+        default_value = "~/.starknet_accounts/starknet_open_zeppelin_accounts.json"
     )]
-    accounts_file_path: Option<Utf8PathBuf>,
+    accounts_file_path: Utf8PathBuf,
 
     #[command(subcommand)]
     command: Commands,
@@ -54,12 +53,9 @@ enum Commands {
 #[tokio::main]
 async fn main() -> Result<()> {
     let cli = Cli::parse();
-    let accounts_file_path = match cli.accounts_file_path {
-        Some(path) => path,
-        None => Utf8PathBuf::from(format!("{}/.starknet_accounts/starknet_open_zeppelin_accounts.json", dirs::home_dir().expect("failed to read the home directory").to_str().expect("failed to convert home directory to string"))),
-    };
-    if !accounts_file_path.exists() {
-        anyhow::bail!("accounts file ({}) does not exist", accounts_file_path);
+    // TODO #2147
+    if !cli.accounts_file_path.exists() {
+        anyhow::bail!("accounts file ({}) does not exist", cli.accounts_file_path);
     }
 
     let network_name = cli.network.unwrap_or_else(|| {
@@ -73,7 +69,7 @@ async fn main() -> Result<()> {
     match cli.command {
         Commands::Declare(declare) => {
             let mut account =
-                get_account(&cli.account, &accounts_file_path, &provider, &network)?;
+                get_account(&cli.account, &cli.accounts_file_path, &provider, &network)?;
 
             let declared_contract = starknet_commands::declare::declare(
                 &declare.contract,
@@ -87,7 +83,7 @@ async fn main() -> Result<()> {
             Ok(())
         }
         Commands::Deploy(deploy) => {
-            let account = get_account(&cli.account, &accounts_file_path, &provider, &network)?;
+            let account = get_account(&cli.account, &cli.accounts_file_path, &provider, &network)?;
 
             let (transaction_hash, contract_address) = starknet_commands::deploy::deploy(
                 &deploy.class_hash,
@@ -127,7 +123,7 @@ async fn main() -> Result<()> {
         }
         Commands::Invoke(invoke) => {
             let mut account =
-                get_account(&cli.account, &accounts_file_path, &provider, &network)?;
+                get_account(&cli.account, &cli.accounts_file_path, &provider, &network)?;
             starknet_commands::invoke::invoke(
                 &invoke.contract_address,
                 &invoke.entry_point_name,
