@@ -32,7 +32,7 @@ fn simple_package() {
 
             Running 1 test(s) from tests/without_prefix.cairo
             [PASS] without_prefix::without_prefix::five
-            Tests: 8 passed, 1 failed
+            Tests: 8 passed, 1 failed, 0 skipped
         "#});
 }
 
@@ -55,7 +55,7 @@ fn with_filter() {
             [PASS] test_simple::test_simple::test_two
             [PASS] test_simple::test_simple::test_two_and_two
             Running 0 test(s) from tests/without_prefix.cairo
-            Tests: 2 passed, 0 failed
+            Tests: 2 passed, 0 failed, 0 skipped
         "#});
 }
 
@@ -78,7 +78,7 @@ fn with_exact_filter() {
             Running 1 test(s) from tests/test_simple.cairo
             [PASS] test_simple::test_simple::test_two
             Running 0 test(s) from tests/without_prefix.cairo
-            Tests: 1 passed, 0 failed
+            Tests: 1 passed, 0 failed, 0 skipped
         "#});
 }
 
@@ -99,7 +99,7 @@ fn with_non_matching_filter() {
             Running 0 test(s) from tests/ext_function_test.cairo
             Running 0 test(s) from tests/test_simple.cairo
             Running 0 test(s) from tests/without_prefix.cairo
-            Tests: 0 passed, 0 failed
+            Tests: 0 passed, 0 failed, 0 skipped
         "#});
 }
 
@@ -119,7 +119,7 @@ fn with_declare() {
             Running 0 test(s) from src/lib.cairo
             Running 1 test(s) from tests/test_declare.cairo
             [PASS] test_declare::test_declare::test_declare_simple
-            Tests: 1 passed, 0 failed
+            Tests: 1 passed, 0 failed, 0 skipped
         "#});
 }
 
@@ -145,7 +145,7 @@ fn with_print() {
             original value: [149]
             original value: [439721161573], converted to a string: [false]
             [PASS] test_print::test_print::test_print
-            Tests: 1 passed, 0 failed
+            Tests: 1 passed, 0 failed, 0 skipped
         "#});
 }
 
@@ -181,7 +181,7 @@ fn panic_data_decoding() {
                 original value: [128]
 
             [PASS] test_panic_decoding::test_panic_decoding::test_simple2
-            Tests: 2 passed, 2 failed
+            Tests: 2 passed, 2 failed, 0 skipped
         "#});
 }
 

@@ -44,9 +44,10 @@ impl RunnerConfig {
     }
 }
 
+#[derive(PartialEq)]
 enum RunnerStatus {
-    Run,
-    Exit,
+    Default,
+    TestFailed,
 }
 
 /// Represents protostar config deserialized from Scarb.toml
@@ -151,18 +152,19 @@ pub fn run(
     );
 
     let mut tests_stats = TestsStats::default();
-    let mut runner_status = RunnerStatus::Run;
+    let mut tests_iterator = tests.into_iter();
 
-    for tests_from_file in tests {
-        match runner_status {
-            RunnerStatus::Run => {
-                runner_status = run_tests(tests_from_file, &mut tests_stats, runner_config)?;
-            }
-            RunnerStatus::Exit => {
-                tests_stats.skipped += tests_from_file.tests_configs.len();
-            }
+    for tests_from_file in tests_iterator.by_ref() {
+        if run_tests(tests_from_file, &mut tests_stats, runner_config)? == RunnerStatus::TestFailed
+        {
+            break;
         }
     }
+
+    for tests_from_file in tests_iterator {
+        tests_stats.skipped += tests_from_file.tests_configs.len();
+    }
+
     pretty_printing::print_test_summary(tests_stats);
 
     Ok(())
@@ -187,14 +189,14 @@ fn run_tests(
         tests_stats.update(&result.value);
         pretty_printing::print_test_result(&config.name.clone(), &result.value);
 
-        if let RunResultValue::Panic(_) = result.value {
-            if runner_config.exit_first {
+        if runner_config.exit_first {
+            if let RunResultValue::Panic(_) = result.value {
                 tests_stats.skipped += tests.tests_configs.len() - i - 1;
-                return Ok(RunnerStatus::Exit);
+                return Ok(RunnerStatus::TestFailed);
             }
         }
     }
-    Ok(RunnerStatus::Run)
+    Ok(RunnerStatus::Default)
 }
 
 fn strip_path_from_test_names(test_configs: Vec<TestConfig>) -> Result<Vec<TestConfig>> {

@@ -24,21 +24,13 @@ pub fn print_running_tests(test_file: &Utf8PathBuf, tests_num: usize) {
 }
 
 pub fn print_test_summary(tests_stats: TestsStats) {
-    let skipped_str = if tests_stats.skipped > 0 {
-        format!(", {} skipped", tests_stats.skipped)
-    } else {
-        String::new()
-    };
-
-    let summary = format!(
-        "{}: {} passed, {} failed{}",
+    println!(
+        "{}: {} passed, {} failed, {} skipped",
         style("Tests").bold(),
         tests_stats.passed,
         tests_stats.failed,
-        skipped_str
+        tests_stats.skipped
     );
-
-    println!("{summary}");
 }
 
 pub fn print_test_result(test_name: &str, result_value: &RunResultValue) {
