@@ -14,6 +14,31 @@ use starknet::{
 };
 use std::sync::Arc;
 use std::process::Command;
+use serde::Deserialize;
+use std::path::PathBuf;
+
+#[allow(dead_code)]
+#[derive(Deserialize)]
+struct ScarbStarknetArtifacts {
+    version: u32,
+    contracts: Vec<ScarbStarknetContract>,
+}
+
+#[allow(dead_code)]
+#[derive(Deserialize)]
+struct ScarbStarknetContract {
+    id: String,
+    package_name: String,
+    contract_name: String,
+    artifacts: ScarbStarknetContractArtifact,
+}
+
+#[allow(dead_code)]
+#[derive(Deserialize)]
+struct ScarbStarknetContractArtifact {
+    sierra: PathBuf,
+    casm: Option<PathBuf>,
+}
 
 #[derive(Args)]
 #[command(about = "Declare a contract to starknet", long_about = None)]
@@ -27,10 +52,11 @@ pub struct Declare {
 }
 
 pub async fn declare(
-    contract: &str,
+    contract_name: &str,
     max_fee: Option<u128>,
     account: &mut SingleOwnerAccount<&JsonRpcClient<HttpTransport>, LocalWallet>,
 ) -> Result<DeclareTransactionResult> {
+    let contract_name: String = contract_name.to_string();
     let command_result = Command::new("scarb")
         .current_dir(std::env::current_dir().context("Failed to obtain current dir")?)
         .arg("build")
@@ -42,43 +68,55 @@ pub async fn declare(
     }
 
     // TODO #2141 improve handling starknet artifacts
-    let current_dir = std::env::current_dir().context("Failed to obtain current dir")?;
-    let paths = std::fs::read_dir(format!("{}/target/dev", current_dir.to_str().unwrap()))
-        .context("Failed to read the file that should have been built with scarb")?;
+    let current_dir = std::env::current_dir()
+                .expect("Failed to get current directory")
+                .join("target/dev");
+    let mut paths = std::fs::read_dir(&current_dir)
+            .expect("Failed to read ./target/dev, scarb build probably failed");
 
-    let mut maybe_sierra_contract_path: Option<String> = None;
-    let mut maybe_casm_contract_path: Option<String> = None;
-    for path in paths {
-        let path_str = path
-            .context("Path not resolved properly")?
-            .path()
-            .to_str()
-            .context("Failed to convert path to string")?
-            .to_string();
-        if path_str.contains(&contract[..]) {
-            if path_str.contains(".sierra.json") {
-                maybe_sierra_contract_path = Some(path_str);
-            } else if path_str.contains(".casm.json") {
-                maybe_casm_contract_path = Some(path_str);
+    let starknet_artifacts = &paths
+        .find_map(|path| match path {
+            Ok(path) => {
+                let name = path.file_name().into_string().ok()?;
+                name.contains("starknet_artifacts").then_some(path)
             }
-        }
-    }
+            Err(_) => None,
+        })
+        .expect("Failed to find starknet_artifacts.json file");
+    let starknet_artifacts = std::fs::read_to_string(starknet_artifacts.path())
+        .expect("Failed to read starknet_artifacts.json contents");
+    let starknet_artifacts: ScarbStarknetArtifacts =
+        serde_json::from_str(starknet_artifacts.as_str())
+            .expect("Failed to parse starknet_artifacts.json contents");
 
-    let sierra_contract_path = maybe_sierra_contract_path.context(format!("No sierra found for contract: {}", contract))?;
-    let casm_contract_path = maybe_casm_contract_path.context(format!("No casm found for contract: {}", contract))?;
+    let sierra_path = starknet_artifacts.contracts.iter().find_map(|contract| {
+        if contract.contract_name == contract_name {
+            return Some(contract.artifacts.sierra.clone());
+        }
+        None
+    }).unwrap_or_else(|| panic!("Failed to find contract {contract_name} in starknet_artifacts.json"));
+    let sierra_contract_path = current_dir.join(sierra_path);
+
+    let casm_path = starknet_artifacts.contracts.iter().find_map(|contract| {
+        if contract.contract_name == contract_name {
+            return Some(contract.artifacts.casm.clone());
+        }
+        None
+    }).unwrap_or_else(|| panic!("Failed to find contract {contract_name} in starknet_artifacts.json")).unwrap();
+    let casm_contract_path = current_dir.join(casm_path);
 
     let contract_definition: SierraClass = {
         let file_contents = std::fs::read(sierra_contract_path.clone())
-            .with_context(|| format!("Failed to read contract file: {sierra_contract_path}"))?;
+            .with_context(|| format!("Failed to read contract file: {}", sierra_contract_path.to_str().expect("failed to convert sierra_contract_path to string")))?;
         serde_json::from_slice(&file_contents).with_context(|| {
-            format!("Failed to parse contract definition: {sierra_contract_path}")
+            format!("Failed to parse contract definition: {}", sierra_contract_path.to_str().expect("failed to convert sierra_contract_path to string"))
         })?
     };
     let casm_contract_definition: CompiledClass = {
         let file_contents = std::fs::read(casm_contract_path.clone())
-            .with_context(|| format!("Failed to read contract file: {casm_contract_path}"))?;
+            .with_context(|| format!("Failed to read contract file: {}", casm_contract_path.to_str().expect("failed to convert casm_contract_path to string")))?;
         serde_json::from_slice(&file_contents)
-            .with_context(|| format!("Failed to parse contract definition: {casm_contract_path}"))?
+            .with_context(|| format!("Failed to parse contract definition: {}", casm_contract_path.to_str().expect("failed to convert casm_contract_path to string")))?
     };
 
     let casm_class_hash = casm_contract_definition.class_hash()?;
