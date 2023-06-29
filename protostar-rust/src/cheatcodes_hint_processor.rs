@@ -136,17 +136,14 @@ fn execute_syscall(
     let end = relocatable_from_pointer(vm, &mut system_ptr).unwrap();
     let calldata = read_data_from_range(vm, start, end).unwrap();
 
-    let result = match std::str::from_utf8(&selector).unwrap() {
-        "CallContract" => call_contract(
-            &contract_address,
-            &entry_point_selector,
-            &calldata,
-            blockifier_state,
-        ),
-        // TODO do not panic, return execution to base handler
-        _ => panic!("Unknown selector for system call!"),
-    }
-    .expect("TODO: panic message");
+    assert_eq!(std::str::from_utf8(&selector).unwrap(), "CallContract");
+    let result = call_contract(
+        &contract_address,
+        &entry_point_selector,
+        &calldata,
+        blockifier_state,
+    )
+    .unwrap();
 
     insert_at_pointer(vm, &mut system_ptr, gas_counter).unwrap();
     insert_at_pointer(vm, &mut system_ptr, Felt252::from(0)).unwrap();
