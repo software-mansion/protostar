@@ -50,7 +50,7 @@ use starknet_api::transaction::{
     Calldata, ContractAddressSalt, DeclareTransactionV0V1, Fee, InvokeTransaction,
     InvokeTransactionV1,
 };
-use starknet_api::{calldata, patricia_key, stark_felt};
+use starknet_api::{patricia_key, stark_felt};
 
 pub struct CairoHintProcessor<'a> {
     pub original_cairo_hint_processor: OriginalCairoHintProcessor<'a>,
@@ -411,13 +411,18 @@ fn execute_cheatcode_hint(
                 .iter()
                 .map(|data| StarkFelt::new(data.to_be_bytes()).unwrap())
                 .collect();
+            let contract_address = calculate_contract_address(
+                salt,
+                class_hash,
+                &Calldata(calldata.clone().into()),
+                account_address,
+            )
+            .unwrap();
+
             execute_calldata.append(&mut calldata);
             // dbg!(&execute_calldata);
             let execute_calldata = Calldata(execute_calldata.into());
 
-            let contract_address =
-                calculate_contract_address(salt, class_hash, &calldata![], account_address)
-                    .unwrap();
             let contract_address = Felt252::from_str_radix(
                 &contract_address.0.key().to_string().replace("0x", "")[..],
                 16,
