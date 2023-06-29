@@ -24,6 +24,7 @@ struct Cli {
     account: String,
 
     /// Path to the file holding accounts info, defaults to ~/.starknet_accounts/starknet_open_zeppelin_accounts.json
+    // TODO #2147
     #[clap(
         short = 'f',
         long = "accounts-file",
@@ -53,11 +54,7 @@ enum Commands {
 #[tokio::main]
 async fn main() -> Result<()> {
     let cli = Cli::parse();
-    // TODO #2147
-    if !cli.accounts_file_path.exists() {
-        anyhow::bail!("accounts file ({}) does not exist", cli.accounts_file_path);
-    }
-
+    // todo: #2052 take network from scarb config if flag not provided
     let network_name = cli.network.unwrap_or_else(|| {
         // todo: #2107
         eprintln!("{}", style("No --network flag passed!").red());
