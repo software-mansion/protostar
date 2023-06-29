@@ -50,7 +50,7 @@ def run_git(*args: Union[str, Path], cwd: Path):
 
 def has_user_git_credentials():
     try:
-        subprocess.run(["git", "config", "user.name"], check=True, **SHARED_KWARGS)
+        subprocess.run(["git", "config", "user.name"], check=True, **SHARED_KWARGS)  # type: ignore
     except subprocess.CalledProcessError:
         return False
     return True

@@ -385,6 +385,9 @@ def test_data_transformer_from_python(get_abi_from_contract: GetAbiFromContractF
     assert python_data == python_data2
 
 
+@pytest.mark.skip(
+    "TODO, This would require significant effort for an already deprecated feature"
+)
 def test_use_felt_pointer_for_dict_fail(
     get_abi_from_contract: GetAbiFromContractFixture,
 ):

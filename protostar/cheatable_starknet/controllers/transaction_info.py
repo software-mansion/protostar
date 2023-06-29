@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, List
 
-from starkware.starknet.definitions.general_config import StarknetChainId
+from starkware.starknet.definitions.general_config import DEFAULT_CHAIN_ID
 
 from protostar.starknet import Address
 
@@ -39,9 +39,8 @@ class TransactionInfoController:
             transaction_hash=self.state.contract_address_to_transaction_hash.get(
                 contract_address, 0
             ),
-            # TODO verify if this is a good default value
             chain_id=self.state.contract_address_to_chain_id.get(
-                contract_address, StarknetChainId.TESTNET.value
+                contract_address, DEFAULT_CHAIN_ID
             ),
             nonce=self.state.contract_address_to_nonce.get(contract_address, 0),
         )

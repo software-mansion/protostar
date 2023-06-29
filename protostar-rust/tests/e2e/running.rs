@@ -32,7 +32,7 @@ fn simple_package() {
 
             Running 1 test(s) from tests/without_prefix.cairo
             [PASS] without_prefix::without_prefix::five
-            Tests: 8 passed, 1 failed
+            Tests: 8 passed, 1 failed, 0 skipped
         "#});
 }
 
@@ -55,7 +55,7 @@ fn with_filter() {
             [PASS] test_simple::test_simple::test_two
             [PASS] test_simple::test_simple::test_two_and_two
             Running 0 test(s) from tests/without_prefix.cairo
-            Tests: 2 passed, 0 failed
+            Tests: 2 passed, 0 failed, 0 skipped
         "#});
 }
 
@@ -78,7 +78,7 @@ fn with_exact_filter() {
             Running 1 test(s) from tests/test_simple.cairo
             [PASS] test_simple::test_simple::test_two
             Running 0 test(s) from tests/without_prefix.cairo
-            Tests: 1 passed, 0 failed
+            Tests: 1 passed, 0 failed, 0 skipped
         "#});
 }
 
@@ -99,7 +99,7 @@ fn with_non_matching_filter() {
             Running 0 test(s) from tests/ext_function_test.cairo
             Running 0 test(s) from tests/test_simple.cairo
             Running 0 test(s) from tests/without_prefix.cairo
-            Tests: 0 passed, 0 failed
+            Tests: 0 passed, 0 failed, 0 skipped
         "#});
 }
 
@@ -121,7 +121,7 @@ fn with_declare() {
             Running 2 test(s) from tests/test_declare.cairo
             [PASS] test_declare::test_declare::test_declare_simple
             [PASS] test_declare::test_declare::multiple_contracts
-            Tests: 2 passed, 0 failed
+            Tests: 2 passed, 0 failed, 0 skipped
         "#});
 }
 
@@ -179,7 +179,7 @@ fn with_print() {
             original value: [149]
             original value: [439721161573], converted to a string: [false]
             [PASS] test_print::test_print::test_print
-            Tests: 1 passed, 0 failed
+            Tests: 1 passed, 0 failed, 0 skipped
         "#});
 }
 
@@ -215,6 +215,67 @@ fn panic_data_decoding() {
                 original value: [128]
 
             [PASS] test_panic_decoding::test_panic_decoding::test_simple2
-            Tests: 2 passed, 2 failed
+            Tests: 2 passed, 2 failed, 0 skipped
+        "#});
+}
+
+#[test]
+fn exit_first() {
+    let temp = assert_fs::TempDir::new().unwrap();
+    temp.copy_from("tests/data/exit_first_test", &["**/*"])
+        .unwrap();
+
+    let snapbox = runner();
+
+    snapbox
+        .current_dir(&temp)
+        .assert()
+        .success()
+        .stdout_matches(indoc! {r#"Collected 10 test(s) and 4 test file(s)
+            Running 1 test(s) from src/lib.cairo
+            [PASS] src::test_fib
+            Running 2 test(s) from tests/ext_function_test.cairo
+            [PASS] ext_function_test::ext_function_test::test_my_test
+            [PASS] ext_function_test::ext_function_test::test_simple
+            Running 6 test(s) from tests/test_simple.cairo
+            [PASS] test_simple::test_simple::test_simple
+            [PASS] test_simple::test_simple::test_simple2
+            [FAIL] test_simple::test_simple::test_early_failing
+
+            Failure data:
+                original value: [8111420071579136082810415440747], converted to a string: [failing check]
+
+            Tests: 5 passed, 1 failed, 4 skipped
+        "#});
+}
+
+#[test]
+fn exit_first_flag() {
+    let temp = assert_fs::TempDir::new().unwrap();
+    temp.copy_from("tests/data/simple_test", &["**/*"]).unwrap();
+
+    let snapbox = runner().arg("--exit-first");
+
+    snapbox
+        .current_dir(&temp)
+        .assert()
+        .success()
+        .stdout_matches(indoc! {r#"Collected 9 test(s) and 4 test file(s)
+            Running 1 test(s) from src/lib.cairo
+            [PASS] src::test_fib
+            Running 2 test(s) from tests/ext_function_test.cairo
+            [PASS] ext_function_test::ext_function_test::test_my_test
+            [PASS] ext_function_test::ext_function_test::test_simple
+            Running 5 test(s) from tests/test_simple.cairo
+            [PASS] test_simple::test_simple::test_simple
+            [PASS] test_simple::test_simple::test_simple2
+            [PASS] test_simple::test_simple::test_two
+            [PASS] test_simple::test_simple::test_two_and_two
+            [FAIL] test_simple::test_simple::test_failing
+
+            Failure data:
+                original value: [8111420071579136082810415440747], converted to a string: [failing check]
+
+            Tests: 7 passed, 1 failed, 1 skipped
         "#});
 }

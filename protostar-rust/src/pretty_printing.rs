@@ -25,10 +25,11 @@ pub fn print_running_tests(test_file: &Utf8PathBuf, tests_num: usize) {
 
 pub fn print_test_summary(tests_stats: TestsStats) {
     println!(
-        "{}: {} passed, {} failed",
+        "{}: {} passed, {} failed, {} skipped",
         style("Tests").bold(),
         tests_stats.passed,
-        tests_stats.failed
+        tests_stats.failed,
+        tests_stats.skipped
     );
 }
 

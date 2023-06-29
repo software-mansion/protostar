@@ -1,7 +1,7 @@
 use crate::starknet_commands::{call::Call, declare::Declare, deploy::Deploy, invoke::Invoke};
 use anyhow::Result;
 use camino::Utf8PathBuf;
-use cast::{get_account, get_block_id, get_network, get_provider};
+use cast::{get_account, get_block_id, get_network, get_provider, print_formatted};
 use clap::{Parser, Subcommand};
 use console::style;
 
@@ -31,6 +31,10 @@ struct Cli {
     )]
     accounts_file_path: Utf8PathBuf,
 
+    /// If passed, values will be displayed as integers, otherwise as hexes
+    #[clap(short, long)]
+    int_format: bool,
+
     #[command(subcommand)]
     command: Commands,
 }
@@ -56,7 +60,6 @@ async fn main() -> Result<()> {
 
     // todo: #2052 take network from scarb config if flag not provided
     let network_name = cli.network.unwrap_or_else(|| {
-        // todo: #2107
         eprintln!("{}", style("No --network flag passed!").red());
         std::process::exit(1);
     });
@@ -71,12 +74,17 @@ async fn main() -> Result<()> {
             let declared_contract = starknet_commands::declare::declare(
                 &declare.sierra_contract_path,
                 &declare.casm_contract_path,
+                declare.max_fee,
                 &mut account,
             )
             .await?;
-            // todo: #2107
-            eprintln!("Class hash: {}", declared_contract.class_hash);
-            eprintln!("Transaction hash: {}", declared_contract.transaction_hash);
+
+            print_formatted("Class hash: ", declared_contract.class_hash, cli.int_format);
+            print_formatted(
+                "Transaction hash: ",
+                declared_contract.transaction_hash,
+                cli.int_format,
+            );
             Ok(())
         }
         Commands::Deploy(deploy) => {
@@ -96,9 +104,8 @@ async fn main() -> Result<()> {
             )
             .await?;
 
-            // todo: #2107
-            eprintln!("Contract address: {contract_address}");
-            eprintln!("Transaction hash: {transaction_hash}");
+            print_formatted("Contract address: ", contract_address, cli.int_format);
+            print_formatted("Transaction hash: ", transaction_hash, cli.int_format);
 
             Ok(())
         }
@@ -114,14 +121,13 @@ async fn main() -> Result<()> {
             )
             .await?;
 
-            // todo (#2107): Normalize outputs in CLI
-            eprintln!("Call response: {result:?}");
+            println!("Call response: {result:?}");
             Ok(())
         }
         Commands::Invoke(invoke) => {
             let mut account =
                 get_account(&cli.account, &cli.accounts_file_path, &provider, &network)?;
-            starknet_commands::invoke::invoke(
+            let transaction_hash = starknet_commands::invoke::invoke(
                 &invoke.contract_address,
                 &invoke.entry_point_name,
                 invoke.calldata.iter().map(AsRef::as_ref).collect(),
@@ -129,6 +135,8 @@ async fn main() -> Result<()> {
                 &mut account,
             )
             .await?;
+
+            print_formatted("Transaction hash: ", transaction_hash, cli.int_format);
             Ok(())
         }
     }

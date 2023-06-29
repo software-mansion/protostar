@@ -1,6 +1,5 @@
 from typing import Callable
 
-from starknet_py.utils.data_transformer.data_transformer import CairoData
 
 from protostar.cheatable_starknet.controllers.expect_call_controller import (
     ExpectCallController,
@@ -11,6 +10,7 @@ from protostar.cheatable_starknet.callable_hint_locals.callable_hint_local impor
 )
 from protostar.starknet import RawAddress, Address
 from protostar.starknet.selector import Selector
+from protostar.starknet.data_transformer import CairoData
 
 
 class ExpectCallHintLocal(CallableHintLocal):

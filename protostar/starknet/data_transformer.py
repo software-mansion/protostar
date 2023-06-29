@@ -1,14 +1,13 @@
-from typing import Any, Callable, Dict, Union
-
-from starknet_py.utils.data_transformer.data_transformer import (
-    CairoSerializer,
-    CairoData,
-)
-from starkware.starknet.public.abi import AbiType
-from starkware.starknet.public.abi_structs import identifier_manager_from_abi
+from typing import Any, Callable, Union
 from typing_extensions import Literal
 
-from protostar.starknet.abi import find_abi_item
+from marshmallow import ValidationError
+
+from starknet_py.serialization import serializer_for_payload, CairoSerializerException
+from starknet_py.abi import Abi, AbiParsingError, AbiParser
+
+from starkware.starknet.public.abi import AbiType
+
 from protostar.protostar_exception import ProtostarException
 
 
@@ -16,33 +15,43 @@ class DataTransformerException(ProtostarException):
     pass
 
 
-PythonData = Dict[str, Any]
+CairoData = list[int]
+PythonData = dict[str, Any]
 CairoOrPythonData = Union[CairoData, PythonData]
 FromPythonTransformer = Callable[[PythonData], CairoData]
 ToPythonTransformer = Callable[[CairoData], PythonData]
 
 
+def get_function_from_abi(abi: Abi, fn_name: str) -> Abi.Function:
+    if abi.constructor is not None and fn_name == "constructor":
+        return abi.constructor
+    if abi.l1_handler is not None and abi.l1_handler.name == fn_name:
+        return abi.l1_handler
+    if fn_name in abi.functions:
+        return abi.functions[fn_name]
+    raise DataTransformerException(f"`{fn_name}` not found in ABI")
+
+
 def from_python_transformer(
     contract_abi: AbiType, fn_name: str, mode: Literal["inputs", "outputs"]
 ) -> FromPythonTransformer:
-    fn_abi_item = find_abi_item(contract_abi, fn_name)
-    structure_transformer = CairoSerializer(identifier_manager_from_abi(contract_abi))
-
-    def transform(data: PythonData) -> CairoData:
+    def transform(data: PythonData):
         try:
-            for data_item_name, data_item_value in data.items():
-                for item in fn_abi_item[mode]:
-                    if (
-                        data_item_name == item["name"]
-                        and isinstance(data_item_value, dict)
-                        and item["type"] == "felt*"
-                    ):
-                        raise TypeError(
-                            f"invalid type 'dict' for felt* used for argument {data_item_name}"
-                        )
-            return structure_transformer.from_python(fn_abi_item[mode], **data)[0]
-        except (TypeError, ValueError) as ex:
-            raise DataTransformerException(str(ex)) from ex
+            abi = AbiParser(contract_abi).parse()
+        except (AbiParsingError, ValidationError) as ex:
+            raise DataTransformerException("Invalid ABI") from ex
+
+        function = get_function_from_abi(abi, fn_name)
+
+        if mode == "inputs":
+            serializer = serializer_for_payload(function.inputs)
+        else:
+            serializer = serializer_for_payload(function.outputs)
+
+        try:
+            return serializer.serialize(data)
+        except (CairoSerializerException, KeyError) as ex:
+            raise DataTransformerException("Data transformer error") from ex
 
     return transform
 
@@ -50,14 +59,25 @@ def from_python_transformer(
 def from_python_events_transformer(
     contract_abi: AbiType, event_name: str
 ) -> FromPythonTransformer:
-    event_abi_item = find_abi_item(contract_abi, event_name)
-    structure_transformer = CairoSerializer(identifier_manager_from_abi(contract_abi))
-
-    def transform(data: PythonData) -> CairoData:
+    def transform(data: PythonData):
         try:
-            return structure_transformer.from_python(event_abi_item["data"], **data)[0]
-        except (TypeError, ValueError) as ex:
-            raise DataTransformerException(str(ex)) from ex
+            abi = AbiParser(contract_abi).parse()
+        except (AbiParsingError, ValidationError) as ex:
+            raise DataTransformerException("Invalid ABI") from ex
+
+        try:
+            event = abi.events[event_name]
+        except KeyError as ex:
+            raise DataTransformerException(
+                f"Event name `{event_name}` not in ABI"
+            ) from ex
+
+        serializer = serializer_for_payload(event.data)
+
+        try:
+            return serializer.serialize(data)
+        except (CairoSerializerException, KeyError) as ex:
+            raise DataTransformerException("Data transformer error") from ex
 
     return transform
 
@@ -65,14 +85,23 @@ def from_python_events_transformer(
 def to_python_transformer(
     contract_abi: AbiType, fn_name: str, mode: Literal["inputs", "outputs"]
 ) -> ToPythonTransformer:
-    fn_abi_item = find_abi_item(contract_abi, fn_name)
-    structure_transformer = CairoSerializer(identifier_manager_from_abi(contract_abi))
-
-    def transform(data: CairoData) -> PythonData:
+    def transform(data: CairoData):
         try:
-            return structure_transformer.to_python(fn_abi_item[mode], data)._asdict()
-        except (TypeError, ValueError) as ex:
-            raise DataTransformerException(str(ex)) from ex
+            abi = AbiParser(contract_abi).parse()
+        except (AbiParsingError, ValidationError) as ex:
+            raise DataTransformerException("Invalid ABI") from ex
+
+        function = get_function_from_abi(abi, fn_name)
+
+        if mode == "inputs":
+            serializer = serializer_for_payload(function.inputs)
+        else:
+            serializer = serializer_for_payload(function.outputs)
+
+        try:
+            return serializer.deserialize(data).as_dict()
+        except CairoSerializerException as ex:
+            raise DataTransformerException("Data transformer error") from ex
 
     return transform
 
@@ -80,15 +109,24 @@ def to_python_transformer(
 def to_python_events_transformer(
     contract_abi: AbiType, event_name: str
 ) -> ToPythonTransformer:
-    event_abi_item = find_abi_item(contract_abi, event_name)
-    structure_transformer = CairoSerializer(identifier_manager_from_abi(contract_abi))
-
-    def transform(data: CairoData) -> PythonData:
+    def transform(data: CairoData):
         try:
-            return structure_transformer.to_python(
-                event_abi_item["data"], data
-            )._asdict()
-        except (TypeError, ValueError) as ex:
-            raise DataTransformerException(str(ex)) from ex
+            abi = AbiParser(contract_abi).parse()
+        except (AbiParsingError, ValidationError) as ex:
+            raise DataTransformerException("Invalid ABI") from ex
+
+        try:
+            event = abi.events[event_name]
+        except KeyError as ex:
+            raise DataTransformerException(
+                f"Event name `{event_name}` not in ABI"
+            ) from ex
+
+        serializer = serializer_for_payload(event.data)
+
+        try:
+            return serializer.deserialize(data).as_dict()
+        except CairoSerializerException as ex:
+            raise DataTransformerException("Data transformer error") from ex
 
     return transform
