@@ -1,6 +1,9 @@
 use std::any::Any;
+use std::collections::hash_map::DefaultHasher;
 use std::collections::HashMap;
-use std::i64;
+use std::hash::{Hash, Hasher};
+use std::path::PathBuf;
+use std::{fs, i64};
 
 use anyhow::Result;
 use blockifier::block_context::BlockContext;
@@ -8,7 +11,8 @@ use blockifier::execution::contract_class::{
     ContractClass as BlockifierContractClass, ContractClassV1,
 };
 use blockifier::state::cached_state::CachedState;
-use blockifier::test_utils::DictStateReader;
+use blockifier::state::state_api::StateReader;
+use blockifier::test_utils::{DictStateReader, TEST_ACCOUNT_CONTRACT_ADDRESS};
 use blockifier::transaction::account_transaction::AccountTransaction;
 use blockifier::transaction::transaction_utils_for_protostar::{
     declare_tx_default, deploy_account_tx,
@@ -22,7 +26,7 @@ use cairo_vm::types::exec_scope::ExecutionScopes;
 use cairo_vm::vm::errors::hint_errors::HintError;
 use cairo_vm::vm::vm_core::VirtualMachine;
 use num_traits::cast::ToPrimitive;
-use starknet_api::transaction::Fee;
+use starknet_api::transaction::{DeclareTransactionV0V1, Fee};
 
 use cairo_lang_casm::hints::Hint;
 use cairo_lang_casm::hints::ProtostarHint;
@@ -34,6 +38,10 @@ use cairo_lang_runner::{
 use cairo_vm::hint_processor::hint_processor_definition::HintReference;
 use cairo_vm::serde::deserialize_program::ApTracking;
 use cairo_vm::vm::errors::vm_errors::VirtualMachineError;
+use serde::Deserialize;
+use starknet_api::core::{ClassHash, ContractAddress, PatriciaKey};
+use starknet_api::hash::{StarkFelt, StarkHash};
+use starknet_api::{patricia_key, stark_felt};
 
 pub struct CairoHintProcessor<'a> {
     pub original_cairo_hint_processor: OriginalCairoHintProcessor<'a>,
@@ -74,6 +82,29 @@ impl HintProcessor for CairoHintProcessor<'_> {
     }
 }
 
+#[allow(dead_code)]
+#[derive(Deserialize)]
+struct ScarbStarknetArtifacts {
+    version: u32,
+    contracts: Vec<ScarbStarknetContract>,
+}
+
+#[allow(dead_code)]
+#[derive(Deserialize)]
+struct ScarbStarknetContract {
+    id: String,
+    package_name: String,
+    contract_name: String,
+    artifacts: ScarbStarknetContractArtifact,
+}
+
+#[allow(dead_code)]
+#[derive(Deserialize)]
+struct ScarbStarknetContractArtifact {
+    sierra: PathBuf,
+    casm: Option<PathBuf>,
+}
+
 #[allow(unused, clippy::too_many_lines)]
 fn execute_cheatcode_hint(
     vm: &mut VirtualMachine,
@@ -93,43 +124,79 @@ fn execute_cheatcode_hint(
         } => {
             let contract_value = get_val(vm, contract)?;
 
-            let contract_value_as_short_str =
-                as_cairo_short_string(&contract_value).expect("conversion to short string failed");
-            let current_dir = std::env::current_dir().expect("failed to obtain current dir");
-            let paths = std::fs::read_dir(format!("{}/target/dev", current_dir.to_str().unwrap()))
-                .expect("failed to read the file maybe build failed");
-            let mut maybe_sierra_path: Option<String> = None;
-            for path in paths {
-                let path_str = path
-                    .expect("path not resolved properly")
-                    .path()
-                    .to_str()
-                    .expect("failed to convert path to string")
-                    .to_string();
-                if path_str.contains(&contract_value_as_short_str[..])
-                    && path_str.contains(".sierra.json")
-                {
-                    maybe_sierra_path = Some(path_str);
+            let contract_value_as_short_str = as_cairo_short_string(&contract_value)
+                .expect("Converting contract name to short string failed");
+            let current_dir = std::env::current_dir()
+                .expect("Failed to get current directory")
+                .join("target/dev");
+
+            let mut paths = std::fs::read_dir(&current_dir)
+                .expect("Failed to read ./target/dev, scarb build probably failed");
+
+            let starknet_artifacts_entry = &paths
+                .find_map(|path| match path {
+                    Ok(path) => {
+                        let name = path.file_name().into_string().ok()?;
+                        name.contains("starknet_artifacts").then_some(path)
+                    }
+                    Err(_) => None,
+                })
+                .expect("Failed to find starknet_artifacts.json file");
+            let starknet_artifacts = fs::read_to_string(starknet_artifacts_entry.path())
+                .unwrap_or_else(|_| {
+                    panic!(
+                        "Failed to read {:?} contents",
+                        starknet_artifacts_entry.file_name()
+                    )
+                });
+            let starknet_artifacts: ScarbStarknetArtifacts =
+                serde_json::from_str(starknet_artifacts.as_str()).unwrap_or_else(|_| {
+                    panic!(
+                        "Failed to parse {:?} contents",
+                        starknet_artifacts_entry.file_name()
+                    )
+                });
+
+            let sierra_path = starknet_artifacts.contracts.iter().find_map(|contract| {
+                if contract.contract_name == contract_value_as_short_str {
+                    return Some(contract.artifacts.sierra.clone());
                 }
-            }
-            let file = std::fs::File::open(
-                maybe_sierra_path.expect("no valid path to sierra file detected"),
-            )
-            .expect("file should open read only");
-            let sierra_contract_class: ContractClass =
-                serde_json::from_reader(file).expect("file should be proper JSON");
+                None
+            }).unwrap_or_else(|| panic!("Failed to find contract {contract_value_as_short_str} in starknet_artifacts.json"));
+            let sierra_path = current_dir.join(sierra_path);
+
+            let file = std::fs::File::open(&sierra_path)
+                .unwrap_or_else(|_| panic!("Failed to open file at path = {:?}", &sierra_path));
+            let sierra_contract_class: ContractClass = serde_json::from_reader(&file)
+                .unwrap_or_else(|_| panic!("File to parse json from file = {file:?}"));
 
             let casm_contract_class =
                 CasmContractClass::from_contract_class(sierra_contract_class, true)
                     .expect("sierra to casm failed");
-            let casm_serialized =
-                serde_json::to_string_pretty(&casm_contract_class).expect("serialization failed");
+            let casm_serialized = serde_json::to_string_pretty(&casm_contract_class)
+                .expect("Failed to serialize contract to casm");
 
             let contract_class = ContractClassV1::try_from_json_string(&casm_serialized)
-                .expect("error reading contract class from json");
+                .expect("Failed to read contract class from json");
             let contract_class = BlockifierContractClass::V1(contract_class);
 
-            let declare_tx = declare_tx_default();
+            // TODO(#2134) replace this. Hash should be calculated by the blockifier in the correct manner. This is just a workaround.
+            let mut hasher = DefaultHasher::new();
+            casm_serialized.hash(&mut hasher);
+            let class_hash = hasher.finish();
+            let class_hash = ClassHash(stark_felt!(class_hash));
+
+            let nonce = blockifier_state
+                .get_nonce_at(ContractAddress(patricia_key!(
+                    TEST_ACCOUNT_CONTRACT_ADDRESS
+                )))
+                .expect("Failed to get nonce");
+
+            let declare_tx = DeclareTransactionV0V1 {
+                nonce,
+                class_hash,
+                ..declare_tx_default()
+            };
             let tx = DeclareTransaction {
                 tx: starknet_api::transaction::DeclareTransaction::V1(declare_tx),
                 contract_class,
@@ -139,18 +206,11 @@ fn execute_cheatcode_hint(
 
             let actual_execution_info = account_tx
                 .execute(blockifier_state, block_context)
-                .expect("error executing transaction declare");
+                .expect("Failed to execute declare transaction");
 
-            let class_hash = actual_execution_info
-                .validate_call_info
-                .as_ref()
-                .expect("error reading validate call info of transaction")
-                .call
-                .class_hash
-                .expect("error reading class hash of transaction");
             let class_hash_int =
                 i64::from_str_radix(&class_hash.to_string().replace("0x", "")[..], 16)
-                    .expect("error converting hex string to int");
+                    .expect("Failed to convert hex string to int");
 
             insert_value_to_cellref!(vm, result, Felt252::from(class_hash_int))?;
             // TODO https://github.com/software-mansion/protostar/issues/2024
