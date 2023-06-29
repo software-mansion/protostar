@@ -34,12 +34,13 @@ impl RunnerConfig {
     pub fn new(
         test_name_filter: Option<String>,
         exact_match: bool,
+        exit_first: bool,
         protostar_config_from_scarb: &ProtostarConfigFromScarb,
     ) -> Self {
         Self {
             test_name_filter,
             exact_match,
-            exit_first: protostar_config_from_scarb.exit_first,
+            exit_first: protostar_config_from_scarb.exit_first || exit_first,
         }
     }
 }

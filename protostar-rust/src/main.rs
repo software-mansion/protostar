@@ -20,6 +20,9 @@ struct Args {
     /// Use exact matches for `test_filter`
     #[arg(short, long)]
     exact: bool,
+
+    #[arg(short = 'x', long)]
+    exit_first: bool,
 }
 
 fn load_corelib() -> Result<TempDir> {
@@ -51,8 +54,12 @@ fn main_execution() -> Result<()> {
             rust_test_runner::protostar_config_for_package(&scarb_metadata, package)?;
         let (base_path, dependencies) =
             rust_test_runner::dependencies_for_package(&scarb_metadata, package)?;
-        let runner_config =
-            RunnerConfig::new(args.test_name.clone(), args.exact, &protostar_config);
+        let runner_config = RunnerConfig::new(
+            args.test_name.clone(),
+            args.exact,
+            args.exit_first,
+            &protostar_config,
+        );
 
         run(
             &base_path,
