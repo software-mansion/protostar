@@ -76,7 +76,7 @@ async fn main() -> Result<()> {
         std::process::exit(1);
     });
     let network = get_network(&network_name)?;
-    let provider = get_provider(&cli.rpc_url)?;
+    let provider = get_provider(&cli.rpc_url, &network)?;
 
     match cli.command {
         Commands::Declare(declare) => {
