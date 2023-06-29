@@ -153,7 +153,7 @@ fn run_with_multiple_contracts() {
             Failure data:
                 original value: [8111420071579136082810415440747], converted to a string: [failing check]
 
-            Tests: 5 passed, 1 failed
+            Tests: 5 passed, 1 failed, 0 skipped
         "#});
 }
 
