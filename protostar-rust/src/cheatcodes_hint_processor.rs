@@ -164,40 +164,6 @@ fn execute_syscall(
     Ok(())
 }
 
-fn insert_at_pointer<T: Into<MaybeRelocatable>>(
-    vm: &mut VirtualMachine,
-    system_ptr: &mut Relocatable,
-    value: T,
-) -> Result<()> {
-    vm.insert_value(*system_ptr, value)?;
-    *system_ptr += 1;
-    Ok(())
-}
-
-fn usize_from_pointer(vm: &mut VirtualMachine, system_ptr: &mut Relocatable) -> Result<usize> {
-    let gas_counter = vm
-        .get_integer(*system_ptr)?
-        .to_usize()
-        .ok_or_else(|| anyhow!("Failed to convert to usize"))?;
-    *system_ptr += 1;
-    Ok(gas_counter)
-}
-
-fn relocatable_from_pointer(
-    vm: &mut VirtualMachine,
-    system_ptr: &mut Relocatable,
-) -> Result<Relocatable> {
-    let start = vm.get_relocatable(*system_ptr)?;
-    *system_ptr += 1;
-    Ok(start)
-}
-
-fn felt_from_pointer(vm: &mut VirtualMachine, system_ptr: &mut Relocatable) -> Result<Felt252> {
-    let entry_point_selector = vm.get_integer(*system_ptr)?.into_owned();
-    *system_ptr += 1;
-    Ok(entry_point_selector)
-}
-
 // This can mutate state, the name of the syscall is not very good
 fn call_contract(
     contract_address: &Felt252,
@@ -381,7 +347,7 @@ fn execute_cheatcode_hint(
             };
             let mut curr = as_relocatable(vm, prepared_constructor_calldata_start)?;
             let end = as_relocatable(vm, prepared_constructor_calldata_end)?;
-            let calldata = read_data_from_range(vm, curr, end)?;
+            let calldata = read_data_from_range(vm, curr, end).unwrap();
 
             // Deploy a contract using syscall deploy.
             let account_address = ContractAddress(patricia_key!(TEST_ACCOUNT_CONTRACT_ADDRESS));
@@ -452,20 +418,6 @@ fn execute_cheatcode_hint(
     }
 }
 
-fn read_data_from_range(
-    vm: &mut VirtualMachine,
-    mut curr: Relocatable,
-    end: Relocatable,
-) -> Result<Vec<Felt252>, HintError> {
-    let mut calldata: Vec<Felt252> = vec![];
-    while curr != end {
-        let value = vm.get_integer(curr)?;
-        calldata.push(value.into_owned());
-        curr.offset += 1;
-    }
-    Ok(calldata)
-}
-
 fn create_execute_calldata(
     calldata: &[Felt252],
     class_hash: &ClassHash,
@@ -488,4 +440,48 @@ fn create_execute_calldata(
         .collect();
     execute_calldata.append(&mut calldata);
     Calldata(execute_calldata.into())
+}
+
+fn read_data_from_range(
+    vm: &mut VirtualMachine,
+    mut start: Relocatable,
+    end: Relocatable,
+) -> Result<Vec<Felt252>> {
+    let mut calldata: Vec<Felt252> = vec![];
+    while start != end {
+        let value = felt_from_pointer(vm, &mut start)?;
+        calldata.push(value);
+    }
+    Ok(calldata)
+}
+
+fn insert_at_pointer<T: Into<MaybeRelocatable>>(
+    vm: &mut VirtualMachine,
+    ptr: &mut Relocatable,
+    value: T,
+) -> Result<()> {
+    vm.insert_value(*ptr, value)?;
+    *ptr += 1;
+    Ok(())
+}
+
+fn usize_from_pointer(vm: &mut VirtualMachine, ptr: &mut Relocatable) -> Result<usize> {
+    let gas_counter = vm
+        .get_integer(*ptr)?
+        .to_usize()
+        .ok_or_else(|| anyhow!("Failed to convert to usize"))?;
+    *ptr += 1;
+    Ok(gas_counter)
+}
+
+fn relocatable_from_pointer(vm: &mut VirtualMachine, ptr: &mut Relocatable) -> Result<Relocatable> {
+    let start = vm.get_relocatable(*ptr)?;
+    *ptr += 1;
+    Ok(start)
+}
+
+fn felt_from_pointer(vm: &mut VirtualMachine, ptr: &mut Relocatable) -> Result<Felt252> {
+    let entry_point_selector = vm.get_integer(*ptr)?.into_owned();
+    *ptr += 1;
+    Ok(entry_point_selector)
 }
