@@ -1,4 +1,5 @@
 use anyhow::{Context, Result};
+use cast::handle_rpc_error;
 use clap::Args;
 use starknet::core::types::{BlockId, FieldElement, FunctionCall};
 use starknet::core::utils::get_selector_from_name;
@@ -45,7 +46,10 @@ pub async fn call(
             })
             .collect::<Result<Vec<_>>>()?,
     };
-    let res = provider.call(function_call, block_id).await?;
+    let res = provider.call(function_call, block_id).await;
 
-    Ok(res)
+    match res {
+        Ok(res) => Ok(res),
+        Err(error) => handle_rpc_error(error),
+    }
 }
