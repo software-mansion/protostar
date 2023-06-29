@@ -6,6 +6,6 @@ version = "0.1.0"
 sierra = true
 
 [dependencies]
-starknet = ">=1.1.0"
+starknet = "2.0.0-rc2"
 
 [tool.protostar]

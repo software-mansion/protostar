@@ -1,9 +1,9 @@
-use crate::starknet_commands::{call::Call, declare::Declare, invoke::Invoke};
+use crate::starknet_commands::{call::Call, declare::Declare, deploy::Deploy, invoke::Invoke};
 use anyhow::Result;
 use camino::Utf8PathBuf;
+use cast::{get_account, get_block_id, get_network, get_provider, print_formatted};
 use clap::{Parser, Subcommand};
 use console::style;
-use cast::{get_account, get_block_id, get_provider, get_network};
 
 mod starknet_commands;
 
@@ -31,6 +31,10 @@ struct Cli {
     )]
     accounts_file_path: Utf8PathBuf,
 
+    /// If passed, values will be displayed as integers, otherwise as hexes
+    #[clap(short, long)]
+    int_format: bool,
+
     #[command(subcommand)]
     command: Commands,
 }
@@ -39,6 +43,9 @@ struct Cli {
 enum Commands {
     /// Declare a contract
     Declare(Declare),
+
+    /// Deploy a contract
+    Deploy(Deploy),
 
     /// Call a contract
     Call(Call),
@@ -53,7 +60,6 @@ async fn main() -> Result<()> {
 
     // todo: #2052 take network from scarb config if flag not provided
     let network_name = cli.network.unwrap_or_else(|| {
-        // todo: #2107
         eprintln!("{}", style("No --network flag passed!").red());
         std::process::exit(1);
     });
@@ -68,41 +74,69 @@ async fn main() -> Result<()> {
             let declared_contract = starknet_commands::declare::declare(
                 &declare.sierra_contract_path,
                 &declare.casm_contract_path,
+                declare.max_fee,
                 &mut account,
             )
             .await?;
-            // todo: #2107
-            eprintln!("Class hash: {}", declared_contract.class_hash);
-            eprintln!("Transaction hash: {}", declared_contract.transaction_hash);
+
+            print_formatted("Class hash: ", declared_contract.class_hash, cli.int_format);
+            print_formatted(
+                "Transaction hash: ",
+                declared_contract.transaction_hash,
+                cli.int_format,
+            );
             Ok(())
         }
-        Commands::Call(args) => {
-            let block_id = get_block_id(&args.block_id).unwrap();
+        Commands::Deploy(deploy) => {
+            let account = get_account(&cli.account, &cli.accounts_file_path, &provider, &network)?;
+
+            let (transaction_hash, contract_address) = starknet_commands::deploy::deploy(
+                &deploy.class_hash,
+                deploy
+                    .constructor_calldata
+                    .iter()
+                    .map(AsRef::as_ref)
+                    .collect(),
+                deploy.salt.as_deref(),
+                deploy.unique,
+                deploy.max_fee,
+                &account,
+            )
+            .await?;
+
+            print_formatted("Contract address: ", contract_address, cli.int_format);
+            print_formatted("Transaction hash: ", transaction_hash, cli.int_format);
+
+            Ok(())
+        }
+        Commands::Call(call) => {
+            let block_id = get_block_id(&call.block_id)?;
 
             let result = starknet_commands::call::call(
-                args.contract_address.as_ref(),
-                args.function_name.as_ref(),
-                args.calldata.as_ref(),
+                call.contract_address.as_ref(),
+                call.function_name.as_ref(),
+                call.calldata.as_ref(),
                 &provider,
                 block_id.as_ref(),
             )
             .await?;
 
-            // todo (#2107): Normalize outputs in CLI
-            eprintln!("Call response: {result:?}");
+            println!("Call response: {result:?}");
             Ok(())
         }
         Commands::Invoke(invoke) => {
             let mut account =
                 get_account(&cli.account, &cli.accounts_file_path, &provider, &network)?;
-            starknet_commands::invoke::invoke(
+            let transaction_hash = starknet_commands::invoke::invoke(
                 &invoke.contract_address,
                 &invoke.entry_point_name,
                 invoke.calldata.iter().map(AsRef::as_ref).collect(),
-                invoke.max_fee.as_deref(),
+                invoke.max_fee,
                 &mut account,
             )
             .await?;
+
+            print_formatted("Transaction hash: ", transaction_hash, cli.int_format);
             Ok(())
         }
     }

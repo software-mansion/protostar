@@ -6,7 +6,7 @@ use scarb_metadata::MetadataCommand;
 use std::path::PathBuf;
 use tempfile::{tempdir, TempDir};
 
-use rust_test_runner::run_test_runner;
+use rust_test_runner::run;
 use rust_test_runner::{pretty_printing, RunnerConfig};
 
 use std::process::Command;
@@ -20,6 +20,9 @@ struct Args {
     /// Use exact matches for `test_filter`
     #[arg(short, long)]
     exact: bool,
+
+    #[arg(short = 'x', long)]
+    exit_first: bool,
 }
 
 fn load_corelib() -> Result<TempDir> {
@@ -40,21 +43,25 @@ fn main_execution() -> Result<()> {
         .context("Failed to convert corelib path to Utf8PathBuf")?;
 
     let scarb_metadata = MetadataCommand::new().inherit_stderr().exec()?;
-
     let _ = Command::new("scarb")
         .current_dir(std::env::current_dir().expect("failed to obtain current dir"))
         .arg("build")
-        .output()?;
+        .output()
+        .expect("Failed to build contracts with Scarb");
 
     for package in &scarb_metadata.workspace.members {
         let protostar_config =
             rust_test_runner::protostar_config_for_package(&scarb_metadata, package)?;
         let (base_path, dependencies) =
             rust_test_runner::dependencies_for_package(&scarb_metadata, package)?;
-        let runner_config =
-            RunnerConfig::new(args.test_name.clone(), args.exact, &protostar_config);
+        let runner_config = RunnerConfig::new(
+            args.test_name.clone(),
+            args.exact,
+            args.exit_first,
+            &protostar_config,
+        );
 
-        run_test_runner(
+        run(
             &base_path,
             Some(dependencies.clone()),
             &runner_config,

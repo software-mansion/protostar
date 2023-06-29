@@ -1,4 +1,5 @@
 use anyhow::{Context, Result};
+use cast::handle_rpc_error;
 use clap::Args;
 use starknet::core::types::{BlockId, FieldElement, FunctionCall};
 use starknet::core::utils::get_selector_from_name;
@@ -20,7 +21,9 @@ pub struct Call {
     #[clap(short = 'c', long = "calldata", value_delimiter = ' ')]
     pub calldata: Vec<String>,
 
-    /// Block identifier on which call should be performed
+    /// Block identifier on which call should be performed.
+    /// Possible values: pending, latest, block hash (0x prefixed string)
+    /// and block number (u64)
     #[clap(short = 'b', long = "block-id", default_value = "pending")]
     pub block_id: String,
 }
@@ -44,7 +47,10 @@ pub async fn call(
             })
             .collect::<Result<Vec<_>>>()?,
     };
-    let res = provider.call(function_call, block_id).await?;
+    let res = provider.call(function_call, block_id).await;
 
-    Ok(res)
+    match res {
+        Ok(res) => Ok(res),
+        Err(error) => handle_rpc_error(error),
+    }
 }
