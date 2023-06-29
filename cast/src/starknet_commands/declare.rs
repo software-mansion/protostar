@@ -41,6 +41,7 @@ pub async fn declare(
         panic!("scarb build returned non-zero exit code: {}", result_code);
     }
 
+    // TODO #2141 improve handling starknet artifacts
     let current_dir = std::env::current_dir().expect("Failed to obtain current dir");
     let paths = std::fs::read_dir(format!("{}/target/dev", current_dir.to_str().unwrap()))
         .expect("Failed to read the file that should have been built with scarb");
