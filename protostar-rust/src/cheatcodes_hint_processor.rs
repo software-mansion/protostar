@@ -13,7 +13,6 @@ use blockifier::execution::contract_class::{
     ContractClass as BlockifierContractClass, ContractClassV1,
 };
 use blockifier::execution::entry_point::{CallEntryPoint, CallType};
-use blockifier::execution::syscalls::CallContractRequest;
 use blockifier::state::cached_state::CachedState;
 use blockifier::state::state_api::StateReader;
 use blockifier::test_utils::{invoke_tx, DictStateReader};
@@ -168,42 +167,38 @@ fn call_contract(
     calldata: &[Felt252],
     blockifier_state: &mut CachedState<DictStateReader>,
 ) -> Result<Vec<Felt252>> {
-    let request = CallContractRequest {
-        contract_address: ContractAddress(
-            PatriciaKey::try_from(StarkFelt::new(contract_address.to_be_bytes()).unwrap()).unwrap(),
-        ),
-        function_selector: EntryPointSelector(
-            StarkHash::new(entry_point_selector.to_be_bytes()).unwrap(),
-        ),
-        calldata: Calldata(Arc::new(
-            calldata
-                .iter()
-                .map(|data| StarkFelt::new(data.to_be_bytes()).unwrap())
-                .collect(),
-        )),
-    };
+    let contract_address = ContractAddress(PatriciaKey::try_from(StarkFelt::new(
+        contract_address.to_be_bytes(),
+    )?)?);
+    let entry_point_selector =
+        EntryPointSelector(StarkHash::new(entry_point_selector.to_be_bytes())?);
     let account_address = ContractAddress(patricia_key!(TEST_ACCOUNT_CONTRACT_ADDRESS));
+    let calldata = Calldata(Arc::new(
+        calldata
+            .iter()
+            .map(|data| StarkFelt::new(data.to_be_bytes()))
+            .collect::<Result<Vec<_>, _>>()?,
+    ));
     let entry_point = CallEntryPoint {
         class_hash: None,
-        code_address: Some(request.contract_address),
+        code_address: Some(contract_address),
         entry_point_type: EntryPointType::External,
-        entry_point_selector: request.function_selector,
-        calldata: request.calldata,
-        storage_address: request.contract_address,
+        entry_point_selector,
+        calldata,
+        storage_address: contract_address,
         caller_address: account_address,
         call_type: CallType::Call,
     };
     let call_info = entry_point.execute_directly(blockifier_state).unwrap();
 
     let raw_return_data = &call_info.execution.retdata.0;
-    assert!(!call_info.execution.failed,);
+    assert!(!call_info.execution.failed);
 
     let return_data = raw_return_data
         .iter()
         .map(|data| Ok(Felt252::from_bytes_be(data.bytes())))
         .collect();
 
-    // dbg!(&return_data);
     return_data
 }
 
@@ -315,8 +310,8 @@ fn execute_cheatcode_hint(
                 Felt252::from_str_radix(&class_hash.to_string().replace("0x", "")[..], 16).unwrap()
             )?;
             // TODO https://github.com/software-mansion/protostar/issues/2024
-            // in case of errors above, consider not panicking, set an error and return it here
-            // instead
+            //  in case of errors above, consider not panicking, set an error and return it here
+            //  instead
             insert_value_to_cellref!(vm, err_code, Felt252::from(0))?;
             Ok(())
         }
