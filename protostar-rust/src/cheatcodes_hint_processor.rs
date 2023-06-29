@@ -36,6 +36,7 @@ use cairo_vm::hint_processor::hint_processor_definition::HintProcessor;
 use cairo_vm::hint_processor::hint_processor_definition::HintReference;
 use cairo_vm::serde::deserialize_program::ApTracking;
 use cairo_vm::types::exec_scope::ExecutionScopes;
+use cairo_vm::types::relocatable::Relocatable;
 use cairo_vm::vm::errors::hint_errors::HintError;
 use cairo_vm::vm::errors::vm_errors::VirtualMachineError;
 use cairo_vm::vm::vm_core::VirtualMachine;
@@ -372,28 +373,20 @@ fn execute_cheatcode_hint(
             // TODO deploy should fail if contract address provided doesn't match calculated
             //  or not accept this address as argument at all.
             let class_hash = get_val(vm, prepared_class_hash)?;
-            dbg!(&class_hash);
-
             let as_relocatable = |vm, value| {
                 let (base, offset) = extract_buffer(value);
                 get_ptr(vm, base, &offset)
             };
             let mut curr = as_relocatable(vm, prepared_constructor_calldata_start)?;
             let end = as_relocatable(vm, prepared_constructor_calldata_end)?;
-            let mut calldata: Vec<Felt252> = vec![];
-            while curr != end {
-                let value = vm.get_integer(curr)?;
-                calldata.push(value.into_owned());
-                curr.offset += 1;
-            }
-            let class_hash_str = class_hash.to_str_radix(16);
-            let class_hash = ClassHash(StarkFelt::new(class_hash.to_be_bytes()).unwrap());
+            let calldata = read_data_from_range(vm, curr, end)?;
 
             // Deploy a contract using syscall deploy.
             let account_address = ContractAddress(patricia_key!(TEST_ACCOUNT_CONTRACT_ADDRESS));
             let block_context = &BlockContext::create_for_account_testing();
             let entry_point_selector = selector_from_name("deploy_contract");
             let salt = ContractAddressSalt::default();
+            let class_hash = ClassHash(StarkFelt::new(class_hash.to_be_bytes()).unwrap());
 
             let execute_calldata = create_execute_calldata(
                 &calldata,
@@ -404,9 +397,7 @@ fn execute_cheatcode_hint(
             );
 
             let nonce = blockifier_state
-                .get_nonce_at(ContractAddress(patricia_key!(
-                    TEST_ACCOUNT_CONTRACT_ADDRESS
-                )))
+                .get_nonce_at(account_address)
                 .expect("Failed to get nonce");
             let tx = invoke_tx(execute_calldata, account_address, Fee(MAX_FEE), None);
             let account_tx =
@@ -457,6 +448,20 @@ fn execute_cheatcode_hint(
             Ok(())
         }
     }
+}
+
+fn read_data_from_range(
+    vm: &mut VirtualMachine,
+    mut curr: Relocatable,
+    end: Relocatable,
+) -> Result<Vec<Felt252>, HintError> {
+    let mut calldata: Vec<Felt252> = vec![];
+    while curr != end {
+        let value = vm.get_integer(curr)?;
+        calldata.push(value.into_owned());
+        curr.offset += 1;
+    }
+    Ok(calldata)
 }
 
 fn create_execute_calldata(
