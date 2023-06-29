@@ -1,7 +1,7 @@
 use anyhow::{anyhow, Context, Result};
 use clap::Args;
 
-use cast::{handle_rpc_error, handle_wait_for_tx_result, wait_for_tx};
+use cast::{handle_rpc_error, handle_wait_for_tx_result};
 use starknet::accounts::AccountError::Provider;
 use starknet::accounts::{Account, Call, ConnectedAccount, SingleOwnerAccount};
 use starknet::core::types::FieldElement;

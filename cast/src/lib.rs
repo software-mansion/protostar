@@ -6,9 +6,9 @@ use starknet::core::types::{
     BlockTag::{Latest, Pending},
     FieldElement,
     MaybePendingTransactionReceipt::Receipt,
+    StarknetError,
     TransactionReceipt::{Declare, Deploy, DeployAccount, Invoke, L1Handler},
     TransactionStatus,
-    StarknetError,
 };
 use starknet::providers::jsonrpc::JsonRpcClientError;
 use starknet::providers::jsonrpc::JsonRpcClientError::RpcError;
@@ -19,8 +19,7 @@ use starknet::{
     core::chain_id,
     providers::{
         jsonrpc::{HttpTransport, JsonRpcClient},
-        Provider,
-        ProviderError,
+        Provider, ProviderError,
     },
     signers::{LocalWallet, SigningKey},
 };

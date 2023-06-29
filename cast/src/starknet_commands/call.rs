@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Context, Result};
+use anyhow::{Context, Result};
 use cast::handle_rpc_error;
 use clap::Args;
 use starknet::core::types::{BlockId, FieldElement, FunctionCall};
