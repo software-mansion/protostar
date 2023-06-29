@@ -223,7 +223,7 @@ pub async fn handle_wait_for_tx_result<T>(
 }
 
 pub fn print_formatted(
-    mut output: BTreeMap<&str, String>,
+    mut output: Vec<(&str, String)>,
     int_format: bool,
     json: bool,
 ) -> Result<()> {
@@ -241,7 +241,9 @@ pub fn print_formatted(
     }
 
     if json {
-        let json_value: Value = serde_json::to_value(output)?;
+        let json_output: HashMap<&str, String> = output.into_iter().collect();
+        let json_value: Value = serde_json::to_value(json_output)?;
+
         println!("{}", serde_json::to_string_pretty(&json_value)?);
     } else {
         for (key, value) in &output {
