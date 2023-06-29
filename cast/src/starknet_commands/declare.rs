@@ -32,28 +32,28 @@ pub async fn declare(
     account: &mut SingleOwnerAccount<&JsonRpcClient<HttpTransport>, LocalWallet>,
 ) -> Result<DeclareTransactionResult> {
     let command_result = Command::new("scarb")
-        .current_dir(std::env::current_dir().expect("Failed to obtain current dir"))
+        .current_dir(std::env::current_dir().context("Failed to obtain current dir")?)
         .arg("build")
         .output()
-        .expect("Failed to start building contracts with Scarb");
-    let result_code = command_result.status.code().expect("failed to obtain status code from scarb build");
+        .context("Failed to start building contracts with Scarb")?;
+    let result_code = command_result.status.code().context("failed to obtain status code from scarb build")?;
     if result_code != 0 {
         panic!("scarb build returned non-zero exit code: {}", result_code);
     }
 
     // TODO #2141 improve handling starknet artifacts
-    let current_dir = std::env::current_dir().expect("Failed to obtain current dir");
+    let current_dir = std::env::current_dir().context("Failed to obtain current dir")?;
     let paths = std::fs::read_dir(format!("{}/target/dev", current_dir.to_str().unwrap()))
-        .expect("Failed to read the file that should have been built with scarb");
+        .context("Failed to read the file that should have been built with scarb")?;
 
     let mut maybe_sierra_contract_path: Option<String> = None;
     let mut maybe_casm_contract_path: Option<String> = None;
     for path in paths {
         let path_str = path
-            .expect("Path not resolved properly")
+            .context("Path not resolved properly")?
             .path()
             .to_str()
-            .expect("Failed to convert path to string")
+            .context("Failed to convert path to string")?
             .to_string();
         if path_str.contains(&contract[..]) {
             if path_str.contains(".sierra.json") {
@@ -64,8 +64,8 @@ pub async fn declare(
         }
     }
 
-    let sierra_contract_path = maybe_sierra_contract_path.expect(&format!("No sierra found for contract: {}", contract)[..]);
-    let casm_contract_path = maybe_casm_contract_path.expect(&format!("No casm found for contract: {}", contract)[..]);
+    let sierra_contract_path = maybe_sierra_contract_path.context(&format!("No sierra found for contract: {}", contract)[..])?;
+    let casm_contract_path = maybe_casm_contract_path.context(&format!("No casm found for contract: {}", contract)[..])?;
 
     let contract_definition: SierraClass = {
         let file_contents = std::fs::read(sierra_contract_path.clone())
