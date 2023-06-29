@@ -1,5 +1,5 @@
 use crate::starknet_commands::{call::Call, declare::Declare, deploy::Deploy, invoke::Invoke};
-use anyhow::Result;
+use anyhow::{bail, Result};
 use camino::Utf8PathBuf;
 use cast::{get_account, get_block_id, get_network, get_provider, print_formatted};
 use clap::{Parser, Subcommand};
@@ -58,6 +58,9 @@ enum Commands {
 async fn main() -> Result<()> {
     let cli = Cli::parse();
 
+    if !Utf8PathBuf::from(shellexpand::tilde(&cli.accounts_file_path).to_string()).exists() {
+        bail! {"Accounts file {} does not exist! Make sure to supply correct path to accounts file.", cli.accounts_file_path}
+    }
     // todo: #2052 take network from scarb config if flag not provided
     let network_name = cli.network.unwrap_or_else(|| {
         eprintln!("{}", style("No --network flag passed!").red());
