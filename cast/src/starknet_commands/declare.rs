@@ -1,7 +1,8 @@
-use anyhow::{Context, Result};
+use anyhow::{anyhow, Context, Result};
 use camino::Utf8PathBuf;
-use cast::wait_for_tx;
+use cast::{handle_rpc_error, handle_wait_for_tx_result};
 use clap::Args;
+use starknet::accounts::AccountError::Provider;
 use starknet::accounts::ConnectedAccount;
 use starknet::core::types::FieldElement;
 use starknet::{
@@ -59,10 +60,13 @@ pub async fn declare(
     } else {
         declaration
     };
+    let declared = execution.send().await;
 
-    let declared = execution.send().await?;
-
-    wait_for_tx(account.provider(), declared.transaction_hash).await;
-
-    Ok(declared)
+    match declared {
+        Ok(result) => {
+            handle_wait_for_tx_result(account.provider(), result.transaction_hash, result).await
+        }
+        Err(Provider(error)) => handle_rpc_error(error),
+        _ => Err(anyhow!("Unknown RPC error")),
+    }
 }

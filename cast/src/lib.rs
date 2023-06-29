@@ -1,21 +1,25 @@
-use anyhow::{anyhow, Context, Result};
+use anyhow::{anyhow, Context, Error, Result};
 use camino::Utf8PathBuf;
-use console::style;
 use serde::{Deserialize, Serialize};
 use starknet::core::types::{
     BlockId,
     BlockTag::{Latest, Pending},
     FieldElement,
     MaybePendingTransactionReceipt::Receipt,
+    StarknetError,
     TransactionReceipt::{Declare, Deploy, DeployAccount, Invoke, L1Handler},
     TransactionStatus,
 };
+use starknet::providers::jsonrpc::JsonRpcClientError;
+use starknet::providers::jsonrpc::JsonRpcClientError::RpcError;
+use starknet::providers::jsonrpc::RpcError::{Code, Unknown};
+use starknet::providers::ProviderError::{Other, StarknetError as ProviderStarknetError};
 use starknet::{
     accounts::SingleOwnerAccount,
     core::chain_id,
     providers::{
         jsonrpc::{HttpTransport, JsonRpcClient},
-        Provider,
+        Provider, ProviderError,
     },
     signers::{LocalWallet, SigningKey},
 };
@@ -134,12 +138,15 @@ pub fn get_network(name: &str) -> Result<Network> {
 }
 
 // todo: #2142 add tests
-pub async fn wait_for_tx(provider: &JsonRpcClient<HttpTransport>, tx_hash: FieldElement) {
+pub async fn wait_for_tx(
+    provider: &JsonRpcClient<HttpTransport>,
+    tx_hash: FieldElement,
+) -> Result<&str> {
     'a: while {
         let receipt = provider
             .get_transaction_receipt(tx_hash)
             .await
-            .expect("Could not get transaction with hash: {tx_hash}");
+            .expect("Could not get transaction with hash: {tx_hash:#x}");
 
         let status = if let Receipt(receipt) = receipt {
             match receipt {
@@ -158,13 +165,70 @@ pub async fn wait_for_tx(provider: &JsonRpcClient<HttpTransport>, tx_hash: Field
                 sleep(Duration::from_secs(5));
                 true
             }
-            TransactionStatus::AcceptedOnL2 | TransactionStatus::AcceptedOnL1 => false,
+            TransactionStatus::AcceptedOnL2 | TransactionStatus::AcceptedOnL1 => {
+                return Ok("Transaction accepted")
+            }
             TransactionStatus::Rejected => {
-                println!("{}", style("Transaction has been rejected").red());
-                false
+                return Err(anyhow!("Transaction has been rejected"));
             }
         }
     } {}
+
+    Err(anyhow!("Unexpected error happened"))
+}
+
+#[must_use]
+pub fn get_rpc_error_message(error: StarknetError) -> &'static str {
+    match error {
+        StarknetError::FailedToReceiveTransaction => "Node failed to receive transaction",
+        StarknetError::ContractNotFound => "There is no contract at the specified address",
+        StarknetError::BlockNotFound => "Block was not found",
+        StarknetError::TransactionHashNotFound => {
+            "Transaction with provided hash was not found (does not exist)"
+        }
+        StarknetError::InvalidTransactionIndex => "There is no transaction with such an index",
+        StarknetError::ClassHashNotFound => "Provided class hash does not exist",
+        StarknetError::ContractError => "An error occurred in the called contract",
+        StarknetError::InvalidContractClass => "Contract class is invalid",
+        StarknetError::ClassAlreadyDeclared => {
+            "Contract with the same class hash is already declared"
+        }
+        _ => "Unknown RPC error",
+    }
+}
+
+pub fn handle_rpc_error<T, G>(
+    error: ProviderError<JsonRpcClientError<T>>,
+) -> std::result::Result<G, Error> {
+    match error {
+        Other(RpcError(Code(error))) | ProviderStarknetError(error) => {
+            Err(anyhow!(get_rpc_error_message(error)))
+        }
+        Other(RpcError(Unknown(error))) => Err(anyhow!(error.message)),
+        _ => Err(anyhow!("Unknown RPC error")),
+    }
+}
+
+pub async fn handle_wait_for_tx_result<T>(
+    provider: &JsonRpcClient<HttpTransport>,
+    transaction_hash: FieldElement,
+    return_value: T,
+) -> Result<T> {
+    match wait_for_tx(provider, transaction_hash).await {
+        Ok(_) => Ok(return_value),
+        Err(message) => Err(anyhow!(message)),
+    }
+}
+
+pub fn print_formatted(text: &str, value: FieldElement, int_format: bool) {
+    println!(
+        "{text}{}",
+        if int_format {
+            format!("{value}")
+        } else {
+            format!("{value:#x}")
+        }
+    );
 }
 
 #[cfg(test)]

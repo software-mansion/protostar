@@ -1,13 +1,15 @@
-use anyhow::{Context, Result};
+use anyhow::{anyhow, Context, Result};
 use clap::Args;
 use rand::rngs::OsRng;
 use rand::RngCore;
 
-use cast::{wait_for_tx, UDC_ADDRESS};
-use starknet::accounts::{ConnectedAccount, SingleOwnerAccount};
+use cast::{handle_rpc_error, handle_wait_for_tx_result, UDC_ADDRESS};
+use starknet::accounts::AccountError::Provider;
+use starknet::accounts::{Account, ConnectedAccount, SingleOwnerAccount};
 use starknet::contract::ContractFactory;
 use starknet::core::types::FieldElement;
-use starknet::core::utils::get_contract_address;
+use starknet::core::utils::UdcUniqueness::{NotUnique, Unique};
+use starknet::core::utils::{get_udc_deployed_address, UdcUniqueSettings};
 use starknet::providers::jsonrpc::HttpTransport;
 use starknet::providers::JsonRpcClient;
 use starknet::signers::LocalWallet;
@@ -65,16 +67,33 @@ pub async fn deploy(
         deployment
     };
 
-    let result = execution.send().await?;
+    let result = execution.send().await;
 
-    wait_for_tx(account.provider(), result.transaction_hash).await;
-
-    let address = get_contract_address(
-        salt,
-        class_hash,
-        &raw_constructor_calldata,
-        FieldElement::from_hex_be(UDC_ADDRESS)?,
-    );
-
-    Ok((result.transaction_hash, address))
+    match result {
+        Ok(result) => {
+            handle_wait_for_tx_result(
+                account.provider(),
+                result.transaction_hash,
+                (
+                    result.transaction_hash,
+                    get_udc_deployed_address(
+                        salt,
+                        class_hash,
+                        &if unique {
+                            Unique(UdcUniqueSettings {
+                                deployer_address: account.address(),
+                                udc_contract_address: FieldElement::from_hex_be(UDC_ADDRESS)?,
+                            })
+                        } else {
+                            NotUnique
+                        },
+                        &raw_constructor_calldata,
+                    ),
+                ),
+            )
+            .await
+        }
+        Err(Provider(error)) => handle_rpc_error(error),
+        _ => Err(anyhow!("Unknown RPC error")),
+    }
 }
