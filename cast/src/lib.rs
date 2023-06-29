@@ -25,7 +25,7 @@ use starknet::{
     },
     signers::{LocalWallet, SigningKey},
 };
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 use std::fs;
 use std::thread::sleep;
 use std::time::Duration;
@@ -223,7 +223,7 @@ pub async fn handle_wait_for_tx_result<T>(
 }
 
 pub fn print_formatted(
-    mut output: HashMap<&str, String>,
+    mut output: BTreeMap<&str, String>,
     int_format: bool,
     json: bool,
 ) -> Result<()> {
