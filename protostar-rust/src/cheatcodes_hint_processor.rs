@@ -41,9 +41,7 @@ use cairo_vm::vm::errors::vm_errors::VirtualMachineError;
 use cairo_vm::vm::vm_core::VirtualMachine;
 use num_traits::{Num, ToPrimitive};
 use serde::Deserialize;
-use starknet_api::core::{
-    calculate_contract_address, ClassHash, ContractAddress, EntryPointSelector, PatriciaKey,
-};
+use starknet_api::core::{ClassHash, ContractAddress, EntryPointSelector, PatriciaKey};
 use starknet_api::deprecated_contract_class::EntryPointType;
 use starknet_api::hash::{StarkFelt, StarkHash};
 use starknet_api::transaction::{
@@ -397,21 +395,13 @@ fn execute_cheatcode_hint(
             let entry_point_selector = selector_from_name("deploy_contract");
             let salt = ContractAddressSalt::default();
 
-            let calldata_len = u64::try_from(calldata.len()).unwrap();
-            let mut execute_calldata = vec![
-                *account_address.0.key(),      // Contract address.
-                entry_point_selector.0,        // EP selector.
-                stark_felt!(calldata_len + 3), // Calldata length.
-                class_hash.0,                  // Calldata: class_hash.
-                salt.0,                        // Contract_address_salt.
-                stark_felt!(calldata_len),     // Constructor calldata length.
-            ];
-            let mut calldata: Vec<StarkFelt> = calldata
-                .iter()
-                .map(|data| StarkFelt::new(data.to_be_bytes()).unwrap())
-                .collect();
-            execute_calldata.append(&mut calldata);
-            let execute_calldata = Calldata(execute_calldata.into());
+            let execute_calldata = create_execute_calldata(
+                &calldata,
+                &class_hash,
+                &account_address,
+                &entry_point_selector,
+                &salt,
+            );
 
             let nonce = blockifier_state
                 .get_nonce_at(ContractAddress(patricia_key!(
@@ -467,4 +457,28 @@ fn execute_cheatcode_hint(
             Ok(())
         }
     }
+}
+
+fn create_execute_calldata(
+    calldata: &[Felt252],
+    class_hash: &ClassHash,
+    account_address: &ContractAddress,
+    entry_point_selector: &EntryPointSelector,
+    salt: &ContractAddressSalt,
+) -> Calldata {
+    let calldata_len = u128::try_from(calldata.len()).unwrap();
+    let mut execute_calldata = vec![
+        *account_address.0.key(),      // Contract address.
+        entry_point_selector.0,        // EP selector.
+        stark_felt!(calldata_len + 3), // Calldata length.
+        class_hash.0,                  // Calldata: class_hash.
+        salt.0,                        // Contract_address_salt.
+        stark_felt!(calldata_len),     // Constructor calldata length.
+    ];
+    let mut calldata: Vec<StarkFelt> = calldata
+        .iter()
+        .map(|data| StarkFelt::new(data.to_be_bytes()).unwrap())
+        .collect();
+    execute_calldata.append(&mut calldata);
+    Calldata(execute_calldata.into())
 }
