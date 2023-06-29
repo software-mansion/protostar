@@ -4,6 +4,8 @@ use camino::Utf8PathBuf;
 use cast::{get_account, get_block_id, get_network, get_provider};
 use clap::{Parser, Subcommand};
 use console::style;
+use scarb_metadata;
+use std::env::current_dir;
 
 mod starknet_commands;
 
@@ -54,12 +56,36 @@ enum Commands {
 #[tokio::main]
 async fn main() -> Result<()> {
     let cli = Cli::parse();
-    // todo: #2052 take network from scarb config if flag not provided
-    let network_name = cli.network.unwrap_or_else(|| {
+    let mut maybe_network_name = None;
+    if let Some(network_name) = cli.network {
+        maybe_network_name = Some(network_name);
+    } else {
+        let metadata = scarb_metadata::MetadataCommand::new()
+            .inherit_stderr()
+            .current_dir(current_dir().expect("failed to read current directory"))
+            .no_deps()
+            .exec()
+            .unwrap();
+        if metadata.packages.len() != 1 {
+            anyhow::bail!("invalid number of packages obtained from scarb metadata");
+        }
+        let package = &metadata.packages[0];
+        if let Some(tool) = &package.manifest_metadata.tool {
+            if let Some(protostar_tool) = tool.get("protostar") {
+                if let Some(network) = protostar_tool.get("network") {
+                    if let Some(network_str) = network.as_str() {
+                        maybe_network_name = Some(network_str.to_string());
+                    }
+                }
+            }
+        }
+    }
+    if maybe_network_name.is_none() {
         // todo: #2107
         eprintln!("{}", style("No --network flag passed!").red());
         std::process::exit(1);
-    });
+    };
+    let network_name = maybe_network_name.expect("Could not find network neither in args nor in scarb config");
     let network = get_network(&network_name)?;
     let provider = get_provider(&cli.rpc_url)?;
 
