@@ -61,6 +61,7 @@ pub async fn declare(
     let contract_name: String = contract_name.to_string();
     let command_result = Command::new("scarb")
         .current_dir(std::env::current_dir().context("Failed to obtain current dir")?)
+        .arg("--release")
         .arg("build")
         .stdout(Stdio::piped())
         .stderr(Stdio::piped())
@@ -75,9 +76,9 @@ pub async fn declare(
     // TODO #2154 consider using `scarb manifest-path` instead of current_dir
     let current_dir = std::env::current_dir()
                 .context("Failed to get current directory")?
-                .join("target/dev");
+                .join("target/release");
     let mut paths = std::fs::read_dir(&current_dir)
-            .context("Failed to read ./target/dev, scarb build probably failed")?;
+            .context("Failed to read ./target/release, scarb build probably failed")?;
 
     let starknet_artifacts = &paths
         .find_map(|path| match path {
