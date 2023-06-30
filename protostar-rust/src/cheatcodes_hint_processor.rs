@@ -13,11 +13,13 @@ use blockifier::execution::contract_class::{
     ContractClass as BlockifierContractClass, ContractClassV1,
 };
 use blockifier::execution::entry_point::{CallEntryPoint, CallType};
+use blockifier::execution::errors::EntryPointExecutionError;
 use blockifier::state::cached_state::CachedState;
 use blockifier::state::state_api::StateReader;
 use blockifier::test_utils::{invoke_tx, DictStateReader};
 use blockifier::test_utils::{MAX_FEE, TEST_ACCOUNT_CONTRACT_ADDRESS};
 use blockifier::transaction::account_transaction::AccountTransaction;
+use blockifier::transaction::errors::TransactionExecutionError;
 use blockifier::transaction::transaction_utils_for_protostar::declare_tx_default;
 use blockifier::transaction::transactions::{DeclareTransaction, ExecutableTransaction};
 use cairo_felt::Felt252;
@@ -38,8 +40,6 @@ use cairo_vm::types::exec_scope::ExecutionScopes;
 use cairo_vm::types::relocatable::{MaybeRelocatable, Relocatable};
 use cairo_vm::vm::errors::hint_errors::HintError;
 use cairo_vm::vm::errors::vm_errors::VirtualMachineError;
-use cairo_vm::vm::vm_core::VirtualMachine;
-use num_traits::{Num, ToPrimitive};
 use cairo_vm::vm::vm_core::VirtualMachine;
 use num_traits::{Num, ToPrimitive};
 use regex::Regex;
@@ -386,20 +386,31 @@ fn execute_cheatcode_hint(
                     insert_value_to_cellref!(vm, panic_data_end, Felt252::from(0))?;
                 }
                 Result::Err(e) => {
-                    let msg = e.source().expect("No source error found").to_string();
-                    let unparseable_msg = format!("Deploy failed, full error message: {msg}");
-                    let unparseable_msg = unparseable_msg.as_str();
+                    if let TransactionExecutionError::ExecutionError(
+                        EntryPointExecutionError::VirtualMachineExecutionErrorWithTrace {
+                            source,
+                            trace,
+                        },
+                    ) = e
+                    {
+                        let msg = source.to_string();
+                        let unparseable_msg = format!("Deploy failed, full error message: {msg}");
+                        let unparseable_msg = unparseable_msg.as_str();
 
-                    let extracted_panic_data = try_extract_panic_data(&msg).expect(unparseable_msg);
-                    let mut ptr = vm.add_memory_segment();
-                    insert_value_to_cellref!(vm, panic_data_start, ptr)?;
+                        let extracted_panic_data =
+                            try_extract_panic_data(&msg).expect(unparseable_msg);
+                        let mut ptr = vm.add_memory_segment();
+                        insert_value_to_cellref!(vm, panic_data_start, ptr)?;
 
-                    for datum in extracted_panic_data {
-                        insert_at_pointer(vm, &mut ptr, datum);
+                        for datum in extracted_panic_data {
+                            insert_at_pointer(vm, &mut ptr, datum);
+                        }
+
+                        insert_value_to_cellref!(vm, deployed_contract_address, contract_address)?;
+                        insert_value_to_cellref!(vm, panic_data_end, ptr)?;
+                    } else {
+                        panic!("Unparseable error message: {e:?}")
                     }
-
-                    insert_value_to_cellref!(vm, deployed_contract_address, contract_address)?;
-                    insert_value_to_cellref!(vm, panic_data_end, ptr)?;
                 }
             }
             Ok(())
@@ -525,7 +536,6 @@ fn try_extract_panic_data(err: &str) -> Option<Vec<Felt252>> {
     }
     None
 }
-
 
 #[cfg(test)]
 mod test {
