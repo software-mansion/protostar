@@ -40,6 +40,7 @@ use cairo_vm::vm::errors::hint_errors::HintError;
 use cairo_vm::vm::errors::vm_errors::VirtualMachineError;
 use cairo_vm::vm::vm_core::VirtualMachine;
 use num_traits::{Num, ToPrimitive};
+use regex::Regex;
 use serde::Deserialize;
 use starknet_api::core::{ClassHash, ContractAddress, EntryPointSelector, PatriciaKey};
 use starknet_api::deprecated_contract_class::EntryPointType;
@@ -365,23 +366,40 @@ fn execute_cheatcode_hint(
                     nonce,
                     ..tx
                 }));
-            let tx_result = account_tx.execute(blockifier_state, block_context).unwrap();
-            let return_data = tx_result
-                .execute_call_info
-                .expect("Failed to get execution data from method")
-                .execution
-                .retdata;
-            let contract_address = return_data
-                .0
-                .get(0)
-                .expect("Failed to get contract_address from return_data");
-            let contract_address = Felt252::from_bytes_be(contract_address.bytes());
+            match account_tx.execute(blockifier_state, block_context) {
+                Result::Ok(tx_info) => {
+                    let return_data = tx_info
+                        .execute_call_info
+                        .expect("Failed to get execution data from method")
+                        .execution
+                        .retdata;
+                    let contract_address = return_data
+                        .0
+                        .get(0)
+                        .expect("Failed to get contract_address from return_data");
+                    let contract_address = Felt252::from_bytes_be(contract_address.bytes());
 
-            insert_value_to_cellref!(vm, deployed_contract_address, contract_address)?;
-            // todo in case of error, consider filling the panic data instead of packing in rust
-            insert_value_to_cellref!(vm, panic_data_start, Felt252::from(0))?;
-            insert_value_to_cellref!(vm, panic_data_end, Felt252::from(0))?;
+                    insert_value_to_cellref!(vm, deployed_contract_address, contract_address)?;
+                    insert_value_to_cellref!(vm, panic_data_start, Felt252::from(0))?;
+                    insert_value_to_cellref!(vm, panic_data_end, Felt252::from(0))?;
+                }
+                Result::Err(e) => {
+                    let msg = e.source().expect("No source error found").to_string();
+                    let unparseable_msg = format!("Deploy failed, full error message: {msg}");
+                    let unparseable_msg = unparseable_msg.as_str();
 
+                    let extracted_panic_data = try_extract_panic_data(&msg).expect(unparseable_msg);
+                    let mut ptr = vm.add_memory_segment();
+                    insert_value_to_cellref!(vm, panic_data_start, ptr)?;
+
+                    for datum in extracted_panic_data {
+                        insert_at_pointer(vm, &mut ptr, datum);
+                    }
+
+                    insert_value_to_cellref!(vm, deployed_contract_address, contract_address)?;
+                    insert_value_to_cellref!(vm, panic_data_end, ptr)?;
+                }
+            }
             Ok(())
         }
         &ProtostarHint::Prepare { .. } => todo!(),
@@ -455,6 +473,28 @@ fn insert_at_pointer<T: Into<MaybeRelocatable>>(
     vm.insert_value(*ptr, value)?;
     *ptr += 1;
     Ok(())
+}
+
+fn felt_from_short_string(short_str: &str) -> Felt252 {
+    return Felt252::from_bytes_be(short_str.as_bytes());
+}
+
+fn try_extract_panic_data(err: &str) -> Option<Vec<Felt252>> {
+    let re = Regex::new(r#"(?m)^Got an exception while executing a hint: Custom Hint Error: Execution failed. Failure reason: "(.*)"\.$"#)
+        .expect("Could not create panic_data matching regex");
+
+    if let Some(captures) = re.captures(err) {
+        if let Some(panic_data_match) = captures.get(1) {
+            let panic_data_felts: Vec<Felt252> = panic_data_match
+                .as_str()
+                .split(", ")
+                .map(felt_from_short_string)
+                .collect();
+
+            return Some(panic_data_felts);
+        }
+    }
+    None
 }
 
 fn usize_from_pointer(vm: &mut VirtualMachine, ptr: &mut Relocatable) -> Result<usize> {

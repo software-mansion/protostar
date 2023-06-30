@@ -3507,6 +3507,7 @@ dependencies = [
  "parity-scale-codec 3.6.1",
  "parity-scale-codec-derive 3.6.1",
  "project-root",
+ "regex",
  "scarb-metadata",
  "schemars",
  "serde",

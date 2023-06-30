@@ -15,7 +15,7 @@ cairo-lang-sierra = { path = "../cairo/crates/cairo-lang-sierra", version = "2.0
 cairo-lang-utils = { path = "../cairo/crates/cairo-lang-utils", version = "2.0.0-rc2" }
 cairo-lang-casm = { path = "../cairo/crates/cairo-lang-casm", version = "2.0.0-rc2" }
 cairo-lang-starknet = { path = "../cairo/crates/cairo-lang-starknet", version = "2.0.0-rc2" }
-blockifier = { git = "https://github.com/software-mansion-labs/blockifier.git", branch="kb/use-in-protostar" }
+blockifier = { git = "https://github.com/software-mansion-labs/blockifier.git", branch = "kb/use-in-protostar" }
 starknet_api = { git = "https://github.com/starkware-libs/starknet-api", rev = "24a7249" }
 schemars = { version = "0.8.12", features = ["preserve_order"] }
 parity-scale-codec = "3.5.0"
@@ -42,6 +42,7 @@ ark-std = "0.3.0"
 ark-secp256k1 = "0.4.0"
 ark-secp256r1 = "0.4.0"
 num-traits = "0.2"
+regex = "1.8.4"
 
 [lib]
 name = "rust_test_runner"
