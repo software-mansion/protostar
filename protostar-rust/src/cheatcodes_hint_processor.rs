@@ -307,7 +307,7 @@ fn execute_cheatcode_hint(
             insert_value_to_cellref!(
                 vm,
                 result,
-                Felt252::from_str_radix(&class_hash.to_string().replace("0x", "")[..], 16).unwrap()
+                felt252_from_hex_string(&class_hash.to_string()).unwrap()
             )?;
             // TODO https://github.com/software-mansion/protostar/issues/2024
             //  in case of errors above, consider not panicking, set an error and return it here
@@ -476,4 +476,39 @@ fn felt_from_pointer(vm: &mut VirtualMachine, ptr: &mut Relocatable) -> Result<F
     let entry_point_selector = vm.get_integer(*ptr)?.into_owned();
     *ptr += 1;
     Ok(entry_point_selector)
+}
+
+fn felt252_from_hex_string(value: &str) -> Result<Felt252> {
+    let stripped_value = value.replace("0x", "");
+    Felt252::from_str_radix(&stripped_value, 16)
+        .map_err(|_| anyhow!("Failed to convert value = {value} to Felt252"))
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use cairo_felt::Felt252;
+
+    #[test]
+    fn felt_2525_from_prefixed_hex() {
+        assert_eq!(
+            felt252_from_hex_string("0x1234").unwrap(),
+            Felt252::from(0x1234)
+        );
+    }
+
+    #[test]
+    fn felt_2525_from_non_prefixed_hex() {
+        assert_eq!(
+            felt252_from_hex_string("1234").unwrap(),
+            Felt252::from(0x1234)
+        );
+    }
+
+    #[test]
+    fn felt_252_err_on_failed_conversion() {
+        let result = felt252_from_hex_string("yyyy");
+        let err = result.unwrap_err();
+        assert_eq!(err.to_string(), "Failed to convert value = yyyy to Felt252");
+    }
 }
