@@ -4,10 +4,8 @@ use std::process::{Command, Stdio};
 use std::string::ToString;
 use std::time::{Duration, Instant};
 use url::Url;
+use crate::helpers::constants::{SEED, URL};
 
-pub const URL: &str = "http://127.0.0.1:5055/rpc";
-pub const NETWORK: &str = "testnet";
-const SEED: u32 = 1_053_545_548;
 
 #[cfg(test)]
 #[ctor]
@@ -46,6 +44,8 @@ fn start_devnet() {
             std::process::exit(1);
         }
     }
+
+    fn declare_
 }
 
 #[cfg(test)]
