@@ -72,6 +72,7 @@ pub async fn declare(
     }
 
     // TODO #2141 improve handling starknet artifacts
+    // TODO #2154 consider using `scarb manifest-path` instead of current_dir
     let current_dir = std::env::current_dir()
                 .context("Failed to get current directory")?
                 .join("target/dev");
