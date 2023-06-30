@@ -148,9 +148,22 @@ async fn main() -> Result<()> {
                 &provider,
                 block_id.as_ref(),
             )
-            .await?;
+            .await;
 
-            println!("Call response: {result:?}");
+            match result {
+                Ok(response) => print_formatted(
+                    vec![
+                        ("command", "Call".to_string()),
+                        ("response", format!("{response:?}")),
+                    ],
+                    cli.int_format,
+                    cli.json,
+                )?,
+                Err(error) => {
+                    print_formatted(vec![("error", error.to_string())], cli.int_format, cli.json)?;
+                }
+            }
+
             Ok(())
         }
         Commands::Invoke(invoke) => {
