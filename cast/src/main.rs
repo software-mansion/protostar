@@ -63,7 +63,8 @@ enum Commands {
 async fn main() -> Result<()> {
     let cli = Cli::parse();
 
-    let accounts_file_path = Utf8PathBuf::from(shellexpand::tilde(&cli.accounts_file_path).to_string());
+    let accounts_file_path =
+        Utf8PathBuf::from(shellexpand::tilde(&cli.accounts_file_path).to_string());
     if !&accounts_file_path.exists() {
         bail! {"Accounts file {} does not exist! Make sure to supply correct path to accounts file.", cli.accounts_file_path}
     }
@@ -77,8 +78,7 @@ async fn main() -> Result<()> {
 
     match cli.command {
         Commands::Declare(declare) => {
-            let mut account =
-                get_account(&cli.account, &accounts_file_path, &provider, &network)?;
+            let mut account = get_account(&cli.account, &accounts_file_path, &provider, &network)?;
 
             let result = starknet_commands::declare::declare(
                 &declare.sierra_contract_path,
@@ -189,8 +189,7 @@ async fn main() -> Result<()> {
             Ok(())
         }
         Commands::Invoke(invoke) => {
-            let mut account =
-                get_account(&cli.account, &accounts_file_path, &provider, &network)?;
+            let mut account = get_account(&cli.account, &accounts_file_path, &provider, &network)?;
             let result = starknet_commands::invoke::invoke(
                 &invoke.contract_address,
                 &invoke.entry_point_name,

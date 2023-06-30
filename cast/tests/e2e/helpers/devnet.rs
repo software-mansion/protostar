@@ -1,11 +1,10 @@
+use crate::helpers::constants::{SEED, URL};
 use ctor::{ctor, dtor};
 use std::net::TcpStream;
 use std::process::{Command, Stdio};
 use std::string::ToString;
 use std::time::{Duration, Instant};
 use url::Url;
-use crate::helpers::constants::{SEED, URL};
-
 
 #[cfg(test)]
 #[ctor]
@@ -44,8 +43,6 @@ fn start_devnet() {
             std::process::exit(1);
         }
     }
-
-    fn declare_
 }
 
 #[cfg(test)]

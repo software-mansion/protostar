@@ -1,29 +1,102 @@
-use indoc::indoc;
-use crate::helpers::constants::{ACCOUNT, ACCOUNT_FILE_PATH, NETWORK, URL};
+use crate::helpers::fixtures::{
+    common_cli_args, declare_simple_balance_contract, deploy_simple_balance_contract,
+};
 use crate::helpers::runner::runner;
-
+use indoc::indoc;
 
 #[test]
 fn test_happy_case() {
-    let args = vec![
-        "--url",
-        URL,
-        "--network",
-        NETWORK,
-        "--accounts-file",
-        ACCOUNT_FILE_PATH,
-        "--account",
-        ACCOUNT,
+    declare_simple_balance_contract();
+    deploy_simple_balance_contract();
+
+    let mut args = common_cli_args();
+    args.append(&mut vec![
+        "--int-format",
+        "--json",
         "invoke",
         "--contract-address",
-        "some address",
+        "0x2bd89651521ec94a7c497c53f6b4555eeecef8b2221350dc5a04aa14ba41d68",
         "--entry-point-name",
-        "some function",
+        "increase_balance",
         "--calldata",
-        "1 2 3 4",
-    ];
+        "0x1ab93",
+        "--max-fee",
+        "999999999999",
+    ]);
 
     let snapbox = runner(&args);
 
-    snapbox.assert().success().stderr_matches(indoc! {r#"abc"#});
+    snapbox.assert().success().stdout_eq(indoc! {r#"
+{
+  "command": "Invoke",
+  "transaction_hash": "441760207739321214581433241542253705558196427645618141494280065272904928835"
+}
+"#});
+}
+
+#[test]
+fn test_contract_does_not_exist() {
+    declare_simple_balance_contract();
+    deploy_simple_balance_contract();
+
+    let mut args = common_cli_args();
+    args.append(&mut vec![
+        "invoke",
+        "--contract-address",
+        "0x1",
+        "--entry-point-name",
+        "increase_balance",
+    ]);
+
+    let snapbox = runner(&args);
+
+    snapbox.assert().success().stderr_matches(indoc! {r#"
+        error: There is no contract at the specified address
+    "#});
+}
+
+#[test]
+fn test_wrong_function_name() {
+    declare_simple_balance_contract();
+    deploy_simple_balance_contract();
+
+    let mut args = common_cli_args();
+    args.append(&mut vec![
+        "invoke",
+        "--contract-address",
+        "0x2bd89651521ec94a7c497c53f6b4555eeecef8b2221350dc5a04aa14ba41d68",
+        "--entry-point-name",
+        "balance",
+    ]);
+
+    let snapbox = runner(&args);
+
+    snapbox.assert().success().stderr_matches(indoc! {r#"
+        error: An error occurred in the called contract
+    "#});
+}
+
+#[test]
+fn test_too_low_max_fee() {
+    declare_simple_balance_contract();
+    deploy_simple_balance_contract();
+
+    let mut args = common_cli_args();
+    args.append(&mut vec![
+        "invoke",
+        "--contract-address",
+        "0x2bd89651521ec94a7c497c53f6b4555eeecef8b2221350dc5a04aa14ba41d68",
+        "--entry-point-name",
+        "increase_balance",
+        "--calldata",
+        "0x1ab93",
+        "--max-fee",
+        "1",
+    ]);
+
+    let snapbox = runner(&args);
+
+    snapbox.assert().success().stderr_matches(indoc! {r#"
+        error: Transaction has been rejected
+    "#});
 }
