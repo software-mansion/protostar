@@ -99,9 +99,15 @@ async fn main() -> Result<()> {
                     ],
                     cli.int_format,
                     cli.json,
+                    false,
                 )?,
                 Err(error) => {
-                    print_formatted(vec![("error", error.to_string())], cli.int_format, cli.json)?;
+                    print_formatted(
+                        vec![("error", error.to_string())],
+                        cli.int_format,
+                        cli.json,
+                        true,
+                    )?;
                 }
             }
 
@@ -133,9 +139,15 @@ async fn main() -> Result<()> {
                     ],
                     cli.int_format,
                     cli.json,
+                    false,
                 )?,
                 Err(error) => {
-                    print_formatted(vec![("error", error.to_string())], cli.int_format, cli.json)?;
+                    print_formatted(
+                        vec![("error", error.to_string())],
+                        cli.int_format,
+                        cli.json,
+                        true,
+                    )?;
                 }
             }
 
@@ -161,9 +173,15 @@ async fn main() -> Result<()> {
                     ],
                     cli.int_format,
                     cli.json,
+                    false,
                 )?,
                 Err(error) => {
-                    print_formatted(vec![("error", error.to_string())], cli.int_format, cli.json)?;
+                    print_formatted(
+                        vec![("error", error.to_string())],
+                        cli.int_format,
+                        cli.json,
+                        true,
+                    )?;
                 }
             }
 
@@ -189,9 +207,15 @@ async fn main() -> Result<()> {
                     ],
                     cli.int_format,
                     cli.json,
+                    false,
                 )?,
                 Err(error) => {
-                    print_formatted(vec![("error", error.to_string())], cli.int_format, cli.json)?;
+                    print_formatted(
+                        vec![("error", error.to_string())],
+                        cli.int_format,
+                        cli.json,
+                        true,
+                    )?;
                 }
             }
 

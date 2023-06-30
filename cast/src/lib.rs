@@ -226,6 +226,7 @@ pub fn print_formatted(
     mut output: Vec<(&str, String)>,
     int_format: bool,
     json: bool,
+    error: bool,
 ) -> Result<()> {
     if !int_format {
         output = output
@@ -244,14 +245,22 @@ pub fn print_formatted(
         let json_output: HashMap<&str, String> = output.into_iter().collect();
         let json_value: Value = serde_json::to_value(json_output)?;
 
-        println!("{}", serde_json::to_string_pretty(&json_value)?);
+        write_to_output(serde_json::to_string_pretty(&json_value)?, error);
     } else {
         for (key, value) in &output {
-            println!("{key}: {value}");
+            write_to_output(format!("{key}: {value}"), error);
         }
     }
 
     Ok(())
+}
+
+fn write_to_output<T: std::fmt::Display>(value: T, error: bool) {
+    if error {
+        eprintln!("{value}");
+    } else {
+        println!("{value}");
+    }
 }
 
 #[cfg(test)]
