@@ -281,6 +281,28 @@ fn exit_first_flag() {
 }
 
 #[test]
+fn dispatchers() {
+    let temp = assert_fs::TempDir::new().unwrap();
+    temp.copy_from("tests/data/dispatchers", &["**/*"]).unwrap();
+
+    let snapbox = runner();
+
+    snapbox
+        .current_dir(&temp)
+        .assert()
+        .success()
+        .stdout_matches(indoc! {r#"Collected 2 test(s) and 4 test file(s)
+            Running 0 test(s) from src/erc20.cairo
+            Running 0 test(s) from src/hello_starknet.cairo
+            Running 0 test(s) from src/lib.cairo
+            Running 2 test(s) from tests/using_dispatchers.cairo
+            [PASS] using_dispatchers::using_dispatchers::call_and_invoke
+            [PASS] using_dispatchers::using_dispatchers::advanced_types
+            Tests: 2 passed, 0 failed, 0 skipped
+        "#});
+}
+
+#[test]
 fn test_deploy_error_handling() {
     let temp = assert_fs::TempDir::new().unwrap();
     temp.copy_from("tests/data/deploy_error_handling_test", &["**/*"])

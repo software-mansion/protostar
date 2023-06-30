@@ -40,6 +40,8 @@ use cairo_vm::vm::errors::hint_errors::HintError;
 use cairo_vm::vm::errors::vm_errors::VirtualMachineError;
 use cairo_vm::vm::vm_core::VirtualMachine;
 use num_traits::{Num, ToPrimitive};
+use cairo_vm::vm::vm_core::VirtualMachine;
+use num_traits::{Num, ToPrimitive};
 use regex::Regex;
 use serde::Deserialize;
 use starknet_api::core::{ClassHash, ContractAddress, EntryPointSelector, PatriciaKey};
@@ -197,10 +199,10 @@ fn call_contract(
 
     let return_data = raw_return_data
         .iter()
-        .map(|data| Ok(Felt252::from_bytes_be(data.bytes())))
+        .map(|data| Felt252::from_bytes_be(data.bytes()))
         .collect();
 
-    return_data
+    Ok(return_data)
 }
 
 #[allow(unused, clippy::too_many_lines)]
@@ -308,7 +310,7 @@ fn execute_cheatcode_hint(
             insert_value_to_cellref!(
                 vm,
                 result,
-                Felt252::from_str_radix(&class_hash.to_string().replace("0x", "")[..], 16).unwrap()
+                felt252_from_hex_string(&class_hash.to_string()).unwrap()
             )?;
             // TODO https://github.com/software-mansion/protostar/issues/2024
             //  in case of errors above, consider not panicking, set an error and return it here
@@ -475,6 +477,33 @@ fn insert_at_pointer<T: Into<MaybeRelocatable>>(
     Ok(())
 }
 
+fn usize_from_pointer(vm: &mut VirtualMachine, ptr: &mut Relocatable) -> Result<usize> {
+    let gas_counter = vm
+        .get_integer(*ptr)?
+        .to_usize()
+        .ok_or_else(|| anyhow!("Failed to convert to usize"))?;
+    *ptr += 1;
+    Ok(gas_counter)
+}
+
+fn relocatable_from_pointer(vm: &mut VirtualMachine, ptr: &mut Relocatable) -> Result<Relocatable> {
+    let start = vm.get_relocatable(*ptr)?;
+    *ptr += 1;
+    Ok(start)
+}
+
+fn felt_from_pointer(vm: &mut VirtualMachine, ptr: &mut Relocatable) -> Result<Felt252> {
+    let entry_point_selector = vm.get_integer(*ptr)?.into_owned();
+    *ptr += 1;
+    Ok(entry_point_selector)
+}
+
+fn felt252_from_hex_string(value: &str) -> Result<Felt252> {
+    let stripped_value = value.replace("0x", "");
+    Felt252::from_str_radix(&stripped_value, 16)
+        .map_err(|_| anyhow!("Failed to convert value = {value} to Felt252"))
+}
+
 fn felt_from_short_string(short_str: &str) -> Felt252 {
     return Felt252::from_bytes_be(short_str.as_bytes());
 }
@@ -497,23 +526,78 @@ fn try_extract_panic_data(err: &str) -> Option<Vec<Felt252>> {
     None
 }
 
-fn usize_from_pointer(vm: &mut VirtualMachine, ptr: &mut Relocatable) -> Result<usize> {
-    let gas_counter = vm
-        .get_integer(*ptr)?
-        .to_usize()
-        .ok_or_else(|| anyhow!("Failed to convert to usize"))?;
-    *ptr += 1;
-    Ok(gas_counter)
-}
 
-fn relocatable_from_pointer(vm: &mut VirtualMachine, ptr: &mut Relocatable) -> Result<Relocatable> {
-    let start = vm.get_relocatable(*ptr)?;
-    *ptr += 1;
-    Ok(start)
-}
+#[cfg(test)]
+mod test {
+    use super::*;
+    use cairo_felt::Felt252;
 
-fn felt_from_pointer(vm: &mut VirtualMachine, ptr: &mut Relocatable) -> Result<Felt252> {
-    let entry_point_selector = vm.get_integer(*ptr)?.into_owned();
-    *ptr += 1;
-    Ok(entry_point_selector)
+    #[test]
+    fn felt_2525_from_prefixed_hex() {
+        assert_eq!(
+            felt252_from_hex_string("0x1234").unwrap(),
+            Felt252::from(0x1234)
+        );
+    }
+
+    #[test]
+    fn felt_2525_from_non_prefixed_hex() {
+        assert_eq!(
+            felt252_from_hex_string("1234").unwrap(),
+            Felt252::from(0x1234)
+        );
+    }
+
+    #[test]
+    fn felt_252_err_on_failed_conversion() {
+        let result = felt252_from_hex_string("yyyy");
+        let err = result.unwrap_err();
+        assert_eq!(err.to_string(), "Failed to convert value = yyyy to Felt252");
+    }
+
+    #[test]
+    fn execute_calldata() {
+        let calldata = create_execute_calldata(
+            &[Felt252::from(100), Felt252::from(200)],
+            &ClassHash(StarkFelt::from(123_u32)),
+            &ContractAddress::try_from(StarkFelt::from(111_u32)).unwrap(),
+            &EntryPointSelector(StarkFelt::from(222_u32)),
+            &ContractAddressSalt(StarkFelt::from(333_u32)),
+        );
+        assert_eq!(
+            calldata,
+            Calldata(Arc::new(vec![
+                StarkFelt::from(111_u32),
+                StarkFelt::from(222_u32),
+                StarkFelt::from(5_u32),
+                StarkFelt::from(123_u32),
+                StarkFelt::from(333_u32),
+                StarkFelt::from(2_u32),
+                StarkFelt::from(100_u32),
+                StarkFelt::from(200_u32),
+            ]))
+        );
+    }
+
+    #[test]
+    fn execute_calldata_no_entrypoint_calldata() {
+        let calldata = create_execute_calldata(
+            &[],
+            &ClassHash(StarkFelt::from(123_u32)),
+            &ContractAddress::try_from(StarkFelt::from(111_u32)).unwrap(),
+            &EntryPointSelector(StarkFelt::from(222_u32)),
+            &ContractAddressSalt(StarkFelt::from(333_u32)),
+        );
+        assert_eq!(
+            calldata,
+            Calldata(Arc::new(vec![
+                StarkFelt::from(111_u32),
+                StarkFelt::from(222_u32),
+                StarkFelt::from(3_u32),
+                StarkFelt::from(123_u32),
+                StarkFelt::from(333_u32),
+                StarkFelt::from(0_u32),
+            ]))
+        );
+    }
 }

@@ -50,7 +50,7 @@ fn advanced_types() {
     let balance = dispatcher.balance_of(user_address);
     assert(balance == 1111_u256, 'balance == 1111');
 
-    // TODO: Change that when we support mocking addresses, so we can actually call transfer
+    // TODO(#1986): Change that when we support mocking addresses, so we can actually call transfer
     // dispatcher.transfer(other_user_address, 1000_u256);
 
     // let balance = dispatcher.balance_of(user_address);
