@@ -25,7 +25,7 @@ use starknet::{
     },
     signers::{LocalWallet, SigningKey},
 };
-use std::collections::{BTreeMap, HashMap};
+use std::collections::HashMap;
 use std::fs;
 use std::thread::sleep;
 use std::time::Duration;
