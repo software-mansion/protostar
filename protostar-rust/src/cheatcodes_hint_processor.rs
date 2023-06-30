@@ -511,4 +511,50 @@ mod test {
         let err = result.unwrap_err();
         assert_eq!(err.to_string(), "Failed to convert value = yyyy to Felt252");
     }
+
+    #[test]
+    fn execute_calldata() {
+        let calldata = create_execute_calldata(
+            &[Felt252::from(100), Felt252::from(200)],
+            &ClassHash(StarkFelt::from(123_u32)),
+            &ContractAddress::try_from(StarkFelt::from(111_u32)).unwrap(),
+            &EntryPointSelector(StarkFelt::from(222_u32)),
+            &ContractAddressSalt(StarkFelt::from(333_u32)),
+        );
+        assert_eq!(
+            calldata,
+            Calldata(Arc::new(vec![
+                StarkFelt::from(111_u32),
+                StarkFelt::from(222_u32),
+                StarkFelt::from(5_u32),
+                StarkFelt::from(123_u32),
+                StarkFelt::from(333_u32),
+                StarkFelt::from(2_u32),
+                StarkFelt::from(100_u32),
+                StarkFelt::from(200_u32),
+            ]))
+        );
+    }
+
+    #[test]
+    fn execute_calldata_no_entrypoint_calldata() {
+        let calldata = create_execute_calldata(
+            &[],
+            &ClassHash(StarkFelt::from(123_u32)),
+            &ContractAddress::try_from(StarkFelt::from(111_u32)).unwrap(),
+            &EntryPointSelector(StarkFelt::from(222_u32)),
+            &ContractAddressSalt(StarkFelt::from(333_u32)),
+        );
+        assert_eq!(
+            calldata,
+            Calldata(Arc::new(vec![
+                StarkFelt::from(111_u32),
+                StarkFelt::from(222_u32),
+                StarkFelt::from(3_u32),
+                StarkFelt::from(123_u32),
+                StarkFelt::from(333_u32),
+                StarkFelt::from(0_u32),
+            ]))
+        );
+    }
 }
