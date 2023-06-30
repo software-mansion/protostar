@@ -196,10 +196,10 @@ fn call_contract(
 
     let return_data = raw_return_data
         .iter()
-        .map(|data| Ok(Felt252::from_bytes_be(data.bytes())))
+        .map(|data| Felt252::from_bytes_be(data.bytes()))
         .collect();
 
-    return_data
+    Ok(return_data)
 }
 
 #[allow(unused, clippy::too_many_lines)]
