@@ -35,6 +35,10 @@ struct Cli {
     #[clap(short, long)]
     int_format: bool,
 
+    /// If passed, output will be displayed in json format
+    #[clap(short, long)]
+    json: bool,
+
     #[command(subcommand)]
     command: Commands,
 }
@@ -55,6 +59,7 @@ enum Commands {
 }
 
 #[tokio::main]
+#[allow(clippy::too_many_lines)]
 async fn main() -> Result<()> {
     let cli = Cli::parse();
 
@@ -74,26 +79,44 @@ async fn main() -> Result<()> {
             let mut account =
                 get_account(&cli.account, &cli.accounts_file_path, &provider, &network)?;
 
-            let declared_contract = starknet_commands::declare::declare(
+            let result = starknet_commands::declare::declare(
                 &declare.sierra_contract_path,
                 &declare.casm_contract_path,
                 declare.max_fee,
                 &mut account,
             )
-            .await?;
+            .await;
 
-            print_formatted("Class hash: ", declared_contract.class_hash, cli.int_format);
-            print_formatted(
-                "Transaction hash: ",
-                declared_contract.transaction_hash,
-                cli.int_format,
-            );
+            match result {
+                Ok(declared_contract) => print_formatted(
+                    vec![
+                        ("command", "Declare".to_string()),
+                        ("class_hash", format!("{}", declared_contract.class_hash)),
+                        (
+                            "transaction_hash",
+                            format!("{}", declared_contract.transaction_hash),
+                        ),
+                    ],
+                    cli.int_format,
+                    cli.json,
+                    false,
+                )?,
+                Err(error) => {
+                    print_formatted(
+                        vec![("error", error.to_string())],
+                        cli.int_format,
+                        cli.json,
+                        true,
+                    )?;
+                }
+            }
+
             Ok(())
         }
         Commands::Deploy(deploy) => {
             let account = get_account(&cli.account, &cli.accounts_file_path, &provider, &network)?;
 
-            let (transaction_hash, contract_address) = starknet_commands::deploy::deploy(
+            let result = starknet_commands::deploy::deploy(
                 &deploy.class_hash,
                 deploy
                     .constructor_calldata
@@ -105,10 +128,28 @@ async fn main() -> Result<()> {
                 deploy.max_fee,
                 &account,
             )
-            .await?;
+            .await;
 
-            print_formatted("Contract address: ", contract_address, cli.int_format);
-            print_formatted("Transaction hash: ", transaction_hash, cli.int_format);
+            match result {
+                Ok((transaction_hash, contract_address)) => print_formatted(
+                    vec![
+                        ("command", "Deploy".to_string()),
+                        ("contract_address", format!("{contract_address}")),
+                        ("transaction_hash", format!("{transaction_hash}")),
+                    ],
+                    cli.int_format,
+                    cli.json,
+                    false,
+                )?,
+                Err(error) => {
+                    print_formatted(
+                        vec![("error", error.to_string())],
+                        cli.int_format,
+                        cli.json,
+                        true,
+                    )?;
+                }
+            }
 
             Ok(())
         }
@@ -122,24 +163,62 @@ async fn main() -> Result<()> {
                 &provider,
                 block_id.as_ref(),
             )
-            .await?;
+            .await;
 
-            println!("Call response: {result:?}");
+            match result {
+                Ok(response) => print_formatted(
+                    vec![
+                        ("command", "Call".to_string()),
+                        ("response", format!("{response:?}")),
+                    ],
+                    cli.int_format,
+                    cli.json,
+                    false,
+                )?,
+                Err(error) => {
+                    print_formatted(
+                        vec![("error", error.to_string())],
+                        cli.int_format,
+                        cli.json,
+                        true,
+                    )?;
+                }
+            }
+
             Ok(())
         }
         Commands::Invoke(invoke) => {
             let mut account =
                 get_account(&cli.account, &cli.accounts_file_path, &provider, &network)?;
-            let transaction_hash = starknet_commands::invoke::invoke(
+            let result = starknet_commands::invoke::invoke(
                 &invoke.contract_address,
                 &invoke.entry_point_name,
                 invoke.calldata.iter().map(AsRef::as_ref).collect(),
                 invoke.max_fee,
                 &mut account,
             )
-            .await?;
+            .await;
 
-            print_formatted("Transaction hash: ", transaction_hash, cli.int_format);
+            match result {
+                Ok(transaction_hash) => print_formatted(
+                    vec![
+                        ("command", "Invoke".to_string()),
+                        ("transaction_hash", format!("{transaction_hash}")),
+                    ],
+                    cli.int_format,
+                    cli.json,
+                    false,
+                )?,
+                Err(error) => {
+                    print_formatted(
+                        vec![("error", error.to_string())],
+                        cli.int_format,
+                        cli.json,
+                        true,
+                    )?;
+                }
+            }
+
             Ok(())
         }
     }
