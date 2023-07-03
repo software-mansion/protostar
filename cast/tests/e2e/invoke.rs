@@ -89,9 +89,7 @@ fn test_wrong_calldata() {
         "--entry-point-name",
         "increase_balance",
         "--calldata",
-        "0x1ab93",
-        "--calldata",
-        "0x1",
+        "0x1ab93 0x1",
     ]);
 
     let snapbox = runner(&args);
