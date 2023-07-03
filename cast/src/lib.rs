@@ -263,6 +263,15 @@ fn write_to_output<T: std::fmt::Display>(value: T, error: bool) {
     }
 }
 
+pub fn parse_number(number_as_str: &str) -> Result<FieldElement> {
+  let contract_address = match &number_as_str[..2] {
+      "0x" => FieldElement::from_hex_be(number_as_str)?,
+      _ => FieldElement::from_dec_str(number_as_str)?,
+  };
+  Ok(contract_address)
+}
+
+
 #[cfg(test)]
 mod tests {
     use crate::{get_account, get_block_id, get_network, get_provider, Network};

@@ -10,7 +10,7 @@ use starknet::providers::jsonrpc::HttpTransport;
 use starknet::providers::JsonRpcClient;
 use starknet::signers::LocalWallet;
 
-use crate::starknet_commands::helpers::parse_number;
+use cast::parse_number;
 
 #[derive(Args)]
 #[command(about = "Invoke a contract on Starknet")]

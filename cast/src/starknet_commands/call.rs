@@ -6,7 +6,7 @@ use starknet::core::utils::get_selector_from_name;
 use starknet::providers::jsonrpc::HttpTransport;
 use starknet::providers::{JsonRpcClient, Provider};
 
-use crate::starknet_commands::helpers::parse_number;
+use cast::parse_number;
 
 #[derive(Args)]
 #[command(about = "Call a contract instance on Starknet", long_about = None)]
