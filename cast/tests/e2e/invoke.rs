@@ -4,10 +4,10 @@ use crate::helpers::fixtures::{
 use crate::helpers::runner::runner;
 use indoc::indoc;
 
-#[test]
-fn test_happy_case() {
-    declare_simple_balance_contract();
-    deploy_simple_balance_contract();
+#[tokio::test]
+async fn test_happy_case() {
+    declare_simple_balance_contract().await;
+    deploy_simple_balance_contract().await;
 
     let mut args = common_cli_args();
     args.append(&mut vec![
@@ -34,10 +34,10 @@ fn test_happy_case() {
 "#});
 }
 
-#[test]
-fn test_contract_does_not_exist() {
-    declare_simple_balance_contract();
-    deploy_simple_balance_contract();
+#[tokio::test]
+async fn test_contract_does_not_exist() {
+    declare_simple_balance_contract().await;
+    deploy_simple_balance_contract().await;
 
     let mut args = common_cli_args();
     args.append(&mut vec![
@@ -55,10 +55,10 @@ fn test_contract_does_not_exist() {
     "#});
 }
 
-#[test]
-fn test_wrong_function_name() {
-    declare_simple_balance_contract();
-    deploy_simple_balance_contract();
+#[tokio::test]
+async fn test_wrong_function_name() {
+    declare_simple_balance_contract().await;
+    deploy_simple_balance_contract().await;
 
     let mut args = common_cli_args();
     args.append(&mut vec![
@@ -76,10 +76,10 @@ fn test_wrong_function_name() {
     "#});
 }
 
-#[test]
-fn test_wrong_calldata() {
-    declare_simple_balance_contract();
-    deploy_simple_balance_contract();
+#[tokio::test]
+async fn test_wrong_calldata() {
+    declare_simple_balance_contract().await;
+    deploy_simple_balance_contract().await;
 
     let mut args = common_cli_args();
     args.append(&mut vec![
@@ -108,10 +108,10 @@ fn test_wrong_calldata() {
     "#});
 }
 
-#[test]
-fn test_too_low_max_fee() {
-    declare_simple_balance_contract();
-    deploy_simple_balance_contract();
+#[tokio::test]
+async fn test_too_low_max_fee() {
+    declare_simple_balance_contract().await;
+    deploy_simple_balance_contract().await;
 
     let mut args = common_cli_args();
     args.append(&mut vec![

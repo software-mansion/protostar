@@ -40,5 +40,3 @@ fn test_happy_case() {
 // already declared
 // scarbowe errory, brak ścieżek itd
 // spojrz na pra marcina i dodaj coś jeszcze z errorow
-
-
