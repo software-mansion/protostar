@@ -11,8 +11,8 @@ use cairo_lang_sierra::program::Program;
 use cairo_lang_sierra_to_casm::metadata::MetadataComputationConfig;
 use cairo_lang_utils::ordered_hash_map::OrderedHashMap;
 
-use crate::running::run_from_test_config;
-use test_collector::{collect_tests, LinkedLibrary, TestConfig};
+use crate::running::run_from_test_units;
+use test_collector::{collect_tests, LinkedLibrary, TestUnit};
 
 use crate::test_stats::TestsStats;
 
@@ -60,7 +60,7 @@ pub struct ProtostarConfigFromScarb {
 
 struct TestsFromFile {
     sierra_program: Program,
-    tests_configs: Vec<TestConfig>,
+    test_units: Vec<TestUnit>,
     relative_path: Utf8PathBuf,
 }
 
@@ -129,17 +129,17 @@ fn internal_collect_tests(
             corelib_path.map(|corelib_path| corelib_path.as_str()),
         )?;
 
-        let tests_configs = strip_path_from_test_names(tests_configs)?;
-        let tests_configs = if let Some(test_name_filter) = &runner_config.test_name_filter {
-            filter_tests_by_name(test_name_filter, runner_config.exact_match, tests_configs)?
+        let test_units = strip_path_from_test_names(tests_configs)?;
+        let test_units = if let Some(test_name_filter) = &runner_config.test_name_filter {
+            filter_tests_by_name(test_name_filter, runner_config.exact_match, test_units)?
         } else {
-            tests_configs
+            test_units
         };
 
         let relative_path = test_file.strip_prefix(input_path)?.to_path_buf();
         tests.push(TestsFromFile {
             sierra_program,
-            tests_configs,
+            test_units,
             relative_path,
         });
     }
@@ -157,7 +157,7 @@ pub fn run(
         collect_tests_from_directory(input_path, linked_libraries, corelib_path, runner_config)?;
 
     pretty_printing::print_collected_tests_count(
-        tests.iter().map(|tests| tests.tests_configs.len()).sum(),
+        tests.iter().map(|tests| tests.test_units.len()).sum(),
         tests.len(),
     );
 
@@ -172,7 +172,7 @@ pub fn run(
     }
 
     for tests_from_file in tests_iterator {
-        tests_stats.skipped += tests_from_file.tests_configs.len();
+        tests_stats.skipped += tests_from_file.test_units.len();
     }
 
     pretty_printing::print_test_summary(tests_stats);
@@ -192,16 +192,16 @@ fn run_tests(
     )
     .context("Failed setting up runner.")?;
 
-    pretty_printing::print_running_tests(&tests.relative_path, tests.tests_configs.len());
-    for (i, config) in tests.tests_configs.iter().enumerate() {
-        let result = run_from_test_config(&mut runner, config)?;
+    pretty_printing::print_running_tests(&tests.relative_path, tests.test_units.len());
+    for (i, unit) in tests.test_units.iter().enumerate() {
+        let result = run_from_test_units(&mut runner, unit)?;
 
         tests_stats.update(&result.value);
-        pretty_printing::print_test_result(&config.name.clone(), &result.value);
+        pretty_printing::print_test_result(&unit.name.clone(), &result.value);
 
         if runner_config.exit_first {
             if let RunResultValue::Panic(_) = result.value {
-                tests_stats.skipped += tests.tests_configs.len() - i - 1;
+                tests_stats.skipped += tests.test_units.len() - i - 1;
                 return Ok(RunnerStatus::TestFailed);
             }
         }
@@ -209,20 +209,20 @@ fn run_tests(
     Ok(RunnerStatus::Default)
 }
 
-fn strip_path_from_test_names(test_configs: Vec<TestConfig>) -> Result<Vec<TestConfig>> {
-    test_configs
+fn strip_path_from_test_names(test_units: Vec<TestUnit>) -> Result<Vec<TestUnit>> {
+    test_units
         .into_iter()
-        .map(|test_config| {
-            let name: String = test_config
+        .map(|test_unit| {
+            let name: String = test_unit
                 .name
                 .rsplit('/')
                 .next()
-                .with_context(|| format!("Failed to get test name from = {}", test_config.name))?
+                .with_context(|| format!("Failed to get test name from = {}", test_unit.name))?
                 .into();
 
-            Ok(TestConfig {
+            Ok(TestUnit {
                 name,
-                available_gas: test_config.available_gas,
+                available_gas: test_unit.available_gas,
             })
         })
         .collect()
@@ -231,10 +231,10 @@ fn strip_path_from_test_names(test_configs: Vec<TestConfig>) -> Result<Vec<TestC
 fn filter_tests_by_name(
     test_name_filter: &str,
     exact_match: bool,
-    test_configs: Vec<TestConfig>,
-) -> Result<Vec<TestConfig>> {
+    test_units: Vec<TestUnit>,
+) -> Result<Vec<TestUnit>> {
     let mut result = vec![];
-    for test in test_configs {
+    for test in test_units {
         if exact_match {
             if test.name == test_name_filter {
                 result.push(test);
@@ -246,7 +246,7 @@ fn filter_tests_by_name(
     Ok(result)
 }
 
-fn test_name_contains(test_name_filter: &str, test: &TestConfig) -> Result<bool> {
+fn test_name_contains(test_name_filter: &str, test: &TestUnit) -> Result<bool> {
     let name = test
         .name
         .rsplit("::")
@@ -430,16 +430,16 @@ version = \"0.1.0\"";
 
     #[test]
     fn filtering_tests() {
-        let mocked_tests: Vec<TestConfig> = vec![
-            TestConfig {
+        let mocked_tests: Vec<TestUnit> = vec![
+            TestUnit {
                 name: "crate1::do_thing".to_string(),
                 available_gas: None,
             },
-            TestConfig {
+            TestUnit {
                 name: "crate2::run_other_thing".to_string(),
                 available_gas: None,
             },
-            TestConfig {
+            TestUnit {
                 name: "outer::crate2::execute_next_thing".to_string(),
                 available_gas: None,
             },
@@ -448,7 +448,7 @@ version = \"0.1.0\"";
         let filtered = filter_tests_by_name("do", false, mocked_tests.clone()).unwrap();
         assert_eq!(
             filtered,
-            vec![TestConfig {
+            vec![TestUnit {
                 name: "crate1::do_thing".to_string(),
                 available_gas: None,
             },]
@@ -457,7 +457,7 @@ version = \"0.1.0\"";
         let filtered = filter_tests_by_name("run", false, mocked_tests.clone()).unwrap();
         assert_eq!(
             filtered,
-            vec![TestConfig {
+            vec![TestUnit {
                 name: "crate2::run_other_thing".to_string(),
                 available_gas: None,
             },]
@@ -467,15 +467,15 @@ version = \"0.1.0\"";
         assert_eq!(
             filtered,
             vec![
-                TestConfig {
+                TestUnit {
                     name: "crate1::do_thing".to_string(),
                     available_gas: None,
                 },
-                TestConfig {
+                TestUnit {
                     name: "crate2::run_other_thing".to_string(),
                     available_gas: None,
                 },
-                TestConfig {
+                TestUnit {
                     name: "outer::crate2::execute_next_thing".to_string(),
                     available_gas: None,
                 },
@@ -489,15 +489,15 @@ version = \"0.1.0\"";
         assert_eq!(
             filtered,
             vec![
-                TestConfig {
+                TestUnit {
                     name: "crate1::do_thing".to_string(),
                     available_gas: None,
                 },
-                TestConfig {
+                TestUnit {
                     name: "crate2::run_other_thing".to_string(),
                     available_gas: None,
                 },
-                TestConfig {
+                TestUnit {
                     name: "outer::crate2::execute_next_thing".to_string(),
                     available_gas: None,
                 },
@@ -507,16 +507,16 @@ version = \"0.1.0\"";
 
     #[test]
     fn filtering_tests_only_uses_name() {
-        let mocked_tests: Vec<TestConfig> = vec![
-            TestConfig {
+        let mocked_tests: Vec<TestUnit> = vec![
+            TestUnit {
                 name: "crate1::do_thing".to_string(),
                 available_gas: None,
             },
-            TestConfig {
+            TestUnit {
                 name: "crate2::run_other_thing".to_string(),
                 available_gas: None,
             },
-            TestConfig {
+            TestUnit {
                 name: "outer::crate2::run_other_thing".to_string(),
                 available_gas: None,
             },
@@ -528,20 +528,20 @@ version = \"0.1.0\"";
 
     #[test]
     fn filtering_with_exact_match() {
-        let mocked_tests: Vec<TestConfig> = vec![
-            TestConfig {
+        let mocked_tests: Vec<TestUnit> = vec![
+            TestUnit {
                 name: "crate1::do_thing".to_string(),
                 available_gas: None,
             },
-            TestConfig {
+            TestUnit {
                 name: "crate2::run_other_thing".to_string(),
                 available_gas: None,
             },
-            TestConfig {
+            TestUnit {
                 name: "outer::crate3::run_other_thing".to_string(),
                 available_gas: None,
             },
-            TestConfig {
+            TestUnit {
                 name: "do_thing".to_string(),
                 available_gas: None,
             },
@@ -556,7 +556,7 @@ version = \"0.1.0\"";
         let filtered = filter_tests_by_name("do_thing", true, mocked_tests.clone()).unwrap();
         assert_eq!(
             filtered,
-            vec![TestConfig {
+            vec![TestUnit {
                 name: "do_thing".to_string(),
                 available_gas: None,
             },]
@@ -566,7 +566,7 @@ version = \"0.1.0\"";
             filter_tests_by_name("crate1::do_thing", true, mocked_tests.clone()).unwrap();
         assert_eq!(
             filtered,
-            vec![TestConfig {
+            vec![TestUnit {
                 name: "crate1::do_thing".to_string(),
                 available_gas: None,
             },]
@@ -580,7 +580,7 @@ version = \"0.1.0\"";
             filter_tests_by_name("outer::crate3::run_other_thing", true, mocked_tests).unwrap();
         assert_eq!(
             filtered,
-            vec![TestConfig {
+            vec![TestUnit {
                 name: "outer::crate3::run_other_thing".to_string(),
                 available_gas: None,
             },]
@@ -589,16 +589,16 @@ version = \"0.1.0\"";
 
     #[test]
     fn filtering_tests_works_without_crate_in_test_name() {
-        let mocked_tests: Vec<TestConfig> = vec![
-            TestConfig {
+        let mocked_tests: Vec<TestUnit> = vec![
+            TestUnit {
                 name: "crate1::do_thing".to_string(),
                 available_gas: None,
             },
-            TestConfig {
+            TestUnit {
                 name: "crate2::run_other_thing".to_string(),
                 available_gas: None,
             },
-            TestConfig {
+            TestUnit {
                 name: "thing".to_string(),
                 available_gas: None,
             },
@@ -608,15 +608,15 @@ version = \"0.1.0\"";
         assert_eq!(
             result,
             vec![
-                TestConfig {
+                TestUnit {
                     name: "crate1::do_thing".to_string(),
                     available_gas: None,
                 },
-                TestConfig {
+                TestUnit {
                     name: "crate2::run_other_thing".to_string(),
                     available_gas: None,
                 },
-                TestConfig {
+                TestUnit {
                     name: "thing".to_string(),
                     available_gas: None,
                 },
@@ -626,16 +626,16 @@ version = \"0.1.0\"";
 
     #[test]
     fn strip_path() {
-        let mocked_tests: Vec<TestConfig> = vec![
-            TestConfig {
+        let mocked_tests: Vec<TestUnit> = vec![
+            TestUnit {
                 name: "/Users/user/protostar/protostar-rust/tests/data/simple_test/src::test::test_fib".to_string(),
                 available_gas: None,
             },
-            TestConfig {
+            TestUnit {
                 name: "crate2::run_other_thing".to_string(),
                 available_gas: None,
             },
-            TestConfig {
+            TestUnit {
                 name: "src/crate2::run_other_thing".to_string(),
                 available_gas: None,
             },
@@ -645,15 +645,15 @@ version = \"0.1.0\"";
         assert_eq!(
             striped_tests,
             vec![
-                TestConfig {
+                TestUnit {
                     name: "src::test::test_fib".to_string(),
                     available_gas: None,
                 },
-                TestConfig {
+                TestUnit {
                     name: "crate2::run_other_thing".to_string(),
                     available_gas: None,
                 },
-                TestConfig {
+                TestUnit {
                     name: "crate2::run_other_thing".to_string(),
                     available_gas: None,
                 },

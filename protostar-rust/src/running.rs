@@ -10,7 +10,7 @@ use cairo_lang_casm::instructions::Instruction;
 use cairo_lang_runner::casm_run::hint_to_hint_params;
 use cairo_lang_runner::CairoHintProcessor as CoreCairoHintProcessor;
 use cairo_lang_runner::{RunResult, SierraCasmRunner, StarknetState};
-use test_collector::TestConfig;
+use test_collector::TestUnit;
 
 use crate::cheatcodes_hint_processor::CairoHintProcessor;
 
@@ -40,16 +40,16 @@ fn build_hints_dict<'b>(
     (hints_dict, string_to_hint)
 }
 
-pub(crate) fn run_from_test_config(
+pub(crate) fn run_from_test_units(
     runner: &mut SierraCasmRunner,
-    config: &TestConfig,
+    unit: &TestUnit,
 ) -> Result<RunResult> {
-    let available_gas = if let Some(available_gas) = &config.available_gas {
+    let available_gas = if let Some(available_gas) = &unit.available_gas {
         Some(*available_gas)
     } else {
         Some(usize::MAX)
     };
-    let func = runner.find_function(config.name.as_str())?;
+    let func = runner.find_function(unit.name.as_str())?;
     let initial_gas = runner.get_initial_available_gas(func, available_gas)?;
     let (entry_code, builtins) = runner.create_entry_code(func, &[], initial_gas)?;
     let footer = runner.create_code_footer();
@@ -71,12 +71,12 @@ pub(crate) fn run_from_test_config(
     };
     let result = runner
         .run_function(
-            runner.find_function(config.name.as_str())?,
+            runner.find_function(unit.name.as_str())?,
             &mut cairo_hint_processor,
             hints_dict,
             instructions,
             builtins,
         )
-        .with_context(|| format!("Failed to run the function `{}`.", config.name.as_str()))?;
+        .with_context(|| format!("Failed to run the function `{}`.", unit.name.as_str()))?;
     Ok(result)
 }
