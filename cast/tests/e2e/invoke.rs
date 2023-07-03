@@ -91,7 +91,7 @@ fn test_wrong_calldata() {
         "--calldata",
         "0x1ab93",
         "--calldata",
-        "0x1"
+        "0x1",
     ]);
 
     let snapbox = runner(&args);
