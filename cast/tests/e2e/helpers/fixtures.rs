@@ -1,6 +1,4 @@
-use crate::helpers::constants::{
-    ACCOUNT, ACCOUNT_FILE_PATH, CASM_CONTRACT_PATH, NETWORK, SIERRA_CONTRACT_PATH, URL,
-};
+use crate::helpers::constants::{ACCOUNT, ACCOUNT_FILE_PATH, CONTRACTS_DIR, NETWORK, URL};
 use camino::Utf8PathBuf;
 use cast::{get_account, get_network, get_provider};
 use starknet::accounts::{Account, SingleOwnerAccount};
@@ -11,6 +9,14 @@ use starknet::providers::jsonrpc::HttpTransport;
 use starknet::providers::JsonRpcClient;
 use starknet::signers::LocalWallet;
 use std::sync::Arc;
+
+pub fn sierra_balance_path() -> String {
+    CONTRACTS_DIR.to_string() + "/balance/target/dev/balance_HelloStarknet.sierra.json"
+}
+
+pub fn casm_balance_path() -> String {
+    CONTRACTS_DIR.to_string() + "/balance/target/dev/balance_HelloStarknet.casm.json"
+}
 
 pub fn account(
     provider: &JsonRpcClient<HttpTransport>,
@@ -29,11 +35,11 @@ pub async fn declare_simple_balance_contract() {
     let account = account(&provider);
 
     let contract_definition: SierraClass = {
-        let file_contents = std::fs::read(SIERRA_CONTRACT_PATH).unwrap();
+        let file_contents = std::fs::read(sierra_balance_path()).unwrap();
         serde_json::from_slice(&file_contents).unwrap()
     };
     let casm_contract_definition: CompiledClass = {
-        let file_contents = std::fs::read(CASM_CONTRACT_PATH).unwrap();
+        let file_contents = std::fs::read(casm_balance_path()).unwrap();
         serde_json::from_slice(&file_contents).unwrap()
     };
 
