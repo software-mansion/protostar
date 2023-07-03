@@ -106,7 +106,16 @@ fn internal_collect_tests(
     corelib_path: Option<&Utf8PathBuf>,
     runner_config: &RunnerConfig,
 ) -> Result<Vec<TestsFromFile>> {
-    let builtins = vec!["GasBuiltin", "Pedersen", "RangeCheck", "bitwise", "ec_op"];
+    let builtins = vec![
+        "Pedersen",
+        "RangeCheck",
+        "Bitwise",
+        "EcOp",
+        "Poseidon",
+        "SegmentArena",
+        "GasBuiltin",
+        "System",
+    ];
 
     let linked_libraries = linked_libraries;
 
