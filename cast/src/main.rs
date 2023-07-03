@@ -1,9 +1,9 @@
-use crate::starknet_commands::{call::Call, declare::Declare, invoke::Invoke};
-use anyhow::Result;
+use crate::starknet_commands::{call::Call, declare::Declare, deploy::Deploy, invoke::Invoke};
+use anyhow::{bail, Result};
 use camino::Utf8PathBuf;
+use cast::{get_account, get_block_id, get_network, get_provider, print_formatted};
 use clap::{Parser, Subcommand};
 use console::style;
-use cast::{get_account, get_block_id, get_provider, get_network};
 
 mod starknet_commands;
 
@@ -31,6 +31,14 @@ struct Cli {
     )]
     accounts_file_path: Utf8PathBuf,
 
+    /// If passed, values will be displayed as integers, otherwise as hexes
+    #[clap(short, long)]
+    int_format: bool,
+
+    /// If passed, output will be displayed in json format
+    #[clap(short, long)]
+    json: bool,
+
     #[command(subcommand)]
     command: Commands,
 }
@@ -40,6 +48,9 @@ enum Commands {
     /// Declare a contract
     Declare(Declare),
 
+    /// Deploy a contract
+    Deploy(Deploy),
+
     /// Call a contract
     Call(Call),
 
@@ -48,12 +59,16 @@ enum Commands {
 }
 
 #[tokio::main]
+#[allow(clippy::too_many_lines)]
 async fn main() -> Result<()> {
     let cli = Cli::parse();
 
+    let accounts_file_path = Utf8PathBuf::from(shellexpand::tilde(&cli.accounts_file_path).to_string());
+    if !&accounts_file_path.exists() {
+        bail! {"Accounts file {} does not exist! Make sure to supply correct path to accounts file.", cli.accounts_file_path}
+    }
     // todo: #2052 take network from scarb config if flag not provided
     let network_name = cli.network.unwrap_or_else(|| {
-        // todo: #2107
         eprintln!("{}", style("No --network flag passed!").red());
         std::process::exit(1);
     });
@@ -63,46 +78,148 @@ async fn main() -> Result<()> {
     match cli.command {
         Commands::Declare(declare) => {
             let mut account =
-                get_account(&cli.account, &cli.accounts_file_path, &provider, &network)?;
+                get_account(&cli.account, &accounts_file_path, &provider, &network)?;
 
-            let declared_contract = starknet_commands::declare::declare(
+            let result = starknet_commands::declare::declare(
                 &declare.sierra_contract_path,
                 &declare.casm_contract_path,
+                declare.max_fee,
                 &mut account,
             )
-            .await?;
-            // todo: #2107
-            eprintln!("Class hash: {}", declared_contract.class_hash);
-            eprintln!("Transaction hash: {}", declared_contract.transaction_hash);
+            .await;
+
+            match result {
+                Ok(declared_contract) => print_formatted(
+                    vec![
+                        ("command", "Declare".to_string()),
+                        ("class_hash", format!("{}", declared_contract.class_hash)),
+                        (
+                            "transaction_hash",
+                            format!("{}", declared_contract.transaction_hash),
+                        ),
+                    ],
+                    cli.int_format,
+                    cli.json,
+                    false,
+                )?,
+                Err(error) => {
+                    print_formatted(
+                        vec![("error", error.to_string())],
+                        cli.int_format,
+                        cli.json,
+                        true,
+                    )?;
+                }
+            }
+
             Ok(())
         }
-        Commands::Call(args) => {
-            let block_id = get_block_id(&args.block_id).unwrap();
+        Commands::Deploy(deploy) => {
+            let account = get_account(&cli.account, &accounts_file_path, &provider, &network)?;
+
+            let result = starknet_commands::deploy::deploy(
+                &deploy.class_hash,
+                deploy
+                    .constructor_calldata
+                    .iter()
+                    .map(AsRef::as_ref)
+                    .collect(),
+                deploy.salt.as_deref(),
+                deploy.unique,
+                deploy.max_fee,
+                &account,
+            )
+            .await;
+
+            match result {
+                Ok((transaction_hash, contract_address)) => print_formatted(
+                    vec![
+                        ("command", "Deploy".to_string()),
+                        ("contract_address", format!("{contract_address}")),
+                        ("transaction_hash", format!("{transaction_hash}")),
+                    ],
+                    cli.int_format,
+                    cli.json,
+                    false,
+                )?,
+                Err(error) => {
+                    print_formatted(
+                        vec![("error", error.to_string())],
+                        cli.int_format,
+                        cli.json,
+                        true,
+                    )?;
+                }
+            }
+
+            Ok(())
+        }
+        Commands::Call(call) => {
+            let block_id = get_block_id(&call.block_id)?;
 
             let result = starknet_commands::call::call(
-                args.contract_address.as_ref(),
-                args.function_name.as_ref(),
-                args.calldata.as_ref(),
+                call.contract_address.as_ref(),
+                call.function_name.as_ref(),
+                call.calldata.as_ref(),
                 &provider,
                 block_id.as_ref(),
             )
-            .await?;
+            .await;
 
-            // todo (#2107): Normalize outputs in CLI
-            eprintln!("Call response: {result:?}");
+            match result {
+                Ok(response) => print_formatted(
+                    vec![
+                        ("command", "Call".to_string()),
+                        ("response", format!("{response:?}")),
+                    ],
+                    cli.int_format,
+                    cli.json,
+                    false,
+                )?,
+                Err(error) => {
+                    print_formatted(
+                        vec![("error", error.to_string())],
+                        cli.int_format,
+                        cli.json,
+                        true,
+                    )?;
+                }
+            }
+
             Ok(())
         }
         Commands::Invoke(invoke) => {
             let mut account =
-                get_account(&cli.account, &cli.accounts_file_path, &provider, &network)?;
-            starknet_commands::invoke::invoke(
+                get_account(&cli.account, &accounts_file_path, &provider, &network)?;
+            let result = starknet_commands::invoke::invoke(
                 &invoke.contract_address,
                 &invoke.entry_point_name,
                 invoke.calldata.iter().map(AsRef::as_ref).collect(),
-                invoke.max_fee.as_deref(),
+                invoke.max_fee,
                 &mut account,
             )
-            .await?;
+            .await;
+
+            match result {
+                Ok(transaction_hash) => print_formatted(
+                    vec![
+                        ("command", "Invoke".to_string()),
+                        ("transaction_hash", format!("{transaction_hash}")),
+                    ],
+                    cli.int_format,
+                    cli.json,
+                    false,
+                )?,
+                Err(error) => {
+                    print_formatted(
+                        vec![("error", error.to_string())],
+                        cli.int_format,
+                        cli.json,
+                        true,
+                    )?;
+                }
+            }
+
             Ok(())
         }
     }

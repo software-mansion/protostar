@@ -20,13 +20,16 @@ struct Args {
     /// Use exact matches for `test_filter`
     #[arg(short, long)]
     exact: bool,
+
+    #[arg(short = 'x', long)]
+    exit_first: bool,
 }
 
 fn load_corelib() -> Result<TempDir> {
     let tmp_dir = tempdir()?;
     CORELIB_PATH
         .extract(&tmp_dir)
-        .expect("Failed to copy corelib to temporary directory");
+        .context("Failed to copy corelib to temporary directory")?;
     Ok(tmp_dir)
 }
 
@@ -41,18 +44,22 @@ fn main_execution() -> Result<()> {
 
     let scarb_metadata = MetadataCommand::new().inherit_stderr().exec()?;
     let _ = Command::new("scarb")
-        .current_dir(std::env::current_dir().expect("failed to obtain current dir"))
+        .current_dir(std::env::current_dir().context("Failed to get current directory")?)
         .arg("build")
         .output()
-        .expect("Failed to build contracts with Scarb");
+        .context("Failed to build contracts with Scarb")?;
 
     for package in &scarb_metadata.workspace.members {
         let protostar_config =
             rust_test_runner::protostar_config_for_package(&scarb_metadata, package)?;
         let (base_path, dependencies) =
             rust_test_runner::dependencies_for_package(&scarb_metadata, package)?;
-        let runner_config =
-            RunnerConfig::new(args.test_name.clone(), args.exact, &protostar_config);
+        let runner_config = RunnerConfig::new(
+            args.test_name.clone(),
+            args.exact,
+            args.exit_first,
+            &protostar_config,
+        );
 
         run(
             &base_path,

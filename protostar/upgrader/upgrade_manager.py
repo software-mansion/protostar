@@ -160,7 +160,7 @@ class UpgradeManager:
         # pylint: disable=missing-timeout
         with requests.get(tar_url, stream=True) as request:
             with open(tarball_path, "wb") as file:
-                shutil.copyfileobj(request.raw, file)
+                shutil.copyfileobj(request.raw, file)  # type: ignore
 
     def _install_new_version(
         self, latest_version: Version, tarball_path: Path, protostar_dir_path: Path

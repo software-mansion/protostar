@@ -1,7 +1,9 @@
-use anyhow::{Context, Result};
+use anyhow::{anyhow, Context, Result};
 use clap::Args;
 
-use starknet::accounts::{Account, Call, SingleOwnerAccount};
+use cast::{handle_rpc_error, handle_wait_for_tx_result};
+use starknet::accounts::AccountError::Provider;
+use starknet::accounts::{Account, Call, ConnectedAccount, SingleOwnerAccount};
 use starknet::core::types::FieldElement;
 use starknet::core::utils::get_selector_from_name;
 use starknet::providers::jsonrpc::HttpTransport;
@@ -25,16 +27,16 @@ pub struct Invoke {
 
     /// Max fee for the transaction. If not provided, max fee will be automatically estimated
     #[clap(short, long)]
-    pub max_fee: Option<String>,
+    pub max_fee: Option<u128>,
 }
 
 pub async fn invoke(
     contract_address: &str,
     entry_point_name: &str,
     calldata: Vec<&str>,
-    max_fee: Option<&str>,
+    max_fee: Option<u128>,
     account: &mut SingleOwnerAccount<&JsonRpcClient<HttpTransport>, LocalWallet>,
-) -> Result<()> {
+) -> Result<FieldElement> {
     let call = Call {
         to: FieldElement::from_hex_be(contract_address)?,
         selector: get_selector_from_name(entry_point_name)?,
@@ -48,18 +50,23 @@ pub async fn invoke(
     let execution = account.execute(vec![call]);
 
     let execution = if let Some(max_fee) = max_fee {
-        execution.max_fee(
-            FieldElement::from_hex_be(max_fee)
-                .context("Failed to convert max_fee to FieldElement")?,
-        )
+        execution.max_fee(FieldElement::from(max_fee))
     } else {
         execution
     };
 
-    let result = execution.send().await?;
+    let result = execution.send().await;
 
-    // todo (#2107): Normalize outputs in CLI
-    println!("{result:?}");
-
-    Ok(())
+    match result {
+        Ok(result) => {
+            handle_wait_for_tx_result(
+                account.provider(),
+                result.transaction_hash,
+                result.transaction_hash,
+            )
+            .await
+        }
+        Err(Provider(error)) => handle_rpc_error(error),
+        _ => Err(anyhow!("Unknown RPC error")),
+    }
 }

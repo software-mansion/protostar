@@ -1,8 +1,10 @@
+mod contract1;
+
 #[starknet::contract]
 mod HelloStarknet {
     #[storage]
     struct Storage {
-        balance: felt252, 
+        balance: felt252,
     }
 
     // Increases the balance by the given amount.
@@ -11,9 +13,9 @@ mod HelloStarknet {
         self.balance.write(self.balance.read() + amount);
     }
 
-    // Returns the current balance.
+    // Decreases the balance by the given amount.
     #[external]
-    fn get_balance(self: @ContractState) -> felt252 {
-        self.balance.read()
+    fn decrease_balance(ref self: ContractState, amount: felt252) {
+        self.balance.write(self.balance.read() - amount);
     }
 }
