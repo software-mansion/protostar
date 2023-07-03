@@ -12,9 +12,11 @@ use cast::parse_number;
 #[command(about = "Call a contract instance on Starknet", long_about = None)]
 pub struct Call {
     /// Address of the called contract (hex)
+    #[clap(short = 'a', long = "contract-address")]
     pub contract_address: String,
 
     /// Name of the contract function to be called
+    #[clap(short = 'f', long = "function-name")]
     pub function_name: String,
 
     /// Arguments of the called function (list of hex)

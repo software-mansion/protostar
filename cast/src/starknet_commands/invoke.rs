@@ -16,9 +16,11 @@ use cast::parse_number;
 #[command(about = "Invoke a contract on Starknet")]
 pub struct Invoke {
     /// Address of contract to invoke
+    #[clap(short = 'a', long)]
     pub contract_address: String,
 
     /// Name of the function to invoke
+    #[clap(short, long)]
     pub entry_point_name: String,
 
     /// Calldata for the invoked function

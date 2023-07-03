@@ -45,6 +45,7 @@ struct ScarbStarknetContractArtifact {
 #[command(about = "Declare a contract to starknet", long_about = None)]
 pub struct Declare {
     /// contract name
+    #[clap(short = 'c', long = "contract-name")]
     pub contract: String,
 
     /// Max fee for the transaction. If not provided, max fee will be automatically estimated
