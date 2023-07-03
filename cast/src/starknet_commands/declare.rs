@@ -1,5 +1,4 @@
 use anyhow::{anyhow, Context, Result};
-use camino::Utf8PathBuf;
 use cast::{handle_rpc_error, handle_wait_for_tx_result};
 use clap::Args;
 use starknet::accounts::AccountError::Provider;
