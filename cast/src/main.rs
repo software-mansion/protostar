@@ -64,42 +64,16 @@ enum Commands {
 #[allow(clippy::too_many_lines)]
 async fn main() -> Result<()> {
     let cli = Cli::parse();
-    let mut maybe_network_name = None;
-    if let Some(network_name) = cli.network {
-        maybe_network_name = Some(network_name);
-    } else {
-        let metadata = scarb_metadata::MetadataCommand::new()
-            .inherit_stderr()
-            .current_dir(current_dir().expect("failed to read current directory"))
-            .no_deps()
-            .exec()
-            .unwrap();
-        if metadata.packages.len() != 1 {
-            anyhow::bail!("invalid number of packages obtained from scarb metadata");
-        }
-        let package = &metadata.packages[0];
-        if let Some(tool) = &package.manifest_metadata.tool {
-            if let Some(protostar_tool) = tool.get("protostar") {
-                if let Some(network) = protostar_tool.get("network") {
-                    if let Some(network_str) = network.as_str() {
-                        maybe_network_name = Some(network_str.to_string());
-                    }
-                }
-            }
-        }
-    }
-    if maybe_network_name.is_none() {
-        // todo: #2107
-        eprintln!("{}", style("No --network flag passed!").red());
-        std::process::exit(1);
-    };
 
     let accounts_file_path = Utf8PathBuf::from(shellexpand::tilde(&cli.accounts_file_path).to_string());
     if !&accounts_file_path.exists() {
         bail! {"Accounts file {} does not exist! Make sure to supply correct path to accounts file.", cli.accounts_file_path}
     }
-
-    let network_name = maybe_network_name.expect("Could not find network neither in args nor in scarb config");
+    
+    let network_name = cli.network.unwrap_or_else(|| {
+        eprintln!("{}", style("No --network flag passed!").red());
+        std::process::exit(1);
+    });
     let network = get_network(&network_name)?;
     let provider = get_provider(&cli.rpc_url)?;
 
