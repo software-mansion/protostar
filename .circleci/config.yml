@@ -354,7 +354,7 @@ jobs:
     executor: linux
     steps:
       - setup:
-          scarb_version: 0.5.0-alpha.0
+          scarb_version: 0.5.0-alpha.4
       - lint_rust_runner
 
   rust_runner_tests:
@@ -366,7 +366,7 @@ jobs:
     steps:
       - setup:
           platform: << parameters.platform >>
-          scarb_version: 0.5.0-alpha.1
+          scarb_version: 0.5.0-alpha.4
       - run:
           name: Set git config
           command: git config --global protocol.file.allow always
