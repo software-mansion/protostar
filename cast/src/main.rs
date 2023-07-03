@@ -26,7 +26,6 @@ struct Cli {
     account: String,
 
     /// Path to the file holding accounts info, defaults to ~/.starknet_accounts/starknet_open_zeppelin_accounts.json
-    // TODO #2147
     #[clap(
         short = 'f',
         long = "accounts-file",
