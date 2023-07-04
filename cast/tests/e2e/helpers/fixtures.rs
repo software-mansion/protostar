@@ -18,21 +18,15 @@ pub fn casm_balance_path() -> String {
     CONTRACTS_DIR.to_string() + "/balance/target/dev/balance_SimpleBalance.casm.json"
 }
 
-pub fn account(
-    provider: &JsonRpcClient<HttpTransport>,
-) -> SingleOwnerAccount<&JsonRpcClient<HttpTransport>, LocalWallet> {
-    get_account(
+pub async fn declare_deploy_simple_balance_contract() {
+    let provider = get_provider(URL).expect("Could not get the provider");
+    let account = get_account(
         ACCOUNT,
         &Utf8PathBuf::from(ACCOUNT_FILE_PATH),
-        provider,
+        &provider,
         &get_network(NETWORK).expect("Could not get the network"),
     )
-    .expect("Could not get the account")
-}
-
-pub async fn declare_simple_balance_contract() {
-    let provider = get_provider(URL).expect("Could not get the provider");
-    let account = account(&provider);
+    .expect("Could not get the account");
 
     let contract_definition: SierraClass = {
         let file_contents =
@@ -57,25 +51,10 @@ pub async fn declare_simple_balance_contract() {
         ),
         casm_class_hash,
     );
-    declaration.send().await.unwrap();
-}
+    let declared = declaration.send().await.unwrap();
 
-pub async fn deploy_simple_balance_contract() {
-    let provider = get_provider(URL).expect("Could not get the provider");
-    let account = account(&provider);
-
-    let factory = ContractFactory::new(
-        FieldElement::from_hex_be(
-            "0x8448a68b5ea1affc45e3fd4b8b480ea36a51dc34e337a16d2567d32d0c6f8a",
-        )
-        .expect("Could not create FieldElement from hex string"),
-        account,
-    );
-    let deployment = factory.deploy(
-        Vec::new(),
-        FieldElement::from_hex_be("0x1").expect("Could not create FieldElement from hex string"),
-        false,
-    );
+    let factory = ContractFactory::new(declared.class_hash, account, );
+    let deployment = factory.deploy(Vec::new(), FieldElement::ONE, false, );
     deployment.send().await.unwrap();
 }
 

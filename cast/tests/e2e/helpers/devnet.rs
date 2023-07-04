@@ -1,5 +1,5 @@
 use crate::helpers::constants::{SEED, URL};
-use crate::helpers::fixtures::{declare_simple_balance_contract, deploy_simple_balance_contract};
+use crate::helpers::fixtures::declare_deploy_simple_balance_contract;
 use ctor::{ctor, dtor};
 use std::net::TcpStream;
 use std::process::{Command, Stdio};
@@ -47,8 +47,7 @@ fn start_devnet() {
     }
 
     let rt = Runtime::new().expect("Could not instantiate Runtime");
-    rt.block_on(declare_simple_balance_contract());
-    rt.block_on(deploy_simple_balance_contract());
+    rt.block_on(declare_deploy_simple_balance_contract());
 }
 
 #[cfg(test)]
