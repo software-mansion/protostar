@@ -25,45 +25,57 @@ pub fn account(
         ACCOUNT,
         &Utf8PathBuf::from(ACCOUNT_FILE_PATH),
         provider,
-        &get_network(NETWORK).unwrap(),
+        &get_network(NETWORK).expect("Could not get the network"),
     )
-    .unwrap()
+    .expect("Could not get the account")
 }
 
 pub async fn declare_simple_balance_contract() {
-    let provider = get_provider(URL).unwrap();
+    let provider = get_provider(URL).expect("Could not get the provider");
     let account = account(&provider);
 
     let contract_definition: SierraClass = {
-        let file_contents = std::fs::read(sierra_balance_path()).unwrap();
-        serde_json::from_slice(&file_contents).unwrap()
+        let file_contents =
+            std::fs::read(sierra_balance_path()).expect("Could not read balance's sierra file");
+        serde_json::from_slice(&file_contents).expect("Could not cast sierra file to SierraClass")
     };
     let casm_contract_definition: CompiledClass = {
-        let file_contents = std::fs::read(casm_balance_path()).unwrap();
-        serde_json::from_slice(&file_contents).unwrap()
+        let file_contents =
+            std::fs::read(casm_balance_path()).expect("Could not read balance's casm file");
+        serde_json::from_slice(&file_contents).expect("Could not cast casm file to CompiledClass")
     };
 
-    let casm_class_hash = casm_contract_definition.class_hash().unwrap();
+    let casm_class_hash = casm_contract_definition
+        .class_hash()
+        .expect("Could not compute class_hash");
 
     let declaration = account.declare(
-        Arc::new(contract_definition.flatten().unwrap()),
+        Arc::new(
+            contract_definition
+                .flatten()
+                .expect("Could not flatten SierraClass"),
+        ),
         casm_class_hash,
     );
     declaration.send().await.ok();
 }
 
 pub async fn deploy_simple_balance_contract() {
-    let provider = get_provider(URL).unwrap();
+    let provider = get_provider(URL).expect("Could not get the provider");
     let account = account(&provider);
 
     let factory = ContractFactory::new(
         FieldElement::from_hex_be(
             "0x8448a68b5ea1affc45e3fd4b8b480ea36a51dc34e337a16d2567d32d0c6f8a",
         )
-        .unwrap(),
+        .expect("Could not create FieldElement from hex string"),
         account,
     );
-    let deployment = factory.deploy(Vec::new(), FieldElement::from_hex_be("0x1").unwrap(), false);
+    let deployment = factory.deploy(
+        Vec::new(),
+        FieldElement::from_hex_be("0x1").expect("Could not create FieldElement from hex string"),
+        false,
+    );
     deployment.send().await.ok();
 }
 
