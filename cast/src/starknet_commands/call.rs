@@ -6,6 +6,8 @@ use starknet::core::utils::get_selector_from_name;
 use starknet::providers::jsonrpc::HttpTransport;
 use starknet::providers::{JsonRpcClient, Provider};
 
+use cast::parse_number;
+
 #[derive(Args)]
 #[command(about = "Call a contract instance on Starknet", long_about = None)]
 pub struct Call {
@@ -36,14 +38,13 @@ pub async fn call(
     block_id: &BlockId,
 ) -> Result<Vec<FieldElement>> {
     let function_call = FunctionCall {
-        contract_address: FieldElement::from_hex_be(contract_address)
-            .context("Failed to convert contract address to FieldElement")?,
+        contract_address: parse_number(contract_address)?,
         entry_point_selector: get_selector_from_name(func_name)
             .context("Failed to convert entry point selector to FieldElement")?,
         calldata: calldata
             .iter()
             .map(|x| {
-                FieldElement::from_hex_be(x).context("Failed to convert calldata to FieldElement")
+                parse_number(x).context("Failed to convert calldata to FieldElement")
             })
             .collect::<Result<Vec<_>>>()?,
     };

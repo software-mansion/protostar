@@ -4,6 +4,8 @@ use camino::Utf8PathBuf;
 use cast::{get_account, get_block_id, get_network, get_provider, print_formatted};
 use clap::{Parser, Subcommand};
 use console::style;
+use scarb_metadata;
+use std::env::current_dir;
 
 mod starknet_commands;
 
@@ -68,7 +70,7 @@ async fn main() -> Result<()> {
     if !&accounts_file_path.exists() {
         bail! {"Accounts file {} does not exist! Make sure to supply correct path to accounts file.", cli.accounts_file_path}
     }
-    // todo: #2052 take network from scarb config if flag not provided
+    
     let network_name = cli.network.unwrap_or_else(|| {
         eprintln!("{}", style("No --network flag passed!").red());
         std::process::exit(1);
@@ -81,8 +83,7 @@ async fn main() -> Result<()> {
             let mut account = get_account(&cli.account, &accounts_file_path, &provider, &network)?;
 
             let result = starknet_commands::declare::declare(
-                &declare.sierra_contract_path,
-                &declare.casm_contract_path,
+                &declare.contract,
                 declare.max_fee,
                 &mut account,
             )
