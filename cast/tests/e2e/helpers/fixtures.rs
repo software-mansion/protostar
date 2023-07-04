@@ -67,7 +67,7 @@ pub async fn deploy_simple_balance_contract() {
     deployment.send().await.ok();
 }
 
-pub fn common_cli_args() -> Vec<&'static str> {
+pub fn default_cli_args() -> Vec<&'static str> {
     vec![
         "--url",
         URL,

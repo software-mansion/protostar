@@ -1,5 +1,5 @@
 use crate::helpers::fixtures::{
-    common_cli_args, declare_simple_balance_contract, deploy_simple_balance_contract,
+    declare_simple_balance_contract, default_cli_args, deploy_simple_balance_contract,
 };
 use crate::helpers::runner::runner;
 use indoc::indoc;
@@ -9,7 +9,7 @@ async fn test_happy_case() {
     declare_simple_balance_contract().await;
     deploy_simple_balance_contract().await;
 
-    let mut args = common_cli_args();
+    let mut args = default_cli_args();
     args.append(&mut vec![
         "--int-format",
         "--json",
@@ -39,7 +39,7 @@ async fn test_contract_does_not_exist() {
     declare_simple_balance_contract().await;
     deploy_simple_balance_contract().await;
 
-    let mut args = common_cli_args();
+    let mut args = default_cli_args();
     args.append(&mut vec![
         "invoke",
         "--contract-address",
@@ -60,7 +60,7 @@ async fn test_wrong_function_name() {
     declare_simple_balance_contract().await;
     deploy_simple_balance_contract().await;
 
-    let mut args = common_cli_args();
+    let mut args = default_cli_args();
     args.append(&mut vec![
         "invoke",
         "--contract-address",
@@ -81,7 +81,7 @@ async fn test_wrong_calldata() {
     declare_simple_balance_contract().await;
     deploy_simple_balance_contract().await;
 
-    let mut args = common_cli_args();
+    let mut args = default_cli_args();
     args.append(&mut vec![
         "invoke",
         "--contract-address",
@@ -113,7 +113,7 @@ async fn test_too_low_max_fee() {
     declare_simple_balance_contract().await;
     deploy_simple_balance_contract().await;
 
-    let mut args = common_cli_args();
+    let mut args = default_cli_args();
     args.append(&mut vec![
         "invoke",
         "--contract-address",
