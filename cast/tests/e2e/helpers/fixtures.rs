@@ -76,7 +76,7 @@ pub async fn deploy_simple_balance_contract() {
         FieldElement::from_hex_be("0x1").expect("Could not create FieldElement from hex string"),
         false,
     );
-    deployment.send().await.ok();
+    deployment.send().await.unwrap();
 }
 
 pub fn default_cli_args() -> Vec<&'static str> {
