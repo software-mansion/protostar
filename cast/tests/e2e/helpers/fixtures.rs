@@ -11,11 +11,11 @@ use starknet::signers::LocalWallet;
 use std::sync::Arc;
 
 pub fn sierra_balance_path() -> String {
-    CONTRACTS_DIR.to_string() + "/balance/target/dev/balance_HelloStarknet.sierra.json"
+    CONTRACTS_DIR.to_string() + "/balance/target/dev/balance_SimpleBalance.sierra.json"
 }
 
 pub fn casm_balance_path() -> String {
-    CONTRACTS_DIR.to_string() + "/balance/target/dev/balance_HelloStarknet.casm.json"
+    CONTRACTS_DIR.to_string() + "/balance/target/dev/balance_SimpleBalance.casm.json"
 }
 
 pub fn account(
@@ -57,7 +57,7 @@ pub async fn declare_simple_balance_contract() {
         ),
         casm_class_hash,
     );
-    declaration.send().await.ok();
+    declaration.send().await.unwrap();
 }
 
 pub async fn deploy_simple_balance_contract() {
