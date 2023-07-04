@@ -70,7 +70,7 @@ async fn main() -> Result<()> {
     if !&accounts_file_path.exists() {
         bail! {"Accounts file {} does not exist! Make sure to supply correct path to accounts file.", cli.accounts_file_path}
     }
-    
+
     let network_name = cli.network.unwrap_or_else(|| {
         eprintln!("{}", style("No --network flag passed!").red());
         std::process::exit(1);
