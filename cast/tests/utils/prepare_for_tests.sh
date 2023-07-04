@@ -9,8 +9,7 @@ DIRECTORY="$(git rev-parse --show-toplevel)/cast/tests/utils/"
 CAIRO_REPO="https://github.com/starkware-libs/cairo/releases/download"
 COMPILER_VERSION="v1.1.1"
 
-SCARB_REPO="https://github.com/software-mansion/scarb/releases/download"
-SCARB_VERSION="v0.4.1"
+SCARB_VERSION="0.4.1"
 
 if [ ! -x "$COMPILER_DIRECTORY/cairo/bin/starknet-sierra-compile" ]; then
   if [[ $(uname -s) == 'Darwin' ]]; then
@@ -27,21 +26,11 @@ if [ ! -x "$COMPILER_DIRECTORY/cairo/bin/starknet-sierra-compile" ]; then
   fi
 fi
 
-if [ ! -x "$COMPILER_DIRECTORY/scarb*/bin/scarb" ]; then
-  if [[ $(uname -s) == 'Darwin' ]]; then
-    wget "$SCARB_REPO/$SCARB_VERSION/scarb-$SCARB_VERSION-aarch64-apple-darwin.tar.gz" -P "$DIRECTORY" || exit 1
-    pushd "$DIRECTORY"
-    tar -xvf "$DIRECTORY/scarb-$SCARB_VERSION-aarch64-apple-darwin.tar.gz" scarb-$SCARB_VERSION-aarch64-apple-darwin/bin/scarb || exit 1
-    popd
-
-  elif [[ $(uname -s) == 'Linux' ]]; then
-    wget "$CAIRO_REPO/$COMPILER_VERSION/scarb-$SCARB_VERSION-x86_64-unknown-linux-musl.tar.gz" -P "$DIRECTORY" || exit 1
-    pushd "$DIRECTORY"
-    tar -xzvf "$DIRECTORY/scarb-$SCARB_VERSION-x86_64-unknown-linux-musl.tar.gz" scarb-$SCARB_VERSION-aarch64-apple-darwin/bin/scarb || exit 1
-    popd
-  fi
+if command -v asdf &> /dev/null; then
+  asdf plugin add scarb https://github.com/software-mansion/asdf-scarb.git
+  asdf install scarb $SCARB_VERSION
+  asdf global scarb $SCARB_VERSION
+  scarb --version
+else
+  printf "Please install asdf\n https://asdf-vm.com/guide/getting-started.html#_2-download-asdf\n"
 fi
-
-pushd "$DIRECTORY/../data/contracts/balance"
-"$DIRECTORY"scarb-$SCARB_VERSION-aarch64-apple-darwin/bin/scarb build
-
