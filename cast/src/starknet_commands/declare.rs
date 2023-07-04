@@ -96,19 +96,19 @@ pub async fn declare(
             .context("Failed to parse starknet_artifacts.json contents")?;
 
     let sierra_path = starknet_artifacts.contracts.iter().find_map(|contract| {
-            if contract.contract_name == contract_name {
-                return Some(contract.artifacts.sierra.clone());
-            }
-            None
-        }).unwrap_or_else(|| panic!("Failed to find contract {contract_name} in starknet_artifacts.json"));
+        if contract.contract_name == contract_name {
+            return Some(contract.artifacts.sierra.clone());
+        }
+        None
+    }).unwrap_or_else(|| panic!("Failed to find contract {contract_name} in starknet_artifacts.json"));
     let sierra_contract_path = current_dir.join(sierra_path);
 
     let casm_path = starknet_artifacts.contracts.iter().find_map(|contract| {
-            if contract.contract_name == contract_name {
-                return Some(contract.artifacts.casm.clone());
-            }
-            None
-        }).unwrap_or_else(|| panic!("Failed to find contract {contract_name} in starknet_artifacts.json")).unwrap();
+        if contract.contract_name == contract_name {
+            return Some(contract.artifacts.casm.clone());
+        }
+        None
+    }).unwrap_or_else(|| panic!("Failed to find contract {contract_name} in starknet_artifacts.json")).unwrap();
     let casm_contract_path = current_dir.join(casm_path);
 
     let contract_definition: SierraClass = {
@@ -121,9 +121,8 @@ pub async fn declare(
     let casm_contract_definition: CompiledClass = {
         let file_contents = std::fs::read(casm_contract_path.clone())
             .with_context(|| format!("Failed to read contract file: {}", casm_contract_path.to_str().expect("failed to convert casm_contract_path to string")))?;
-        serde_json::from_slice(&file_contents).with_context(|| {
-            format!("Failed to parse contract definition: {}", casm_contract_path.to_str().expect("failed to convert casm_contract_path to string"))
-        })?
+        serde_json::from_slice(&file_contents)
+            .with_context(|| format!("Failed to parse contract definition: {}", casm_contract_path.to_str().expect("failed to convert casm_contract_path to string")))?
     };
 
     let casm_class_hash = casm_contract_definition.class_hash()?;
