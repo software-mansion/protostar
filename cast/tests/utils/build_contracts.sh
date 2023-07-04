@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 CONTRACTS_DIRECTORY="$(git rev-parse --show-toplevel)/cast/tests/data/contracts"
 

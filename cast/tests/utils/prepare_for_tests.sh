@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 if ! which starknet-devnet > /dev/null 2>&1; then
   echo "starknet-devnet not found, exiting."
