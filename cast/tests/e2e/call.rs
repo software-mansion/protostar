@@ -1,6 +1,7 @@
-use indoc::indoc;
-use crate::helpers::fixtures::default_cli_args;
+use crate::helpers::constants::MAP_CONTRACT_ADDRESS;
+use crate::helpers::fixtures::{default_cli_args, invoke_map_contract};
 use crate::helpers::runner::runner;
+use indoc::indoc;
 
 #[tokio::test]
 async fn test_happy_case() {
@@ -9,9 +10,11 @@ async fn test_happy_case() {
         "--json",
         "call",
         "--contract-address",
-        "0x2bd89651521ec94a7c497c53f6b4555eeecef8b2221350dc5a04aa14ba41d68",
+        MAP_CONTRACT_ADDRESS,
         "--function-name",
-        "get_balance",
+        "get",
+        "--calldata",
+        "0x0",
         "--block-id",
         "latest",
     ]);
@@ -27,6 +30,29 @@ async fn test_happy_case() {
 }
 
 #[tokio::test]
+async fn test_call_after_storage_changed() {
+    invoke_map_contract("0x2", "0x3").await;
+
+    let mut args = default_cli_args();
+    args.append(&mut vec![
+        "call",
+        "--contract-address",
+        MAP_CONTRACT_ADDRESS,
+        "--function-name",
+        "get",
+        "--calldata",
+        "0x2",
+    ]);
+
+    let snapbox = runner(&args);
+
+    snapbox.assert().success().stdout_eq(indoc! {r#"
+        command: Call
+        response: [FieldElement { inner: 0x0000000000000000000000000000000000000000000000000000000000000003 }]
+    "#});
+}
+
+#[tokio::test]
 async fn test_contract_does_not_exist() {
     let mut args = default_cli_args();
     args.append(&mut vec![
@@ -34,7 +60,7 @@ async fn test_contract_does_not_exist() {
         "--contract-address",
         "0x1",
         "--function-name",
-        "get_balance",
+        "get",
     ]);
 
     let snapbox = runner(&args);
@@ -50,9 +76,9 @@ async fn test_wrong_function_name() {
     args.append(&mut vec![
         "call",
         "--contract-address",
-        "0x2bd89651521ec94a7c497c53f6b4555eeecef8b2221350dc5a04aa14ba41d68",
+        MAP_CONTRACT_ADDRESS,
         "--function-name",
-        "balance",
+        "nonexistent_get",
     ]);
 
     let snapbox = runner(&args);
@@ -68,11 +94,11 @@ async fn test_wrong_calldata() {
     args.append(&mut vec![
         "call",
         "--contract-address",
-        "0x2bd89651521ec94a7c497c53f6b4555eeecef8b2221350dc5a04aa14ba41d68",
+        MAP_CONTRACT_ADDRESS,
         "--function-name",
-        "get_balance",
+        "get",
         "--calldata",
-        "0x1",
+        "0x1 0x2",
     ]);
 
     let snapbox = runner(&args);

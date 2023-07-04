@@ -1,10 +1,13 @@
-use crate::helpers::constants::{ACCOUNT, ACCOUNT_FILE_PATH, CONTRACTS_DIR, NETWORK, URL};
+use crate::helpers::constants::{
+    ACCOUNT, ACCOUNT_FILE_PATH, CONTRACTS_DIR, MAP_CONTRACT_ADDRESS, NETWORK, URL,
+};
 use camino::Utf8PathBuf;
-use cast::{get_account, get_network, get_provider};
-use starknet::accounts::{Account, SingleOwnerAccount};
+use cast::{get_account, get_network, get_provider, parse_number};
+use starknet::accounts::{Account, Call, SingleOwnerAccount};
 use starknet::contract::ContractFactory;
 use starknet::core::types::contract::{CompiledClass, SierraClass};
 use starknet::core::types::FieldElement;
+use starknet::core::utils::get_selector_from_name;
 use starknet::providers::jsonrpc::HttpTransport;
 use starknet::providers::JsonRpcClient;
 use starknet::signers::LocalWallet;
@@ -77,6 +80,23 @@ pub async fn deploy_simple_balance_contract() {
         false,
     );
     deployment.send().await.ok();
+}
+
+pub async fn invoke_map_contract(key: &str, value: &str) {
+    let provider = get_provider(URL).expect("Could not get the provider");
+    let account = account(&provider);
+
+    let call = Call {
+        to: parse_number(MAP_CONTRACT_ADDRESS).expect("Could not parse the contract address"),
+        selector: get_selector_from_name("put").expect("Could not get selector from put"),
+        calldata: vec![
+            parse_number(key).expect("Could not parse the key"),
+            parse_number(value).expect("Could not parse the value"),
+        ],
+    };
+    let execution = account.execute(vec![call]);
+
+    execution.send().await.unwrap();
 }
 
 pub fn default_cli_args() -> Vec<&'static str> {
