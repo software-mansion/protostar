@@ -1,11 +1,11 @@
 use std::any::Any;
 use std::collections::hash_map::DefaultHasher;
 use std::collections::HashMap;
-use std::fs;
 use std::hash::{Hash, Hasher};
 use std::path::PathBuf;
 use std::sync::Arc;
 
+use crate::scarb::StarknetContractArtifacts;
 use anyhow::{anyhow, Result};
 use blockifier::abi::abi_utils::selector_from_name;
 use blockifier::block_context::BlockContext;
@@ -53,6 +53,7 @@ use starknet_api::{patricia_key, stark_felt};
 pub struct CairoHintProcessor<'a> {
     pub original_cairo_hint_processor: OriginalCairoHintProcessor<'a>,
     pub blockifier_state: Option<CachedState<DictStateReader>>,
+    pub contracts: &'a HashMap<String, StarknetContractArtifacts>,
 }
 
 impl HintProcessor for CairoHintProcessor<'_> {
@@ -69,7 +70,7 @@ impl HintProcessor for CairoHintProcessor<'_> {
             .as_mut()
             .expect("blockifier state is needed for executing hints");
         if let Some(Hint::Protostar(hint)) = maybe_extended_hint {
-            return execute_cheatcode_hint(vm, exec_scopes, hint, blockifier_state);
+            return execute_cheatcode_hint(vm, exec_scopes, hint, blockifier_state, self.contracts);
         }
         if let Some(Hint::Starknet(StarknetHint::SystemCall { system })) = maybe_extended_hint {
             return execute_syscall(system, vm, blockifier_state);
@@ -208,6 +209,7 @@ fn execute_cheatcode_hint(
     exec_scopes: &mut ExecutionScopes,
     hint: &ProtostarHint,
     blockifier_state: &mut CachedState<DictStateReader>,
+    contracts: &HashMap<String, StarknetContractArtifacts>,
 ) -> Result<(), HintError> {
     match hint {
         &ProtostarHint::StartRoll { .. } => todo!(),
@@ -223,49 +225,18 @@ fn execute_cheatcode_hint(
 
             let contract_value_as_short_str = as_cairo_short_string(&contract_value)
                 .expect("Converting contract name to short string failed");
-            let current_dir = std::env::current_dir()
-                .expect("Failed to get current directory")
-                .join("target/dev");
-
-            let mut paths = std::fs::read_dir(&current_dir)
-                .expect("Failed to read ./target/dev, scarb build probably failed");
-
-            let starknet_artifacts_entry = &paths
-                .find_map(|path| match path {
-                    Ok(path) => {
-                        let name = path.file_name().into_string().ok()?;
-                        name.contains("starknet_artifacts").then_some(path)
-                    }
-                    Err(_) => None,
-                })
-                .expect("Failed to find starknet_artifacts.json file");
-            let starknet_artifacts = fs::read_to_string(starknet_artifacts_entry.path())
-                .unwrap_or_else(|_| {
-                    panic!(
-                        "Failed to read {:?} contents",
-                        starknet_artifacts_entry.file_name()
+            let contract_artifact =
+                contracts
+                    .get(&contract_value_as_short_str)
+                    .unwrap_or_else(|| {
+                        panic!(
+                        "Failed to get contract artifact for name = {contract_value_as_short_str}"
                     )
+                    });
+            let sierra_contract_class: ContractClass =
+                serde_json::from_str(&contract_artifact.sierra).unwrap_or_else(|_| {
+                    panic!("File to parse json from artifact = {contract_artifact:?}")
                 });
-            let starknet_artifacts: ScarbStarknetArtifacts =
-                serde_json::from_str(starknet_artifacts.as_str()).unwrap_or_else(|_| {
-                    panic!(
-                        "Failed to parse {:?} contents",
-                        starknet_artifacts_entry.file_name()
-                    )
-                });
-
-            let sierra_path = starknet_artifacts.contracts.iter().find_map(|contract| {
-                if contract.contract_name == contract_value_as_short_str {
-                    return Some(contract.artifacts.sierra.clone());
-                }
-                None
-            }).unwrap_or_else(|| panic!("Failed to find contract {contract_value_as_short_str} in starknet_artifacts.json"));
-            let sierra_path = current_dir.join(sierra_path);
-
-            let file = std::fs::File::open(&sierra_path)
-                .unwrap_or_else(|_| panic!("Failed to open file at path = {:?}", &sierra_path));
-            let sierra_contract_class: ContractClass = serde_json::from_reader(&file)
-                .unwrap_or_else(|_| panic!("File to parse json from file = {file:?}"));
 
             let casm_contract_class =
                 CasmContractClass::from_contract_class(sierra_contract_class, true)

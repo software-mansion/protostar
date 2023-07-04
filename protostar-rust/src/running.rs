@@ -13,6 +13,7 @@ use cairo_lang_runner::{RunResult, SierraCasmRunner, StarknetState};
 use test_collector::TestUnit;
 
 use crate::cheatcodes_hint_processor::CairoHintProcessor;
+use crate::scarb::StarknetContractArtifacts;
 
 /// Builds `hints_dict` required in `cairo_vm::types::program::Program` from instructions.
 fn build_hints_dict<'b>(
@@ -43,6 +44,7 @@ fn build_hints_dict<'b>(
 pub(crate) fn run_from_test_units(
     runner: &mut SierraCasmRunner,
     unit: &TestUnit,
+    contracts: &HashMap<String, StarknetContractArtifacts>,
 ) -> Result<RunResult> {
     let available_gas = if let Some(available_gas) = &unit.available_gas {
         Some(*available_gas)
@@ -68,6 +70,7 @@ pub(crate) fn run_from_test_units(
     let mut cairo_hint_processor = CairoHintProcessor {
         original_cairo_hint_processor: core_cairo_hint_processor,
         blockifier_state: Some(create_state_with_trivial_validation_account()),
+        contracts,
     };
     let result = runner
         .run_function(
