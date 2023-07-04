@@ -1,12 +1,15 @@
 #!/bin/bash
 set -e
 
+COMPILER_DIRECTORY="$(git rev-parse --show-toplevel)/cast/tests/utils/"
+CAIRO_REPO="https://github.com/starkware-libs/cairo/releases/download"
+COMPILER_VERSION="v1.1.1"
+SCARB_VERSION="0.4.1"
+
 if ! which starknet-devnet > /dev/null 2>&1; then
   echo "starknet-devnet not found, exiting."
   exit 1
 fi
-
-SCARB_VERSION="0.4.1"
 
 if command -v asdf &> /dev/null; then
   asdf plugin add scarb https://github.com/software-mansion/asdf-scarb.git
@@ -17,10 +20,6 @@ else
   printf "Please install asdf\n https://asdf-vm.com/guide/getting-started.html#_2-download-asdf\n"
   exit 1
 fi
-
-COMPILER_DIRECTORY="$(git rev-parse --show-toplevel)/cast/tests/utils/"
-CAIRO_REPO="https://github.com/starkware-libs/cairo/releases/download"
-COMPILER_VERSION="v1.1.1"
 
 if [ ! -x "$COMPILER_DIRECTORY/cairo/bin/starknet-sierra-compile" ]; then
   if [[ $(uname -s) == 'Darwin' ]]; then
