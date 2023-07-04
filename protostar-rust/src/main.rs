@@ -52,9 +52,9 @@ fn main_execution() -> Result<()> {
 
     for package in &scarb_metadata.workspace.members {
         let protostar_config =
-            rust_test_runner::protostar_config_for_package(&scarb_metadata, package)?;
+            rust_test_runner::scarb::config_from_scarb_for_package(&scarb_metadata, package)?;
         let (base_path, dependencies) =
-            rust_test_runner::dependencies_for_package(&scarb_metadata, package)?;
+            rust_test_runner::scarb::dependencies_for_package(&scarb_metadata, package)?;
         let runner_config = RunnerConfig::new(
             args.test_name.clone(),
             args.exact,
