@@ -6,3 +6,5 @@ pub const NETWORK: &str = "testnet";
 pub const SEED: u32 = 1_053_545_548;
 
 pub const CONTRACTS_DIR: &str = "tests/data/contracts";
+pub const MAP_CONTRACT_ADDRESS: &str =
+    "0x38b7b9507ccf73d79cb42c2cc4e58cf3af1248f342112879bfdf5aa4f606cc9";

@@ -10,12 +10,12 @@ use starknet::providers::JsonRpcClient;
 use starknet::signers::LocalWallet;
 use std::sync::Arc;
 
-pub fn sierra_balance_path() -> String {
-    CONTRACTS_DIR.to_string() + "/balance/target/dev/balance_SimpleBalance.sierra.json"
+pub fn sierra_map_path() -> String {
+    CONTRACTS_DIR.to_string() + "/map/target/dev/map_Map.sierra.json"
 }
 
-pub fn casm_balance_path() -> String {
-    CONTRACTS_DIR.to_string() + "/balance/target/dev/balance_SimpleBalance.casm.json"
+pub fn casm_map_path() -> String {
+    CONTRACTS_DIR.to_string() + "/map/target/dev/map_Map.casm.json"
 }
 
 pub fn account(
@@ -36,12 +36,12 @@ pub async fn declare_simple_balance_contract() {
 
     let contract_definition: SierraClass = {
         let file_contents =
-            std::fs::read(sierra_balance_path()).expect("Could not read balance's sierra file");
+            std::fs::read(sierra_map_path()).expect("Could not read balance's sierra file");
         serde_json::from_slice(&file_contents).expect("Could not cast sierra file to SierraClass")
     };
     let casm_contract_definition: CompiledClass = {
         let file_contents =
-            std::fs::read(casm_balance_path()).expect("Could not read balance's casm file");
+            std::fs::read(casm_map_path()).expect("Could not read balance's casm file");
         serde_json::from_slice(&file_contents).expect("Could not cast casm file to CompiledClass")
     };
 
@@ -66,7 +66,7 @@ pub async fn deploy_simple_balance_contract() {
 
     let factory = ContractFactory::new(
         FieldElement::from_hex_be(
-            "0x8448a68b5ea1affc45e3fd4b8b480ea36a51dc34e337a16d2567d32d0c6f8a",
+            "0x76e94149fc55e7ad9c5fe3b9af570970ae2cf51205f8452f39753e9497fe849",
         )
         .expect("Could not create FieldElement from hex string"),
         account,
