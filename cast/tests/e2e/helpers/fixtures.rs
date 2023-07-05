@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use crate::helpers::constants::{
     ACCOUNT, ACCOUNT_FILE_PATH, CONTRACTS_DIR, MAP_CONTRACT_ADDRESS, NETWORK, URL,
 };
@@ -9,6 +10,8 @@ use starknet::core::types::contract::{CompiledClass, SierraClass};
 use starknet::core::types::FieldElement;
 use starknet::core::utils::get_selector_from_name;
 use std::sync::Arc;
+use serde_json::{json, Value};
+use starknet::core::types::TransactionReceipt;
 
 pub async fn declare_deploy_simple_balance_contract() {
     let provider = get_provider(URL).expect("Could not get the provider");
@@ -86,4 +89,30 @@ pub fn default_cli_args() -> Vec<&'static str> {
         "--account",
         ACCOUNT,
     ]
+}
+
+pub fn get_transaction_hash(output: &[u8]) -> FieldElement {
+    let output: HashMap<String, String> = serde_json::from_slice(output).expect("Could not serialize transaction output to HashMap");
+    parse_number(output.get("transaction_hash").expect("Could not get transaction_hash from output")).expect("Could not parse a number")
+}
+
+pub async fn get_transaction_receipt(tx_hash: FieldElement) -> TransactionReceipt {
+    let client = reqwest::Client::new();
+    let json = json!(
+        {
+            "jsonrpc": "2.0",
+            "method": "starknet_getTransactionReceipt",
+            "params": {
+                "transaction_hash": format!("{tx_hash:#x}"),
+            },
+            "id": 0,
+        }
+    );
+    let resp: Value = serde_json::from_str(
+        &client.post(URL).header("Content-Type", "application/json").body(json.to_string())
+        .send().await.expect("Error occurred while getting transaction receipt").text().await.expect("Could not get response from getTransactionReceipt")
+    ).expect("Could not serialize getTransactionReceipt response");
+
+    let result = resp.get("result").expect("There is no `result` field in getTransactionReceipt response");
+    serde_json::from_str(&result.to_string()).expect("Could not serialize result to `TransactionReceipt`")
 }
