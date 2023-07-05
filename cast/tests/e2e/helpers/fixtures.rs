@@ -3,7 +3,7 @@ use crate::helpers::constants::{
 };
 use camino::Utf8PathBuf;
 use cast::{get_account, get_network, get_provider, parse_number};
-use starknet::accounts::{Account, Call, SingleOwnerAccount};
+use starknet::accounts::{Account, Call};
 use starknet::contract::ContractFactory;
 use starknet::core::types::contract::{CompiledClass, SierraClass};
 use starknet::core::types::FieldElement;
@@ -56,7 +56,13 @@ pub async fn declare_deploy_simple_balance_contract() {
 
 pub async fn invoke_map_contract(key: &str, value: &str) {
     let provider = get_provider(URL).expect("Could not get the provider");
-    let account = account(&provider);
+    let account = get_account(
+        ACCOUNT,
+        &Utf8PathBuf::from(ACCOUNT_FILE_PATH),
+        &provider,
+        &get_network(NETWORK).expect("Could not get the network"),
+    )
+    .expect("Could not get the account");
 
     let call = Call {
         to: parse_number(MAP_CONTRACT_ADDRESS).expect("Could not parse the contract address"),
