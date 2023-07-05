@@ -22,7 +22,7 @@ pub struct Deploy {
     pub class_hash: String,
 
     /// Calldata for the contract constructor
-    #[clap(short, long)]
+    #[clap(short, long, value_delimiter = ' ')]
     pub constructor_calldata: Vec<String>,
 
     /// Salt for the address
