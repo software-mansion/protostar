@@ -1,3 +1,4 @@
+use crate::helpers::constants::MAP_CONTRACT_ADDRESS;
 use crate::helpers::fixtures::default_cli_args;
 use crate::helpers::runner::runner;
 use indoc::indoc;
@@ -10,11 +11,11 @@ async fn test_happy_case() {
         "--json",
         "invoke",
         "--contract-address",
-        "0x2bd89651521ec94a7c497c53f6b4555eeecef8b2221350dc5a04aa14ba41d68",
+        MAP_CONTRACT_ADDRESS,
         "--entry-point-name",
-        "increase_balance",
+        "put",
         "--calldata",
-        "0x1ab93",
+        "0x1 0x2",
         "--max-fee",
         "999999999999",
     ]);
@@ -24,7 +25,7 @@ async fn test_happy_case() {
     snapbox.assert().success().stdout_eq(indoc! {r#"
 {
   "command": "Invoke",
-  "transaction_hash": "441760207739321214581433241542253705558196427645618141494280065272904928835"
+  "transaction_hash": "3605890974153350937151855747920890264574574669766639448911509832790086538715"
 }
 "#});
 }
@@ -37,7 +38,7 @@ async fn test_contract_does_not_exist() {
         "--contract-address",
         "0x1",
         "--entry-point-name",
-        "increase_balance",
+        "put",
     ]);
 
     let snapbox = runner(&args);
@@ -53,9 +54,9 @@ async fn test_wrong_function_name() {
     args.append(&mut vec![
         "invoke",
         "--contract-address",
-        "0x2bd89651521ec94a7c497c53f6b4555eeecef8b2221350dc5a04aa14ba41d68",
+        MAP_CONTRACT_ADDRESS,
         "--entry-point-name",
-        "balance",
+        "nonexistent_put",
     ]);
 
     let snapbox = runner(&args);
@@ -71,11 +72,11 @@ async fn test_wrong_calldata() {
     args.append(&mut vec![
         "invoke",
         "--contract-address",
-        "0x2bd89651521ec94a7c497c53f6b4555eeecef8b2221350dc5a04aa14ba41d68",
+        MAP_CONTRACT_ADDRESS,
         "--entry-point-name",
-        "increase_balance",
+        "put",
         "--calldata",
-        "0x1ab93 0x1",
+        "0x1",
     ]);
 
     let snapbox = runner(&args);
@@ -89,8 +90,8 @@ async fn test_wrong_calldata() {
         Unknown location (pc=0:291)
         Unknown location (pc=0:314)
 
-        Error in the called contract (0x2bd89651521ec94a7c497c53f6b4555eeecef8b2221350dc5a04aa14ba41d68):
-        Execution was reverted; failure reason: [0x496e70757420746f6f206c6f6e6720666f7220617267756d656e7473].
+        Error in the called contract (0x38b7b9507ccf73d79cb42c2cc4e58cf3af1248f342112879bfdf5aa4f606cc9):
+        Execution was reverted; failure reason: [0x496e70757420746f6f2073686f727420666f7220617267756d656e7473].
     "#});
 }
 
@@ -100,11 +101,11 @@ async fn test_too_low_max_fee() {
     args.append(&mut vec![
         "invoke",
         "--contract-address",
-        "0x2bd89651521ec94a7c497c53f6b4555eeecef8b2221350dc5a04aa14ba41d68",
+        MAP_CONTRACT_ADDRESS,
         "--entry-point-name",
-        "increase_balance",
+        "put",
         "--calldata",
-        "0x1ab93",
+        "0x1 0x2",
         "--max-fee",
         "1",
     ]);
