@@ -73,7 +73,7 @@ pub(crate) fn run_from_test_config(
         blockifier_state: Some(create_state_with_trivial_validation_account()),
     };
 
-    // TODO(Radinyn) 1: Add custom class wrapping RunResult
+    // TODO(2176) 1: Add custom class wrapping RunResult
     match runner.run_function(
         runner.find_function(config.name.as_str())?,
         &mut cairo_hint_processor,
@@ -86,7 +86,7 @@ pub(crate) fn run_from_test_config(
         Err(RunnerError::CairoRunError(_)) => Ok(RunResult {
             gas_counter: None,
             memory: vec![],
-            // TODO(Radinyn) 2: add the string during creating custom class instance (recover it from the CairoRunError)
+            // TODO(2176) 2: add the string during creating custom class instance (recover it from the CairoRunError)
             value: RunResultValue::Panic(
                 vec![4417637, 6386787, 7300197, 2123122, 7499634] // "Cheatcode error"
                     .into_iter()

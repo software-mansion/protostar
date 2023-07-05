@@ -115,13 +115,22 @@ fn with_declare() {
         .current_dir(&temp)
         .assert()
         .success()
-        .stdout_matches(indoc! {r#"Collected 2 test(s) and 3 test file(s)
+        .stdout_matches(indoc! {r#"Collected 3 test(s) and 3 test file(s)
             Running 0 test(s) from src/contract1.cairo
             Running 0 test(s) from src/lib.cairo
-            Running 2 test(s) from tests/test_declare.cairo
+            Running 3 test(s) from tests/test_declare.cairo
             [PASS] test_declare::test_declare::test_declare_simple
             [PASS] test_declare::test_declare::multiple_contracts
-            Tests: 2 passed, 0 failed, 0 skipped
+            [FAIL] test_declare::test_declare::non_existant_contract
+
+            Failure data:
+                original value: [4417637], converted to a string: [Che]
+                original value: [6386787], converted to a string: [atc]
+                original value: [7300197], converted to a string: [ode]
+                original value: [2123122], converted to a string: [ er]
+                original value: [7499634], converted to a string: [ror]
+
+            Tests: 2 passed, 1 failed, 0 skipped
         "#});
 }
 
