@@ -24,7 +24,7 @@ pub struct Invoke {
     pub entry_point_name: String,
 
     /// Calldata for the invoked function
-    #[clap(short, long)]
+    #[clap(short, long, value_delimiter = ' ')]
     pub calldata: Vec<String>,
 
     /// Max fee for the transaction. If not provided, max fee will be automatically estimated
