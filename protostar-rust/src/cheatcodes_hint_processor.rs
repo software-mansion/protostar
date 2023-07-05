@@ -254,12 +254,12 @@ fn execute_cheatcode_hint(
                     )
                 });
 
-            let sierra_path = starknet_artifacts.contracts.iter().find_map(|contract| {
+            let Some(sierra_path) = starknet_artifacts.contracts.iter().find_map(|contract| {
                 if contract.contract_name == contract_value_as_short_str {
                     return Some(contract.artifacts.sierra.clone());
                 }
                 None
-            }).unwrap_or_else(|| panic!("Failed to find contract {contract_value_as_short_str} in starknet_artifacts.json"));
+            }) else {return Err(HintError::CustomHint("Failed to find contract {contract_value_as_short_str} in starknet_artifacts.json".into()))};
             let sierra_path = current_dir.join(sierra_path);
 
             let file = std::fs::File::open(&sierra_path)

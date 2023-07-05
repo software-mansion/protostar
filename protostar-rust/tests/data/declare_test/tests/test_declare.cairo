@@ -18,3 +18,8 @@ fn multiple_contracts() {
 
     assert(class_hash != class_hash2, 'class hashes neq');
 }
+
+#[test]
+fn non_existant_contract() {
+    let class_hash = declare('GoodbyeStarknet').unwrap();
+}
