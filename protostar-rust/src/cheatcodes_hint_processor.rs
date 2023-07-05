@@ -379,7 +379,7 @@ fn declare(
         .expect("Failed to read contract class from json");
     let contract_class = BlockifierContractClass::V1(contract_class);
 
-    // TODO(#2134) replace this. Hash should be calculated by the blockifier in the correct manner. This is just a workaround.
+    // TODO(#2134) replace this. Hash should be calculated in the correct manner. This is just a workaround.
     let mut hasher = DefaultHasher::new();
     casm_serialized.hash(&mut hasher);
     let class_hash = hasher.finish();
