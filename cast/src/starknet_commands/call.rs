@@ -43,9 +43,7 @@ pub async fn call(
             .context("Failed to convert entry point selector to FieldElement")?,
         calldata: calldata
             .iter()
-            .map(|x| {
-                parse_number(x).context("Failed to convert calldata to FieldElement")
-            })
+            .map(|x| parse_number(x).context("Failed to convert calldata to FieldElement"))
             .collect::<Result<Vec<_>>>()?,
     };
     let res = provider.call(function_call, block_id).await;
