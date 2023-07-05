@@ -44,7 +44,9 @@ pub async fn invoke(
         selector: get_selector_from_name(entry_point_name)?,
         calldata: calldata
             .iter()
-            .map(|cd| parse_number(cd).context("Failed to convert calldata to FieldElement"))
+            .map(|cd| {
+                parse_number(cd).context("Failed to convert calldata to FieldElement")
+            })
             .collect::<Result<Vec<_>>>()?,
     };
     let execution = account.execute(vec![call]);

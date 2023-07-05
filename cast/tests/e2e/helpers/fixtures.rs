@@ -8,43 +8,30 @@ use starknet::contract::ContractFactory;
 use starknet::core::types::contract::{CompiledClass, SierraClass};
 use starknet::core::types::FieldElement;
 use starknet::core::utils::get_selector_from_name;
-use starknet::providers::jsonrpc::HttpTransport;
-use starknet::providers::JsonRpcClient;
-use starknet::signers::LocalWallet;
 use std::sync::Arc;
 
-pub fn sierra_map_path() -> String {
-    CONTRACTS_DIR.to_string() + "/map/target/dev/map_Map.sierra.json"
-}
-
-pub fn casm_map_path() -> String {
-    CONTRACTS_DIR.to_string() + "/map/target/dev/map_Map.casm.json"
-}
-
-pub fn account(
-    provider: &JsonRpcClient<HttpTransport>,
-) -> SingleOwnerAccount<&JsonRpcClient<HttpTransport>, LocalWallet> {
-    get_account(
+pub async fn declare_deploy_simple_balance_contract() {
+    let provider = get_provider(URL).expect("Could not get the provider");
+    let account = get_account(
         ACCOUNT,
         &Utf8PathBuf::from(ACCOUNT_FILE_PATH),
-        provider,
+        &provider,
         &get_network(NETWORK).expect("Could not get the network"),
     )
-    .expect("Could not get the account")
-}
-
-pub async fn declare_simple_balance_contract() {
-    let provider = get_provider(URL).expect("Could not get the provider");
-    let account = account(&provider);
+    .expect("Could not get the account");
 
     let contract_definition: SierraClass = {
-        let file_contents =
-            std::fs::read(sierra_map_path()).expect("Could not read balance's sierra file");
+        let file_contents = std::fs::read(
+            CONTRACTS_DIR.to_string() + "/map/target/dev/map_Map.sierra.json",
+        )
+        .expect("Could not read balance's sierra file");
         serde_json::from_slice(&file_contents).expect("Could not cast sierra file to SierraClass")
     };
     let casm_contract_definition: CompiledClass = {
-        let file_contents =
-            std::fs::read(casm_map_path()).expect("Could not read balance's casm file");
+        let file_contents = std::fs::read(
+            CONTRACTS_DIR.to_string() + "/map/target/dev/map_Map.casm.json",
+        )
+        .expect("Could not read balance's casm file");
         serde_json::from_slice(&file_contents).expect("Could not cast casm file to CompiledClass")
     };
 
@@ -60,26 +47,11 @@ pub async fn declare_simple_balance_contract() {
         ),
         casm_class_hash,
     );
-    declaration.send().await.unwrap();
-}
+    let declared = declaration.send().await.unwrap();
 
-pub async fn deploy_simple_balance_contract() {
-    let provider = get_provider(URL).expect("Could not get the provider");
-    let account = account(&provider);
-
-    let factory = ContractFactory::new(
-        FieldElement::from_hex_be(
-            "0x76e94149fc55e7ad9c5fe3b9af570970ae2cf51205f8452f39753e9497fe849",
-        )
-        .expect("Could not create FieldElement from hex string"),
-        account,
-    );
-    let deployment = factory.deploy(
-        Vec::new(),
-        FieldElement::from_hex_be("0x1").expect("Could not create FieldElement from hex string"),
-        false,
-    );
-    deployment.send().await.ok();
+    let factory = ContractFactory::new(declared.class_hash, account);
+    let deployment = factory.deploy(Vec::new(), FieldElement::ONE, false);
+    deployment.send().await.unwrap();
 }
 
 pub async fn invoke_map_contract(key: &str, value: &str) {
