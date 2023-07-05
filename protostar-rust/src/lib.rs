@@ -14,12 +14,12 @@ use cairo_lang_utils::ordered_hash_map::OrderedHashMap;
 use crate::running::run_from_test_config;
 use test_collector::{collect_tests, LinkedLibrary, TestConfig};
 
-use crate::test_stats::TestsStats;
+use crate::test_results::TestSummary;
 
 mod cheatcodes_hint_processor;
 pub mod pretty_printing;
 mod running;
-mod test_stats;
+mod test_results;
 
 /// Configuration of the test runner
 #[derive(Deserialize, Debug, PartialEq)]
@@ -161,18 +161,19 @@ pub fn run(
         tests.len(),
     );
 
-    let mut tests_stats = TestsStats::default();
+    let mut tests_summary = TestSummary::default();
     let mut tests_iterator = tests.into_iter();
 
     for tests_from_file in tests_iterator.by_ref() {
-        if run_tests(tests_from_file, &mut tests_stats, runner_config)? == RunnerStatus::TestFailed
+        if run_tests(tests_from_file, &mut tests_summary, runner_config)?
+            == RunnerStatus::TestFailed
         {
             break;
         }
     }
 
     for tests_from_file in tests_iterator {
-        tests_stats.skipped += tests_from_file.tests_configs.len();
+        tests_summary.skipped += tests_from_file.tests_configs.len();
     }
 
     pretty_printing::print_test_summary(tests_stats);
@@ -182,7 +183,7 @@ pub fn run(
 
 fn run_tests(
     tests: TestsFromFile,
-    tests_stats: &mut TestsStats,
+    tests_summary: &mut TestSummary,
     runner_config: &RunnerConfig,
 ) -> Result<RunnerStatus> {
     let mut runner = SierraCasmRunner::new(
@@ -196,12 +197,12 @@ fn run_tests(
     for (i, config) in tests.tests_configs.iter().enumerate() {
         let result = run_from_test_config(&mut runner, config)?;
 
-        tests_stats.update(&result.value);
+        tests_summary.update(&result.value);
         pretty_printing::print_test_result(&config.name.clone(), &result.value);
 
         if runner_config.exit_first {
             if let RunResultValue::Panic(_) = result.value {
-                tests_stats.skipped += tests.tests_configs.len() - i - 1;
+                tests_summary.skipped += tests.tests_configs.len() - i - 1;
                 return Ok(RunnerStatus::TestFailed);
             }
         }

@@ -16,6 +16,7 @@ use cairo_lang_runner::{RunResult, SierraCasmRunner, StarknetState};
 use test_collector::TestConfig;
 
 use crate::cheatcodes_hint_processor::CairoHintProcessor;
+use crate::test_results::TestResult;
 
 /// Builds `hints_dict` required in `cairo_vm::types::program::Program` from instructions.
 fn build_hints_dict<'b>(
@@ -43,10 +44,24 @@ fn build_hints_dict<'b>(
     (hints_dict, string_to_hint)
 }
 
+fn map_run_result_to_test_result(name: &str, run_result: RunResult) -> TestResult {
+    match run_result.value {
+        RunResultValue::Success(_) => TestResult::Passed {
+            name: name.to_string(),
+            run_result: Some(run_result),
+        },
+        RunResultValue::Panic(_) => TestResult::Failed {
+            name: name.to_string(),
+            run_result: Some(run_result),
+            msg: "TODO!!!".to_string(),
+        },
+    }
+}
+
 pub(crate) fn run_from_test_config(
     runner: &mut SierraCasmRunner,
     config: &TestConfig,
-) -> Result<RunResult> {
+) -> Result<TestResult> {
     let available_gas = if let Some(available_gas) = &config.available_gas {
         Some(*available_gas)
     } else {
@@ -73,7 +88,6 @@ pub(crate) fn run_from_test_config(
         blockifier_state: Some(create_state_with_trivial_validation_account()),
     };
 
-    // TODO(2176) 1: Add custom class wrapping RunResult
     match runner.run_function(
         runner.find_function(config.name.as_str())?,
         &mut cairo_hint_processor,
@@ -81,19 +95,15 @@ pub(crate) fn run_from_test_config(
         instructions,
         builtins,
     ) {
-        Ok(result) => Ok(result),
+        Ok(result) => Ok(map_run_result_to_test_result(config.name.as_str(), result)),
+
         // CairoRunError comes from VirtualMachineError which may come from HintException that originates in the cheatcode processor
-        Err(RunnerError::CairoRunError(_)) => Ok(RunResult {
-            gas_counter: None,
-            memory: vec![],
-            // TODO(2176) 2: add the string during creating custom class instance (recover it from the CairoRunError)
-            value: RunResultValue::Panic(
-                vec![4_417_637, 6_386_787, 7_300_197, 2_123_122, 7_499_634] // "Cheatcode error"
-                    .into_iter()
-                    .map(Felt252::from)
-                    .collect_vec(),
-            ),
+        Err(RunnerError::CairoRunError(error)) => Ok(TestResult::Failed {
+            name: config.name,
+            run_result: None,
+            msg: error.to_string(),
         }),
+
         Err(err) => Err(err.into()),
     }
 }

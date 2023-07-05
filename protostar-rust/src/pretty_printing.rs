@@ -6,7 +6,7 @@ use console::style;
 use cairo_lang_runner::short_string::as_cairo_short_string;
 use cairo_lang_runner::RunResultValue;
 
-use crate::test_stats::TestsStats;
+use crate::test_results::TestSummary;
 
 pub fn print_error_message(error: &Error) {
     let error_tag = style("ERROR").red();
@@ -23,13 +23,13 @@ pub fn print_running_tests(test_file: &Utf8PathBuf, tests_num: usize) {
     println!("{}", style(plain_text).bold());
 }
 
-pub fn print_test_summary(tests_stats: TestsStats) {
+pub fn print_test_summary(tests_results: &TestSummary) {
     println!(
         "{}: {} passed, {} failed, {} skipped",
         style("Tests").bold(),
-        tests_stats.passed,
-        tests_stats.failed,
-        tests_stats.skipped
+        tests_results.passed.len(),
+        tests_results.failed.len(),
+        tests_results.skipped.len(),
     );
 }
 
