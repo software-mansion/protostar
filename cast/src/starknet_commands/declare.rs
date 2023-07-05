@@ -1,6 +1,7 @@
 use anyhow::{anyhow, Context, Result};
 use cast::{handle_rpc_error, handle_wait_for_tx_result};
 use clap::Args;
+use serde::Deserialize;
 use starknet::accounts::AccountError::Provider;
 use starknet::accounts::ConnectedAccount;
 use starknet::core::types::FieldElement;
@@ -13,10 +14,9 @@ use starknet::{
     providers::jsonrpc::{HttpTransport, JsonRpcClient},
     signers::LocalWallet,
 };
-use std::sync::Arc;
-use std::process::{Command, Stdio};
-use serde::Deserialize;
 use std::path::PathBuf;
+use std::process::{Command, Stdio};
+use std::sync::Arc;
 
 #[allow(dead_code)]
 #[derive(Deserialize)]
