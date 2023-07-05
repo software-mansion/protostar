@@ -88,7 +88,7 @@ pub(crate) fn run_from_test_config(
             memory: vec![],
             // TODO(2176) 2: add the string during creating custom class instance (recover it from the CairoRunError)
             value: RunResultValue::Panic(
-                vec![4417637, 6386787, 7300197, 2123122, 7499634] // "Cheatcode error"
+                vec![4_417_637, 6_386_787, 7_300_197, 2_123_122, 7_499_634] // "Cheatcode error"
                     .into_iter()
                     .map(Felt252::from)
                     .collect_vec(),
