@@ -7,8 +7,8 @@ use starknet::accounts::SingleOwnerAccount;
 use starknet::providers::JsonRpcClient;
 use starknet::signers::LocalWallet;
 use crate::starknet_commands::{
-    invoke::invoke,
-    deploy::deploy,
+    invoke::invoke_and_print,
+    deploy::deploy_and_print,
 };
 
 #[allow(dead_code)]
@@ -43,6 +43,8 @@ pub struct Multicall {
 pub async fn multicall(
     path: &str,
     account: &mut SingleOwnerAccount<&JsonRpcClient<HttpTransport>, LocalWallet>,
+    int_format: bool,
+    json: bool,
 ) -> Result<()> {
     let contents = std::fs::read_to_string(path)?;
     let items_map: HashMap<String, Vec<toml::Value>> = toml::from_str(&contents).expect("failed to parse toml file");
@@ -54,25 +56,29 @@ pub async fn multicall(
                     let deploy_call: DeployCall = toml::from_str(call.to_string().as_str()).expect("failed to parse toml `deploy` call");
                     let inputs_as_strings: Vec<String> = deploy_call.inputs.iter().map(|item| item.to_string()).collect();
                     let inputs_as_strings_slices: Vec<&str> = inputs_as_strings.iter().map(String::as_str).collect();
-                    deploy(
+                    deploy_and_print(
                         deploy_call.class_hash.as_str(),
                         inputs_as_strings_slices,
                         deploy_call.salt.as_ref().map(|x| &**x),
                         deploy_call.unique,
                         deploy_call.max_fee,
-                        account
+                        account,
+                        int_format,
+                        json,
                     ).await?;
                 }
                 "\"invoke\"" => {
                     let invoke_call: InvokeCall = toml::from_str(call.to_string().as_str()).expect("failed to parse toml `invoke` call");
                     let inputs_as_strings: Vec<String> = invoke_call.inputs.iter().map(|item| item.to_string()).collect();
                     let inputs_as_strings_slices: Vec<&str> = inputs_as_strings.iter().map(String::as_str).collect();
-                    invoke(
+                    invoke_and_print(
                         &invoke_call.contract_address[..],
                         &invoke_call.function,
                         inputs_as_strings_slices,
                         invoke_call.max_fee,
-                        account
+                        account,
+                        int_format,
+                        json,
                     ).await?;
                 }
                 unsupported => {

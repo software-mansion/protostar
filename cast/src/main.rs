@@ -119,7 +119,7 @@ async fn main() -> Result<()> {
         Commands::Deploy(deploy) => {
             let account = get_account(&cli.account, &accounts_file_path, &provider, &network)?;
 
-            let result = starknet_commands::deploy::deploy(
+            starknet_commands::deploy::deploy_and_print(
                 &deploy.class_hash,
                 deploy
                     .constructor_calldata
@@ -130,29 +130,10 @@ async fn main() -> Result<()> {
                 deploy.unique,
                 deploy.max_fee,
                 &account,
+                cli.int_format,
+                cli.json,
             )
-            .await;
-
-            match result {
-                Ok((transaction_hash, contract_address)) => print_formatted(
-                    vec![
-                        ("command", "Deploy".to_string()),
-                        ("contract_address", format!("{contract_address}")),
-                        ("transaction_hash", format!("{transaction_hash}")),
-                    ],
-                    cli.int_format,
-                    cli.json,
-                    false,
-                )?,
-                Err(error) => {
-                    print_formatted(
-                        vec![("error", error.to_string())],
-                        cli.int_format,
-                        cli.json,
-                        true,
-                    )?;
-                }
-            }
+            .await?;
 
             Ok(())
         }
@@ -192,41 +173,23 @@ async fn main() -> Result<()> {
         }
         Commands::Invoke(invoke) => {
             let mut account = get_account(&cli.account, &accounts_file_path, &provider, &network)?;
-            let result = starknet_commands::invoke::invoke(
+            starknet_commands::invoke::invoke_and_print(
                 &invoke.contract_address,
                 &invoke.entry_point_name,
                 invoke.calldata.iter().map(AsRef::as_ref).collect(),
                 invoke.max_fee,
                 &mut account,
+                cli.int_format,
+                cli.json,
             )
-            .await;
-
-            match result {
-                Ok(transaction_hash) => print_formatted(
-                    vec![
-                        ("command", "Invoke".to_string()),
-                        ("transaction_hash", format!("{transaction_hash}")),
-                    ],
-                    cli.int_format,
-                    cli.json,
-                    false,
-                )?,
-                Err(error) => {
-                    print_formatted(
-                        vec![("error", error.to_string())],
-                        cli.int_format,
-                        cli.json,
-                        true,
-                    )?;
-                }
-            }
+            .await?;
 
             Ok(())
         }
         Commands::Multicall(multicall) => {
             let mut account =
                 get_account(&cli.account, &accounts_file_path, &provider, &network)?;
-            starknet_commands::multicall::multicall(&multicall.path, &mut account).await?;
+            starknet_commands::multicall::multicall(&multicall.path, &mut account, cli.int_format, cli.json).await?;
             Ok(())
         }
     }
