@@ -20,6 +20,6 @@ fn multiple_contracts() {
 }
 
 #[test]
-fn non_existant_contract() {
+fn non_existent_contract() {
     let class_hash = declare('GoodbyeStarknet').unwrap();
 }

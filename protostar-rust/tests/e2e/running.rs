@@ -121,7 +121,7 @@ fn with_declare() {
             Running 3 test(s) from tests/test_declare.cairo
             [PASS] test_declare::test_declare::test_declare_simple
             [PASS] test_declare::test_declare::multiple_contracts
-            [FAIL] test_declare::test_declare::non_existant_contract
+            [FAIL] test_declare::test_declare::non_existent_contract
 
             Failure data:
                 Got an exception while executing a hint:
