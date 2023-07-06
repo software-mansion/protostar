@@ -1,4 +1,4 @@
-use crate::helpers::devnet::URL;
+use crate::helpers::constants::URL;
 
 use camino::Utf8PathBuf;
 use cast::{get_account, get_provider, Network};
