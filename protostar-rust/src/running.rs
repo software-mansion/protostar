@@ -8,7 +8,7 @@ use itertools::chain;
 use cairo_lang_casm::hints::Hint;
 use cairo_lang_casm::instructions::Instruction;
 use cairo_lang_runner::casm_run::hint_to_hint_params;
-use cairo_lang_runner::CairoHintProcessor as CoreCairoHintProcessor;
+use cairo_lang_runner::{CairoHintProcessor as CoreCairoHintProcessor, RunResultValue};
 use cairo_lang_runner::{RunResult, SierraCasmRunner, StarknetState};
 use test_collector::TestUnit;
 
@@ -41,11 +41,32 @@ fn build_hints_dict<'b>(
     (hints_dict, string_to_hint)
 }
 
+type TestUnitExitStatus = RunResultValue;
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct TestUnitSummary {
+    pub test_unit: TestUnit,
+    pub gas_counter: Option<cairo_felt::Felt252>,
+    pub memory: Vec<Option<cairo_felt::Felt252>>,
+    pub exit_status: TestUnitExitStatus,
+}
+
+impl TestUnitSummary {
+    fn from(test_unit: TestUnit, run_result: RunResult) -> Self {
+        Self {
+            test_unit,
+            gas_counter: run_result.gas_counter,
+            memory: run_result.memory,
+            exit_status: run_result.value,
+        }
+    }
+}
+
 pub(crate) fn run_from_test_units(
     runner: &mut SierraCasmRunner,
     unit: &TestUnit,
     contracts: &HashMap<String, StarknetContractArtifacts>,
-) -> Result<RunResult> {
+) -> Result<TestUnitSummary> {
     let available_gas = if let Some(available_gas) = &unit.available_gas {
         Some(*available_gas)
     } else {
@@ -81,5 +102,5 @@ pub(crate) fn run_from_test_units(
             builtins,
         )
         .with_context(|| format!("Failed to run the function `{}`.", unit.name.as_str()))?;
-    Ok(result)
+    Ok(TestUnitSummary::from(unit.clone(), result))
 }
