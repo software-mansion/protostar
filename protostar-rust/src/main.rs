@@ -9,6 +9,7 @@ use tempfile::{tempdir, TempDir};
 use rust_test_runner::run;
 use rust_test_runner::{pretty_printing, RunnerConfig};
 
+use rust_test_runner::scarb::{get_contracts_map, try_get_starknet_artifacts_path};
 use std::process::Command;
 
 static CORELIB_PATH: Dir = include_dir!("../cairo/corelib/src");
@@ -62,11 +63,18 @@ fn main_execution() -> Result<()> {
             &protostar_config,
         );
 
+        let contracts_path = try_get_starknet_artifacts_path(&base_path)?;
+        let contracts = contracts_path
+            .map(|path| get_contracts_map(&path))
+            .transpose()?
+            .unwrap_or_default();
+
         run(
             &base_path,
             Some(dependencies.clone()),
             &runner_config,
             Some(&corelib),
+            &contracts,
         )?;
     }
 
