@@ -15,7 +15,7 @@ use crate::starknet_commands::{
 #[derive(Deserialize, Debug)]
 struct DeployCall {
     call_type: String,
-    class_hash: u32,
+    class_hash: String,
     inputs: Vec<u32>,
     max_fee: Option<u128>,
     unique: bool,
@@ -26,7 +26,7 @@ struct DeployCall {
 #[derive(Deserialize, Debug)]
 struct InvokeCall {
     call_type: String,
-    contract_address: u32,
+    contract_address: String,
     function: String,
     inputs: Vec<u32>,
     max_fee: Option<u128>,
@@ -55,7 +55,7 @@ pub async fn multicall(
                     let inputs_as_strings: Vec<String> = deploy_call.inputs.iter().map(|item| item.to_string()).collect();
                     let inputs_as_strings_slices: Vec<&str> = inputs_as_strings.iter().map(String::as_str).collect();
                     deploy(
-                        deploy_call.class_hash.to_string().as_str(),
+                        deploy_call.class_hash.as_str(),
                         inputs_as_strings_slices,
                         deploy_call.salt.as_ref().map(|x| &**x),
                         deploy_call.unique,
@@ -68,7 +68,7 @@ pub async fn multicall(
                     let inputs_as_strings: Vec<String> = invoke_call.inputs.iter().map(|item| item.to_string()).collect();
                     let inputs_as_strings_slices: Vec<&str> = inputs_as_strings.iter().map(String::as_str).collect();
                     invoke(
-                        &invoke_call.contract_address.to_string()[..],
+                        &invoke_call.contract_address[..],
                         &invoke_call.function,
                         inputs_as_strings_slices,
                         invoke_call.max_fee,
