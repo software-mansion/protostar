@@ -6,7 +6,8 @@ use crate::common::runner::runner;
 #[test]
 fn simple_package() {
     let temp = assert_fs::TempDir::new().unwrap();
-    temp.copy_from("tests/data/simple_test", &["**/*"]).unwrap();
+    temp.copy_from("tests/data/simple_test", &["**/*.cairo", "**/*.toml"])
+        .unwrap();
 
     let snapbox = runner();
 
@@ -39,7 +40,8 @@ fn simple_package() {
 #[test]
 fn with_filter() {
     let temp = assert_fs::TempDir::new().unwrap();
-    temp.copy_from("tests/data/simple_test", &["**/*"]).unwrap();
+    temp.copy_from("tests/data/simple_test", &["**/*.cairo", "**/*.toml"])
+        .unwrap();
 
     let snapbox = runner();
 
@@ -62,7 +64,8 @@ fn with_filter() {
 #[test]
 fn with_exact_filter() {
     let temp = assert_fs::TempDir::new().unwrap();
-    temp.copy_from("tests/data/simple_test", &["**/*"]).unwrap();
+    temp.copy_from("tests/data/simple_test", &["**/*.cairo", "**/*.toml"])
+        .unwrap();
 
     let snapbox = runner();
 
@@ -85,7 +88,8 @@ fn with_exact_filter() {
 #[test]
 fn with_non_matching_filter() {
     let temp = assert_fs::TempDir::new().unwrap();
-    temp.copy_from("tests/data/simple_test", &["**/*"]).unwrap();
+    temp.copy_from("tests/data/simple_test", &["**/*.cairo", "**/*.toml"])
+        .unwrap();
 
     let snapbox = runner();
 
@@ -106,7 +110,7 @@ fn with_non_matching_filter() {
 #[test]
 fn with_declare() {
     let temp = assert_fs::TempDir::new().unwrap();
-    temp.copy_from("tests/data/declare_test", &["**/*"])
+    temp.copy_from("tests/data/declare_test", &["**/*.cairo", "**/*.toml"])
         .unwrap();
 
     let snapbox = runner();
@@ -128,7 +132,7 @@ fn with_declare() {
 #[test]
 fn run_with_multiple_contracts() {
     let temp = assert_fs::TempDir::new().unwrap();
-    temp.copy_from("tests/data/multicontract", &["**/*"])
+    temp.copy_from("tests/data/multicontract", &["**/*.cairo", "**/*.toml"])
         .unwrap();
 
     let snapbox = runner();
@@ -160,7 +164,8 @@ fn run_with_multiple_contracts() {
 #[test]
 fn with_print() {
     let temp = assert_fs::TempDir::new().unwrap();
-    temp.copy_from("tests/data/print_test", &["**/*"]).unwrap();
+    temp.copy_from("tests/data/print_test", &["**/*.cairo", "**/*.toml"])
+        .unwrap();
 
     let snapbox = runner();
 
@@ -186,8 +191,11 @@ fn with_print() {
 #[test]
 fn panic_data_decoding() {
     let temp = assert_fs::TempDir::new().unwrap();
-    temp.copy_from("tests/data/panic_decoding_test", &["**/*"])
-        .unwrap();
+    temp.copy_from(
+        "tests/data/panic_decoding_test",
+        &["**/*.cairo", "**/*.toml"],
+    )
+    .unwrap();
 
     let snapbox = runner();
 
@@ -222,7 +230,7 @@ fn panic_data_decoding() {
 #[test]
 fn exit_first() {
     let temp = assert_fs::TempDir::new().unwrap();
-    temp.copy_from("tests/data/exit_first_test", &["**/*"])
+    temp.copy_from("tests/data/exit_first_test", &["**/*.cairo", "**/*.toml"])
         .unwrap();
 
     let snapbox = runner();
@@ -252,7 +260,8 @@ fn exit_first() {
 #[test]
 fn exit_first_flag() {
     let temp = assert_fs::TempDir::new().unwrap();
-    temp.copy_from("tests/data/simple_test", &["**/*"]).unwrap();
+    temp.copy_from("tests/data/simple_test", &["**/*.cairo", "**/*.toml"])
+        .unwrap();
 
     let snapbox = runner().arg("--exit-first");
 
@@ -283,7 +292,8 @@ fn exit_first_flag() {
 #[test]
 fn dispatchers() {
     let temp = assert_fs::TempDir::new().unwrap();
-    temp.copy_from("tests/data/dispatchers", &["**/*"]).unwrap();
+    temp.copy_from("tests/data/dispatchers", &["**/*.cairo", "**/*.toml"])
+        .unwrap();
 
     let snapbox = runner();
 
