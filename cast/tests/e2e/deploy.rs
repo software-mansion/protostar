@@ -1,7 +1,8 @@
 use crate::helpers::constants::MAP_CLASS_HASH;
-use crate::helpers::fixtures::default_cli_args;
+use crate::helpers::fixtures::{default_cli_args, get_transaction_hash, get_transaction_receipt};
 use crate::helpers::runner::runner;
 use indoc::indoc;
+use starknet::core::types::TransactionReceipt::Invoke;
 
 #[tokio::test]
 async fn test_happy_case() {
@@ -20,14 +21,12 @@ async fn test_happy_case() {
     ]);
 
     let snapbox = runner(&args);
+    let output = snapbox.assert().success().get_output().stdout.clone();
 
-    snapbox.assert().success().stdout_eq(indoc! {r#"
-{
-  "command": "Deploy",
-  "contract_address": "3136215836708901795618334565051954066277512294057960177787473886680603169588",
-  "transaction_hash": "3264120505042658743939221190313555798158132320315351505088247563355415619141"
-}
-"#});
+    let hash = get_transaction_hash(&output);
+    let receipt = get_transaction_receipt(hash).await;
+
+    assert!(matches!(receipt, Invoke(_)));
 }
 
 #[tokio::test]
@@ -49,27 +48,13 @@ async fn test_contract_already_deployed() {
         "--class-hash",
         MAP_CLASS_HASH,
         "--salt",
-        "0x100",
-        "--max-fee",
-        "999999999999",
+        "0x1",
     ]);
 
     let snapbox = runner(&args);
-    snapbox.assert().success();
+    let output = String::from_utf8(snapbox.assert().success().get_output().stderr.clone()).unwrap();
 
-    let snapbox2 = runner(&args);
-    snapbox2.assert().success().stderr_matches(indoc! {r#"
-{
-  "command": "Deploy",
-  "contract_address": "3136215836708901795618334565051954066277512294057960177787473886680603169588",
-  "transaction_hash": "3264120505042658743939221190313555798158132320315351505088247563355415619141"
-}
-"#});
-    // let output = String::from_utf8(snapbox.assert().success().get_output().stderr.clone()).unwrap();
-    //
-    // println!("{output}");
-    //
-    // assert!(output.contains("'code': <StarknetErrorCode.CONTRACT_ADDRESS_UNAVAILABLE: 4>"));
+    assert!(output.contains("StarknetErrorCode.CONTRACT_ADDRESS_UNAVAILABLE"));
 }
 
 #[tokio::test]
