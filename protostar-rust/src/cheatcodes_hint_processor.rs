@@ -210,28 +210,28 @@ fn call_contract(
 // to prevent the whole runner from panicking
 #[derive(Error, Debug)]
 enum EnhancedHintError {
-    #[error("hint error: {0}")]
-    HintError(#[from] HintError),
-    #[error("io error: {0}")]
+    #[error(transparent)]
+    Hint(#[from] HintError),
+    #[error(transparent)]
     Io(#[from] io::Error),
-    #[error("anyhow error: {0}")]
+    #[error(transparent)]
     Anyhow(#[from] anyhow::Error),
-    #[error("virtual machine error: {0}")]
-    VirtualMachineError(#[from] VirtualMachineError),
-    #[error("memory error: {0}")]
-    MemoryError(#[from] MemoryError),
-    #[error("blockifier state error: {0}")]
-    StateError(#[from] StateError),
-    #[error("serde json error: {0}")]
-    SerdeJsonError(#[from] serde_json::Error),
-    #[error("starknet api error: {0}")]
-    StarknetApiError(#[from] StarknetApiError),
+    #[error(transparent)]
+    VirtualMachine(#[from] VirtualMachineError),
+    #[error(transparent)]
+    Memory(#[from] MemoryError),
+    #[error(transparent)]
+    State(#[from] StateError),
+    #[error(transparent)]
+    SerdeJson(#[from] serde_json::Error),
+    #[error(transparent)]
+    StarknetApi(#[from] StarknetApiError),
 }
 
 impl From<EnhancedHintError> for HintError {
     fn from(error: EnhancedHintError) -> Self {
         match error {
-            EnhancedHintError::HintError(error) => error,
+            EnhancedHintError::Hint(error) => error,
             error => HintError::CustomHint(error.to_string().into_boxed_str()),
         }
     }

@@ -3,9 +3,8 @@ use std::collections::HashMap;
 use anyhow::Result;
 use blockifier::transaction::transaction_utils_for_protostar::create_state_with_trivial_validation_account;
 use cairo_vm::serde::deserialize_program::HintParams;
-use itertools::{chain, Itertools};
+use itertools::chain;
 
-use cairo_felt::Felt252;
 use cairo_lang_casm::hints::Hint;
 use cairo_lang_casm::instructions::Instruction;
 use cairo_lang_runner::casm_run::hint_to_hint_params;
@@ -16,7 +15,7 @@ use cairo_lang_runner::{RunResult, SierraCasmRunner, StarknetState};
 use test_collector::TestConfig;
 
 use crate::cheatcodes_hint_processor::CairoHintProcessor;
-use crate::test_results::TestResult;
+use crate::test_results::{recover_result_data, TestResult};
 
 /// Builds `hints_dict` required in `cairo_vm::types::program::Program` from instructions.
 fn build_hints_dict<'b>(
@@ -48,12 +47,13 @@ fn map_run_result_to_test_result(name: &str, run_result: RunResult) -> TestResul
     match run_result.value {
         RunResultValue::Success(_) => TestResult::Passed {
             name: name.to_string(),
+            msg: recover_result_data(&run_result),
             run_result: Some(run_result),
         },
         RunResultValue::Panic(_) => TestResult::Failed {
             name: name.to_string(),
+            msg: recover_result_data(&run_result),
             run_result: Some(run_result),
-            msg: "TODO!!!".to_string(),
         },
     }
 }
@@ -99,11 +99,20 @@ pub(crate) fn run_from_test_config(
 
         // CairoRunError comes from VirtualMachineError which may come from HintException that originates in the cheatcode processor
         Err(RunnerError::CairoRunError(error)) => Ok(TestResult::Failed {
-            name: config.name,
+            name: config.name.clone(),
             run_result: None,
-            msg: error.to_string(),
+            msg: Some(format!(
+                "\n    {}\n",
+                error.to_string().replace(" Custom Hint Error: ", "\n    ")
+            )),
         }),
 
         Err(err) => Err(err.into()),
+    }
+}
+
+pub(crate) fn skip_from_test_config(config: &TestConfig) -> TestResult {
+    TestResult::Skipped {
+        name: config.name.clone(),
     }
 }

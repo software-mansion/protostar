@@ -124,11 +124,8 @@ fn with_declare() {
             [FAIL] test_declare::test_declare::non_existant_contract
 
             Failure data:
-                original value: [4417637], converted to a string: [Che]
-                original value: [6386787], converted to a string: [atc]
-                original value: [7300197], converted to a string: [ode]
-                original value: [2123122], converted to a string: [ er]
-                original value: [7499634], converted to a string: [ror]
+                Got an exception while executing a hint:
+                Failed to find contract GoodbyeStarknet in starknet_artifacts.json
 
             Tests: 2 passed, 1 failed, 0 skipped
         "#});
@@ -254,6 +251,10 @@ fn exit_first() {
             Failure data:
                 original value: [8111420071579136082810415440747], converted to a string: [failing check]
 
+            [SKIP] test_simple::test_simple::test_two
+            [SKIP] test_simple::test_simple::test_two_and_two
+            [SKIP] test_simple::test_simple::test_failing
+            [SKIP] without_prefix::without_prefix::five
             Tests: 5 passed, 1 failed, 4 skipped
         "#});
 }
@@ -285,6 +286,7 @@ fn exit_first_flag() {
             Failure data:
                 original value: [8111420071579136082810415440747], converted to a string: [failing check]
 
+            [SKIP] without_prefix::without_prefix::five
             Tests: 7 passed, 1 failed, 1 skipped
         "#});
 }
