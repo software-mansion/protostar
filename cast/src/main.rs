@@ -1,4 +1,7 @@
-use crate::helpers::scarb_utils::{parse_scarb_config, ScarbConfig};
+use crate::helpers::{
+    scarb_utils::{parse_scarb_config, ScarbConfig},
+    errors::{MissingAccountError, MissingRpcUrlError},
+}; // todo: cleanup imports
 use crate::starknet_commands::{call::Call, declare::Declare, deploy::Deploy, invoke::Invoke};
 use anyhow::{bail, Result};
 use camino::{Utf8Path, Utf8PathBuf};
@@ -26,7 +29,7 @@ struct Cli {
 
     /// RPC provider url address; overrides rpc_url from Scarb.toml
     #[clap(short = 'u', long = "url")]
-    rpc_url: String,
+    rpc_url: Option<String>,
 
     /// Network name, one of: testnet, testnet2, mainnet; overrides network from Scarb.toml
     #[clap(short = 'n', long = "network")]
@@ -34,7 +37,7 @@ struct Cli {
 
     /// Account name to be used for contract declaration; overrides rpc_url from Scarb.toml
     #[clap(short = 'a', long = "account")]
-    account: String,
+    account: Option<String>,
 
     /// Path to the file holding accounts info, defaults to ~/.starknet_accounts/starknet_open_zeppelin_accounts.json
     #[clap(
@@ -82,17 +85,17 @@ async fn main() -> Result<()> {
         bail! {"Accounts file {} does not exist! Make sure to supply correct path to accounts file.", cli.accounts_file_path}
     }
 
-    //let config = construct_config(&cli)?;
-    let network_name = cli.network.unwrap_or_else(|| {
-        eprintln!("{}", style("No --network flag passed!").red());
-        std::process::exit(1);
-    });
-    let network = get_network(&network_name)?;
-    let provider = get_provider(&cli.rpc_url, &network).await?;
+    let config = parse_scarb_config(cli.profile, cli.override_project)?;
+
+    //let rpc_url = cli.rpc_url.unwrap_or(config.rpc_url);
+    let network = cli.network.unwrap_or(config.network); //todo: stestuj jeśli rzeczywiście oba są puste
+    //let account = cli.account.unwrap_or(config.account);
+
+    let provider = get_provider(&cli.rpc_url.ok_or(MissingRpcUrlError::MissingRpcUrlError)?, &network).await?;
 
     match cli.command {
         Commands::Declare(declare) => {
-            let mut account = get_account(&cli.account, &accounts_file_path, &provider, &network)?;
+            let mut account = get_account(&cli.account.ok_or(MissingAccountError::AccountNotProvided)?, &accounts_file_path, &provider, &network)?;
 
             let result = starknet_commands::declare::declare(
                 &declare.contract,
@@ -128,7 +131,7 @@ async fn main() -> Result<()> {
             Ok(())
         }
         Commands::Deploy(deploy) => {
-            let account = get_account(&cli.account, &accounts_file_path, &provider, &network)?;
+            let account = get_account(&cli.account.ok_or(MissingAccountError::AccountNotProvided)?, &accounts_file_path, &provider, &network)?;
 
             let result = starknet_commands::deploy::deploy(
                 &deploy.class_hash,
@@ -202,7 +205,7 @@ async fn main() -> Result<()> {
             Ok(())
         }
         Commands::Invoke(invoke) => {
-            let mut account = get_account(&cli.account, &accounts_file_path, &provider, &network)?;
+            let mut account = get_account(&cli.account.ok_or(MissingAccountError::AccountNotProvided)?, &accounts_file_path, &provider, &network)?;
             let result = starknet_commands::invoke::invoke(
                 &invoke.contract_address,
                 &invoke.entry_point_name,

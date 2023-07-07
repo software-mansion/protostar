@@ -7,14 +7,14 @@ COMPILER_VERSION="v1.1.1"
 SCARB_VERSION="0.4.1"
 
 if ! which starknet-devnet > /dev/null 2>&1; then
-  echo "starknet-devnet not found, exiting."
+  echo "starknet-devnet not found, exiting." # sprawdz wersję i jak coś to zainstaluj?
   exit 1
 fi
 
 if command -v asdf &> /dev/null; then
   asdf plugin add scarb https://github.com/software-mansion/asdf-scarb.git
   asdf install scarb "$SCARB_VERSION"
-  asdf global scarb "$SCARB_VERSION"
+  asdf global scarb "$SCARB_VERSION" # to nie działa
   scarb --version
 else
   printf "Please install asdf\n https://asdf-vm.com/guide/getting-started.html#_2-download-asdf\n"
@@ -35,3 +35,5 @@ if [ ! -x "$COMPILER_DIRECTORY/cairo/bin/starknet-sierra-compile" ]; then
     popd
   fi
 fi
+
+# wołaj tutaj skrypt budujący, albo gdzieś przy startowanie devnetu, sprwdz też wersję skarba przed budowaniem, czy napewno jest git

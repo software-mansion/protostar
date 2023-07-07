@@ -59,14 +59,15 @@ pub async fn declare(
     account: &mut SingleOwnerAccount<&JsonRpcClient<HttpTransport>, LocalWallet>,
 ) -> Result<DeclareTransactionResult> {
     let contract_name: String = contract_name.to_string();
-    let command_result = Command::new("scarb")
-        .current_dir(std::env::current_dir().context("Failed to obtain current dir")?)
-        .arg("--release")
-        .arg("build")
-        .stdout(Stdio::piped())
-        .stderr(Stdio::piped())
-        .output()
-        .context("Failed to start building contracts with Scarb")?;
+    let command_result =
+        Command::new("scarb") // buduj nie przez Command?
+            .current_dir(std::env::current_dir().context("Failed to obtain current dir")?)
+            .arg("--release")
+            .arg("build")
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .output()
+            .context("Failed to start building contracts with Scarb")?;
     let result_code = command_result
         .status
         .code()
