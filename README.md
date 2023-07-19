@@ -1,4 +1,15 @@
 <div align="center">
+    <h2>⚠️ WARNING ⚠️</h2>
+    <h2> This project is now considered legacy!</h2>
+    <span>If you want to use Cairo 2.0 contracts, consider migrating to <a href="https://github.com/foundry-rs/starknet-foundry"><code>starknet-foundry</code></a> developed by Software Mansion in collaboration with Foundry Foundation.</span>
+    <br>
+    <span>New features will not be added to this project.</span>
+    <br>
+    <a href="https://github.com/foundry-rs/starknet-foundry">https://github.com/foundry-rs/starknet-foundry</a>
+</div>
+
+---
+<div align="center">
   <img src="./readme/protostar-logo--light.svg#gh-light-mode-only" width=300 alt="protostar-logo" />
   <img src="./readme/protostar-logo--dark.svg#gh-dark-mode-only" width=300 alt="protostar-logo" />
 
