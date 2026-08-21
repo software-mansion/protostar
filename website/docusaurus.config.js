@@ -208,6 +208,7 @@ const config = {
         }),
 
     plugins: [
+      require("./plugins/swm-geo"),
         ['@docusaurus/plugin-client-redirects', {
             redirects: [
                 // NOTE: Old links before 2022-07-21
